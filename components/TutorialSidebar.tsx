@@ -2,11 +2,11 @@
 import React, { useState } from 'react';
 import { X, Play, ChevronRight, BookOpen, Trophy, ExternalLink } from 'lucide-react';
 import { Tutorial } from '../types';
-import { FloatingVideoPlayer } from './FloatingVideoPlayer';
 
 interface TutorialSidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenFloatingVideo: (tutorial: Tutorial) => void;
 }
 
 const TUTORIALS: Tutorial[] = [
@@ -44,12 +44,13 @@ const TUTORIALS: Tutorial[] = [
   }
 ];
 
-export const TutorialSidebar: React.FC<TutorialSidebarProps> = ({ isOpen, onClose }) => {
+export const TutorialSidebar: React.FC<TutorialSidebarProps> = ({ isOpen, onClose, onOpenFloatingVideo }) => {
   const [activeTutorial, setActiveTutorial] = useState<Tutorial | null>(null);
-  const [floatingVideo, setFloatingVideo] = useState<Tutorial | null>(null);
+
+  if (!isOpen) return null;
 
   return (
-    <div className="w-80 md:w-96 h-full bg-white border-l border-gray-200 shadow-xl flex flex-col z-40 animate-in slide-in-from-right duration-300">
+    <div className="fixed inset-0 z-50 md:static md:inset-auto md:z-auto w-full md:w-96 h-full bg-white border-l border-gray-200 shadow-xl flex flex-col animate-in slide-in-from-right duration-300">
 
       {/* Header */}
       <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
@@ -57,8 +58,8 @@ export const TutorialSidebar: React.FC<TutorialSidebarProps> = ({ isOpen, onClos
           <BookOpen size={20} className="text-apple-blue" />
           <span>Learning Center</span>
         </div>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-          <X size={20} />
+        <button onClick={onClose} className="p-2 -mr-2 text-gray-400 hover:text-gray-600 active:bg-gray-100 rounded-full">
+          <X size={24} />
         </button>
       </div>
 
@@ -76,7 +77,22 @@ export const TutorialSidebar: React.FC<TutorialSidebarProps> = ({ isOpen, onClos
                 >
                   ← Back
                 </button>
-                <span className="text-xs font-bold text-apple-yellow uppercase tracking-wider">Now Playing</span>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => {
+                      if (activeTutorial) {
+                        onOpenFloatingVideo(activeTutorial);
+                        setActiveTutorial(null);
+                      }
+                    }}
+                    className="text-xs font-semibold text-gray-300 hover:text-white flex items-center gap-1.5 px-3 py-1.5 rounded-md hover:bg-white/10 transition-colors"
+                    title="Pop out video"
+                  >
+                    <ExternalLink size={12} />
+                    Pop Out
+                  </button>
+                  <span className="text-xs font-bold text-apple-yellow uppercase tracking-wider">Now Playing</span>
+                </div>
               </div>
 
               <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-2xl ring-1 ring-white/10">
@@ -117,48 +133,52 @@ export const TutorialSidebar: React.FC<TutorialSidebarProps> = ({ isOpen, onClos
             {TUTORIALS.map(tutorial => (
               <div
                 key={tutorial.id}
-                onClick={() => setActiveTutorial(tutorial)}
-                className="group flex gap-3 p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors border border-transparent hover:border-gray-100"
+                className="group flex gap-3 p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors border border-transparent hover:border-gray-100 relative"
               >
-                <div className="relative w-24 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200 shadow-sm">
-                  <img src={tutorial.thumbnail} alt={tutorial.title} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
-                    <div className="w-6 h-6 rounded-full bg-white/90 flex items-center justify-center text-apple-blue shadow-sm scale-90 group-hover:scale-100 transition-transform">
-                      <Play size={10} fill="currentColor" />
+                <div
+                  onClick={() => setActiveTutorial(tutorial)}
+                  className="flex gap-3 flex-1 min-w-0"
+                >
+                  <div className="relative w-24 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200 shadow-sm">
+                    <img src={tutorial.thumbnail} alt={tutorial.title} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
+                      <div className="w-6 h-6 rounded-full bg-white/90 flex items-center justify-center text-apple-blue shadow-sm scale-90 group-hover:scale-100 transition-transform">
+                        <Play size={10} fill="currentColor" />
+                      </div>
                     </div>
                   </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-sm text-gray-900 truncate group-hover:text-apple-blue transition-colors">{tutorial.title}</h4>
+                    <p className="text-xs text-gray-500 line-clamp-2 mt-0.5">{tutorial.description}</p>
+                    <span className={`
+                              inline-block mt-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-sm
+                              ${tutorial.difficulty === 'Beginner' ? 'bg-green-100 text-green-700' :
+                        tutorial.difficulty === 'Intermediate' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-red-100 text-red-700'}
+                          `}>
+                      {tutorial.difficulty}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-semibold text-sm text-gray-900 truncate group-hover:text-apple-blue transition-colors">{tutorial.title}</h4>
-                  <p className="text-xs text-gray-500 line-clamp-2 mt-0.5">{tutorial.description}</p>
-                  <span className={`
-                            inline-block mt-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-sm
-                            ${tutorial.difficulty === 'Beginner' ? 'bg-green-100 text-green-700' :
-                      tutorial.difficulty === 'Intermediate' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-red-100 text-red-700'}
-                        `}>
-                    {tutorial.difficulty}
-                  </span>
-                </div>
-                <div className="flex items-center text-gray-300 group-hover:text-apple-blue">
-                  <ChevronRight size={14} />
+                <div className="flex flex-col items-center justify-center gap-1">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onOpenFloatingVideo(tutorial);
+                    }}
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-apple-blue hover:bg-apple-blue/10 transition-colors"
+                    title="Pop out video"
+                  >
+                    <ExternalLink size={14} />
+                  </button>
+                  <ChevronRight size={14} className="text-gray-300 group-hover:text-apple-blue" />
                 </div>
               </div>
             ))}
-    </div>
-  )
-}
+          </div>
+        )
+        }
       </div >
-
-  {/* Floating Video Player */ }
-{
-  floatingVideo && (
-    <FloatingVideoPlayer
-      tutorial={floatingVideo}
-      onClose={() => setFloatingVideo(null)}
-    />
-  )
-}
     </div >
   );
 };

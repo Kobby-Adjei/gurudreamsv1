@@ -2,8 +2,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Mic, ArrowLeft, GraduationCap } from 'lucide-react';
-import { Frame, AnimationState, DrawingSettings, ToolType, Project } from './types';
+import { Frame, AnimationState, DrawingSettings, ToolType, Project, Tutorial, DrawObject } from './types';
 import { Canvas, CanvasHandle } from './components/Canvas';
+import { ObjectCanvas, ObjectCanvasHandle } from './components/ObjectCanvas';
 import { Toolbar } from './components/Toolbar';
 import { Timeline } from './components/Timeline';
 import { MagicAssist } from './components/MagicAssist';
@@ -12,6 +13,7 @@ import { CinemaView } from './components/CinemaView';
 import { LiveVoice } from './components/LiveVoice';
 import { Home } from './components/Home';
 import { TutorialSidebar } from './components/TutorialSidebar';
+import { FloatingVideoPlayer } from './components/FloatingVideoPlayer';
 import { Intro } from './components/Intro';
 import { generateMeltAnimation } from './services/meltEffect';
 import { editFrameWithAI } from './services/geminiService';
@@ -58,6 +60,7 @@ function App() {
     return saved ? JSON.parse(saved) : [];
   });
   const [showTutorials, setShowTutorials] = useState(false);
+  const [floatingVideo, setFloatingVideo] = useState<Tutorial | null>(null);
 
   // --- Editor State ---
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
@@ -79,6 +82,7 @@ function App() {
   // History State managed by Canvas component
   const [historyState, setHistoryState] = useState({ canUndo: false, canRedo: false });
   const canvasRef = useRef<CanvasHandle>(null);
+  const objectCanvasRef = useRef<ObjectCanvasHandle>(null);
 
   const [drawingSettings, setDrawingSettings] = useState<DrawingSettings>({
     color: '#000000',
@@ -339,6 +343,60 @@ function App() {
     }));
   };
 
+  // Handle objects change
+  const handleObjectsChange = useCallback((newObjects: DrawObject[]) => {
+    setFrames((prevFrames) => {
+      const newFrames = [...prevFrames];
+      const currentFrame = newFrames[currentFrameIndex];
+
+      const currentObjects = currentFrame.objects || [[], [], []];
+      const newObjectsArray = [...currentObjects];
+      newObjectsArray[activeLayerIndex] = newObjects;
+
+      newFrames[currentFrameIndex] = {
+        ...currentFrame,
+        objects: newObjectsArray
+      };
+      return newFrames;
+    });
+  }, [currentFrameIndex, activeLayerIndex]);
+
+  // Keyboard shortcuts for copy/paste/delete
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only handle keyboard shortcuts when not in an input field
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      // Cmd/Ctrl + C: Copy
+      if ((e.metaKey || e.ctrlKey) && e.key === 'c') {
+        e.preventDefault();
+        objectCanvasRef.current?.copySelected();
+      }
+
+      // Cmd/Ctrl + V: Paste
+      if ((e.metaKey || e.ctrlKey) && e.key === 'v') {
+        e.preventDefault();
+        objectCanvasRef.current?.pasteObject();
+      }
+
+      // Delete/Backspace: Delete selected
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
+        objectCanvasRef.current?.deleteSelected();
+      }
+    };
+
+    if (currentView === 'editor' && !isPlaying && !cinemaMode && !isVoiceActive) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [currentView, isPlaying, cinemaMode, isVoiceActive]);
+
   // --- Intro Handling ---
   if (showIntro) {
     return <Intro onComplete={() => setShowIntro(false)} />;
@@ -457,22 +515,36 @@ function App() {
                   className="w-full h-full object-contain bg-[#FAFAF8]"
                 />
               ) : (
-                <div className="w-full h-full">
-                  <Canvas
-                    ref={canvasRef}
+                <div className="w-full h-full relative">
+                  {/* Pixel-based Canvas */}
+                  {drawingSettings.tool !== ToolType.SELECT && (
+                    <Canvas
+                      ref={canvasRef}
+                      width={canvasSize.width}
+                      height={canvasSize.height}
+                      settings={drawingSettings}
+                      layers={frames[currentFrameIndex].layers || [frames[currentFrameIndex].dataUrl, createBlankLayer(canvasSize.width, canvasSize.height), createBlankLayer(canvasSize.width, canvasSize.height)]}
+                      activeLayerIndex={activeLayerIndex}
+                      currentFrameId={frames[currentFrameIndex].id}
+                      prevFrameData={currentFrameIndex > 0 ? frames[currentFrameIndex - 1].dataUrl : undefined}
+                      onionSkin={onionSkin}
+                      showGrid={showGrid}
+                      onDrawEnd={handleDrawEnd}
+                      isPlaying={isPlaying}
+                      onHistoryChange={(canUndo, canRedo) => setHistoryState({ canUndo, canRedo })}
+                      onPickColor={handleColorPicked}
+                    />
+                  )}
+
+                  {/* Object-based Canvas */}
+                  <ObjectCanvas
+                    ref={objectCanvasRef}
                     width={canvasSize.width}
                     height={canvasSize.height}
                     settings={drawingSettings}
-                    layers={frames[currentFrameIndex].layers || [frames[currentFrameIndex].dataUrl, createBlankLayer(canvasSize.width, canvasSize.height), createBlankLayer(canvasSize.width, canvasSize.height)]}
-                    activeLayerIndex={activeLayerIndex}
-                    currentFrameId={frames[currentFrameIndex].id}
-                    prevFrameData={currentFrameIndex > 0 ? frames[currentFrameIndex - 1].dataUrl : undefined}
-                    onionSkin={onionSkin}
-                    showGrid={showGrid}
-                    onDrawEnd={handleDrawEnd}
+                    objects={(frames[currentFrameIndex].objects?.[activeLayerIndex]) || []}
+                    onObjectsChange={handleObjectsChange}
                     isPlaying={isPlaying}
-                    onHistoryChange={(canUndo, canRedo) => setHistoryState({ canUndo, canRedo })}
-                    onPickColor={handleColorPicked}
                   />
                 </div>
               )}
@@ -543,7 +615,19 @@ function App() {
       </div>
 
       {/* Tutorial Sidebar */}
-      <TutorialSidebar isOpen={showTutorials} onClose={() => setShowTutorials(false)} />
+      <TutorialSidebar
+        isOpen={showTutorials}
+        onClose={() => setShowTutorials(false)}
+        onOpenFloatingVideo={setFloatingVideo}
+      />
+
+      {/* Floating Video Player - Overlays entire workspace */}
+      {floatingVideo && (
+        <FloatingVideoPlayer
+          tutorial={floatingVideo}
+          onClose={() => setFloatingVideo(null)}
+        />
+      )}
 
     </div>
   );

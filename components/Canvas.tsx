@@ -41,7 +41,7 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const lastPos = useRef<{ x: number; y: number; pressure: number } | null>(null);
-  
+
   // History State
   const historyRef = useRef<string[]>([]);
   const historyIndexRef = useRef<number>(-1);
@@ -84,12 +84,12 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(({
       historyRef.current = historyRef.current.slice(0, historyIndexRef.current + 1);
     }
     historyRef.current.push(dataUrl);
-    
+
     // Limit history size to prevent memory leaks
     if (historyRef.current.length > 20) {
-        historyRef.current.shift();
+      historyRef.current.shift();
     } else {
-        historyIndexRef.current++;
+      historyIndexRef.current++;
     }
     updateHistoryState();
   };
@@ -113,52 +113,52 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(({
   // We do NOT depend on `layers` content here, otherwise every stroke resets history.
   useEffect(() => {
     if (ignoreFrameUpdate.current) {
-        ignoreFrameUpdate.current = false;
-        return;
+      ignoreFrameUpdate.current = false;
+      return;
     }
-    
+
     const currentLayerData = layers[activeLayerIndex] || layers[0] || '';
 
     // Initialize history with the current state of the layer
     historyRef.current = [currentLayerData];
     historyIndexRef.current = 0;
     updateHistoryState();
-    
+
     drawDataToCanvas(currentLayerData);
-    
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentFrameId, activeLayerIndex, width, height]); 
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentFrameId, activeLayerIndex, width, height]);
 
   // Helper to composite all layers including the new update
   const updateLayerAndComposite = (newActiveLayerData: string) => {
-      const compositeCanvas = document.createElement('canvas');
-      compositeCanvas.width = width;
-      compositeCanvas.height = height;
-      const ctx = compositeCanvas.getContext('2d');
-      if (!ctx) return;
+    const compositeCanvas = document.createElement('canvas');
+    compositeCanvas.width = width;
+    compositeCanvas.height = height;
+    const ctx = compositeCanvas.getContext('2d');
+    if (!ctx) return;
 
-      // Fill white background for composite
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(0, 0, width, height);
+    // Fill white background for composite
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, width, height);
 
-      const loadAndDraw = async () => {
-         const promises = layers.map((layerData, idx) => {
-             return new Promise<HTMLImageElement>((resolve) => {
-                 const img = new Image();
-                 img.onload = () => resolve(img);
-                 // Use the NEW data for the active layer, existing data for others
-                 img.src = idx === activeLayerIndex ? newActiveLayerData : layerData;
-             });
-         });
+    const loadAndDraw = async () => {
+      const promises = layers.map((layerData, idx) => {
+        return new Promise<HTMLImageElement>((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve(img);
+          // Use the NEW data for the active layer, existing data for others
+          img.src = idx === activeLayerIndex ? newActiveLayerData : layerData;
+        });
+      });
 
-         const images = await Promise.all(promises);
-         images.forEach(img => {
-             ctx.drawImage(img, 0, 0, width, height);
-         });
+      const images = await Promise.all(promises);
+      images.forEach(img => {
+        ctx.drawImage(img, 0, 0, width, height);
+      });
 
-         onDrawEnd(newActiveLayerData, compositeCanvas.toDataURL());
-      };
-      loadAndDraw();
+      onDrawEnd(newActiveLayerData, compositeCanvas.toDataURL());
+    };
+    loadAndDraw();
   };
 
   // --- Flood Fill Algorithm ---
@@ -181,69 +181,69 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(({
     const data = imageData.data;
 
     const startPos = (startY * width + startX) * 4;
-    const [startR, startG, startB, startA] = [data[startPos], data[startPos+1], data[startPos+2], data[startPos+3]];
+    const [startR, startG, startB, startA] = [data[startPos], data[startPos + 1], data[startPos + 2], data[startPos + 3]];
     const [fillR, fillG, fillB, fillA] = hexToRgba(fillColorHex);
 
     // Tolerance check could be added here, but exact match for now
     if (startR === fillR && startG === fillG && startB === fillB && startA === fillA) return;
 
     const matchStartColor = (pos: number) => {
-        return data[pos] === startR && data[pos+1] === startG && data[pos+2] === startB && data[pos+3] === startA;
+      return data[pos] === startR && data[pos + 1] === startG && data[pos + 2] === startB && data[pos + 3] === startA;
     };
 
     const colorPixel = (pos: number) => {
-        data[pos] = fillR;
-        data[pos+1] = fillG;
-        data[pos+2] = fillB;
-        data[pos+3] = fillA;
+      data[pos] = fillR;
+      data[pos + 1] = fillG;
+      data[pos + 2] = fillB;
+      data[pos + 3] = fillA;
     };
 
     const stack = [[startX, startY]];
 
     while (stack.length) {
-        const pop = stack.pop();
-        if (!pop) continue;
-        let [x, y] = pop;
-        let pos = (y * width + x) * 4;
+      const pop = stack.pop();
+      if (!pop) continue;
+      let [x, y] = pop;
+      let pos = (y * width + x) * 4;
 
-        while (y >= 0 && matchStartColor(pos)) {
-            y--;
-            pos -= width * 4;
+      while (y >= 0 && matchStartColor(pos)) {
+        y--;
+        pos -= width * 4;
+      }
+      pos += width * 4;
+      y++;
+
+      let reachLeft = false;
+      let reachRight = false;
+
+      while (y < height && matchStartColor(pos)) {
+        colorPixel(pos);
+
+        if (x > 0) {
+          if (matchStartColor(pos - 4)) {
+            if (!reachLeft) {
+              stack.push([x - 1, y]);
+              reachLeft = true;
+            }
+          } else if (reachLeft) {
+            reachLeft = false;
+          }
         }
-        pos += width * 4;
+
+        if (x < width - 1) {
+          if (matchStartColor(pos + 4)) {
+            if (!reachRight) {
+              stack.push([x + 1, y]);
+              reachRight = true;
+            }
+          } else if (reachRight) {
+            reachRight = false;
+          }
+        }
+
         y++;
-
-        let reachLeft = false;
-        let reachRight = false;
-
-        while (y < height && matchStartColor(pos)) {
-            colorPixel(pos);
-
-            if (x > 0) {
-                if (matchStartColor(pos - 4)) {
-                    if (!reachLeft) {
-                        stack.push([x - 1, y]);
-                        reachLeft = true;
-                    }
-                } else if (reachLeft) {
-                    reachLeft = false;
-                }
-            }
-
-            if (x < width - 1) {
-                if (matchStartColor(pos + 4)) {
-                    if (!reachRight) {
-                        stack.push([x + 1, y]);
-                        reachRight = true;
-                    }
-                } else if (reachRight) {
-                    reachRight = false;
-                }
-            }
-
-            y++;
-            pos += width * 4;
-        }
+        pos += width * 4;
+      }
     }
 
     ctx.putImageData(imageData, 0, 0);
@@ -257,12 +257,12 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(({
     if (!canvas) return;
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     if (!ctx) return;
-    
+
     // We only read from the active layer canvas. 
     // Ideally we'd read from composite, but that requires merging first or reading the visual state.
     // For simplicity, let's read the current layer. If transparent, default to white or underlying?
     // Let's grab data from current context.
-    
+
     const pixel = ctx.getImageData(x, y, 1, 1).data;
     const r = pixel[0].toString(16).padStart(2, '0');
     const g = pixel[1].toString(16).padStart(2, '0');
@@ -285,21 +285,27 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(({
 
   const getPressureLineWidth = (baseSize: number, pressure: number, tool: ToolType, pointerType: string) => {
     if (tool === ToolType.ERASER) return baseSize;
-    if (pointerType !== 'pen') {
-        if (tool === ToolType.PENCIL || tool === ToolType.CRAYON) return baseSize * 0.8;
-        return baseSize;
+
+    // If not a pen, or if pressure is default (0.5 often means "unknown" or mouse), treat as full
+    if (pointerType !== 'pen' || pressure === 0.5) {
+      if (tool === ToolType.PENCIL || tool === ToolType.CRAYON) return baseSize * 0.8;
+      return baseSize;
     }
-    // Safe pressure handling
-    const p = pressure <= 0 ? 0.5 : pressure;
-    
+
+    // Boost pressure sensitivity for iPad/Tablets
+    // Use an even flatter curve (power 0.2) to make light touches very strong
+    // Increase minimum floor to 0.5 to ensure visibility
+    const p = Math.max(Math.pow(pressure, 0.2), 0.5);
+
     if (tool === ToolType.PENCIL || tool === ToolType.CRAYON) {
-        return baseSize * (0.6 + p * 0.4);
+      return baseSize * (0.6 + p * 0.4); // Range: 0.8 to 1.0 * base (approx)
     } else if (tool === ToolType.MARKER) {
-        return baseSize * (0.8 + p * 0.2);
+      return baseSize * (0.7 + p * 0.3);
     } else {
-        const minSize = baseSize * 0.2;
-        const variableSize = baseSize * 1.8 * p;
-        return Math.max(minSize, variableSize);
+      // Brush/Watercolor dynamic range
+      const minSize = baseSize * 0.5;
+      const variableSize = baseSize * 1.5 * p;
+      return Math.max(minSize, variableSize);
     }
   };
 
@@ -309,17 +315,17 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(({
     if (!canvas) return;
 
     canvas.setPointerCapture(e.pointerId);
-    
+
     const { offsetX, offsetY } = getCoordinates(e, canvas);
 
     if (settings.tool === ToolType.PICKER) {
-        pickColorAt(Math.floor(offsetX), Math.floor(offsetY));
-        return;
+      pickColorAt(Math.floor(offsetX), Math.floor(offsetY));
+      return;
     }
 
     if (settings.tool === ToolType.FILL) {
-        floodFill(Math.floor(offsetX), Math.floor(offsetY), settings.color);
-        return;
+      floodFill(Math.floor(offsetX), Math.floor(offsetY), settings.color);
+      return;
     }
 
     setIsDrawing(true);
@@ -328,7 +334,7 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(({
 
     const pressure = e.pressure !== 0 ? e.pressure : 0.5;
     lastPos.current = { x: offsetX, y: offsetY, pressure };
-    
+
     const currentWidth = getPressureLineWidth(settings.brushSize, pressure, settings.tool, e.pointerType);
 
     // Initial setup for the stroke
@@ -336,54 +342,60 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(({
     ctx.lineJoin = 'round';
 
     if (settings.tool === ToolType.ERASER) {
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.fillStyle = '#000000'; // Color doesn't matter for destination-out
-        ctx.strokeStyle = '#000000';
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.fillStyle = '#000000'; // Color doesn't matter for destination-out
+      ctx.strokeStyle = '#000000';
     } else {
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.fillStyle = settings.color;
-        ctx.strokeStyle = settings.color;
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = settings.color;
+      ctx.strokeStyle = settings.color;
     }
 
-    ctx.globalAlpha = 1.0; 
+    ctx.globalAlpha = 1.0;
     if (settings.tool === ToolType.MARKER) ctx.globalAlpha = 0.5;
 
     // Draw initial dot
     if (settings.tool === ToolType.PENCIL || settings.tool === ToolType.CRAYON) {
-         drawTextureDot(ctx, offsetX, offsetY, currentWidth, pressure, settings.color, settings.tool);
+      drawTextureDot(ctx, offsetX, offsetY, currentWidth, pressure, settings.color, settings.tool);
     } else {
-        ctx.beginPath();
-        ctx.arc(offsetX, offsetY, currentWidth / 2, 0, Math.PI * 2);
-        ctx.fill();
+      ctx.beginPath();
+      ctx.arc(offsetX, offsetY, currentWidth / 2, 0, Math.PI * 2);
+      ctx.fill();
     }
   };
 
   const drawTextureDot = (ctx: CanvasRenderingContext2D, x: number, y: number, size: number, pressure: number, color: string, tool: ToolType) => {
     const isCrayon = tool === ToolType.CRAYON;
     const maxOpacity = isCrayon ? 1.0 : 0.8;
-    const p = pressure <= 0 ? 0.5 : pressure;
-    const opacity = Math.max(0.1, Math.min(maxOpacity, p * (isCrayon ? 2.0 : 1.5))); 
-    
+
+    // Boost pressure for opacity too
+    const pRaw = pressure <= 0 ? 0.5 : pressure;
+    // Stronger boost: power 0.2 and min 0.5
+    const p = Math.max(Math.pow(pRaw, 0.2), 0.5);
+
+    // Minimum opacity 0.5 to ensure strokes are never too faint
+    const opacity = Math.max(0.5, Math.min(maxOpacity, p * (isCrayon ? 2.0 : 1.5)));
+
     const oldAlpha = ctx.globalAlpha;
     const oldComposite = ctx.globalCompositeOperation;
     const oldFill = ctx.fillStyle;
 
     ctx.globalAlpha = opacity;
     ctx.fillStyle = color;
-    
+
     if (tool === ToolType.ERASER) {
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.fillStyle = '#000000';
-        ctx.globalAlpha = 1.0;
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.fillStyle = '#000000';
+      ctx.globalAlpha = 1.0;
     }
 
-    const roughness = size * (isCrayon ? 0.6 : 0.2); 
+    const roughness = size * (isCrayon ? 0.6 : 0.2);
 
     ctx.beginPath();
     const jx = x + (Math.random() - 0.5) * roughness;
     const jy = y + (Math.random() - 0.5) * roughness;
     const particleSize = isCrayon ? size * 0.8 : size * 0.5;
-    
+
     ctx.arc(jx, jy, particleSize, 0, Math.PI * 2);
     ctx.fill();
 
@@ -409,41 +421,41 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(({
     const currentWidth = getPressureLineWidth(settings.brushSize, pressure, settings.tool, e.pointerType);
 
     if (settings.tool === ToolType.ERASER) {
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.strokeStyle = '#000000';
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.strokeStyle = '#000000';
     } else {
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.strokeStyle = settings.color;
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.strokeStyle = settings.color;
     }
 
     if (settings.tool === ToolType.MARKER) ctx.globalAlpha = 0.5;
     else ctx.globalAlpha = 1.0;
 
     if (settings.tool === ToolType.PENCIL || settings.tool === ToolType.CRAYON) {
-        const dist = Math.hypot(offsetX - lastPos.current.x, offsetY - lastPos.current.y);
-        const angle = Math.atan2(offsetY - lastPos.current.y, offsetX - lastPos.current.x);
-        const step = settings.tool === ToolType.CRAYON ? 2 : 1; 
-        
-        for (let i = 0; i < dist; i += step) {
-            const x = lastPos.current.x + Math.cos(angle) * i;
-            const y = lastPos.current.y + Math.sin(angle) * i;
-            // Linear interpolation of pressure
-            const ratio = i / dist;
-            const p = lastPos.current.pressure + (pressure - lastPos.current.pressure) * ratio;
-            const w = getPressureLineWidth(settings.brushSize, p, settings.tool, e.pointerType);
-            drawTextureDot(ctx, x, y, w, p, settings.color, settings.tool);
-        }
+      const dist = Math.hypot(offsetX - lastPos.current.x, offsetY - lastPos.current.y);
+      const angle = Math.atan2(offsetY - lastPos.current.y, offsetX - lastPos.current.x);
+      const step = settings.tool === ToolType.CRAYON ? 2 : 1;
+
+      for (let i = 0; i < dist; i += step) {
+        const x = lastPos.current.x + Math.cos(angle) * i;
+        const y = lastPos.current.y + Math.sin(angle) * i;
+        // Linear interpolation of pressure
+        const ratio = i / dist;
+        const p = lastPos.current.pressure + (pressure - lastPos.current.pressure) * ratio;
+        const w = getPressureLineWidth(settings.brushSize, p, settings.tool, e.pointerType);
+        drawTextureDot(ctx, x, y, w, p, settings.color, settings.tool);
+      }
     } else {
-        ctx.lineWidth = currentWidth;
-        ctx.beginPath();
-        ctx.moveTo(lastPos.current.x, lastPos.current.y);
-        ctx.lineTo(offsetX, offsetY);
-        ctx.stroke();
-        
-        // Fill gaps in fast strokes with circles
-        ctx.beginPath();
-        ctx.arc(offsetX, offsetY, currentWidth/2, 0, Math.PI*2);
-        ctx.fill();
+      ctx.lineWidth = currentWidth;
+      ctx.beginPath();
+      ctx.moveTo(lastPos.current.x, lastPos.current.y);
+      ctx.lineTo(offsetX, offsetY);
+      ctx.stroke();
+
+      // Fill gaps in fast strokes with circles
+      ctx.beginPath();
+      ctx.arc(offsetX, offsetY, currentWidth / 2, 0, Math.PI * 2);
+      ctx.fill();
     }
 
     // Reset standard context
@@ -456,39 +468,39 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(({
     if (settings.tool === ToolType.PICKER) return;
 
     if (!isDrawing) return;
-    
+
     const canvas = canvasRef.current;
     if (canvas) {
-        canvas.releasePointerCapture(e.pointerId);
-        const newData = canvas.toDataURL();
-        // IMPORTANT: Add to history BEFORE updating parent to ensure sync
-        addToHistory(newData); 
-        updateLayerAndComposite(newData);
+      canvas.releasePointerCapture(e.pointerId);
+      const newData = canvas.toDataURL();
+      // IMPORTANT: Add to history BEFORE updating parent to ensure sync
+      addToHistory(newData);
+      updateLayerAndComposite(newData);
     }
-    
+
     setIsDrawing(false);
     lastPos.current = null;
   };
 
   return (
     <div className="relative shadow-sm bg-[#FAFAF8] rounded-xl overflow-hidden touch-none select-none w-full h-full" style={{ touchAction: 'none' }}>
-      
+
       {/* Warm Paper Texture Background */}
-      <div className="absolute inset-0 opacity-[0.05] pointer-events-none z-0" 
-           style={{ 
-               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-               backgroundSize: 'cover'
-           }} 
+      <div className="absolute inset-0 opacity-[0.05] pointer-events-none z-0"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+          backgroundSize: 'cover'
+        }}
       />
 
       {/* Grid */}
       {showGrid && (
-          <div className="absolute inset-0 pointer-events-none opacity-10 z-[10]" 
-               style={{ 
-                   backgroundImage: `linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)`,
-                   backgroundSize: '50px 50px'
-               }} 
-          />
+        <div className="absolute inset-0 pointer-events-none opacity-10 z-[10]"
+          style={{
+            backgroundImage: `linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)`,
+            backgroundSize: '50px 50px'
+          }}
+        />
       )}
 
       {/* Onion Skin */}
@@ -502,15 +514,15 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(({
 
       {/* Inactive Layers */}
       {layers.map((layerSrc, index) => (
-          index !== activeLayerIndex ? (
-              <img 
-                key={index}
-                src={layerSrc}
-                alt={`layer-${index}`}
-                className="absolute inset-0 w-full h-full pointer-events-none"
-                style={{ zIndex: index + 1 }} 
-              />
-          ) : null
+        index !== activeLayerIndex ? (
+          <img
+            key={index}
+            src={layerSrc}
+            alt={`layer-${index}`}
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            style={{ zIndex: index + 1 }}
+          />
+        ) : null
       ))}
 
       {/* Active Interactive Canvas */}
@@ -523,10 +535,10 @@ export const Canvas = forwardRef<CanvasHandle, CanvasProps>(({
         onPointerUp={stopDrawing}
         onPointerLeave={stopDrawing}
         className="absolute inset-0 touch-none w-full h-full"
-        style={{ 
-            touchAction: 'none', 
-            cursor: settings.tool === ToolType.ERASER ? 'cell' : settings.tool === ToolType.FILL ? 'pointer' : settings.tool === ToolType.PICKER ? 'crosshair' : 'crosshair',
-            zIndex: activeLayerIndex + 1
+        style={{
+          touchAction: 'none',
+          cursor: settings.tool === ToolType.ERASER ? 'cell' : settings.tool === ToolType.FILL ? 'pointer' : settings.tool === ToolType.PICKER ? 'crosshair' : 'crosshair',
+          zIndex: activeLayerIndex + 1
         }}
       />
     </div>

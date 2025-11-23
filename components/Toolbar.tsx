@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Pen, Pencil, Eraser, Trash2, Highlighter, Brush, PaintBucket, Undo2, Redo2, Grid3X3, Layers, Pipette } from 'lucide-react';
+import { Pen, Pencil, Eraser, Trash2, Highlighter, Brush, PaintBucket, Undo2, Redo2, Grid3X3, Layers, Pipette, MousePointer2 } from 'lucide-react';
 import { ToolType, DrawingSettings } from '../types';
 import { ColorPicker } from './ColorPicker';
 
@@ -132,6 +132,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
         {/* Tools */}
         <div className={`flex ${isVertical ? 'flex-col' : 'flex-row'} gap-2`}>
+            <ToolButton type={ToolType.SELECT} icon={MousePointer2} label="Select" />
             <ToolButton type={ToolType.PENCIL} icon={Pencil} label="Pencil" />
             <ToolButton type={ToolType.BRUSH} icon={Pen} label="Pen" />
             <ToolButton type={ToolType.MARKER} icon={Highlighter} label="Marker" />
@@ -176,17 +177,39 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
         {/* Brush Sizes */}
         <div className={`flex ${isVertical ? 'flex-col' : 'flex-row'} items-center gap-2 justify-center py-2`}>
+            {/* Size Label */}
+            {settings.tool !== ToolType.FILL && settings.tool !== ToolType.PICKER && settings.tool !== ToolType.SELECT && (
+                <div className={`text-[10px] font-semibold uppercase tracking-wider mb-1 px-2 py-1 rounded-md transition-colors ${
+                    settings.tool === ToolType.ERASER
+                        ? 'text-red-600 bg-red-50'
+                        : 'text-gray-500 bg-gray-50'
+                }`}>
+                    {settings.tool === ToolType.ERASER ? 'Eraser' : 'Brush'} Size
+                </div>
+            )}
+
             {SIZES.map((size) => (
             <button
                 key={size}
                 type="button"
                 onClick={() => onUpdateSettings({ brushSize: size })}
-                className="group relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
-                title={`Brush Size ${size}`}
+                className={`group relative w-10 h-10 flex items-center justify-center rounded-full transition-all duration-200 cursor-pointer ${
+                    settings.brushSize === size && settings.tool === ToolType.ERASER
+                        ? 'bg-red-50 hover:bg-red-100'
+                        : 'hover:bg-gray-100'
+                }`}
+                title={`${settings.tool === ToolType.ERASER ? 'Eraser' : 'Brush'} Size ${size}`}
+                disabled={settings.tool === ToolType.FILL || settings.tool === ToolType.PICKER || settings.tool === ToolType.SELECT}
             >
-                <div 
-                    className={`rounded-full bg-gray-800 transition-all duration-200 ${
-                        settings.brushSize === size ? 'opacity-100 scale-110 bg-black shadow-sm' : 'opacity-30 group-hover:opacity-50'
+                <div
+                    className={`rounded-full transition-all duration-200 ${
+                        settings.tool === ToolType.ERASER
+                            ? settings.brushSize === size
+                                ? 'opacity-100 scale-110 bg-red-500 shadow-sm'
+                                : 'opacity-30 group-hover:opacity-50 bg-red-400'
+                            : settings.brushSize === size
+                                ? 'opacity-100 scale-110 bg-black shadow-sm'
+                                : 'opacity-30 group-hover:opacity-50 bg-gray-800'
                     }`}
                     style={{ width: Math.min(size/2 + 4, 24), height: Math.min(size/2 + 4, 24) }}
                 />

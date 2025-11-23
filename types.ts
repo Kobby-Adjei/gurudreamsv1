@@ -1,8 +1,20 @@
 
+export interface DrawObject {
+  id: string;
+  type: 'stroke' | 'shape';
+  paths: { x: number; y: number; pressure?: number }[];
+  color: string;
+  brushSize: number;
+  tool: ToolType;
+  bounds: { x: number; y: number; width: number; height: number };
+  rotation: number;
+}
+
 export interface Frame {
   id: string;
   dataUrl: string; // Base64 composite image for playback/timeline
   layers: string[]; // Array of 3 Base64 images [Background, Middle, Foreground]
+  objects?: DrawObject[][]; // Array of 3 object arrays for each layer
 }
 
 export enum ToolType {
@@ -13,6 +25,7 @@ export enum ToolType {
   ERASER = 'ERASER',
   FILL = 'FILL',     // Paint Bucket
   PICKER = 'PICKER', // Eyedropper
+  SELECT = 'SELECT', // Selection tool
 }
 
 export interface AnimationState {
