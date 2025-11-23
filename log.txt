@@ -1,0 +1,160 @@
+
+> animate:-kids-animation-studio@0.0.0 dev
+> vite
+
+
+  [32m[1mVITE[22m v6.4.1[39m  [2mready in [0m[1m836[22m[2m[0m ms[22m
+
+  [32mΓ₧£[39m  [1mLocal[22m:   [36mhttp://localhost:[1m3000[22m/[39m
+  [32mΓ₧£[39m  [1mNetwork[22m: [36mhttp://164.76.70.185:[1m3000[22m/[39m
+[2m[32m  Γ₧£[39m[22m[2m  press [22m[1mh + enter[22m[2m to show help[22m
+[2m12:11:35 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/components/Intro.tsx[22m
+[2m12:16:52 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/App.tsx[22m
+[2m12:17:04 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/components/TutorialSidebar.tsx[22m
+[2m12:17:15 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/components/TutorialSidebar.tsx[22m
+[2m12:17:53 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/App.tsx[22m
+[2m12:22:10 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/App.tsx[22m
+[2m12:23:06 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/components/TutorialSidebar.tsx[22m
+[2m12:26:07 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/components/TutorialSidebar.tsx[22m
+[2m12:26:23 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/components/TutorialSidebar.tsx[22m
+[2m12:26:41 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/components/TutorialSidebar.tsx[22m
+[2m12:27:01 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/components/TutorialSidebar.tsx[22m
+[2m12:27:11 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/components/TutorialSidebar.tsx[22m
+[2m12:27:53 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/App.tsx, /components/MagicAssist.tsx[22m
+[2m12:28:16 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/components/LiveVoice.tsx[22m
+[2m12:28:57 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/components/TutorialSidebar.tsx[22m
+12:28:57 PM [vite] Internal server error: C:\Users\adjei\Downloads\animate_-kids-animation-studio\components\TutorialSidebar.tsx: Adjacent JSX elements must be wrapped in an enclosing tag. Did you want a JSX fragment <>...</>? (147:20)
+
+  145 |                 <ChevronRight size={14} />
+  146 |               </div>
+> 147 |                     </div>
+      |                     ^
+  148 |                 </div>
+  149 |             ))}
+  150 |     </div>
+  Plugin: vite:react-babel
+  File: C:/Users/adjei/Downloads/animate_-kids-animation-studio/components/TutorialSidebar.tsx:147:20
+  145|                  <ChevronRight size={14} />
+  146|                </div>
+  147|                      </div>
+     |                      ^
+  148|                  </div>
+  149|              ))}
+      at constructor (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:367:19)
+      at TypeScriptParserMixin.raise (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:6624:19)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:4771:18)
+      at TypeScriptParserMixin.jsxParseElement (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:4778:17)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:4788:19)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11145:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11130:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11110:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:9890:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10963:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10968:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10945:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10895:21)
+      at C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:9828:39
+      at TypeScriptParserMixin.tryParse (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:6932:20)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:9828:18)
+      at C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10864:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:12500:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10864:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:12567:17)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11747:28)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11395:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:4793:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11145:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11130:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11110:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:9890:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10963:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10968:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10945:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10895:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:9839:20)
+      at TypeScriptParserMixin.parseFunctionBody (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:12167:24)
+      at TypeScriptParserMixin.parseArrowExpression (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:12149:10)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11504:25)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:4793:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11145:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11130:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11110:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:9890:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10963:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10968:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10945:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10895:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:9839:20)
+      at C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10864:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:12500:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10864:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:12567:17)
+      at TypeScriptParserMixin.parseExprListItem (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:12249:18)
+12:28:57 PM [vite] Internal server error: C:\Users\adjei\Downloads\animate_-kids-animation-studio\components\TutorialSidebar.tsx: Adjacent JSX elements must be wrapped in an enclosing tag. Did you want a JSX fragment <>...</>? (147:20)
+
+  145 |                 <ChevronRight size={14} />
+  146 |               </div>
+> 147 |                     </div>
+      |                     ^
+  148 |                 </div>
+  149 |             ))}
+  150 |     </div>
+  Plugin: vite:react-babel
+  File: C:/Users/adjei/Downloads/animate_-kids-animation-studio/components/TutorialSidebar.tsx:147:20
+  145|                  <ChevronRight size={14} />
+  146|                </div>
+  147|                      </div>
+     |                      ^
+  148|                  </div>
+  149|              ))}
+      at constructor (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:367:19)
+      at TypeScriptParserMixin.raise (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:6624:19)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:4771:18)
+      at TypeScriptParserMixin.jsxParseElement (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:4778:17)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:4788:19)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11145:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11130:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11110:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:9890:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10963:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10968:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10945:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10895:21)
+      at C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:9828:39
+      at TypeScriptParserMixin.tryParse (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:6932:20)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:9828:18)
+      at C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10864:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:12500:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10864:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:12567:17)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11747:28)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11395:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:4793:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11145:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11130:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11110:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:9890:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10963:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10968:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10945:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10895:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:9839:20)
+      at TypeScriptParserMixin.parseFunctionBody (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:12167:24)
+      at TypeScriptParserMixin.parseArrowExpression (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:12149:10)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11504:25)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:4793:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11145:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11130:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:11110:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:9890:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10963:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10968:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10945:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10895:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:9839:20)
+      at C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10864:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:12500:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:10864:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:12567:17)
+      at TypeScriptParserMixin.parseExprListItem (C:\Users\adjei\Downloads\animate_-kids-animation-studio\node_modules\@babel\parser\lib\index.js:12249:18)
+[2m12:33:23 PM[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/components/TutorialSidebar.tsx[22m

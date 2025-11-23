@@ -1,0 +1,7 @@
+{
+  "name": "AniMate: Kids Animation Studio",
+  "description": "A fun and colorful animation creation tool for kids. Draw frame-by-frame, use onion skinning, and get creative magic ideas powered by AI.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
