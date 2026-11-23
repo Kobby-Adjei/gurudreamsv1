@@ -6,6 +6,9 @@
 !license-server/tsconfig.build.json
 !license-server/src
 !landing
+# Not part of the public site: UI/UX dev scripts, review screenshots, dotfiles, notes.
+landing/tools
+landing/docs
 landing/**/.*
 landing/**/*.md
 landing/**/node_modules

@@ -6,7 +6,8 @@ Small HTTPS service behind **AirBridge Pro** ($15/month). It:
 2. verifies the desktop app's Clerk JWT and, for `active`/`trialing` subscribers, returns a short-lived
    **Ed25519-signed license token** that the desktop verifies offline,
 3. creates Stripe Checkout sessions for everyone else,
-4. (Phase 3) issues single-use **Headscale pre-auth keys** so the desktop app can join the customer's private
+4. collects the landing-page **waitlist** (demand test: sign-ups and page views per headline/price variant),
+5. (Phase 3) issues single-use **Headscale pre-auth keys** so the desktop app can join the customer's private
    network, and takes a customer's devices off that network when the subscription lapses.
 
 Stack: Node 22, TypeScript, [Hono](https://hono.dev), `stripe`, `jose`, `pg`. Security notes: [`SECURITY.md`](./SECURITY.md).
@@ -22,6 +23,35 @@ Stack: Node 22, TypeScript, [Hono](https://hono.dev), `stripe`, `jose`, `pg`. Se
 | `GET /checkout/success`, `/checkout/cancel` | – | Small landing pages Checkout redirects to |
 | `POST /v1/network/preauth-key` | `Authorization: Bearer <Clerk JWT>` | `200 {auth_key, login_server, expires_at}` (`Cache-Control: no-store`; `expires_at` unix seconds) · `401` · `402 {error:"subscription_required", status}` · `429` · `502` Headscale error · `503` network not configured |
 | `POST /v1/network/devices/:id/remove` | `Authorization: Bearer <Clerk JWT>` | `200 {removed:true}` · `401` · `404` unknown node **or another customer's node** · `429` · `502` · `503` |
+| `POST /v1/waitlist` | same-origin browser (no auth) | JSON `{email, variant, price, referrer?, utm_source?, utm_medium?, utm_campaign?, company?}` → `200 {ok:true}` (also for repeats and honeypot hits) · `400 {error:"invalid_request", fields}` · `403` cross-origin · `413` · `415` not JSON · `429` · `503 waitlist_unavailable` |
+| `POST /v1/waitlist/view` | same-origin browser (no auth) | JSON (or `text/plain` JSON, for `sendBeacon`) `{variant, price}` → `200 {ok:true}` · `400` · `403` · `429` |
+| `GET /v1/waitlist/stats` | `Authorization: Bearer <WAITLIST_ADMIN_TOKEN>` | `200 {totals, by_variant_price:[{variant, price, views, signups, conversion}], by_utm_source}` — no emails · `401` · `404` if the token is unset · `429` |
+| `GET /v1/waitlist/export` | `Authorization: Bearer <WAITLIST_ADMIN_TOKEN>` | `200 text/csv` `ts,email,variant,price,referrer,utm_source,utm_medium,utm_campaign,repeats` · `401` · `404` · `429` |
+
+### Waitlist (landing-page demand test)
+
+* **Validation.** `email`: trimmed + lowercased, ≤254 chars, RFC-ish (`local@label.label`, alphabetic TLD).
+  `variant` ∈ `private|cross|bridge|current`, `price` ∈ `8|15` (number or numeric string) — invalid → 400.
+  `utm_*` must match `[A-Za-z0-9._-]{1,64}` and `referrer` is reduced to its `http(s)` origin (≤200 chars);
+  invalid optional fields are stored as `null` rather than losing the sign-up.
+* **Abuse.** Non-empty `company` (hidden honeypot) → `200 {ok:true}`, nothing stored (counted in
+  `totals.honeypot_since_boot`). Sign-ups: 5/hour per client IP (every attempt counts) and 2000/day globally;
+  views: 60/hour per IP, 50 000/day globally. A request whose `Origin` is present and differs from
+  `PUBLIC_BASE_URL`'s origin (or that carries `Sec-Fetch-Site: cross-site`) → 403; clients without `Origin` (curl)
+  are allowed. Bodies are capped at 4 KiB. No CORS headers are sent.
+* **Idempotency.** One record per email: the first touch (variant, price, referrer, utm) is kept; later
+  submissions are appended as `repeat` lines and counted (`repeats` in the export, `repeat_submissions` in stats).
+  The response is identical for new and repeat emails, so the list cannot be enumerated.
+* **Storage.** Append-only JSONL at `WAITLIST_PATH` (default `/data/waitlist/waitlist.jsonl`; directory 0700,
+  file 0600). Each event is one `write(2)` of one complete line on an `O_APPEND` descriptor:
+  `{"kind":"signup","ts","email","variant","price","referrer","utm_source","utm_medium","utm_campaign"}`,
+  `{"kind":"repeat","ts","email","variant","price"}`, `{"kind":"view","ts","variant","price"}` (views carry no
+  PII — not even the IP). The file is replayed into memory at boot; a torn last line from a crash is skipped.
+  Emails are never logged and never appear in a response other than the authenticated CSV export.
+  The file store needs a persistent disk (Railway volume); on Vercel these endpoints answer 503.
+* **Admin.** `stats`/`export` compare the bearer token in constant time (SHA-256 of both sides +
+  `timingSafeEqual`), are rate limited (10/min per IP) and answer 404 while `WAITLIST_ADMIN_TOKEN` is unset.
+  The CSV quotes every cell and prefixes cells starting with `= + - @` with `'` (spreadsheet formula injection).
 
 ### Private network (Headscale)
 
@@ -103,6 +133,8 @@ Without `DATABASE_URL` the server uses an in-memory store (refused when `NODE_EN
 | `HEADSCALE_API_KEY` | **Secret.** `headscale apikeys create --expiration 90d` (see `headscale/README.md` for rotation). |
 | `HEADSCALE_PUBLIC_URL` | Public login server URL clients enroll with (Headscale `server_url`), e.g. `https://hs.example.com`. |
 | `PREAUTH_TTL_SECONDS` | Pre-auth key lifetime, default `600` (60 … 3600). |
+| `WAITLIST_PATH` | Absolute path of the waitlist JSONL file, default `/data/waitlist/waitlist.jsonl` (created 0700/0600). If it cannot be opened the server still boots; `/v1/waitlist*` answer 503 and retry on each request. |
+| `WAITLIST_ADMIN_TOKEN` | **Secret.** Bearer token for `/v1/waitlist/stats` and `/export`, 32–256 chars `[A-Za-z0-9._~+/=-]` (`openssl rand -hex 32`). Unset → those endpoints answer 404. |
 | `ENFORCE_ENTITLEMENT` | `true` (default) or `false`. `false` = preview mode: `/v1/network/preauth-key` skips the subscription (402) check and logs `ENTITLEMENT_NOT_ENFORCED`; auth and rate limits unchanged. `/v1/license/verify` is never affected. Must be `true` at launch. With `false`, the `STRIPE_*` and/or `CLERK_*` groups may be left entirely unset (preview without accounts): billing endpoints then answer `503 billing_not_configured`, authenticated endpoints `503 auth_not_configured`, and `DATABASE_URL` is optional without Stripe. |
 
 Config is validated at boot; the process exits with code 2 and lists every problem.
