@@ -211,7 +211,7 @@ describe('ProcessManager', () => {
 
   it('restarts with backoff after a crash, with a fresh token, then gives up after max restarts', async () => {
     let n = 0;
-    const backoff = vi.fn(() => 5);
+    const backoff = vi.fn((_attempt: number) => 5);
     const { pm, calls } = makePm({ generateToken: () => `${'T'.repeat(42)}${n++}`, backoffMs: backoff, maxRestarts: 5 });
     const phases: string[] = [];
     pm.on('lifecycle', (l) => phases.push(l.phase));
@@ -317,6 +317,7 @@ describe('license gate -> process manager', () => {
       getAuthToken: async () => 'clerk-jwt',
       getUserId: () => 'user_1',
       publicKeys: { k: 'unused' },
+      isPackaged: false,
       onValid: cb.onValid,
       onInvalid: cb.onInvalid,
       cache: createMemoryLicenseCache(),
@@ -344,6 +345,7 @@ describe('license gate -> process manager', () => {
       getAuthToken: async () => null,
       getUserId: () => null,
       publicKeys: {},
+      isPackaged: false,
       ...cb,
       fetch: vi.fn() as never,
       log: () => undefined,

@@ -115,7 +115,10 @@ function main(): void {
       title: 'AirBridge Pro',
       backgroundColor: '#0b0d12',
       autoHideMenuBar: true,
-      webPreferences: secureWebPreferences(join(__dirname, '../preload/index.js')),
+      webPreferences: {
+        ...secureWebPreferences(join(__dirname, '../preload/index.js')),
+        additionalArguments: [`--airbridge-app-version=${app.getVersion()}`],
+      },
     });
     win.once('ready-to-show', () => win.show());
     win.on('closed', () => {
@@ -298,6 +301,7 @@ function createRealServices(o: RealServicesOptions) {
     getAuthToken: () => oidc.getApiToken(),
     getUserId: () => oidc.getUserId(),
     publicKeys: getLicensePublicKeys({ isPackaged: o.isPackaged }),
+    isPackaged: o.isPackaged,
     ...licenseGateCallbacks(pm),
     cache: createFileLicenseCache(join(userData, 'license.jwt')),
     openExternal,
@@ -332,6 +336,7 @@ function createRealServices(o: RealServicesOptions) {
       backend,
     } satisfies Pick<IpcDeps, 'auth' | 'license' | 'backend'>,
     handleDeepLink: (url: string) => {
+      if (!OidcClient.isCallbackUrl(url)) return;
       void oidc.handleCallback(url).catch((e) => log(`deep link rejected: ${e instanceof Error ? e.message : String(e)}`));
     },
     start: async () => {
