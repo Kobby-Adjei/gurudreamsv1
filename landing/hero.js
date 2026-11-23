@@ -90,8 +90,8 @@
     '}',
     'float shape(vec3 p, float f) {',
     '  float s = swell(p);',
-    '  float d = (f - 0.55) * 2.6 + (s - 0.5) * 2.2 + 1.15 - p.y;',
-    '  return clamp(d * 4.5, 0.0, 1.0);',
+    '  float d = (f - 0.55) * 2.4 + (s - 0.5) * 2.0 + 0.95 - p.y;',
+    '  return clamp(d * 3.2, 0.0, 1.0);',
     '}',
     'float bil(vec3 q) { return 1.0 - abs(noise(q) * 2.0 - 1.0); }',
     'vec3 wind(vec3 p) { return p * 0.30 + vec3(uTime * 0.012, 0.0, uTime * 0.006); }',
@@ -99,18 +99,18 @@
     'float mapHi(vec3 p) {',
     '  vec3 q = wind(p);',
     '  float f = 0.50 * noise(q); q = M3 * q * 2.03;',
-    '  f += 0.28 * bil(q); q = M3 * q * 2.01;',
-    '  f += 0.15 * bil(q); q = M3 * q * 2.02;',
-    '  f += 0.08 * noise(q); q = M3 * q * 2.03;',
-    '  f += 0.045 * noise(q);',
-    '  return shape(p, f / 1.055) * wake(p);',
+    '  f += 0.26 * bil(q); q = M3 * q * 2.01;',
+    '  f += 0.13 * noise(q); q = M3 * q * 2.02;',
+    '  f += 0.07 * noise(q); q = M3 * q * 2.03;',
+    '  f += 0.035 * noise(q);',
+    '  return shape(p, f / 1.0) * wake(p);',
     '}',
     'float mapLo(vec3 p) {',
     '  vec3 q = wind(p);',
     '  float f = 0.50 * noise(q); q = M3 * q * 2.03;',
-    '  f += 0.28 * bil(q); q = M3 * q * 2.01;',
-    '  f += 0.15 * bil(q);',
-    '  return shape(p, (f + 0.06) / 1.055);',
+    '  f += 0.26 * bil(q); q = M3 * q * 2.01;',
+    '  f += 0.13 * noise(q);',
+    '  return shape(p, f + 0.05);',
     '}',
     'float hg(float c, float g) { float g2 = g * g; return (1.0 - g2) / (12.566 * pow(1.0 + g2 - 2.0 * g * c, 1.5)); }',
 
@@ -130,8 +130,8 @@
     '  c = (c * (2.51 * c + 0.03)) / (c * (2.43 * c + 0.59) + 0.14);',
     '  return pow(clamp(c, 0.0, 1.0), vec3(1.0 / 2.2));',
     '}',
-    'float ign(vec2 p) { return fract(52.9829189 * fract(dot(p, vec2(0.06711056, 0.00583715)))); }',
-    'float tri(vec2 p) { float a = ign(p); float b = ign(p + vec2(17.3, 41.7)); return a + b - 1.0; }',
+    'float ign(vec2 p) { vec3 q = fract(vec3(p.xyx) * 0.1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }',
+    'float tri(vec2 p) { return ign(p) + ign(p + vec2(17.3, 41.7)) - 1.0; }',
     // Light reaching a point: transmittance toward the moon, with a soft plane shadow.
     'float lightDepth(vec3 p) {',
     '  float acc = 0.0;',
@@ -160,12 +160,12 @@
     '  for (int k = 0; k < 3; k++) {',
     '    float ph = mix(hg(cosT, 0.78 * c), hg(cosT, -0.2 * c), 0.3);',
     '    s += a * ph * exp(-ld * b);',
-    '    a *= 0.52; b *= 0.42; c *= 0.5;',
+    '    a *= 0.38; b *= 0.5; c *= 0.5;',
     '  }',
     '  float powder = mix(1.0 - exp(-d * 8.0), 1.0, 0.35 + 0.65 * max(cosT, 0.0));',
     '  float top = smoothstep(YBOT, YTOP, p.y);',
     '  vec3 amb = mix(vec3(0.0010, 0.0016, 0.0040), vec3(0.008, 0.013, 0.028), top);',
-    '  return MOON * 0.9 * s * ps * powder + amb * (0.2 + 0.8 * exp(-ld * 0.3));',
+    '  return MOON * 1.25 * s * ps * powder + amb * exp(-ld * 0.35);',
     '}',
     // March the clouds between t0 and t1 along rd; returns premultiplied radiance and transmittance.
     'vec4 marchSeg(vec3 ro, vec3 rd, float t0, float t1, float jitter, float stepMul, out float dist) {',
@@ -395,7 +395,7 @@
 
   /* ------------------------------------------------------------------ scene */
 
-  var MOON = norm([0.46, 0.46, 0.86]);
+  var MOON = norm([0.80, 0.44, 0.42]);
   var CRUISE_SPEED = 0.6; // world units per second: the camera's slow drift alongside the plane
 
   // Ease the flight in: one long arc that ends matched to the camera, then a calm, slow cruise.
