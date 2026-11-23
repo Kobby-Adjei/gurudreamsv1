@@ -49,6 +49,7 @@ async function shot(name, query, ctxOpts) {
 const desktop = { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 };
 await shot('desktop-private.png', '?v=private&p=8', desktop);
 await shot('desktop-cross.png', '?v=cross&p=15', desktop);
+await shot('desktop-private-1280.png', '?v=private&p=15', { viewport: { width: 1280, height: 800 }, deviceScaleFactor: 2 });
 await shot('desktop-bridge.png', '?v=bridge&p=8', desktop);
 await shot('mobile-private.png', '?v=private&p=8', { ...devices['iPhone 14'], deviceScaleFactor: 2 });
 if (process.argv.includes('--extra')) {
@@ -66,13 +67,14 @@ if (process.argv.includes('--extra')) {
   await settle(page);
   const r = await page.evaluate(() => ({
     anims: document.getAnimations().map((a) => ({ name: a.animationName, state: a.playState, iterations: a.effect.getTiming().iterations })),
-    card: getComputedStyle(document.querySelector('.card')).transform,
-    span: getComputedStyle(document.querySelector('.span')).strokeDashoffset
+    card: [...document.querySelectorAll('.card')].map((c) => getComputedStyle(c).transform + '/' + getComputedStyle(c).opacity),
+    span: [...document.querySelectorAll('.span')].map((c) => parseFloat(getComputedStyle(c).strokeDashoffset))
   }));
   await page.waitForTimeout(1500);
-  const later = await page.evaluate(() => getComputedStyle(document.querySelector('.card')).transform);
-  const ok = r.anims.length === 2 && r.anims.every((a) => a.state === 'finished' && a.iterations === 1) &&
-    (r.card === 'none' || r.card === 'matrix(1, 0, 0, 1, 0, 0)') && parseFloat(r.span) === 0 && later === r.card;
+  const later = await page.evaluate(() => [...document.querySelectorAll('.card')].map((c) => getComputedStyle(c).transform + '/' + getComputedStyle(c).opacity));
+  const ok = r.anims.length === 4 && r.anims.every((a) => a.state === 'finished' && a.iterations === 1) &&
+    r.card.every((c) => c === 'none/1' || c === 'matrix(1, 0, 0, 1, 0, 0)/1') && r.span.every((v) => v === 0) &&
+    JSON.stringify(later) === JSON.stringify(r.card);
   console.log('animation start', early, '-> rest', JSON.stringify(r), ok ? 'PASS' : 'FAIL');
   await ctx.close();
 

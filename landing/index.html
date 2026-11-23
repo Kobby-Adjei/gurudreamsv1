@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>AirBridge</title>
-<meta name="description" content="Send work from your laptop's AI to your desktop's AI. Works with Claude Code, Codex and Cursor. No server in between.">
+<meta name="description" content="A private network for your AI agents and your computers. Works with Claude Code, Codex and Cursor. Nothing goes through our servers.">
 <meta name="theme-color" content="#0D0C0B">
 <meta name="color-scheme" content="dark">
 <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -15,11 +15,11 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="AirBridge">
 <meta property="og:title" content="AirBridge">
-<meta property="og:description" content="Send work from your laptop's AI to your desktop's AI. No server in between.">
+<meta property="og:description" content="Claude Code, Codex and Cursor on all your computers, on one private network.">
 <meta property="og:image" content="/assets/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="AirBridge: send work from your laptop's AI to your desktop's AI. No server in between.">
+<meta property="og:image:alt" content="AirBridge: a private network for your AI agents and your computers.">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -33,38 +33,77 @@
 
 <main>
   <section class="hero wrap" aria-labelledby="headline">
-    <h1 id="headline">Send work from your laptop&rsquo;s AI to your desktop&rsquo;s AI. No server in between.</h1>
+    <h1 id="headline">A private network for your AI agents and your computers.</h1>
 
-    <figure class="viz" role="img" aria-label="Claude on a MacBook sends a task to Codex on a desktop PC.">
-      <svg viewBox="0 0 640 236" aria-hidden="true" focusable="false">
-        <!-- the bridge: faint rail, then the orange span that draws in behind the card -->
-        <line class="rail" x1="130" y1="104" x2="510" y2="104"/>
-        <line class="span" x1="130" y1="104" x2="510" y2="104" pathLength="1"/>
+    <figure class="viz" role="img" aria-label="Four of your computers, each running an AI tool, joined in one private network. A task goes from Claude Code on a MacBook to Codex on a Windows PC, then another from Cursor on a Mac mini back to the MacBook.">
+      <svg viewBox="0 0 720 500" aria-hidden="true" focusable="false">
+        <rect class="fence-fill" x="0.5" y="0.5" width="719" height="499" rx="22"/>
+        <path class="fence fence-wide" d="M424 0.5H697.5A22 22 0 0 1 719.5 22.5V477.5A22 22 0 0 1 697.5 499.5H22.5A22 22 0 0 1 0.5 477.5V22.5A22 22 0 0 1 22.5 0.5H296"/>
+        <path class="fence fence-narrow" d="M460 0.5H697.5A22 22 0 0 1 719.5 22.5V477.5A22 22 0 0 1 697.5 499.5H22.5A22 22 0 0 1 0.5 477.5V22.5A22 22 0 0 1 22.5 0.5H260"/>
 
-        <!-- laptop -->
+        <!-- links: a closed ring between the four machines; no hub, no server -->
+        <path class="rail" d="M170 172H550V387H170Z"/>
+        <path class="span span-1" d="M170 172H550" pathLength="1"/>
+        <path class="span span-2" d="M170 387V172" pathLength="1"/>
+
+        <!-- MacBook: lid, display, camera, hinge, base with thumb scoop -->
         <g class="device">
-          <rect class="screen" x="30" y="38" width="200" height="132" rx="9"/>
-          <path class="base" d="M10 170h240v4a6 6 0 0 1-6 6H16a6 6 0 0 1-6-6Z"/>
-          <path class="notch" d="M108 170h44"/>
+          <rect class="body" x="72" y="112" width="196" height="126" rx="8"/>
+          <rect class="display" x="78" y="118" width="184" height="114" rx="3"/>
+          <circle class="dot" cx="170" cy="115.2" r="1.1"/>
+          <rect class="hinge" x="100" y="238" width="140" height="3"/>
+          <path class="body" d="M56 241h228v3.5a4.5 4.5 0 0 1-4.5 4.5H60.5a4.5 4.5 0 0 1-4.5-4.5Z"/>
+          <path class="detail" d="M150 241v1.2a1.8 1.8 0 0 0 1.8 1.8h36.4a1.8 1.8 0 0 0 1.8-1.8V241"/>
         </g>
 
-        <!-- desktop -->
+        <!-- Windows desktop: monitor with chin, power light, neck, foot -->
         <g class="device">
-          <rect class="screen" x="400" y="30" width="220" height="148" rx="9"/>
-          <path class="stand" d="M498 178v22M482 204h44"/>
+          <rect class="body" x="438" y="112" width="224" height="126" rx="7"/>
+          <rect class="display" x="444" y="118" width="212" height="106" rx="3"/>
+          <circle class="led" cx="650" cy="231" r="1.6"/>
+          <rect class="body" x="545" y="238" width="10" height="16"/>
+          <rect class="body" x="508" y="254" width="84" height="4" rx="2"/>
         </g>
 
-        <!-- the task: rests on the desktop; the animation brings it over from the laptop -->
-        <g class="card">
-          <rect class="card-bg" x="446" y="86" width="128" height="36" rx="7"/>
-          <rect class="card-tick" x="456" y="98" width="3" height="12" rx="1.5"/>
-          <text class="card-text" x="467" y="108.5">Fix failing tests</text>
-          <g class="card-skel"><rect x="467" y="97" width="64" height="5" rx="2.5"/><rect x="467" y="107" width="42" height="5" rx="2.5"/></g>
+        <!-- Mac mini: low square body, two front ports, power light, foot ring -->
+        <g class="device">
+          <rect class="body" x="110" y="364" width="120" height="46" rx="10"/>
+          <rect class="detail" x="125" y="385.5" width="9" height="3.5" rx="1.75"/>
+          <rect class="detail" x="139" y="385.5" width="9" height="3.5" rx="1.75"/>
+          <circle class="led" cx="214" cy="387.2" r="1.6"/>
+          <path class="detail" d="M128 412.5h84"/>
+        </g>
+
+        <!-- GPU tower: case, power button, light, front vents, feet -->
+        <g class="device">
+          <rect class="body" x="510" y="290" width="80" height="120" rx="6"/>
+          <circle class="detail" cx="550" cy="305" r="4.5"/>
+          <circle class="led" cx="566" cy="305" r="1.6"/>
+          <path class="detail" d="M526 368h48M526 375h48M526 382h48M526 389h48M526 396h48"/>
+          <rect class="body" x="518" y="410" width="12" height="3" rx="1"/>
+          <rect class="body" x="570" y="410" width="12" height="3" rx="1"/>
+        </g>
+
+        <!-- tasks: each is drawn where it ends up; the animation brings it there once -->
+        <g class="card card-1">
+          <rect class="card-bg" x="486" y="154" width="128" height="36" rx="7"/>
+          <rect class="card-tick" x="496" y="166" width="3" height="12" rx="1.5"/>
+          <text class="card-text" x="507" y="176.5">Fix failing tests</text>
+          <g class="card-skel"><rect x="507" y="165" width="64" height="5" rx="2.5"/><rect x="507" y="175" width="42" height="5" rx="2.5"/></g>
+        </g>
+        <g class="card card-2">
+          <rect class="card-bg" x="106" y="154" width="128" height="36" rx="7"/>
+          <rect class="card-tick" x="116" y="166" width="3" height="12" rx="1.5"/>
+          <text class="card-text" x="127" y="176.5">Review the diff</text>
+          <g class="card-skel"><rect x="127" y="165" width="56" height="5" rx="2.5"/><rect x="127" y="175" width="38" height="5" rx="2.5"/></g>
         </g>
       </svg>
       <figcaption class="labels" aria-hidden="true">
-        <span class="lbl lbl-a"><b>Claude</b>MacBook</span>
-        <span class="lbl lbl-b"><b>Codex</b>Desktop PC</span>
+        <span class="fence-lbl">Private network</span>
+        <span class="lbl up at-1"><b>Claude Code</b>MacBook Pro</span>
+        <span class="lbl up at-2"><b>Codex</b>Windows PC</span>
+        <span class="lbl at-3"><b>Cursor</b>Mac mini</span>
+        <span class="lbl at-4"><b>Local model</b>Linux GPU box</span>
       </figcaption>
     </figure>
 
@@ -94,7 +133,7 @@
     <ul>
       <li>Works with Claude Code, Codex and Cursor.</li>
       <li>Goes straight between your machines. We never see your code.</li>
-      <li>Mac and Windows.</li>
+      <li>Mac, Windows and Linux.</li>
     </ul>
   </section>
 </main>

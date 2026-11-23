@@ -3,9 +3,9 @@
   'use strict';
 
   var HEADLINES = {
-    private: 'Send work from your laptop’s AI to your desktop’s AI. No server in between.',
-    cross: 'Claude on your Mac can hand a task to Codex on your PC.',
-    bridge: 'Your AI tools can pass tasks between your computers.',
+    private: 'A private network for your AI agents and your computers.',
+    cross: 'Claude, Codex and Cursor on all your computers, on one private network.',
+    bridge: 'Your agents reach each other on any computer you own. Nobody else can.',
     current: 'Connect your computers so your AI agents can hand off tasks.'
   };
   var VARIANTS = ['private', 'cross', 'bridge', 'current'];
