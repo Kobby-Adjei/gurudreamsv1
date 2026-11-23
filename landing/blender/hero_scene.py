@@ -88,20 +88,23 @@ CAM_PITCH_DEG = -3.0             # slight downward tilt
 CAM_FSTOP = 11.0                 # deep-ish focus: no "miniature" look
 
 # cloud deck (scene units; the plane is ~1 unit long)
-DECK_TOP = -7.0                  # mean cloud-top height (camera at z=0)
-DECK_AMP = 9.0                  # how much coverage raises/lowers the tops
-BILLOW_AMP = 5.0                 # cumulus billow amplitude on top of the deck
-EARTH_R = 1100.0                 # fake planet curvature -> horizon dips below frame centre
-CLOUD_DENSITY = 3.2              # extinction inside a cloud (per unit)
-EDGE_SOFT = 0.40                 # width of the soft cloud boundary (units)
+DECK_TOP = -10.0                 # mean cloud-top height (camera at z=0)
+DECK_AMP = 5.0                  # how much coverage raises/lowers the tops
+BILLOW_AMP = 2.6                 # cumulus billow amplitude on top of the deck
+EARTH_R = 1700.0                 # fake planet curvature -> horizon dips below frame centre
+CLOUD_DENSITY = 2.4              # extinction inside a cloud (per unit)
+EDGE_SOFT = 1.00                 # width of the soft cloud boundary (units)
+SDF_BAND = 1.6                   # grid stores clamp(sdf + band, 0, 2*band)
+DETAIL_SCALE = 2.4               # shader-side erosion noise feature size (units)
+DETAIL_AMP = 0.9                 # how far (units) the erosion noise pushes the boundary
 
-MOON_ELEV_DEG = 17.0
-MOON_LEFT_DEG = 112.0            # azimuth left of the view axis (>90 = behind-left of camera)
+MOON_ELEV_DEG = 22.0
+MOON_LEFT_DEG = 78.0             # azimuth left of the view axis (>90 = behind-left of camera)
 MOON_STRENGTH = 9.0
-MOON_COLOR = (0.86, 0.91, 1.0)
+MOON_COLOR = (0.82, 0.89, 1.0)
 
 FOG_DIST = 220.0                 # aerial perspective distance (scene units)
-CLOUD_ALBEDO = (0.93, 0.95, 1.0)
+CLOUD_ALBEDO = (0.90, 0.94, 1.0)
 CLOUD_G = 0.62                   # Henyey-Greenstein anisotropy (forward scattering)
 HORIZON_COLOR = (0.030, 0.045, 0.078)
 ZENITH_COLOR = (0.0012, 0.0019, 0.0042)
@@ -110,8 +113,8 @@ EXPOSURE = 0.0
 
 PRESETS = {
     # quick look-dev
-    "preview": dict(samples=32, adaptive=0.05, vol_bounces=3, max_bounces=6,
-                    step_rate=3.0, near_voxel=0.45, far_voxel=1.4),
+    "preview": dict(samples=32, adaptive=0.05, vol_bounces=4, max_bounces=6,
+                    step_rate=1.5, near_voxel=0.45, far_voxel=1.4),
     # final
     "prod": dict(samples=160, adaptive=0.015, vol_bounces=4, max_bounces=8,
                  step_rate=1.0, near_voxel=0.30, far_voxel=0.9),
@@ -615,11 +618,11 @@ def build_cloud_nodes():
         qs = vmath("MULTIPLY", q, (1.0, 1.0, 1.7))
         qs = vmath("ADD", qs, seed_off)
         cover = noise(qs, 1.0 / 70.0, 2.0, 0.5, distort=0.2)          # big-scale: gaps / stratus / towers
-        billow = noise(qs, 1.0 / 11.0, 7.0, 0.52, distort=0.35)        # cumulus masses
-        fine = noise(qs, 1.0 / 3.2, 4.0, 0.6)                          # small turbulent detail
+        billow = noise(qs, 1.0 / 16.0, 6.0, 0.5, distort=0.0)        # cumulus masses
+        fine = noise(qs, 1.0 / 5.0, 3.0, 0.5)                          # small turbulent detail
         # rounded cumulus "cauliflower" caps: inverted smooth-F1 voronoi at two scales,
         # domain-warped by the billow noise so the puffs don't look like spheres on a grid
-        puff_a = voronoi(qs, 1.0 / 8.0, warp=billow, warp_amt=4.0)
+        puff_a = voronoi(qs, 1.0 / 7.0, warp=billow, warp_amt=5.0)
         return cover, billow, fine, puff_a
 
     c1, b1, f1, pa1 = field(q1, (0.0, 0.0, 0.0))
@@ -653,12 +656,13 @@ def build_cloud_nodes():
     shape = math_node("ADD",
                       math_node("MULTIPLY", math_node("SUBTRACT", billow, 0.5), 2.0),
                       math_node("MULTIPLY", math_node("SUBTRACT", fine, 0.5), 0.6))
-    shape = math_node("ADD", shape, math_node("MULTIPLY", math_node("SUBTRACT", 0.5, puff_a), 0.7))
+    shape = math_node("ADD", shape, math_node("MULTIPLY", math_node("SUBTRACT", 0.5, puff_a), 2.2))
     sdf = math_node("ADD", math_node("SUBTRACT", top, z), math_node("MULTIPLY", shape, amp))
-    dens = maprange(sdf, 0.0, EDGE_SOFT * 2.0, 0.0, 1.0, smooth=True)
-    # thin out a little near the edges so tops read as fluffy, not plastic
-    dens = math_node("MULTIPLY", dens, CLOUD_DENSITY)
-
+    # Store a *shifted, clamped signed distance* rather than density: g = clamp(sdf + BAND, 0, 2*BAND).
+    # Zero well outside clouds (so Cycles still skips empty space), smooth everywhere (so cubic
+    # interpolation is accurate), and the shader turns it into density with pixel-scale detail.
+    dens = math_node("ADD", sdf, SDF_BAND)
+    dens = math_node("MINIMUM", math_node("MAXIMUM", dens, 0.0), 2.0 * SDF_BAND)
     vc = N.new("GeometryNodeVolumeCube")
     L(dens, vc.inputs["Density"])
     vc.inputs["Background"].default_value = 0.0
@@ -695,9 +699,62 @@ def cloud_material():
     out = n.new("ShaderNodeOutputMaterial")
     pv = n.new("ShaderNodeVolumePrincipled")
     attr = n.new("ShaderNodeAttribute")
-    attr.attribute_name = "density"
+    attr.attribute_name = "density"           # holds the shifted signed distance (see CloudField)
     attr.attribute_type = "GEOMETRY"
-    lk(attr.outputs["Fac"], pv.inputs["Density"])
+
+    def mnode(op, a=None, b=None, c=None):
+        m_ = n.new("ShaderNodeMath"); m_.operation = op
+        for i, x in enumerate((a, b, c)):
+            if x is None:
+                continue
+            if isinstance(x, (int, float)):
+                m_.inputs[i].default_value = x
+            else:
+                lk(x, m_.inputs[i])
+        return m_.outputs[0]
+
+    def driven_value(label, expr):
+        v = n.new("ShaderNodeValue"); v.label = label; v.name = label
+        fc = v.outputs[0].driver_add("default_value")
+        fc.driver.type = "SCRIPTED"
+        fc.driver.expression = expr              # simple expression: no Python auto-exec needed
+        return v.outputs[0]
+
+    # same loop drift + variance-preserving cross-blend as the grid, at pixel scale
+    t_expr = f"((frame - 1) % {LOOP}) / {LOOP}"
+    w1 = driven_value("w1", f"(1 - {t_expr}) / sqrt((1 - {t_expr})**2 + ({t_expr})**2)")
+    w2 = driven_value("w2", f"({t_expr}) / sqrt((1 - {t_expr})**2 + ({t_expr})**2)")
+    sdrift = driven_value("drift", f"{t_expr} * {DRIFT_PER_LOOP}")
+    tc = n.new("ShaderNodeTexCoord")
+    def detail(offset_units):
+        vm = n.new("ShaderNodeVectorMath"); vm.operation = "SCALE"
+        vm.inputs[0].default_value = tuple(FWD)
+        lk(sdrift, vm.inputs["Scale"])
+        add = n.new("ShaderNodeVectorMath"); add.operation = "ADD"
+        lk(tc.outputs["Object"], add.inputs[0]); lk(vm.outputs[0], add.inputs[1])
+        sub = n.new("ShaderNodeVectorMath"); sub.operation = "SUBTRACT"
+        lk(add.outputs[0], sub.inputs[0]); sub.inputs[1].default_value = tuple(FWD * offset_units)
+        sq = n.new("ShaderNodeVectorMath"); sq.operation = "MULTIPLY"
+        lk(sub.outputs[0], sq.inputs[0]); sq.inputs[1].default_value = (1.0, 1.0, 1.7)
+        nz = n.new("ShaderNodeTexNoise")
+        nz.inputs["Scale"].default_value = 1.0 / DETAIL_SCALE
+        nz.inputs["Detail"].default_value = 4.0
+        nz.inputs["Roughness"].default_value = 0.55
+        nz.inputs["Distortion"].default_value = 0.0
+        lk(sq.outputs[0], nz.inputs["Vector"])
+        return nz.outputs["Fac"]
+    d1 = detail(0.0)
+    d2 = detail(DRIFT_PER_LOOP)
+    dblend = mnode("ADD", mnode("MULTIPLY", w1, mnode("SUBTRACT", d1, 0.5)),
+                   mnode("MULTIPLY", w2, mnode("SUBTRACT", d2, 0.5)))      # zero-mean detail
+    sd = mnode("ADD", mnode("SUBTRACT", attr.outputs["Fac"], SDF_BAND), mnode("MULTIPLY", dblend, 2.0 * DETAIL_AMP))
+    mr = n.new("ShaderNodeMapRange"); mr.clamp = True; mr.interpolation_type = "SMOOTHSTEP"
+    lk(sd, mr.inputs["Value"])
+    mr.inputs["From Min"].default_value = 0.0
+    mr.inputs["From Max"].default_value = 2.0 * EDGE_SOFT
+    mr.inputs["To Max"].default_value = CLOUD_DENSITY
+    dens_out = mr.outputs["Result"]
+    lk(dens_out, pv.inputs["Density"])
 
     camd = n.new("ShaderNodeCameraData")
     ex = n.new("ShaderNodeMath"); ex.operation = "MULTIPLY"; ex.inputs[1].default_value = -1.0 / FOG_DIST
@@ -716,7 +773,7 @@ def cloud_material():
     # emission = horizon colour * f * extinction  (radiance of a thick slab -> horizon colour)
     em_s = n.new("ShaderNodeMath"); em_s.operation = "MULTIPLY"
     lk(fogf.outputs[0], em_s.inputs[0])
-    lk(attr.outputs["Fac"], em_s.inputs[1])
+    lk(dens_out, em_s.inputs[1])
     pv.inputs["Emission Color"].default_value = (*HORIZON_COLOR, 1)
     lk(em_s.outputs[0], pv.inputs["Emission Strength"])
 
