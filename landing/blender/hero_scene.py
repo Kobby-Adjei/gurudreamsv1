@@ -89,24 +89,24 @@ CAM_FSTOP = 11.0                 # deep-ish focus: no "miniature" look
 
 # cloud deck (scene units; the plane is ~1 unit long)
 DECK_TOP = -10.0                 # mean cloud-top height (camera at z=0)
-DECK_AMP = 5.0                  # how much coverage raises/lowers the tops
-BILLOW_AMP = 2.6                 # cumulus billow amplitude on top of the deck
+DECK_AMP = 7.5                  # how much coverage raises/lowers the tops
+BILLOW_AMP = 3.4                 # cumulus billow amplitude on top of the deck
 EARTH_R = 1700.0                 # fake planet curvature -> horizon dips below frame centre
-CLOUD_DENSITY = 2.4              # extinction inside a cloud (per unit)
-EDGE_SOFT = 1.00                 # width of the soft cloud boundary (units)
+CLOUD_DENSITY = 3.4              # extinction inside a cloud (per unit)
+EDGE_SOFT = 0.80                 # width of the soft cloud boundary (units)
 SDF_BAND = 1.6                   # grid stores clamp(sdf + band, 0, 2*band)
 DETAIL_SCALE = 2.4               # shader-side erosion noise feature size (units)
 DETAIL_AMP = 0.9                 # how far (units) the erosion noise pushes the boundary
 
-MOON_ELEV_DEG = 22.0
-MOON_LEFT_DEG = 78.0             # azimuth left of the view axis (>90 = behind-left of camera)
-MOON_STRENGTH = 6.5
+MOON_ELEV_DEG = 13.0
+MOON_LEFT_DEG = 66.0             # azimuth left of the view axis (>90 = behind-left of camera)
+MOON_STRENGTH = 10.0
 MOON_COLOR = (0.82, 0.89, 1.0)
 
-FOG_DIST = 150.0                 # aerial perspective distance (scene units)
+FOG_DIST = 100.0                 # aerial perspective distance (scene units)
 CLOUD_ALBEDO = (0.90, 0.94, 1.0)
 CLOUD_G = 0.62                   # Henyey-Greenstein anisotropy (forward scattering)
-HORIZON_COLOR = (0.030, 0.045, 0.078)
+HORIZON_COLOR = (0.052, 0.072, 0.112)
 ZENITH_COLOR = (0.0012, 0.0019, 0.0042)
 
 EXPOSURE = 0.0
@@ -267,12 +267,18 @@ cr.elements[0].position = 0.0
 cr.elements[0].color = (*[c * 0.85 for c in HORIZON_COLOR], 1)
 cr.elements[1].position = 1.0
 cr.elements[1].color = (*ZENITH_COLOR, 1)
-e = cr.elements.new(0.13)                      # horizon
+# ramp position = (z + 0.15) / 1.15; the deck's far edge sits near z = -0.03 (pos ~0.10).
+# A broad, soft glow band spans it so cloud deck and sky meet without a line.
+e = cr.elements.new(0.09)                      # just below the deck edge
 e.color = (*HORIZON_COLOR, 1)
-e = cr.elements.new(0.24)
-e.color = (0.010, 0.016, 0.032, 1)
-e = cr.elements.new(0.45)
-e.color = (0.0035, 0.0060, 0.0125, 1)
+e = cr.elements.new(0.15)                      # horizon glow, a few degrees up
+e.color = (*[c * 0.92 for c in HORIZON_COLOR], 1)
+e = cr.elements.new(0.23)
+e.color = (0.020, 0.029, 0.052, 1)
+e = cr.elements.new(0.34)
+e.color = (0.0075, 0.0118, 0.024, 1)
+e = cr.elements.new(0.52)
+e.color = (0.0032, 0.0054, 0.0115, 1)
 wl.new(w_ramp_in.outputs["Result"], w_ramp.inputs["Fac"])
 
 # stars: tiny voronoi cells on the direction vector, only well above the horizon
@@ -376,10 +382,10 @@ def build_dart():
     i_keel = v((0.0, 0.0, -keel))
     for s in (-1, 1):
         i_root = v((s * gap, 0.0, 0.0))
-        i_crs = v((s * span * crease, 0.0, dihedral * crease + 0.004))
+        i_crs = v((s * span * crease, 0.0, dihedral * crease + 0.011))
         i_tip = v((s * span, 0.0, dihedral))
         # point along leading edge where the outer layer's fold begins (adds a 2nd crease)
-        i_le = v((s * span * 0.16, L * 0.70, dihedral * 0.16))
+        i_le = v((s * span * 0.16, L * 0.70, dihedral * 0.16 + 0.006))
         # keel side
         faces.append((i_nose, i_keel, i_root) if s > 0 else (i_nose, i_root, i_keel))
         # inner wing panel (between root and crease)
@@ -423,9 +429,9 @@ def paper_material():
     n.clear()
     out = n.new("ShaderNodeOutputMaterial")
     bsdf = n.new("ShaderNodeBsdfPrincipled")
-    bsdf.inputs["Base Color"].default_value = (0.82, 0.82, 0.80, 1)
-    bsdf.inputs["Roughness"].default_value = 0.72
-    bsdf.inputs["Specular IOR Level"].default_value = 0.35
+    bsdf.inputs["Base Color"].default_value = (0.86, 0.86, 0.84, 1)
+    bsdf.inputs["Roughness"].default_value = 0.48
+    bsdf.inputs["Specular IOR Level"].default_value = 0.5
     bsdf.inputs["Subsurface Weight"].default_value = 0.12
     bsdf.inputs["Subsurface Radius"].default_value = (0.004, 0.004, 0.004)
     bsdf.inputs["Subsurface Scale"].default_value = 1.0
@@ -461,7 +467,7 @@ plane.data.materials.append(paper_material())
 # motion: camera follows the plane; both breathe with periodic, physically small motion
 # --------------------------------------------------------------------------------------
 # plane placement in camera-relative terms (camera at origin looking +Y, pitched down)
-PLANE_DIST = 3.9
+PLANE_DIST = 4.5
 PLANE_RIGHT = 0.18
 PLANE_DOWN_DEG = 11.0    # angle below horizontal -> sits in the lower-middle third
 
@@ -505,6 +511,38 @@ for ob in (cam, plane):
 
 # focus on the plane
 cam_data.dof.focus_object = plane
+
+# --------------------------------------------------------------------------------------
+# portrait (phone) framing: same lens, vertical sensor fit, lens shift to put the plane
+# horizontally centred and in the lower third under the copy.
+# --------------------------------------------------------------------------------------
+PORTRAIT = RES_Y > RES_X
+PORTRAIT_VFOV_DEG = 46.0          # taller view: more sky for the copy, more deck below
+PORTRAIT_PLANE_X = 0.50           # plane centre, fraction of frame width
+PORTRAIT_PLANE_Y = 0.30           # plane centre, fraction of frame height from the bottom
+
+if PORTRAIT:
+    from bpy_extras.object_utils import world_to_camera_view
+    cam_data.sensor_fit = "VERTICAL"
+    cam_data.sensor_height = 2.0 * CAM_LENS * math.tan(math.radians(PORTRAIT_VFOV_DEG) / 2.0)
+    aspect = RES_X / RES_Y
+    scene.frame_set(1)
+    for _ in range(6):            # converge the lens shift on the plane's mean screen position
+        xs, ys = [], []
+        for f in (1, 37, 73, 109):
+            scene.frame_set(f)
+            centre = plane.matrix_world @ Vector((0.0, 0.5, 0.0))
+            c = world_to_camera_view(scene, cam, centre)
+            xs.append(c.x)
+            ys.append(c.y)
+        dx = sum(xs) / len(xs) - PORTRAIT_PLANE_X
+        dy = sum(ys) / len(ys) - PORTRAIT_PLANE_Y
+        # shift is measured in units of the larger frame dimension (height here)
+        cam_data.shift_x += dx * aspect
+        cam_data.shift_y += dy
+    scene.frame_set(1)
+    print(f"[hero] portrait: sensor_height {cam_data.sensor_height:.2f} mm, "
+          f"shift ({cam_data.shift_x:.3f}, {cam_data.shift_y:.3f})")
 
 # --------------------------------------------------------------------------------------
 # clouds: Geometry Nodes "Volume Cube" evaluates a procedural density field into a grid
@@ -656,7 +694,7 @@ def build_cloud_nodes():
     shape = math_node("ADD",
                       math_node("MULTIPLY", math_node("SUBTRACT", billow, 0.5), 2.0),
                       math_node("MULTIPLY", math_node("SUBTRACT", fine, 0.5), 0.6))
-    shape = math_node("ADD", shape, math_node("MULTIPLY", math_node("SUBTRACT", 0.5, puff_a), 2.2))
+    shape = math_node("ADD", shape, math_node("MULTIPLY", math_node("SUBTRACT", 0.5, puff_a), 2.8))
     sdf = math_node("ADD", math_node("SUBTRACT", top, z), math_node("MULTIPLY", shape, amp))
     # Store a *shifted, clamped signed distance* rather than density: g = clamp(sdf + BAND, 0, 2*BAND).
     # Zero well outside clouds (so Cycles still skips empty space), smooth everywhere (so cubic

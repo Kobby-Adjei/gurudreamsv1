@@ -1,0 +1,127 @@
+# AirBridge cloud on one DigitalOcean droplet: Headscale v0.29.7 (control + embedded DERP/STUN), the license
+# server and the static landing page, behind Caddy (automatic Let's Encrypt). See README.md.
+#
+# Run only through /usr/local/sbin/airbridge-compose (it passes --env-file /etc/airbridge/runtime.env, written by
+# airbridge-bootstrap). Secrets are files under $AIRBRIDGE_STATE/secrets, never compose variables.
+#
+#   internet ─┬─ 80/443 tcp ─> caddy ─(edge)─┬─> headscale:8080   /ts2021 /key /derp* /bootstrap-dns /health
+#             │                              ├─> license-server:8787   /v1/* /healthz /checkout/*
+#             │                              └─> /srv/landing (static)  everything else;  /api* /swagger* -> 404
+#             └─ 3478 udp ──> headscale (STUN)
+#   license-server ─(control, internal: true)─> headscale:8080 /api/v1 (the ONLY path to the admin API)
+name: airbridge
+
+x-hardening: &hardening
+  restart: unless-stopped
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+
+services:
+  headscale:
+    <<: *hardening
+    image: docker.io/headscale/headscale:v0.29.7@sha256:11f81665e842809db9fe3006a38c56a66e968baa5abd4bac498e86445572b970
+    user: "65532:65532"
+    command: serve
+    read_only: true
+    tmpfs:
+      # CLI <-> server unix socket (airbridge-bootstrap creates the API key through it).
+      - /var/run/headscale:uid=65532,gid=65532,mode=0770
+    volumes:
+      - ${AIRBRIDGE_STATE:?}/headscale-config/config.yaml:/etc/headscale/config.yaml:ro
+      - ${AIRBRIDGE_SRC:?}/license-server/headscale/policy.hujson:/etc/headscale/policy.hujson:ro
+      - ${AIRBRIDGE_STATE:?}/headscale:/var/lib/headscale
+    ports:
+      - "3478:3478/udp"
+    networks:
+      edge: {}
+      control: {}
+    healthcheck:
+      test: ["CMD", "headscale", "health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  license-server:
+    <<: *hardening
+    image: airbridge/license-server:${AIRBRIDGE_COMMIT:?}
+    build:
+      context: ../..
+      dockerfile: deploy/digitalocean/license-server.Dockerfile
+    read_only: true
+    tmpfs:
+      - /tmp
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: "8787"
+      # Caddy is the only peer; it sets X-Forwarded-For to the real client address.
+      TRUST_PROXY: "1"
+      TRUST_PROXY_HOPS: "1"
+      PUBLIC_BASE_URL: https://${AIRBRIDGE_DOMAIN:?}
+      ENFORCE_ENTITLEMENT: ${ENFORCE_ENTITLEMENT:-false}
+      CLERK_ISSUER: ${CLERK_ISSUER:-}
+      CLERK_JWKS_URL: ${CLERK_JWKS_URL:-}
+      CLERK_AUDIENCE: ${CLERK_AUDIENCE:-}
+      HEADSCALE_URL: http://headscale:8080
+      HEADSCALE_PUBLIC_URL: https://${AIRBRIDGE_DOMAIN:?}
+      PREAUTH_TTL_SECONDS: ${PREAUTH_TTL_SECONDS:-600}
+      WAITLIST_PATH: /data/waitlist/waitlist.jsonl
+      SMOKE_TEST: ${SMOKE_TEST:-0}
+      SMOKE_TEST_UNTIL: ${SMOKE_TEST_UNTIL:-}
+      SMOKE_STATE_DIR: /data/smoke
+      # Read by license-entrypoint.sh, exported to the server process only (never in `docker inspect`).
+      HEADSCALE_API_KEY_FILE: /run/airbridge-secrets/headscale_api_key
+      LICENSE_SIGNING_KEY_PEM_FILE: /run/airbridge-secrets/license_signing_key.pem
+      LICENSE_KEY_ID_FILE: /run/airbridge-secrets/license_key_id
+      WAITLIST_ADMIN_TOKEN_FILE: /run/airbridge-secrets/waitlist_admin_token
+    volumes:
+      - ${AIRBRIDGE_STATE:?}/license:/data
+      - ${AIRBRIDGE_STATE:?}/secrets:/run/airbridge-secrets:ro
+    depends_on:
+      headscale:
+        condition: service_healthy
+    networks:
+      edge: {}
+      control: {}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8787/healthz').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  caddy:
+    <<: *hardening
+    image: docker.io/library/caddy:2.10.2@sha256:c3d7ee5d2b11f9dc54f947f68a734c84e9c9666c92c88a7f30b9cba5da182adb
+    cap_add:
+      - NET_BIND_SERVICE
+    read_only: true
+    environment:
+      AIRBRIDGE_DOMAIN: ${AIRBRIDGE_DOMAIN:?}
+      CADDY_LOCAL_CERTS: ${CADDY_LOCAL_CERTS:-}
+    volumes:
+      - ${AIRBRIDGE_SRC:?}/deploy/digitalocean/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${AIRBRIDGE_STATE:?}/site:/srv/landing:ro
+      - ${AIRBRIDGE_STATE:?}/caddy/data:/data
+      - ${AIRBRIDGE_STATE:?}/caddy/config:/config
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - headscale
+      - license-server
+    networks:
+      edge: {}
+
+networks:
+  edge:
+    ipam:
+      config:
+        # Must match trusted_proxies in license-server/headscale/config.yaml.tmpl.
+        - subnet: 172.30.53.0/24
+  control:
+    # License server <-> Headscale admin API only. No egress, nothing published.
+    internal: true
