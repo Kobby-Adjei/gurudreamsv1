@@ -1,121 +1,165 @@
-# AirBridge Phase 3 — Security Review ("Invisible Network")
+# AirBridge Phase 3 — Security Review ("Invisible Network", tsnet sidecar)
 
-Owner: Security. Scope: bundled `tailscaled` v1.104.7 in userspace-networking mode, enrolled into self-hosted
-Headscale v0.29.7 with single-use pre-auth keys from the license server (contract: `docs/PHASE3_PLAN.md`).
-Source verified against the Go module zips from `proxy.golang.org` (`tailscale.com@v1.104.7`,
-`github.com/juanfont/headscale@v0.29.7`). All `file:line` references are to those trees.
+Owner: Security. Scope: the embedded **`airbridge-net` tsnet sidecar** (`tailscale.com/tsnet` v1.104.7) that
+replaced bundled `tailscaled` (commit 43a26c0, contract `docs/PHASE3_PLAN.md` §9). The sidecar enrolls into
+self-hosted Headscale v0.29.7 with single-use pre-auth keys from the license server.
 
-**Verdict: the design holds, provided the required fixes below land.** We found no flaw that breaks the
-model, but one Windows item blocks the feature (F-4), and two configuration items fail open if they
-are missed (F-1, F-3).
+Reviewed code:
+- `desktop/sidecar/airbridge-net/*.go`
+- `desktop/src/main/network/{NetManager.ts,enroll.ts}`
+- `desktop/src/main/processManager.ts` (NetworkSupervisor)
+- `airbridge/airbridge_app/{netbackend,inbox,outbox,daemon,config}.py`
 
----
+Upstream code was checked against the module zips from `proxy.golang.org` (`tailscale.com@v1.104.7`,
+`github.com/juanfont/headscale@v0.29.7`).
+- Sidecar refs: `desktop/sidecar/airbridge-net/<file>:<line>`.
+- Upstream refs: `<pkg path>:<line>` in those trees.
 
-## 1. Trust model in one paragraph
-
-In userspace mode there is no TUN device. tailscaled's netstack terminates inbound tailnet TCP and **re-dials
-it to `127.0.0.1:<same dst port>`** (`wgengine/netstack/netstack.go:1799`: `case isTailscaleIP: dialIP =
-ipv4Loopback`). It records the local end of that dial (`127.0.0.1:<ephemeral>`) → peer tailnet IP in its
-ProxyMapper (`netstack.go:1857`, proto `"tcp"`). The inbox binds `127.0.0.1:8989`, sees every client as
-`127.0.0.1`, and asks LocalAPI `GET /localapi/v0/whois?proto=tcp&addr=127.0.0.1:<client port>`. LocalBackend's
-WhoIs resolves that through `ProxyMapper().WhoIsIPPort` (`ipn/ipnlocal/local.go:1771-1795`). A process on this
-machine that connects to `127.0.0.1:8989` directly has no ProxyMapper entry, so whois returns 404 and the inbox
-returns 403. `security.verify_embedded_peer` then requires the peer's Headscale user ID to equal ours.
-Headscale's `autogroup:self` ACL already stops other customers at the packet filter. The inbox check is the
-second layer.
-
-## 2. `security.verify_embedded_peer` (implemented, Security-owned)
-
-```python
-verify_embedded_peer(client_host: str, client_port: int,
-                     whois: Callable[[str], dict | None],
-                     self_user_id: int | str | Callable[[], int | str]) -> VerifiedPeer  # a str
-```
-
-| Step | Rule | Failure `reason` |
-|---|---|---|
-| 1 | `client_host` exactly `"127.0.0.1"` or `"::1"` (no mapped forms, whitespace or `localhost`). `client_port` is an `int` in 1..65535 (not a `bool`) | `not_loopback` (whois not called) |
-| 2 | `whois("127.0.0.1:<port>")` or `"[::1]:<port>"`. Returns `None` or raises | `unknown_peer` |
-| 3 | The result must match one of the two shapes below, the user id must be well formed, and the node name must pass `validate_sender` after normalization | `bad_whois` |
-| 4 | Own id: a value or a lazy zero-arg callable, called only after step 2 succeeds. Missing, invalid or raising | `bad_whois` |
-| 5 | `str(peer_uid) == str(self_uid)`. Digit strings are canonicalized (`"007"` == `7`). Compared with `hmac.compare_digest` | `foreign_user` |
-
-It raises `EmbeddedPeerError(SecurityError)` with `.reason`, and its messages are log-safe. It returns
-`VerifiedPeer`, a `str` subclass equal to the sanitized node name that also carries `.user_id`, `.tailnet_ip`
-and `.node_id`. For callers that treat it as a mapping, `.get("node"|"user_id"|"ip"|"tailnet_ip"|"node_id")`
-also works.
-
-**Normalized whois shape** (`netbackend.EmbeddedTailscale.whois` returns it; extra keys are ignored):
-
-```json
-{"node": "airbridge-laptop", "user_id": 7, "tailnet_ip": "100.64.0.9"}
-```
-
-`tailnet_ip` (alias `ip`) is optional. If it is present and not null, it must be in `100.64.0.0/10` or
-`fd7a:115c:a1e0::/48`. The raw LocalAPI `apitype.WhoIsResponse` is also accepted
-(`{"Node":{"Name","Addresses","StableID"},"UserProfile":{"ID"}}`). Its node name comes only from the
-control-assigned `Node.Name`, never from the peer-asserted `Hostinfo.Hostname`.
-
-Node name normalization: drop the trailing dot, keep the first DNS label, strip the `airbridge-` prefix
-(case-insensitive), then apply `validate_sender` (`^[A-Za-z0-9._-]{1,64}$`).
-
-Call it **per request on the live connection, and never cache by port.**
+**Verdict: APPROVED (conditional on S-1 for the privacy claim).**
+- The sidecar removes the structural problems of the tailscaled design: localhost port exposure (old F-1),
+  the ProxyMapper/whois trust chain (F-2, F-5, F-6), the LocalAPI socket and pipe (F-4, F-8), and the open
+  SOCKS proxy (F-9).
+- No finding breaks the trust model.
+- One finding contradicts the product claim that nothing talks to Tailscale-operated hosts: when DNS fails,
+  tsnet's bootstrap-DNS fallback contacts Tailscale's DERP servers (S-1).
 
 ---
 
-## 3. Findings
+## 1. Trust model
 
-Severity applies to this product's threat model: a single-user desktop by default, with multi-user hosts
-noted where they matter.
+```
+peer device ──WireGuard──▶ tsnet netstack (in airbridge-net)
+                            │  only listener: tcp/8989 (main.go:159)
+                            ▼
+                     meshHandler (mesh.go)
+                       1. WhoIsProto("tcp", r.RemoteAddr) on the live conn
+                       2. UserProfile.ID == Node.User == Self.UserID
+                       3. per-peer rate limit, 600 000 B cap
+                            │  NEW request to http://127.0.0.1:<inbox port>/incoming_task
+                            │  X-AirBridge-Sidecar-Token, X-AirBridge-Peer-Node/IP/User
+                            ▼
+                     Python inbox (inbox.py sidecar mode)
+                       loopback + token (compare_digest) → peer headers → validation
+                       → sender bound to the verified node (F-13, reject on mismatch)
+```
 
-### F-1 (Critical if missed) — netstack forwards ALL ports to localhost; only the ACL limits it to :8989
+- tsnet does **not** forward unhandled flows to host loopback. `getTCPHandlerForFlow` returns
+  `nil, true // don't handle, don't forward to localhost` (`tsnet/tsnet.go:1289-1303`), and the same holds
+  for UDP (`tsnet.go:1305-1311`).
+- The only port that exists on the mesh is :8989. The user's localhost services are unreachable from peers
+  **regardless of the ACL**, which is now defense in depth. The ACL still limits peers to tcp/8989, which also
+  hides tsnet's PeerAPI.
+- `r.RemoteAddr` on a tsnet listener is the peer's real tailnet `IP:port` (the source IP is bound to the
+  peer's WireGuard key). `WhoIs` resolves it via `NodeByAddr` directly, so no proxymap or 180 ms retry loop is
+  involved.
 
-- `netstack.go:1799`: for any destination that is our tailnet IP, `dialIP = ipv4Loopback` with the
-  **original port** (`netstack.go:1802`). The same applies to UDP (`netstack.go:2130-2133`). Every localhost
-  TCP service on the user's machine can therefore be reached by any peer the packet filter admits: the
-  AirBridge Control API (ephemeral 127.0.0.1 port), tailscaled's own SOCKS5 port (an open proxy into the
-  victim's LAN and the internet, `net/tsdial/tsdial.go:609-624`), dev servers, databases, Jupyter, and so on.
-- The packet filter does run before netstack: `net/tstun/wrap.go:1193` (`filt.RunIn`) precedes
-  `PostFilterPacketInboundFromWireGuard` (`wrap.go:1246`), which netstack sets to `injectInbound`
-  (`netstack.go:465`). So the ACL is a real control. It is the **only** control for ports other than 8989.
-- Headscale's policy parser takes `"autogroup:self:8989"`: `AliasWithPorts.UnmarshalJSON`
-  (`hscontrol/policy/v2/types.go:896-940`) splits on the last colon (`policy/v2/utils.go:36-80`).
-  `autogroup:self` is valid only on the dst side (`types.go:2072-2073`). The ACL struct has a `proto` field
-  (`types.go:1941-1946`).
-- **Fail-open trap:** with no ACLs or grants (an empty `policy.path`, or an empty or missing policy), Headscale
-  sends `FilterAllowAll` (`policy/v2/filter.go:142-143`, `policy/v2/policy.go:253-254`). Then **every
-  customer's device can reach every localhost port of every other customer's device.** The inbox user check
-  would still return 403 on :8989, but every other localhost service would be exposed.
-- Required:
-  1. Set the policy to exactly
-     `{"acls":[{"action":"accept","proto":"tcp","src":["autogroup:member"],"dst":["autogroup:self:8989"]}]}`.
-     Adding `proto: tcp` keeps UDP forwarding off as well; see F-2.
-  2. Set `policy.mode: file` and a non-empty `policy.path` in `config.yaml.tmpl`.
-  3. At startup and periodically, the license server calls `GET /api/v1/policy` (`hscontrol/grpcv1.go:691-721`),
-     checks that the canonical JSON equals the expected policy, and refuses to issue pre-auth keys (503) if it
-     does not.
-- Defense in depth (recommended): bind the **Control API and the SOCKS5 listener to `[::1]`** instead of
-  `127.0.0.1`. netstack only ever dials `127.0.0.1` for tailnet destinations (`netstack.go:1799`; `::1` is used
-  only for the quad-100 service IP, `netstack.go:1764-1768`). A `[::1]` listener is therefore structurally
-  unreachable from the tailnet, whatever the ACL says. Fall back to `127.0.0.1` only when `::1` is
-  unavailable. The Control API already needs the bearer token, and a remote peer can forge the Host header,
-  so the token is what protects it today. A per-request whois check on the Control API is **not**
-  recommended: every legitimate local request misses the ProxyMapper and pays the 180 ms whois retry loop
-  under LocalBackend's mutex (F-5).
+## 2. Findings (sidecar)
 
-### F-2 (High → fixed during review) — whois without `proto` lets a UDP mapping vouch for a TCP socket
+### S-1 (Medium, privacy/contract; fix required for the "no Tailscale-operated hosts" claim) — bootstrap-DNS fallback contacts Tailscale DERP servers
+- The control client resolves the Headscale hostname through `dnscache.Resolver{LookupIPFallback:
+  dnsfallback.MakeLookupFunc(...)}` (`control/controlclient/direct.go:324-330`,
+  `control/controlhttp/client.go:372-377`).
+- If the system resolver errors or returns no IPs (offline, captive portal, broken or filtering DNS),
+  `dnscache` calls the fallback (`net/dnscache/dnscache.go:373-382`).
+- The fallback queries up to 6 servers from the **DERP map compiled into the binary**
+  (`net/dnsfallback/dnsfallback.go:76-125`, embedded `dns-fallback-servers.json`, `:224-225`). These are
+  Tailscale Inc.'s `derpN.tailscale.com` servers, which receive `GET /bootstrap-dns?q=<our Headscale host>`
+  over HTTPS.
+- That leaks the client IP and the fact it uses AirBridge's control server to Tailscale Inc. No credentials
+  or traffic leave.
+- `net/dnsfallback` is linked into the sidecar (`go list -deps`). It has no envknob to disable it, and
+  Headscale's DERP map is only *merged into* the static map (`dnsfallback.go:177-210`); it never replaces it.
+- **Required (Systems, `desktop/sidecar/airbridge-net/go.mod`):** vendor-patch `tailscale.com` with a
+  `replace` to a pinned copy whose `net/dnsfallback/dns-fallback-servers.json` is `{"Regions":{}}`. `lookup`
+  then returns "no DNS fallback options" (`dnsfallback.go:104-106`). Add a Go test asserting
+  `dnsfallback.GetDERPMap()` has no `tailscale.com` hosts.
+- Alternative: product accepts it and rewords the claim to "no logs or telemetry to Tailscale; a DNS-failure
+  fallback may query Tailscale's public DNS bootstrap servers".
+- Other Tailscale-host paths checked and clear:
+  - **logtail:** off. `envknob.SetNoLogsNoSupport()` + `logtail.Disable()` run before `srv.Start()`
+    (`main.go:77-78`). The upload transport becomes a no-op (`logpolicy/logpolicy.go:895-896`), and
+    `sendLocked` drops entries before buffering (`logtail/logtail.go:766-770`), so no upload and no local
+    filch content.
+  - **netlog:** off under NoLogsNoSupport (`feature/netlog/netlog.go:76`).
+  - **Captive-portal detection:** not linked. It would hit `controlplane.tailscale.com`
+    (`net/captivedetection/endpoints.go:124-125`), but `feature/captiveportal` is not in the dependency graph.
+  - **ControlURL:** always set and validated (`config.go` `validateControlURL`), so tsnet's
+    `controlplane.tailscale.com` default is never used. The control URL is fixed at spawn, and Electron
+    provides it.
+  - **DERP/STUN:** use the DERP map from Headscale (`derp.urls: []` + embedded DERP).
+  - **c2n:** linked (`tsnet.go:181`), but only the control server (our Headscale) can issue c2n requests.
+  - **portmapper:** talks only to the local gateway.
 
-- `LocalBackend.WhoIs` with an empty `proto` tries `tcp`, **then `udp`** (`ipn/ipnlocal/local.go:1775-1787`).
-- `forwardUDP` binds `127.0.0.1:<the peer's own source port>` (`netstack.go:2133`) and registers
-  `("udp", 127.0.0.1:<that port>)` for a 2-minute idle lifetime (`netstack.go:2179`, `2186`).
-- Attack: a same-user peer sends UDP to us, so tailscaled registers udp `127.0.0.1:X`. A local process then
-  connects over TCP from source port `X` (TCP port X is free) to `127.0.0.1:8989`. A whois without `proto`
-  falls through to the UDP entry and attributes the local process to the peer.
-- Fix: `netbackend.EmbeddedTailscale.whois` must query `?proto=tcp&addr=...`. **Systems has applied it**
-  (`netbackend.py:426`). `test_netbackend_whois_pins_proto_tcp` enforces it against a fake LocalAPI. Adding
-  `proto: tcp` to the ACL (F-1) removes the precondition.
+### S-2 (Medium on multi-user hosts) — stale inbox registration: port squatting receives tasks and the inbox token
+- The sidecar keeps the last `POST /inbox {port, token}` registration forever (`control.go:240-252`,
+  `backend.go` `inboxTarget`). It forwards each verified task to `127.0.0.1:<port>` with the token **in
+  cleartext** (`mesh.go:192-211`).
+- If the daemon exits or restarts, another **local user** can bind the freed ephemeral port before the new
+  daemon re-registers. That user then receives peers' task payloads, the shared secret, and the old inbox
+  token. The old token is useless once the new daemon registers a fresh one.
+- Same-user processes are inside the trust boundary anyway.
+- **Required (Systems):**
+  1. `mesh.go`: on a connection error to the inbox, clear the registration (`inbox.set(0, "")`) so the
+     sidecar returns 503 until the daemon re-registers.
+  2. `daemon.py`: deregister on shutdown with `POST /inbox {port:0}`. The sidecar would need to accept
+     port 0 as "clear".
+  3. Recommended: replace the bearer header with `X-AirBridge-Sidecar-Sig = HMAC-SHA256(token, ts|peer
+     headers|sha256(body))` and a ±60 s timestamp, so the token never travels. Better still on POSIX, serve
+     the inbox on a Unix socket in the 0700 data dir.
 
-### F-3 (High, config) — Headscale API key is full-admin and `/api/v1` is served on the public listener
+### S-3 (Low) — control token distribution
+- The control token (≥ 32 random bytes, `NetManager.ts:404`) reaches:
+  - the sidecar via stdin (closed after reading, `main.go:61-62`);
+  - the daemon via env `AIRBRIDGE_NET_TOKEN`;
+  - the MCP process via `<D>/network.json` (0600, atomic `wx`, `NetManager.ts:650-652`). Python rejects a
+    `network.json` not owned by the user or writable by group/others (`config.py:110`).
+- All three readers are same-user. Anyone holding the token can call `/send`, `/inbox` (re-route incoming
+  tasks) and `/logout`. That is the documented same-user trust boundary; on macOS and Linux, other users
+  cannot read another user's process environment or the 0700 `<D>`.
+- Windows: `<D>` sits under `%APPDATA%` (inherited per-user ACL). The sidecar skips the owner check on Windows
+  (`platform_windows.go:9`, `ownedByMe` returns true). Low: Electron chooses the path, so it is not attacker
+  controlled.
+- **Recommended:** a Windows ACL check (owner SID == current user, no Everyone/Users write) in
+  `ensurePrivateDir`.
+
+### S-4 (Low) — control-API server timeouts
+- `ctlSrv` sets only `ReadHeaderTimeout`/`MaxHeaderBytes` (`main.go:138`). A token holder (same user) could
+  hold `/send` bodies open.
+- **Recommended:** `ReadTimeout: 30s, WriteTimeout: 30s, IdleTimeout: 60s`.
+
+### S-5 (Low) — environment scrub is an allowlist in Electron and a denylist in the sidecar
+- Electron passes only an allowlist plus proxy variables (`NetManager.ts:93-107`); that is the real control.
+- The sidecar unsets 9 named `TS_*` variables (`main.go:46-49`). Other `TS_DEBUG_*` envknobs would be honored
+  if the sidecar were started some other way.
+- **Recommended:** unset every `TS_*`/`TSNET_*` except `TS_NO_LOGS_NO_SUPPORT` in `main.go`.
+- Proxy variables are deliberately honored (`feature/condregister/useproxy`, corporate networks). The control
+  and DERP connections are TLS or Noise, and WireGuard traffic is end-to-end encrypted.
+
+### Verified OK (sidecar line-by-line)
+
+| Check | Evidence |
+|---|---|
+| WhoIs on the live connection, never cached, `proto=tcp` | `mesh.go:148`, `backend.go:37` |
+| Same-user check, both `UserProfile.ID` and `Node.User`; own id 0 → 503 | `mesh.go:155-163` |
+| Control-assigned name only (`Node.Name`), validated | `mesh.go:166-170` |
+| Per-peer rate limit (StableID) before the body; 16 in flight; 20 s deadline; Read/Write timeouts | `mesh.go:127-176`, `main.go:162-168` |
+| Body cap 600 000 (declared + actual), reply cap 64 KiB, equal to Python `MAX_BODY_BYTES` | `mesh.go:17,178-189,226` |
+| Forwarded request is new; only identity headers + `X-AirBridge-Secret` (≤ 1 KiB) are set; no proxy, no redirects | `mesh.go:196-212`, `loopbackClient` |
+| Inbox target restricted to `http://127.0.0.1:<port>` | `config.go` `inboxPortFromURL`, `mesh.go:196` |
+| Control API: loopback peer, no `Origin`, exact Host, constant-time bearer, all before routing | `control.go:69-87` |
+| Control API bound to `[::1]`, else `127.0.0.1`; unreachable from the mesh in both cases (tsnet never forwards) | `main.go:202-212` |
+| `/send` refuses IPs; exact-name match among **online same-user** peers; JSON object payload; caps | `control.go:154-228,230-238` |
+| Secrets only from stdin (one line, ≤ 64 KiB, `DisallowUnknownFields`, regex-validated); stdin closed; no argv or env config | `config.go:52-118`, `main.go:61-62` |
+| Redaction: exact run secrets + `(hs\|ts)key-…` + every URL (no interactive login URL in logs); stdout never written | `logging.go:23-49`, `main.go:66-68` |
+| AuthKey only when Electron saw `needs_login`; dropped from memory after the stdin write; never logged | `NetManager.ts:429-433`, `enroll.ts:224-229` |
+| No interactive login: without state or a key, tsnet is not started; `AuthURL` is never relayed | `main.go:141-178`, `control.go:120` |
+| State dir 0700, lstat (no symlink), owner == uid, chmod repair, before `srv.Start` | `main.go:80,238-262` |
+| Parent watchdog (Unix: ppid change or ESRCH; Windows: process handle wait) | `platform_unix.go:18-32`, `platform_windows.go:13-29` |
+| Mesh exposes exactly one listener; no Funnel, Serve, SSH, routes or exit node; `Ephemeral=false` | `main.go:104-112,159` |
+
+### Headscale (unchanged from the tailscaled review)
+
+### H-1 (High, config; fixed) — was F-3: — Headscale API key is full-admin and `/api/v1` is served on the public listener
 
 - API keys carry no scopes. Any valid key passes both the gRPC interceptor (`hscontrol/app.go:406-460`) and
   the HTTP middleware (`app.go:464-500`).
@@ -132,125 +176,11 @@ noted where they matter.
      old key).
   6. Keep the key only in the license server's secret store. It must never reach the client.
 
-### F-4 (Blocker on Windows) — a custom named pipe needs `--windows-mode=dev`, and the pipe name can be squatted
 
-- tailscaled v1.104.7 **refuses** a `--socket` outside `\\.\pipe\ProtectedPrefix\Administrators\` unless it runs
-  with `--windows-mode=dev` (`cmd/tailscaled/tailscaled.go:363-385`, `paths/paths.go:28`). The planned argv
-  `--socket=\\.\pipe\airbridge-tailscaled-<hash>` will fail to start as written.
-- With `--windows-mode=dev`, tailscaled listens through `ListenCurrentUser` (`tailscaled.go:604-608`), using
-  the owner-only SDDL `O:<sid>D:P(A;;GWGR;;;<sid>)` (`safesocket/pipe_windows.go:144`). The default SDDL
-  allows all Builtin Users: `D:P(A;;GWGR;;;BU)(A;;GWGR;;;SY)` (`pipe_windows.go:112`).
-- Squatting: the pipe name is predictable (`sha256(username)[:12]`). Another local user can create the pipe
-  first. tailscaled then fails to start (DoS), and `netbackend`'s plain `open(r'\\.\pipe\…')` would talk to
-  the attacker's fake LocalAPI. A fake whois would bypass the inbox auth, and fake status data could redirect
-  traffic.
-- Required:
-  1. Add `--windows-mode=dev` to the Windows argv (TailscaleManager.ts). The test
-     `test_ts_tailscaled_argv_contract` checks it.
-  2. Add a random per-launch suffix to the pipe name (≥ 64 bits, recorded in network.json).
-  3. Python: after `open()`, verify that the pipe server is owned by the current user. That needs
-     `GetSecurityInfo` on the handle, the same check as `checkPipeExclusiveToCurrentUser`,
-     `pipe_windows.go:46-100`. Alternatively, accept the random name as the mitigation for v1 and track the
-     owner check as a follow-up.
+Status: fixed (Caddy `@admin path /api /api/* /swagger /swagger*` → 404, `control` network
+`internal: true`, gRPC and metrics on loopback). Not yet validated against a running Caddy.
 
-### F-5 (Medium) — the whois miss path is a local DoS amplifier
-
-`LocalBackend.WhoIs` holds `b.mu` (`local.go:1760`) while `ProxyMapper.WhoIsIPPort` sleeps through
-`0+10+20+50+100 ms` retries (`proxymap/proxymap.go:84-108`, a workaround for issue #1616). Every unverifiable
-local connection to `:8989`, including `/health`, therefore holds LocalBackend's main lock for about 180 ms. A
-local flood stalls tailscaled. Today the inbox rate limiter is keyed by the verified node, so unverified
-requests are not limited at all.
-
-Required (inbox.py):
-1. Put a global semaphore around embedded verification (≤ 4 concurrent).
-2. Add a global token bucket for verification attempts (for example, 20/s) that returns 429 before any
-   LocalAPI call.
-3. Keep `LOCALAPI_TIMEOUT_S` short (≤ 2 s).
-
-### F-6 (Info, verified OK) — ProxyMapper lifetime and races
-
-- tailscaled dials `127.0.0.1:8989` **before** it registers the mapping (`netstack.go:1845-1861`, issue #1616).
-  The peer's handshake only completes at `getClient()` (`netstack.go:1871`), after registration. No request
-  byte can reach the inbox before the mapping exists, so the race only produces false negatives, which the
-  WhoIsIPPort retry loop covers. It fails closed.
-- Unregistration is deferred (`netstack.go:1861`) and runs before `backend.Close()` (LIFO defers). The mapping
-  therefore never outlives the backend socket, and the 4-tuple stays reserved while it exists. A local process
-  cannot bind that source port while tailscaled's socket holds it (no `SO_REUSEADDR` on the dialer). A stale
-  mapping cannot be inherited.
-- After the forwarded connection closes, whois for that port returns 404. The inbox must verify **per
-  request** (it does) and never cache by port.
-
-### F-7 (Low → fixed during review) — node identity source
-
-`Hostinfo.Hostname` is reported by the peer itself. `Node.Name` is assigned by control and is unique.
-`netbackend.parse_whois` now prefers `Node.Name` (`netbackend.py:336-339`). `verify_embedded_peer`'s raw-shape
-path uses only `Node.Name`. Recommended (inbox): log or bind `sender_node` to the verified peer name. Today
-`sender_node` is asserted by the peer, but the peer is same-user and trusted.
-
-### F-8 (Medium on multi-user hosts) — LocalAPI socket permissions (macOS/Linux)
-
-- The socket is created with mode `0666` whenever the platform uses peer credentials (Linux and darwin:
-  `safesocket/unixsocket.go:85-91`, `safesocket.go:146-160`). If the directory is missing, tailscaled creates
-  it with mode `0755` (`unixsocket.go:47-60`).
-- Permissions: any connecting Unix user gets **read** (`ipnserver/server.go:336-353`). That covers `status` and
-  `whois`, which reveal peers, IPs and the Headscale user. **Write** (`up`, `logout`, prefs) goes to root, the
-  same uid as tailscaled, the configured operator, or members of the `admin` group on macOS
-  (`ipnauth/ipnauth.go:166-207`, `210-225`). On macOS that lets **any other admin user on the machine drive
-  our tailscaled**.
-- Required (TailscaleManager.ts):
-  1. Before spawning, create the socket's parent directory with mode `0700`. That is `<D>` itself, or the
-     `$TMPDIR/airbridge-<uid>` fallback.
-  2. Verify with `lstat` that the directory is a real directory (not a symlink), owned by our uid, with
-     `mode & 0o077 == 0`. Abort otherwise; on Linux, `/tmp/airbridge-1000` can be pre-created by another user.
-  3. Make `<D>` itself `0700`.
-
-  The `0666` socket is then unreachable by other users. Root is always trusted.
-- Python `config.read_network_json` (Systems) should also reject `network.json` unless `st_uid == getuid()` and
-  `mode & 0o022 == 0`. A writable `network.json` lets an attacker point `socket` at a fake LocalAPI (whois
-  bypass) and `socks5` at a capturing proxy that receives task payloads and the shared secret.
-
-### F-9 (Medium, accepted) — the SOCKS5 server has no authentication
-
-- tailscaled's SOCKS server is built without `Username`/`Password` (`cmd/tailscaled/proxy.go:98-101`). Auth is
-  supported only by the `socks5.Server` struct (`net/socks5/socks5.go:104-106,171`), and tsnet is the only user
-  of it. No flag or environment variable enables it.
-- Any local process (any user) can use `127.0.0.1:<P>` to reach our same-user devices' `:8989`, which the ACL
-  restricts. Those devices still run their own whois and user checks, so the caller can only submit tasks *as
-  this device*. Non-tailnet destinations are dialed through the host network (`tsdial.go:620-624`), which
-  grants nothing new locally.
-- Accepted for v1 with mitigations: the ACL, the `[::1]` bind (F-1), and port-squat awareness (F-10).
-  Follow-up: patch tailscaled in `tailscale-mod` to read SOCKS credentials from a 0600 file. Then
-  `requests_proxies` → `socks5h://user:pass@…`.
-
-### F-10 (Low, multi-user) — loopback port squatting
-
-Before AirBridge binds them, another local user could bind `127.0.0.1:8989` (and receive peers' task payloads
-forwarded by tailscaled) or the SOCKS port `<P>` (and receive our outbound payloads plus the shared secret).
-Our bind then fails visibly. Required:
-- The daemon treats an inbox bind failure as fatal in embedded mode. It reports degraded and refuses to run.
-- TailscaleManager writes `network.json` only after the health check confirms tailscaled is up. If tailscaled
-  exits with `SOCKS5 listener:` in its log (`proxy.go:62-64`), it treats that as an error and never publishes
-  the port.
-
-### F-11 (Info, verified OK) — `--auth-key=file:` handling
-
-- `up --auth-key` accepts `file:<path>` (`cmd/tailscale/cli/up.go:102`). `resolveValueFromFile` reads and trims
-  the file (`up.go:215-224`). A read error prints `os.ReadFile`'s error, which names the path but never the
-  content.
-- The key travels to tailscaled in `ipn.Options.AuthKey` over the LocalAPI socket (`up.go:686-689`). It is not
-  persisted in prefs or state, and it is not logged. `controlclient` passes it to `tka.DecodeWrappedAuthkey`,
-  whose log lines contain only the error text (`tka/sig.go:467-495`). Syspolicy logs only `len=`
-  (`ipnlocal/local.go:3122`).
-- Headscale errors are fixed strings: `invalid authkey`, `authkey expired`, `authkey already used`
-  (`hscontrol/types/preauth_key.go:120-145`), and its own debug log masks keys as `hskey-auth-<prefix>-***`
-  (`preauth_key.go:101,180`). The key never appears in output.
-- An `hskey-…` key is not mistaken for an OAuth client secret: that hook only fires for the `tskey-client-`
-  prefix (`feature/oauthkey/oauthkey.go:38-41`).
-- Required (enroll.ts): write the key file `0600` with `O_EXCL` in `<D>` (0700); unlink it in `finally`; on
-  startup, sweep stale `<D>/.authkey-*` files, since a crash between write and unlink leaves a key valid for up
-  to 600 s; never log `tailscale up` stdout or stderr without redacting `/(?:hs|ts)key-[\w-]+/`.
-
-### F-12 (Info, verified OK) — Headscale pre-auth keys and `autogroup:self`
+### H-2 (Info, verified OK) — was F-12: — Headscale pre-auth keys and `autogroup:self`
 
 - **Single use** (`reusable:false`): `Validate` rejects keys already used (`preauth_key.go:137-142`).
   Consumption is an atomic compare-and-set (`UPDATE … WHERE id=? AND used=false`, checked by `RowsAffected`,
@@ -269,198 +199,104 @@ Our bind then fails visibly. Required:
   the Tailscale packet filter is default-deny whenever rules exist. The license server must never set
   `acl_tags`, because a tagged node would fall out of `autogroup:self`.
 - Prefixes must remain within `100.64.0.0/10` and `fd7a:115c:a1e0::/48` (`config-example.yaml:60-77`).
-  `verify_embedded_peer` rejects whois addresses outside them.
+  `sidecar_identity` (inbox) rejects a peer IP header outside them.
 
----
 
-## 4. STRIDE — embedded network
+
+## 3. F-13: sender identity (sidecar mode) — `REJECT_SENDER_MISMATCH = True`
+
+- The sidecar sends the verified control-assigned label in `X-AirBridge-Peer-Node`. The inbox normalizes it
+  (`security.embedded_peer_node_name`), and **only that name** is stored, logged and notified.
+- The outbox now sends its own control-assigned name: sidecar `/status` `self.hostname`, the first label of
+  `Self.DNSName` with the prefix stripped (`outbox.py` `_send_via_sidecar`). That is exactly what the
+  receiver's WhoIs reports. So Security **enabled rejection**: a `sender_node` that does not name the verified
+  device returns `400 sender_mismatch`.
+- Matching (`inbox.sender_matches_verified`) is canonical and tolerates Headscale's global `GivenName` bump
+  (`base`, `base-1`, …, `hscontrol/state/node_store.go` `resolveGivenName`).
+- Verified:
+  - unit tests (`test_phase3_security.py`, `test_sidecar_daemon.py`);
+  - the real 3-sidecar integration **11/11 with the flag on**. A same-user node claiming "a1" gets 400; the
+    same node claiming its own name gets 201 and is recorded under its verified name.
+
+## 4. STRIDE (sidecar)
 
 | Threat | Vector | Control | Residual |
 |---|---|---|---|
-| **S**poofing a peer to the inbox | Local process connects to `127.0.0.1:8989` | whois(proto=tcp) has no entry → 403 (`verify_embedded_peer`) | none |
-| Spoofing via a UDP mapping | F-2 | `proto=tcp` (fixed) + ACL `proto: tcp` | none once both are in place |
-| Spoofing across customers | Another customer's device | `autogroup:self` ACL, then the `user_id == self` check | depends on the ACL being loaded (F-1 check) |
-| Spoofing tailscaled (fake LocalAPI) | Squatting the socket or pipe, or tampering with network.json | 0700 socket dir; owner and mode check on network.json; Windows random pipe name + owner check (F-4, F-8) | pending fixes |
-| Spoofing the control server | MITM on enrollment | HTTPS login server (Caddy TLS); `redirect:'error'` on the license→Headscale API | — |
-| **T**ampering with tasks in transit | Network | WireGuard (Noise IK), end to end between nodes | — |
-| Tampering with the policy | Holder of the Headscale API key | F-3: API not public, key kept server-side and rotated | admin compromise = full tailnet |
-| **R**epudiation | Peer denies sending | Inbox logs the verified node name, StableID and tailnet IP | same-user devices are mutually trusted |
-| **I**nfo disclosure: other localhost services | Peer → `100.x:<any port>` → `127.0.0.1:<port>` | ACL `autogroup:self:8989` with `proto:tcp`; recommended `[::1]` binds for Control API and SOCKS | F-1 policy check required |
-| Info disclosure: LocalAPI read by other Unix users | 0666 socket | 0700 parent directory (F-8) | root |
-| Info disclosure: pre-auth key leak | argv, logs, env, disk | `file:` + 0600 + unlink; never in argv or env; tests | 600 s TTL, single use |
-| Info disclosure: telemetry | logtail | `--no-logs-no-support` + `TS_NO_LOGS_NO_SUPPORT=true`; `derp.urls: []` | Headscale operator sees metadata |
-| Info disclosure: DNS leak of peer names | Local DNS lookups | `socks5h` (remote resolution); `--accept-dns=false`; outbox uses IP literals | — |
-| **D**oS: whois lock amplification | Local flood on :8989 | F-5: semaphore + global bucket | — |
-| DoS: port or pipe squat | Another local user | Fail visibly (F-10, F-4) | multi-user hosts |
-| DoS: Headscale/DERP outage | Single region | Ops (second DERP region) | accepted, see plan §6 |
-| **E**levation: remote peer reaching the Control API | F-1 | Bearer token + ACL; recommended `[::1]` bind | — |
-| Elevation: local admin user drives tailscaled (macOS) | `admin` group gets write (F-8) | 0700 directory | root |
-| Elevation: open SOCKS proxy | F-9 | ACL; follow-up: SOCKS credentials | accepted v1 |
+| Spoofing a peer to the inbox | Local process → Python inbox | Loopback + per-daemon sidecar token (compare_digest) → 403 | S-2 (squat on a stale port) |
+| Spoofing a peer on the mesh | Forged source IP | WireGuard binds the source IP to the peer key; WhoIs on the live connection | — |
+| Spoofing across customers | Another user's node | `autogroup:self` ACL, then the user-id check in `mesh.go` | ACL integrity (policy guard) |
+| Sender-name spoofing | Payload `sender_node` | Verified name recorded; mismatch → 400 | — |
+| Tampering | Network | WireGuard / Noise | — |
+| Repudiation | — | Verified node name, IP and user logged | same-user devices are mutually trusted |
+| Info disclosure: localhost services | Peer → other ports | None exist (tsnet never forwards) + ACL tcp/8989 | — |
+| Info disclosure: keys and tokens | argv, env, logs, files | stdin only; redactor; key never on disk; `network.json` 0600 | same-user readers (S-3) |
+| Info disclosure: metadata to Tailscale Inc. | logtail, netlog, captive portal, DNS fallback | logtail/netlog off; captive portal not linked | **S-1 DNS fallback** |
+| DoS | Mesh flood | Per-peer bucket, 16 in flight, timeouts, body cap | Headscale/DERP availability |
+| Elevation via the control API | Browser, remote peer, other user | Loopback, no Origin, Host, bearer; unreachable from the mesh | token holders = same user |
 
 ## 5. Key and credential lifecycle
 
-| Secret | Created by | Stored | Lifetime | In transit | Revocation | Must never |
-|---|---|---|---|---|---|---|
-| Headscale API key `hskey-api-…` | Ops (`headscale apikeys create --expiration 90d`) | License-server secret store only (`HEADSCALE_API_KEY`) | ≤ 90 d, then rotate | License server → Headscale over the internal network, `Authorization: Bearer` | `headscale apikeys expire` | reach clients, logs or the repo; be exposed through a public `/api` |
-| Pre-auth key `hskey-auth-…` | License server `POST /api/v1/preauthkey {reusable:false, ephemeral:false, expiration:+600s}` | Response (`no-store`), then `<D>/.authkey-<rand>` (0600, O_EXCL), unlinked in `finally` | ≤ 600 s, single use (atomic CAS) | HTTPS response; LocalAPI `ipn.Options.AuthKey` | expires; used once | appear in argv, env, logs or IPC to the renderer; be reusable; be tagged |
-| Node key / machine key | tailscaled | `<D>/tailscaled/` state (dir 0700) | `node.expiry: 0` (no expiry) | — | license server `devices/:id/remove`; `logout` on sign-out | be committed (scan); be world-readable |
-| WireGuard session keys | tailscaled | memory | rotating | — | — | — |
-| Control API token | ProcessManager per launch | memory / env of the daemon | process lifetime | loopback `Authorization` | restart | be reachable from the tailnet (F-1) |
-| Clerk JWT | Clerk | main-process memory | short | HTTPS to the license server | Clerk | be logged |
-| `enrolled_sub_hash` | TailscaleManager | network.json (0600) | until re-enroll | — | — | be a raw `sub` |
-
-Gaps:
-- Subscription lapse leaves nodes enrolled forever (`node.expiry: 0`). The follow-up from plan §6 (a Stripe
-  webhook that expires or deletes the user's nodes) is required before GA.
-- An uninstall without sign-out leaves the node registered. The devices list in the app plus the remove
-  endpoint cover it.
+| Secret | Origin | Transport / storage | Lifetime | Never |
+|---|---|---|---|---|
+| Headscale API key | Ops | License-server secret store; internal network only | ≤ 90 d rotation | client, logs, repo, public `/api` |
+| Pre-auth key `hskey-auth-…` | License server (`reusable:false`, 600 s) | HTTPS (`no-store`) → Electron memory → sidecar **stdin** → tsnet (memory) | single use, ≤ 600 s | argv, env, disk, logs, renderer |
+| Node and machine keys | tsnet | `<D>/tsnet/tailscaled.state` (dir 0700) | `node.expiry: 0`; revoked via the license-server remove endpoint / logout | committed (scan) |
+| Control token | NetManager per spawn (32 B) | stdin; daemon env; `network.json` 0600 | sidecar lifetime | logs (redacted) |
+| Inbox token | Daemon per inbox start (`token_urlsafe(32)`) | `POST /inbox` (control-token auth); sidecar → inbox header | daemon lifetime | logs; see S-2 |
 
 ## 6. Required fixes for other owners
 
-| # | Owner | File | Fix | Finding |
+| # | Owner | File | Fix | Blocking? |
 |---|---|---|---|---|
-| 1 | SWE | `license-server/headscale/policy.hujson` | `{"acls":[{"action":"accept","proto":"tcp","src":["autogroup:member"],"dst":["autogroup:self:8989"]}]}`. No other rules, no tags. | F-1, F-2 |
-| 2 | SWE | `license-server/headscale/config.yaml.tmpl` | `policy.mode: file`, non-empty `policy.path`; `grpc_listen_addr: 127.0.0.1:50443` (or unset); `grpc_allow_insecure: false`; `metrics_listen_addr: 127.0.0.1:9090`; default prefixes; `derp.urls: []`; `dns.magic_dns: false`; `node.expiry: 0` | F-1, F-3 |
-| 3 | SWE | `license-server/headscale/Caddyfile` | Public site: `@internal path /api/* /swagger*` → `respond 404`. Proxy only the control-protocol paths (`/ts2021`, `/key`, `/machine/*`, `/register/*`, `/derp*`, `/bootstrap-dns`, `/health`) | F-3 |
-| 4 | SWE | `license-server/headscale/docker-compose.yml` | License server → Headscale over an internal network; the Headscale API port is not published to the host or internet | F-3 |
-| 5 | SWE | `license-server/src/network.ts` / `headscale.ts` | Startup and periodic `GET /api/v1/policy` compared with the expected canonical policy. On mismatch, 503 on `/v1/network/preauth-key` and an alert. Never send `acl_tags` | F-1, F-12 |
-| 6 | SWE | `desktop/src/main/network/enroll.ts` | Key file `0600` + `O_EXCL` (`wx` flag) in `<D>`; `finally` unlink; startup sweep of `.authkey-*`; redact `/(?:hs|ts)key-[\w-]+/` from any logged CLI output; argv uses only `--auth-key=file:<path>` | F-11 |
-| 7 | Systems | `desktop/src/main/network/TailscaleManager.ts` | Windows: add `--windows-mode=dev` and a random per-launch pipe suffix | F-4 |
-| 8 | Systems | `TailscaleManager.ts` | Before spawn: `mkdir` socket dir `0700`, `lstat` check (dir, not a symlink, owner == uid, `mode & 077 == 0`), else abort; `<D>` mode `0700` | F-8 |
-| 9 | Systems | `TailscaleManager.ts` | Write `network.json` only after a healthy `status`; treat a `SOCKS5 listener:` fatal error as an error state | F-10 |
-| 10 | Systems | `TailscaleManager.ts` (recommended) | `--socks5-server=[::1]:<P>` (fallback `127.0.0.1`) | F-1, F-9 |
-| 11 | Systems | `airbridge/airbridge_app/control.py` (recommended) | Bind the Control API to `::1` when available (Host check becomes `[::1]:<port>`) | F-1 |
-| 12 | Systems | `airbridge/airbridge_app/inbox.py` | Global semaphore (≤ 4) + global token bucket on embedded verification before any LocalAPI call; inbox bind failure fatal in embedded mode | F-5, F-10 |
-| 13 | Systems | `airbridge/airbridge_app/config.py` `read_network_json` | On POSIX, reject unless `st_uid == os.getuid()` and `st_mode & 0o022 == 0` | F-8 |
-| 14 | Systems | `airbridge/airbridge_app/netbackend.py` (Windows) | After opening the pipe, verify that the server's owner SID is the current user (or rely on the random name for v1) | F-4 |
-| ✔ | Systems | `netbackend.py` | `whois?proto=tcp&addr=` (**done**) | F-2 |
-| ✔ | Systems | `netbackend.py` `parse_whois` | Prefer `Node.Name` over `Hostinfo.Hostname` (**done**) | F-7 |
+| 1 | Systems | `desktop/sidecar/airbridge-net/go.mod` (+ vendored `tailscale.com` copy) | `replace tailscale.com` with a pinned copy whose `net/dnsfallback/dns-fallback-servers.json` is `{"Regions":{}}`; Go test that the fallback map has no `tailscale.com` hosts (S-1) | Yes, for the "no Tailscale hosts" claim; otherwise product rewords it |
+| 2 | Systems | `desktop/sidecar/airbridge-net/mesh.go` (~line 213) | On an inbox connection error, `m.inbox.set(0, "")` (S-2) | No (multi-user hosts) |
+| 3 | Systems | `desktop/sidecar/airbridge-net/control.go:240-252` + `airbridge/airbridge_app/daemon.py` | Accept `{port:0}` as deregister; the daemon deregisters on shutdown (S-2) | No |
+| 4 | Systems | `mesh.go` / `inbox.py` | Recommended: HMAC-signed forwarding instead of the bearer header, or a Unix-socket inbox on POSIX (S-2) | No |
+| 5 | Systems | `desktop/sidecar/airbridge-net/main.go:138` | `ReadTimeout`/`WriteTimeout`/`IdleTimeout` on `ctlSrv` (S-4) | No |
+| 6 | Systems | `desktop/sidecar/airbridge-net/main.go:46-49,75-76` | Unset all `TS_*`/`TSNET_*` except `TS_NO_LOGS_NO_SUPPORT` (S-5) | No |
+| 7 | Systems | `desktop/sidecar/airbridge-net/platform_windows.go` | Owner-SID/DACL check in `ensurePrivateDir` (S-3) | No |
+| 8 | Ops/SWE | Production Caddy | Smoke test: `/api/v1/user` and `/swagger` → 404 on the public host (H-1) | Yes, before launch |
 
 ## 7. Tests (Security-owned)
 
 - `airbridge/tests/test_phase3_security.py`:
-  - `verify_embedded_peer` table tests: source address, port, whois outcome, schema, user ids, lazy own id,
-    log safety.
-  - Embedded inbox integration with a fake backend: unknown whois → 403, foreign user → 403, bad whois → 403,
-    unknown own id → 403, non-loopback → 403, same user → 201 (normalized and raw shapes). Phase-1 mode still
-    rejects loopback.
-  - A fake LocalAPI on a Unix socket checks that `netbackend` pins `proto=tcp` and that its output passes
-    verification.
-  - `requests_proxies` is `socks5h://127.0.0.1:P`.
-  - Outbox AST: `trust_env=False`, no module-level `requests.*`, proxies applied, no `socks5://`.
-  - Static TS checks on `desktop/src/main/network/*.ts`: `--auth-key` only with `file:`, no key variable in
-    `up` argv, no `TS_AUTHKEY`, no key in log calls, argv contract (`userspace-networking`,
-    `--no-logs-no-support`, SOCKS on loopback, no debug or HTTP-proxy listeners, `--windows-mode=dev` with a
-    custom pipe), env not inherited wholesale.
-  - Tests for a module that does not exist yet are skipped with `PENDING (owner)`. Once the module exists,
-    they become hard requirements.
-- `desktop/tests/secrets-scan.test.ts`:
-  - New rules for `tskey-…`, `hskey-auth-…` / `hskey-api-…` (the masked `-***` form is allowed),
-    `HEADSCALE_API_KEY=` / `TS_AUTHKEY=` literal assignments, and a literal `--auth-key=<value>`.
-  - Committed `.authkey*`, `tailscaled.state` and `network.json` files are forbidden.
-  - `.env.example` placeholder enforcement extended to `*AUTH_KEY` / `PREAUTH_KEY`.
-  - The renderer must not reference key material or `HEADSCALE_API_KEY`.
+  - `verify_embedded_peer` table tests.
+  - Sidecar-mode inbox: no token, wrong token, non-loopback, bad peer headers → 403; same user → 201.
+    Sender: mismatch → 400 by default, overwrite with the flag off, collision bump accepted.
+  - Sidecar client loopback-only; outbox `trust_env=False` and hostname-only `/send`.
+  - TS checks: pre-auth key only on stdin; fixed empty argv; scrubbed env; no key logging.
+  - **New Go static checks** on `desktop/sidecar/airbridge-net/*.go`:
+    - WhoIsProto tcp on the live connection, plus the same-user check;
+    - body caps equal to Python's;
+    - exactly one `srv.Listen("tcp", ":8989")` and no Funnel, Serve or fallback handlers;
+    - control-API guards before routing, with loopback-only binds;
+    - secrets only from stdin, with no `os.Getenv`, argv or stdout;
+    - `SetNoLogsNoSupport` and `logtail.Disable` before `srv.Start`;
+    - no hardcoded Tailscale hosts;
+    - private state dir before start;
+    - loopback-only inbox target, with `/inbox` behind auth.
+- `desktop/tests/secrets-scan.test.ts`: Tailscale and Headscale key rules, literal `--auth-key`, forbidden
+  committed `.authkey*`, `tailscaled.state` and `network.json` (all still apply to the sidecar state dir).
 
-## 8. F-13: sender identity in embedded mode (fixed in final pass)
+## 8. Sign-off
 
-`sender_node` in the payload is asserted by the sender. In embedded mode the inbox
-(`airbridge_app/inbox.py`, step 5b) now **always** records the whois-verified name:
-`security.embedded_peer_node_name(Node.Name)`, with the `airbridge-` prefix stripped. The payload value is
-replaced before storage, logging, notification and event emission. The self-asserted name is never recorded.
-System (Phase-1) mode is unchanged.
+- [x] Mesh trust: WhoIs tcp on the live connection, same-user check, control-assigned name, caps, rate
+  limits, single listener.
+- [x] Local trust: inbox token, control-API guards, loopback binds, `/send` hostname-only.
+- [x] Secrets: stdin only, redaction, no argv or env, no key on disk; secrets scan green.
+- [x] Log upload and netlog disabled before start; captive portal not linked; control URL always ours.
+- [x] F-13: sender bound to WhoIs; **`REJECT_SENDER_MISMATCH` enabled**; real integration 11/11.
+- [x] Headscale policy, guard, API isolation (H-1, H-2).
+- [ ] S-1 DNS-fallback fix (#1), or product accepts and rewords the claim.
+- [ ] Production Caddy smoke test (#8).
+- [ ] Windows and macOS end-to-end run of the real integration (only Linux has been exercised).
 
-**Mismatch policy: reject-if-mismatch is implemented but disabled (`inbox.REJECT_SENDER_MISMATCH = False`).**
-Today a mismatch is logged and overwritten. Enabling the flag was tested: it **broke the real-tailnet test
-A1→A2**.
-- The outbox sends `socket.gethostname()` (the container's name), but the node was enrolled as
-  `--hostname=airbridge-a1`.
-- In the product, the same divergence hits non-ASCII hostnames: `outbox._local_sender_name` turns `José-PC`
-  into `Jos--PC`, while `enroll.sanitizeHostname` produces `jose-pc`. Custom device names diverge too.
-- Rejecting would drop legitimate tasks. Security gains nothing from it: the stored identity is the verified
-  one either way, and rejection only adds detection of mislabeled senders.
+**Status: APPROVED for beta on Linux/macOS/Windows** with residual risks S-1 (until #1), S-2 (multi-user
+hosts), and the untested Windows/macOS paths. GA sign-off requires #1 (or explicit product acceptance), #8,
+and one real run per OS.
 
-Matching (`inbox.sender_matches_verified`, used for the warning and for the flag) compares canonical forms:
-NFKD, lowercase, `airbridge-` stripped, ASCII alphanumerics only. It accepts the verified name being the
-claimed name plus a decimal suffix, because Headscale makes `GivenName` unique **across all users** (`base`,
-`base-1`, …, `hscontrol/state/node_store.go` `resolveGivenName`), so `macbook-pro` is often `macbook-pro-37`.
-
-To enable rejection (Systems, `outbox.py`, about 5 lines):
-1. In embedded mode, `sender_node` = this node's own enrolled name, i.e.
-   `netbackend.strip_prefix(<Self.HostName>)` from `peer_details()["self"]["hostname"]`.
-2. Then set `REJECT_SENDER_MISMATCH = True`.
-
-`test_embedded_sender_mismatch_400_when_reject_enabled` already covers the flag.
-
-## 9. IPv4 fallback assessment (Control API and SOCKS on 127.0.0.1 when `::1` is unavailable)
-
-**Acceptable for v1.** Three independent controls remain in the fallback:
-
-1. The packet filter admits only `tcp/8989` from same-user devices. This was verified in the real
-   integration test ("other ports blocked by ACL"), and the license server's policy guard checks the policy
-   every 10 minutes.
-2. The Control API's per-launch bearer token, compared in constant time. The Host check adds nothing against
-   a forwarded peer.
-3. The only peers that can reach this machine at all are the user's own devices.
-
-The guard stops new keys only; Headscale keeps pushing whatever the policy file says to enrolled nodes. Treat
-policy-file integrity as an ops control: the file is read-only in the container, changes are reviewed, and
-`NETWORK_POLICY_MISMATCH` alerts.
-
-Optional, cheap hardening (not blocking): on Linux and Windows, where all of `127.0.0.0/8` is loopback, fall
-back to **`127.0.0.2`** instead of `127.0.0.1`. netstack only ever dials `127.0.0.1` (`netstack.go:1799`), so a
-`127.0.0.2` listener stays unreachable from the tailnet even without IPv6. Verified that binding `127.0.0.2`
-works on Linux. macOS always has `::1`, so it never needs the fallback. The change is
-`control.CONTROL_HOST_V4`, the Host-check literal, and the SOCKS fallback in `TailscaleManager.ts`.
-
-## 10. Final status (re-review of commit 00a4c5b + this pass)
-
-| Fix | Status | Evidence |
-|---|---|---|
-| #1 policy `proto:tcp` + `autogroup:self:8989` | ✅ | `license-server/headscale/policy.hujson`; real integration: cross-user and other ports blocked |
-| #2 config (`policy.mode/path`, gRPC/metrics on loopback, default prefixes) | ✅ | `config.yaml.tmpl:9-23,77-79` |
-| #3 Caddy 404 `/api*` `/swagger*` | ✅ (not run against a real Caddy) | `Caddyfile:19-20` |
-| #4 internal network for license server → Headscale | ✅ | `docker-compose.yml` (`control` network `internal: true`; only 3478/udp published by headscale) |
-| #5 policy self-check, 503 on mismatch, no `acl_tags` | ✅ | `license-server/src/network.ts`, `headscale.ts:212` |
-| #6 enroll key file (`wx`, 0600, finally unlink, stale sweep) | ✅ | `enroll.ts:157-165,220,271-272`; TS static checks pass |
-| #7 Windows `--windows-mode=dev` + random pipe suffix | ✅ (untested on Windows) | `TailscaleManager.ts:111,138`. Suffix is 32 bits: enough against pre-creation (the name is unknown before spawn); 64 bits preferred |
-| #8 0700 dirs with lstat/owner check | ✅ | `TailscaleManager.ts:170-185` (`ensurePrivateDir`) |
-| #9 publish `network.json` only when healthy | ✅ per Systems | — |
-| #10 SOCKS on `[::1]` | ✅ (fallback `127.0.0.1`, §9) | `TailscaleManager.ts:127`; static test |
-| #11 Control API on `::1` | ✅ (fallback `127.0.0.1`, §9) | `control.py:47-48,314-324` |
-| #12 inbox throttling before whois | ✅ | `inbox.py` semaphore 8 + bucket 20/s (burst 40) → 429 |
-| #13 `network.json` owner and mode check | ✅ | `config.py:104` |
-| #14 Python pipe-owner check (Windows) | ❌ not done | Residual risk, mitigated by the random pipe name |
-| F-13 sender identity from whois | ✅ overwrite (this pass); reject flag off pending outbox change | `inbox.py` step 5b; unit tests + real-tailnet 5/5 re-run |
-
-## 11. Sign-off checklist
-
-- [x] `verify_embedded_peer` implemented and unit-tested (fail closed on every branch).
-- [x] Netstack forwarding, ProxyMapper lifecycle, races verified (F-6); `proto=tcp` pinned (F-2).
-- [x] `--auth-key=file:`; key never in argv, env or logs (F-11); enroll key-file handling (#6).
-- [x] Headscale single-use, expiry and `autogroup:self` semantics verified (F-12); policy deployed + self-check (#1, #2, #5).
-- [x] Headscale API not public; gRPC and metrics on loopback (#3, #4). API-key rotation is in the README (ops).
-- [x] Windows `--windows-mode=dev` + per-launch pipe name (#7).
-- [x] 0700 socket dir with owner check; `network.json` owner and mode check (#8, #13).
-- [x] Inbox verification throttling (#12); Control API and SOCKS on `[::1]` (#10, #11).
-- [x] Sender identity bound to whois (F-13): the stored sender is always the verified node. Reject-on-mismatch waits on the outbox change.
-- [x] Real tailnet test (Linux): whois resolves the true peer; cross-user blocked; non-8989 ports blocked; direct local POST → 403.
-- [x] Secrets scan extended; all TS static checks active (no pending skips).
-
-**Residual risks (accepted for v1):**
-- Windows and macOS paths are untested end to end: the pipe mode, `--windows-mode=dev`, peercreds without
-  CGO on macOS, and `::1` binding. Run the real-tailnet test on both before GA.
-- The Python pipe-owner check (#14) is not implemented. A local attacker who learns the per-launch pipe name
-  after spawn cannot squat it while tailscaled holds it. Squatting before spawn requires guessing 32 random
-  bits.
-- The SOCKS5 server is unauthenticated (F-9). Any local process can reach the user's own devices on :8989 as
-  this device.
-- Caddy rules were not checked against a real Caddy, and the compose stack was not brought up. Before
-  launch, smoke-test `curl https://<hs>/api/v1/user` → 404 and `/swagger` → 404.
-- IPv4 fallback on hosts without IPv6 (§9).
-- A mismatched self-asserted `sender_node` is overwritten and logged, not rejected, until the outbox sends its verified self name (F-13).
-- Subscription lapse leaves nodes enrolled (`node.expiry: 0`) until the revoke-on-cancel flow runs. Headscale
-  ops (backups, upgrades, single DERP region) are an availability risk, not a confidentiality one.
-
-**Sign-off: APPROVED for Linux and macOS beta, conditional for Windows GA.** Windows GA requires one real
-Windows run of the integration test, plus #14 or an explicit risk acceptance. The pre-launch production smoke
-test of Caddy `/api` and `/swagger` → 404 is required on every platform.
+## Appendix — superseded tailscaled findings
+F-1 (localhost forwarding), F-2/F-5/F-6 (ProxyMapper whois), F-4 (Windows pipe), F-8 (LocalAPI socket),
+F-9 (open SOCKS5), F-10 (SOCKS/inbox port squat) and F-11 (`--auth-key=file:`) no longer apply: there is
+no tailscaled, LocalAPI socket, SOCKS proxy or key file. Their analysis is in git history (commit 00a4c5b).
+`security.verify_embedded_peer` remains, unit-tested, for any future embedded-tailscaled path.
