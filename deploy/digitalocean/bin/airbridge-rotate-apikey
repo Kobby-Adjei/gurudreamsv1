@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# airbridge-rotate-apikey: replace the Headscale API key (PHASE3_SECURITY H-1: rotate <= 90 days). Run monthly by
+# airbridge-rotate-apikey.timer, or by hand after a suspected leak. Creates a new 90-day key, restarts the license
+# server with it, checks that the policy guard verifies through the new key, then expires every older key.
+# On failure the previous key is restored. Keys are never printed.
+set -euo pipefail
+umask 077
+# shellcheck source=airbridge-common.sh
+. "${AIRBRIDGE_LIB:-/usr/local/lib/airbridge}/airbridge-common.sh"
+f="$AIRBRIDGE_SECRETS/headscale_api_key"
+[ -s "$f" ] || die "no current key: run airbridge-bootstrap"
+old_ids="$(compose exec -T headscale headscale apikeys list -o json | jq -r '.[]?.id')"
+tmp="$(mktemp "$AIRBRIDGE_SECRETS/.hsk.XXXXXX")"
+compose exec -T headscale headscale apikeys create --expiration 90d >"$tmp"
+key="$(tr -d '\r\n' <"$tmp")"
+[[ "$key" =~ ^hskey-api-[A-Za-z0-9_-]{20,500}$ ]] || { rm -f "$tmp"; die "unexpected output from 'headscale apikeys create'"; }
+printf '%s' "$key" >"$tmp"
+unset key
+chown "$NODE_UID:$NODE_UID" "$tmp"
+chmod 0400 "$tmp"
+cp -p "$f" "$f.prev"
+mv -f "$tmp" "$f"
+compose up -d --force-recreate --wait license-server
+if ! wait_policy_verified; then
+  log "new key does not work: restoring the previous key"
+  mv -f "$f.prev" "$f"
+  compose up -d --force-recreate --wait license-server
+  die "rotation failed (previous key restored; the new key stays unused until it expires)"
+fi
+rm -f "$f.prev"
+n=0
+for id in $old_ids; do
+  [[ "$id" =~ ^[0-9]+$ ]] || continue
+  compose exec -T headscale headscale apikeys expire --id "$id" >/dev/null 2>&1 && n=$((n + 1))
+done
+log "Headscale API key rotated; expired $n older key(s)"

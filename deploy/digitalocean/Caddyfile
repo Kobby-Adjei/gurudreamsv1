@@ -1,0 +1,84 @@
+# AirBridge cloud front door (deploy/digitalocean). Env: AIRBRIDGE_DOMAIN (e.g. 203-0-113-10.sslip.io or a real
+# domain). Caddy obtains and renews the Let's Encrypt certificate itself (HTTP-01 on :80 / TLS-ALPN-01 on :443).
+{
+	# No admin endpoint: config changes = `airbridge-compose restart caddy`.
+	admin off
+	# Empty in production. Local tests only: CADDY_LOCAL_CERTS=local_certs (Caddy's internal CA).
+	{$CADDY_LOCAL_CERTS}
+	servers {
+		# 443/udp is closed in the cloud firewall: never advertise HTTP/3.
+		protocols h1 h2
+	}
+}
+
+http://{$AIRBRIDGE_DOMAIN} {
+	# Tailscale captive-portal probe against the DERP host (plain HTTP by design).
+	handle /generate_204 {
+		respond 204
+	}
+	handle {
+		redir https://{host}{uri} permanent
+	}
+}
+
+{$AIRBRIDGE_DOMAIN} {
+	header {
+		-Server
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		Strict-Transport-Security "max-age=31536000"
+	}
+
+	# Never public: the Headscale admin REST API and its docs (PHASE3_SECURITY H-1 / F-3). The license server
+	# reaches /api/v1 over the internal `control` network only.
+	@admin path /api /api/* /swagger /swagger*
+	handle @admin {
+		respond 404
+	}
+
+	handle /generate_204 {
+		respond 204
+	}
+
+	# Headscale: Noise control protocol (POST /ts2021 with Upgrade), server key, embedded DERP relay over HTTPS,
+	# DERP probes, bootstrap DNS and health. Caddy proxies any Upgrade natively. Nothing else of Headscale is public
+	# (no /register, /apple, /windows, /swagger, /api).
+	@headscale path /ts2021 /key /health /derp /derp/probe /derp/latency-check /bootstrap-dns
+	handle @headscale {
+		reverse_proxy headscale:8080 {
+			header_up X-Real-IP {remote_host}
+			# DERP and the control stream are long-lived; flush immediately.
+			flush_interval -1
+		}
+	}
+
+	# License server: /v1/* (license, network, waitlist, public key), /healthz, Checkout return pages.
+	@license path /v1/* /healthz /checkout/*
+	handle @license {
+		reverse_proxy license-server:8787
+	}
+
+	# Everything else: the static landing page (copied from landing/ by airbridge-bootstrap, read-only).
+	handle {
+		root * /srv/landing
+		header {
+			X-Frame-Options DENY
+			Permissions-Policy "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+			Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'"
+			Cache-Control "no-cache"
+		}
+		try_files {path} {path}/index.html
+		file_server {
+			hide .* *.md
+		}
+	}
+
+	handle_errors {
+		respond "{err.status_code} {err.status_text}" {err.status_code}
+	}
+
+	log {
+		output stdout
+		format json
+	}
+}

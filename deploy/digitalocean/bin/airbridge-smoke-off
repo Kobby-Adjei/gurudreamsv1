@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# airbridge-smoke-off: turn the TEMPORARY smoke-test endpoints off for good (SMOKE_TEST=0) and restart the license
+# server. Triggered by airbridge-smoke-off.path as soon as POST /v1/admin/smoke/cleanup writes its marker, and
+# hourly by airbridge-smoke-off.timer once SMOKE_TEST_UNTIL has passed. Disables its own units afterwards.
+set -euo pipefail
+# shellcheck source=airbridge-common.sh
+. "${AIRBRIDGE_LIB:-/usr/local/lib/airbridge}/airbridge-common.sh"
+load_env
+marker="$AIRBRIDGE_STATE/license/smoke/disabled"
+if [ "${SMOKE_TEST:-0}" = 1 ]; then
+  if [ "${1:-}" = --if-due ] && [ ! -e "$marker" ] && { [ -z "${SMOKE_TEST_UNTIL:-}" ] || [ "$(date +%s)" -lt "$SMOKE_TEST_UNTIL" ]; }; then
+    exit 0
+  fi
+  set_env_var SMOKE_TEST 0
+  set_env_var SMOKE_TEST_UNTIL ""
+  AIRBRIDGE_SKIP_BUILD=1 airbridge-bootstrap
+  log "smoke test disabled (SMOKE_TEST=0)"
+fi
+if command -v systemctl >/dev/null; then
+  systemctl disable --now airbridge-smoke-off.path airbridge-smoke-off.timer >/dev/null 2>&1 || true
+fi

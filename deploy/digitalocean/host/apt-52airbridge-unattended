@@ -1,0 +1,9 @@
+// AirBridge droplet: install security updates daily; reboot automatically (08:30 UTC) when one requires it.
+// Docker restart policies (unless-stopped) bring the stack back after a reboot.
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Unattended-Upgrade "1";
+APT::Periodic::AutocleanInterval "7";
+Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
+Unattended-Upgrade::Remove-Unused-Dependencies "true";
+Unattended-Upgrade::Automatic-Reboot "true";
+Unattended-Upgrade::Automatic-Reboot-Time "08:30";

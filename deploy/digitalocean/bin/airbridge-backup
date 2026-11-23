@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# airbridge-backup: nightly local backup (airbridge-backup.timer) to $AIRBRIDGE_STATE/backups/airbridge-<UTC>.tar.gz
+# (0600, last 14 kept). Contains: a consistent online copy of Headscale's SQLite DB, Headscale's noise + DERP
+# private keys, the rendered config + policy, the waitlist (emails), the license signing key, the Headscale API key,
+# the waitlist admin token and airbridge.env. It holds private keys: keep it on the server or encrypt it before
+# copying it anywhere (README "Backups").
+set -euo pipefail
+umask 077
+# shellcheck source=airbridge-common.sh
+. "${AIRBRIDGE_LIB:-/usr/local/lib/airbridge}/airbridge-common.sh"
+KEEP="${AIRBRIDGE_BACKUP_KEEP:-14}"
+OUT="$AIRBRIDGE_STATE/backups"
+stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+work="$(mktemp -d)"
+trap 'rm -rf "$work"' EXIT
+mkdir -p "$work/airbridge-$stamp"/{headscale,license,secrets,etc}
+d="$work/airbridge-$stamp"
+# SQLite online backup API: consistent even while Headscale writes (WAL mode).
+sqlite3 "$AIRBRIDGE_STATE/headscale/db.sqlite" ".timeout 10000" ".backup '$d/headscale/db.sqlite'"
+sqlite3 "$d/headscale/db.sqlite" "PRAGMA integrity_check;" | grep -qx ok || die "backup DB failed its integrity check"
+cp -p "$AIRBRIDGE_STATE"/headscale/*.key "$d/headscale/"
+cp -p "$AIRBRIDGE_STATE/headscale-config/config.yaml" "$AIRBRIDGE_SRC/license-server/headscale/policy.hujson" "$d/headscale/"
+cp -a "$AIRBRIDGE_STATE/license/." "$d/license/"
+cp -p "$AIRBRIDGE_SECRETS"/* "$d/secrets/"
+cp -p "$AIRBRIDGE_ETC/airbridge.env" "$d/etc/"
+git -C "$AIRBRIDGE_SRC" rev-parse HEAD >"$d/etc/commit"
+tar -C "$work" -czf "$OUT/.airbridge-$stamp.tar.gz" "airbridge-$stamp"
+chmod 0600 "$OUT/.airbridge-$stamp.tar.gz"
+mv "$OUT/.airbridge-$stamp.tar.gz" "$OUT/airbridge-$stamp.tar.gz"
+ls -1t "$OUT"/airbridge-*.tar.gz | tail -n +"$((KEEP + 1))" | xargs -r rm -f
+log "backup written: $OUT/airbridge-$stamp.tar.gz ($(du -h "$OUT/airbridge-$stamp.tar.gz" | cut -f1))"

@@ -1,0 +1,7 @@
+[Unit]
+Description=Turn the AirBridge smoke-test endpoints off (SMOKE_TEST=0)
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/airbridge-smoke-off --if-due

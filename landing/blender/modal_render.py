@@ -3,11 +3,17 @@ Render the AirBridge hero loop on Modal (serverless GPUs) with the SAME pinned B
 version and the SAME scene script used for the local previews.
 
     pip install modal && modal setup          # once
+    modal run landing/blender/modal_render.py --start 1 --end 12 --chunks 1   # smoke test first
     modal run landing/blender/modal_render.py                       # L4, 12 chunks x 12 frames
-    HERO_GPU=A10G modal run landing/blender/modal_render.py         # A10G instead
-    modal run landing/blender/modal_render.py --start 1 --end 12 --chunks 1   # smoke test
+    modal run landing/blender/modal_render.py --res 1080x1920 --prefix hero_tall_   # phone version
+
+    GPU type is chosen when the app is defined, so it is an environment variable:
+      macOS/Linux:        HERO_GPU=A10G modal run landing/blender/modal_render.py
+      Windows PowerShell: $env:HERO_GPU="A10G"; modal run landing/blender/modal_render.py
 
 Frames land in landing/blender/frames/hero_0001.png ... hero_0144.png (gitignored).
+Paths are built with pathlib relative to this file, so it runs from any directory on
+macOS, Linux or Windows.
 Nothing here changes the look: render settings live in hero_scene.py (--quality prod).
 """
 
@@ -26,8 +32,6 @@ BLENDER_SHA256 = "bea0eb3146be13eae6225409a117b215184f41b7f79e799f97cb3abb8f6dc4
 BLENDER_BIN = f"/opt/blender-{BLENDER_VERSION}-linux-x64/blender"
 
 GPU = os.environ.get("HERO_GPU", "L4")              # "L4" or "A10G"
-DEVICE = os.environ.get("HERO_DEVICE", "auto")      # auto = OPTIX > CUDA > CPU (see hero_scene.py)
-RES = os.environ.get("HERO_RES", "1920x1080")
 
 # Approximate Modal list prices (USD per second) - check modal.com/pricing before relying on them.
 PRICE_PER_S = {"L4": 0.000222, "A10G": 0.000306}
@@ -60,16 +64,20 @@ app = modal.App("airbridge-hero-render", image=image)
 
 
 @app.function(gpu=GPU, cpu=CPU_CORES, memory=MEM_GIB * 1024, timeout=3 * 60 * 60, max_containers=12)
-def render_range(start: int, end: int) -> dict:
-    """Render frames [start, end] inclusive; return {filename: png bytes, '_seconds': float}."""
+def render_range(start: int, end: int, res: str = "1920x1080", device: str = "auto",
+                 prefix: str = "hero_") -> dict:
+    """Render frames [start, end] inclusive; return {filename: png bytes, '_seconds': float}.
+
+    device: auto = OPTIX > CUDA > CPU (see hero_scene.py); pass "cuda" if OptiX misbehaves.
+    """
     import subprocess
 
     out = pathlib.Path("/tmp/frames")
     out.mkdir(parents=True, exist_ok=True)
     cmd = [
         BLENDER_BIN, "-b", "--factory-startup", "-P", "/root/hero_scene.py", "--",
-        "--quality", "prod", "--res", RES, "--frames", f"{start}-{end}",
-        "--out", str(out), "--prefix", "hero_", "--device", DEVICE,
+        "--quality", "prod", "--res", res, "--frames", f"{start}-{end}",
+        "--out", str(out), "--prefix", prefix, "--device", device,
     ]
     t0 = time.time()
     proc = subprocess.run(cmd, capture_output=True, text=True)
@@ -81,27 +89,31 @@ def render_range(start: int, end: int) -> dict:
         print(proc.stdout[-4000:])
         print(proc.stderr[-4000:])
         raise RuntimeError(f"blender failed for frames {start}-{end}")
-    result = {p.name: p.read_bytes() for p in sorted(out.glob("hero_*.png"))}
+    result = {p.name: p.read_bytes() for p in sorted(out.glob(f"{prefix}*.png"))}
     result["_seconds"] = dt
     return result
 
 
 @app.local_entrypoint()
-def main(start: int = 1, end: int = 144, chunks: int = 12):
+def main(start: int = 1, end: int = 144, chunks: int = 12, res: str = "1920x1080",
+         device: str = "auto", prefix: str = "hero_"):
     frames_dir = HERE / "frames"
     frames_dir.mkdir(exist_ok=True)
     n = end - start + 1
     size = -(-n // chunks)
     ranges = [(a, min(a + size - 1, end)) for a in range(start, end + 1, size)]
-    print(f"rendering frames {start}-{end} on {GPU} in {len(ranges)} chunks: {ranges}")
+    print(f"rendering frames {start}-{end} at {res} on {GPU} in {len(ranges)} chunks: {ranges}")
+    print(f"output: {frames_dir}")
 
     t0 = time.time()
     container_s = 0.0
-    for res in render_range.starmap(ranges):
-        container_s += res.pop("_seconds")
-        for name, data in res.items():
+    jobs = [(a, b, res, device, prefix) for (a, b) in ranges]
+    for out in render_range.starmap(jobs):
+        container_s += out.pop("_seconds")
+        for name, data in out.items():
             (frames_dir / name).write_bytes(data)
-        print(f"  wrote {len(res)} frames ({sorted(res)[0]} .. {sorted(res)[-1]})", flush=True)
+        names = sorted(out)
+        print(f"  wrote {len(names)} frames ({names[0]} .. {names[-1]})", flush=True)
     wall = time.time() - t0
 
     per_s = PRICE_PER_S.get(GPU, PRICE_PER_S["L4"]) + CPU_CORES * PRICE_CPU_CORE_S + MEM_GIB * PRICE_GIB_S

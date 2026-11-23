@@ -1,0 +1,7 @@
+[Unit]
+Description=AirBridge Headscale API key rotation (90-day keys, rotated monthly)
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/airbridge-rotate-apikey

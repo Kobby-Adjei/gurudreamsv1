@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# airbridge-install: host setup from the checkout this script lives in, then airbridge-bootstrap. Idempotent; run by
+# the cloud-init first boot and by airbridge-update. Installs: the airbridge-* scripts, systemd units (nightly backup,
+# monthly API-key rotation, smoke-test shut-off, metadata guard), Docker log rotation, journald cap, unattended
+# security upgrades with an early-morning reboot window, and a 1 GiB swap file.
+set -euo pipefail
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+KIT="$(cd "$HERE/.." && pwd)"
+[ "$(id -u)" = 0 ] || { echo "run as root" >&2; exit 1; }
+log() { printf '%s airbridge-install: %s\n' "$(date -u +%FT%TZ)" "$*" >&2; }
+
+install -d -m 0755 /usr/local/lib/airbridge
+install -m 0644 "$HERE/airbridge-common.sh" /usr/local/lib/airbridge/airbridge-common.sh
+for f in airbridge-bootstrap airbridge-compose airbridge-backup airbridge-rotate-apikey airbridge-smoke-off airbridge-update; do
+  install -m 0755 "$HERE/$f" "/usr/local/sbin/$f"
+done
+
+# Docker: bounded json-file logs; containers keep running across daemon upgrades.
+install -d -m 0755 /etc/docker
+if ! cmp -s "$KIT/host/docker-daemon.json" /etc/docker/daemon.json; then
+  install -m 0644 "$KIT/host/docker-daemon.json" /etc/docker/daemon.json
+  log "docker daemon.json updated: restarting docker"
+  systemctl restart docker
+fi
+install -d -m 0755 /etc/systemd/journald.conf.d
+install -m 0644 "$KIT/host/journald-airbridge.conf" /etc/systemd/journald.conf.d/airbridge.conf
+systemctl restart systemd-journald || true
+
+# Automatic security updates (+ reboot at 08:30 UTC = 3:30/4:30 a.m. in Michigan when a kernel update needs it).
+install -m 0644 "$KIT/host/apt-52airbridge-unattended" /etc/apt/apt.conf.d/52airbridge-unattended
+systemctl enable --now unattended-upgrades.service >/dev/null 2>&1 || true
+
+# Swap: headroom for `npm ci` / tsc on a 1 GiB droplet.
+if [ ! -e /swapfile ]; then
+  fallocate -l 1G /swapfile && chmod 0600 /swapfile && mkswap /swapfile >/dev/null && swapon /swapfile
+  grep -q '^/swapfile ' /etc/fstab || echo '/swapfile none swap sw 0 0' >>/etc/fstab
+  sysctl -q vm.swappiness=10 && echo 'vm.swappiness=10' >/etc/sysctl.d/60-airbridge-swap.conf
+fi
+
+install -m 0644 "$KIT"/systemd/*.service "$KIT"/systemd/*.timer "$KIT"/systemd/*.path /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable --now airbridge-docker-guard.service airbridge-backup.timer airbridge-rotate-apikey.timer >/dev/null
+set -a; . /etc/airbridge/airbridge.env; set +a
+if [ "${SMOKE_TEST:-0}" = 1 ]; then
+  systemctl enable --now airbridge-smoke-off.path airbridge-smoke-off.timer >/dev/null
+else
+  systemctl disable --now airbridge-smoke-off.path airbridge-smoke-off.timer >/dev/null 2>&1 || true
+fi
+
+exec /usr/local/sbin/airbridge-bootstrap

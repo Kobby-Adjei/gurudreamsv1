@@ -1,0 +1,11 @@
+[Unit]
+Description=AirBridge nightly local backup
+
+[Timer]
+# 07:15 UTC = 2:15/3:15 a.m. in Michigan; before the 08:30 UTC unattended-upgrades reboot window.
+OnCalendar=*-*-* 07:15:00 UTC
+Persistent=true
+RandomizedDelaySec=10m
+
+[Install]
+WantedBy=timers.target

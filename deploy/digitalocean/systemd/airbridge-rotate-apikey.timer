@@ -1,0 +1,10 @@
+[Unit]
+Description=AirBridge monthly Headscale API key rotation
+
+[Timer]
+OnCalendar=*-*-01 06:40:00 UTC
+Persistent=true
+RandomizedDelaySec=2h
+
+[Install]
+WantedBy=timers.target

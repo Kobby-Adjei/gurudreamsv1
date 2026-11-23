@@ -1,0 +1,8 @@
+[Unit]
+Description=Turn the AirBridge smoke-test endpoints off once their cleanup has run
+
+[Path]
+PathExists=/var/lib/airbridge/license/smoke/disabled
+
+[Install]
+WantedBy=paths.target

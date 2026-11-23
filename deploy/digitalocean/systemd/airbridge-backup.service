@@ -1,0 +1,7 @@
+[Unit]
+Description=AirBridge nightly local backup (Headscale DB + keys, waitlist, license key)
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/airbridge-backup

@@ -98,18 +98,18 @@ SDF_BAND = 1.6                   # grid stores clamp(sdf + band, 0, 2*band)
 DETAIL_SCALE = 2.4               # shader-side erosion noise feature size (units)
 DETAIL_AMP = 0.9                 # how far (units) the erosion noise pushes the boundary
 
-MOON_ELEV_DEG = 13.0
+MOON_ELEV_DEG = 16.0
 MOON_LEFT_DEG = 66.0             # azimuth left of the view axis (>90 = behind-left of camera)
 MOON_STRENGTH = 10.0
 MOON_COLOR = (0.82, 0.89, 1.0)
 
-FOG_DIST = 100.0                 # aerial perspective distance (scene units)
+FOG_DIST = 75.0                  # aerial perspective distance (scene units)
 CLOUD_ALBEDO = (0.90, 0.94, 1.0)
 CLOUD_G = 0.62                   # Henyey-Greenstein anisotropy (forward scattering)
 HORIZON_COLOR = (0.052, 0.072, 0.112)
 ZENITH_COLOR = (0.0012, 0.0019, 0.0042)
 
-EXPOSURE = 0.0
+EXPOSURE = -0.15
 
 PRESETS = {
     # quick look-dev
@@ -438,7 +438,7 @@ def paper_material():
     trans = n.new("ShaderNodeBsdfTranslucent")
     trans.inputs["Color"].default_value = (0.80, 0.80, 0.76, 1)
     mix = n.new("ShaderNodeMixShader")
-    mix.inputs["Fac"].default_value = 0.22      # thin paper: moonlight glows through
+    mix.inputs["Fac"].default_value = 0.30      # thin paper: moonlight glows through
     # paper fibre bump
     tc = n.new("ShaderNodeTexCoord")
     nz = n.new("ShaderNodeTexNoise")

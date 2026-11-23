@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# airbridge-update <40-hex commit>: deploy another commit of the (public) repo. Use from the DigitalOcean
+# Recovery/Droplet Console (no SSH):  sudo airbridge-update 0123456789abcdef0123456789abcdef01234567
+# Fetches exactly that commit, verifies HEAD == commit, re-installs the host scripts/units and runs airbridge-bootstrap.
+# State (keys, DB, waitlist, certificates) is untouched.
+set -euo pipefail
+# shellcheck source=airbridge-common.sh
+. "${AIRBRIDGE_LIB:-/usr/local/lib/airbridge}/airbridge-common.sh"
+load_env
+commit="${1:-}"
+[[ "$commit" =~ ^[0-9a-f]{40}$ ]] || die "usage: airbridge-update <full 40-hex commit sha>"
+cd "$AIRBRIDGE_SRC"
+git fetch --quiet --depth 1 --filter=blob:none origin "$commit"
+git checkout --quiet --detach FETCH_HEAD
+[ "$(git rev-parse HEAD)" = "$commit" ] || die "checked-out HEAD does not match $commit"
+set_env_var AIRBRIDGE_COMMIT "$commit"
+exec "$AIRBRIDGE_SRC/deploy/digitalocean/bin/airbridge-install"

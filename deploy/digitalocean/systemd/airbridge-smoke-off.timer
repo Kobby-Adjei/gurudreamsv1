@@ -1,0 +1,9 @@
+[Unit]
+Description=Turn the AirBridge smoke-test endpoints off after SMOKE_TEST_UNTIL
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+
+[Install]
+WantedBy=timers.target

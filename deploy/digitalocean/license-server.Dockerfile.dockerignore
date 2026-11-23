@@ -1,0 +1,8 @@
+# BuildKit reads <Dockerfile>.dockerignore; the context is the repo root. Send only what the image needs.
+*
+!license-server/package.json
+!license-server/package-lock.json
+!license-server/tsconfig.json
+!license-server/tsconfig.build.json
+!license-server/src
+!deploy/digitalocean/license-entrypoint.sh

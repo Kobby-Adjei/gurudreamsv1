@@ -1,0 +1,160 @@
+#!/usr/bin/env bash
+# airbridge-bootstrap: bring the AirBridge cloud stack to the state described by /etc/airbridge/airbridge.env and
+# the checkout in /opt/airbridge/src. Idempotent: run on first boot (cloud-init), after `airbridge-update`, and
+# after editing airbridge.env (e.g. AIRBRIDGE_DOMAIN). See deploy/digitalocean/README.md.
+#
+# First run only (never overwritten later):
+#   - license signing key: Ed25519, generated HERE, $AIRBRIDGE_STATE/secrets/license_signing_key.pem (0400 node).
+#     Never leaves the server (only in local backups). Public half: GET /v1/license/public-key.
+#   - Headscale API key: created through the local CLI over the unix socket, written straight to
+#     $AIRBRIDGE_STATE/secrets/headscale_api_key (0400 node). Never printed or logged.
+#   - waitlist admin token: moved from $AIRBRIDGE_ETC/bootstrap/waitlist_admin_token (cloud-init) or generated.
+set -euo pipefail
+umask 077
+# shellcheck source=airbridge-common.sh
+. "${AIRBRIDGE_LIB:-/usr/local/lib/airbridge}/airbridge-common.sh"
+load_env
+
+# --- public address and domain ------------------------------------------------------------------
+META=http://169.254.169.254/metadata/v1
+if [ -z "${PUBLIC_IPV4:-}" ]; then
+  PUBLIC_IPV4="$(curl -fsS --max-time 5 "$META/interfaces/public/0/ipv4/address")" || die "cannot read the public IPv4 from droplet metadata"
+fi
+[[ "$PUBLIC_IPV4" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || die "PUBLIC_IPV4 invalid"
+DOMAIN="${AIRBRIDGE_DOMAIN:-}"
+[ -n "$DOMAIN" ] || DOMAIN="${PUBLIC_IPV4//./-}.sslip.io"
+DOMAIN="${DOMAIN,,}"
+[[ "$DOMAIN" =~ ^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)+$ ]] || die "AIRBRIDGE_DOMAIN invalid: $DOMAIN"
+COMMIT="$(git -C "$AIRBRIDGE_SRC" rev-parse HEAD)"
+log "domain=$DOMAIN ipv4=$PUBLIC_IPV4 commit=$COMMIT"
+
+# --- directories ----------------------------------------------------------------------------------
+install -d -m 0755 "$AIRBRIDGE_STATE"
+install -d -m 0700 -o "$HEADSCALE_UID" -g "$HEADSCALE_UID" "$AIRBRIDGE_STATE/headscale"
+install -d -m 0755 "$AIRBRIDGE_STATE/headscale-config" "$AIRBRIDGE_STATE/site"
+install -d -m 0700 -o "$NODE_UID" -g "$NODE_UID" "$AIRBRIDGE_STATE/license" "$AIRBRIDGE_STATE/license/waitlist" "$AIRBRIDGE_SECRETS"
+install -d -m 0700 "$AIRBRIDGE_STATE/caddy" "$AIRBRIDGE_STATE/caddy/data" "$AIRBRIDGE_STATE/caddy/config" "$AIRBRIDGE_STATE/backups"
+if [ -e "$AIRBRIDGE_STATE/license/waitlist/waitlist.jsonl" ]; then
+  chown "$NODE_UID:$NODE_UID" "$AIRBRIDGE_STATE/license/waitlist/waitlist.jsonl"
+  chmod 0600 "$AIRBRIDGE_STATE/license/waitlist/waitlist.jsonl"
+fi
+
+secret_file() { # name -> installs stdin as a 0400 node-owned secret (atomic)
+  local tmp
+  tmp="$(mktemp "$AIRBRIDGE_SECRETS/.tmp.XXXXXX")"
+  cat >"$tmp"
+  chown "$NODE_UID:$NODE_UID" "$tmp"
+  chmod 0400 "$tmp"
+  mv -f "$tmp" "$AIRBRIDGE_SECRETS/$1"
+}
+
+# --- license signing key (Ed25519, generated on this server) ---------------------------------------
+if [ ! -s "$AIRBRIDGE_SECRETS/license_signing_key.pem" ]; then
+  log "generating the license signing key (Ed25519)"
+  openssl genpkey -algorithm ed25519 2>/dev/null | secret_file license_signing_key.pem
+  fp="$(openssl pkey -in "$AIRBRIDGE_SECRETS/license_signing_key.pem" -pubout -outform DER 2>/dev/null | sha256sum | cut -c1-8)"
+  printf 'ab-%s-%s' "$(date -u +%Y%m%d)" "$fp" | secret_file license_key_id
+fi
+[ -s "$AIRBRIDGE_SECRETS/license_key_id" ] || die "license_key_id missing next to an existing signing key"
+
+# --- waitlist admin token ---------------------------------------------------------------------------
+if [ ! -s "$AIRBRIDGE_SECRETS/waitlist_admin_token" ]; then
+  if [ -s "$AIRBRIDGE_ETC/bootstrap/waitlist_admin_token" ]; then
+    tr -d '\r\n' <"$AIRBRIDGE_ETC/bootstrap/waitlist_admin_token" | secret_file waitlist_admin_token
+  else
+    log "no waitlist admin token supplied: generating one (read it with: cat $AIRBRIDGE_SECRETS/waitlist_admin_token)"
+    openssl rand -hex 32 | tr -d '\n' | secret_file waitlist_admin_token
+  fi
+fi
+grep -Eq '^[A-Za-z0-9._~+/=-]{32,256}$' "$AIRBRIDGE_SECRETS/waitlist_admin_token" || die "waitlist_admin_token has an invalid format"
+rm -f "$AIRBRIDGE_ETC/bootstrap/waitlist_admin_token"
+
+# --- Headscale config (rendered from the kit template) ---------------------------------------------
+HEADSCALE_DOMAIN="$DOMAIN" PUBLIC_IPV4="$PUBLIC_IPV4" PUBLIC_IPV6="" \
+  envsubst '${HEADSCALE_DOMAIN} ${PUBLIC_IPV4} ${PUBLIC_IPV6}' \
+  <"$AIRBRIDGE_SRC/license-server/headscale/config.yaml.tmpl" >"$AIRBRIDGE_STATE/headscale-config/config.yaml.new"
+chmod 0644 "$AIRBRIDGE_STATE/headscale-config/config.yaml.new"
+mv -f "$AIRBRIDGE_STATE/headscale-config/config.yaml.new" "$AIRBRIDGE_STATE/headscale-config/config.yaml"
+
+# --- landing page (public files only) ---------------------------------------------------------------
+[ -f "$AIRBRIDGE_SRC/landing/index.html" ] || die "landing/index.html missing in the checkout"
+find "$AIRBRIDGE_STATE/site" -mindepth 1 -delete
+(cd "$AIRBRIDGE_SRC/landing" && tar --anchored --exclude=tools --exclude=docs --exclude=blender \
+  --no-anchored --exclude=node_modules --exclude='.*' --exclude='*.md' -cf - -- *) |
+  tar -C "$AIRBRIDGE_STATE/site" --no-same-owner -xf -
+chmod -R a+rX,go-w "$AIRBRIDGE_STATE/site"
+
+# --- compose runtime env (non-secret) ---------------------------------------------------------------
+SMOKE_TEST="${SMOKE_TEST:-0}"
+cat >"$AIRBRIDGE_ETC/runtime.env.new" <<EOF
+# Generated by airbridge-bootstrap from airbridge.env. Do not edit.
+AIRBRIDGE_SRC=$AIRBRIDGE_SRC
+AIRBRIDGE_STATE=$AIRBRIDGE_STATE
+AIRBRIDGE_COMMIT=$COMMIT
+AIRBRIDGE_DOMAIN=$DOMAIN
+ENFORCE_ENTITLEMENT=${ENFORCE_ENTITLEMENT:-false}
+CLERK_ISSUER=${CLERK_ISSUER:-}
+CLERK_JWKS_URL=${CLERK_JWKS_URL:-}
+CLERK_AUDIENCE=${CLERK_AUDIENCE:-}
+PREAUTH_TTL_SECONDS=${PREAUTH_TTL_SECONDS:-600}
+SMOKE_TEST=$SMOKE_TEST
+SMOKE_TEST_UNTIL=$([ "$SMOKE_TEST" = 1 ] && printf '%s' "${SMOKE_TEST_UNTIL:-}")
+CADDY_LOCAL_CERTS=${CADDY_LOCAL_CERTS:-}
+EOF
+mv -f "$AIRBRIDGE_ETC/runtime.env.new" "$AIRBRIDGE_ETC/runtime.env"
+
+# --- images ----------------------------------------------------------------------------------------
+if [ "${AIRBRIDGE_SKIP_BUILD:-0}" != 1 ]; then
+  log "pulling pinned images and building the license server"
+  compose pull --quiet headscale caddy
+  compose build --quiet license-server
+fi
+
+# --- start Headscale, create the API key on first boot ---------------------------------------------
+fingerprint() { cat "$@" 2>/dev/null | sha256sum | cut -c1-16; }
+HS_FP="$(fingerprint "$AIRBRIDGE_STATE/headscale-config/config.yaml" "$AIRBRIDGE_SRC/license-server/headscale/policy.hujson")"
+CADDY_FP="$(fingerprint "$AIRBRIDGE_SRC/deploy/digitalocean/Caddyfile")"
+compose up -d headscale
+if [ -f "$AIRBRIDGE_STATE/.headscale.fp" ] && [ "$(cat "$AIRBRIDGE_STATE/.headscale.fp")" != "$HS_FP" ]; then
+  log "headscale config or policy changed: restarting headscale"
+  compose restart headscale
+fi
+for i in $(seq 1 60); do
+  compose exec -T headscale headscale health >/dev/null 2>&1 && break
+  [ "$i" = 60 ] && die "headscale did not become healthy"
+  sleep 2
+done
+compose exec -T headscale headscale policy check --file /etc/headscale/policy.hujson >/dev/null || die "policy.hujson rejected by headscale"
+
+if [ ! -s "$AIRBRIDGE_SECRETS/headscale_api_key" ]; then
+  log "creating the Headscale API key (90 days; rotated monthly by airbridge-rotate-apikey.timer)"
+  tmp="$(mktemp "$AIRBRIDGE_SECRETS/.hsk.XXXXXX")"
+  compose exec -T headscale headscale apikeys create --expiration 90d >"$tmp"
+  key="$(tr -d '\r\n' <"$tmp")"
+  rm -f "$tmp"
+  [[ "$key" =~ ^hskey-api-[A-Za-z0-9_-]{20,500}$ ]] || die "unexpected output from 'headscale apikeys create' (not stored)"
+  printf '%s' "$key" | secret_file headscale_api_key
+  unset key
+fi
+
+# --- everything else ---------------------------------------------------------------------------------
+compose up -d --remove-orphans --wait --wait-timeout 240
+if [ -f "$AIRBRIDGE_STATE/.caddy.fp" ] && [ "$(cat "$AIRBRIDGE_STATE/.caddy.fp")" != "$CADDY_FP" ]; then
+  log "Caddyfile changed: restarting caddy"
+  compose restart caddy
+fi
+printf '%s' "$HS_FP" >"$AIRBRIDGE_STATE/.headscale.fp"
+printf '%s' "$CADDY_FP" >"$AIRBRIDGE_STATE/.caddy.fp"
+
+# Containers must never reach the droplet metadata service (it serves user_data, which holds the waitlist token).
+if command -v iptables >/dev/null && iptables -nL DOCKER-USER >/dev/null 2>&1; then
+  iptables -C DOCKER-USER -d 169.254.169.254/32 -j REJECT 2>/dev/null || iptables -I DOCKER-USER -d 169.254.169.254/32 -j REJECT
+fi
+
+if wait_policy_verified; then
+  log "network_policy_verified: license server can issue pre-auth keys"
+else
+  die "Headscale policy NOT verified by the license server (pre-auth keys are refused)"
+fi
+docker image prune -f >/dev/null 2>&1 || true
+log "ready: https://$DOMAIN (smoke test: $([ "$SMOKE_TEST" = 1 ] && echo ON || echo off))"

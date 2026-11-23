@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# airbridge-compose: `docker compose` for the AirBridge stack (project "airbridge"), e.g.
+#   airbridge-compose ps | logs -f headscale | restart caddy | exec headscale headscale nodes list
+set -euo pipefail
+# shellcheck source=airbridge-common.sh
+. "${AIRBRIDGE_LIB:-/usr/local/lib/airbridge}/airbridge-common.sh"
+compose "$@"
