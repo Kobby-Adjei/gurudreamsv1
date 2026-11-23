@@ -178,7 +178,9 @@ of the real app (real engine, no servers configured). So testing two real comput
    ```
    `npm run build:net` builds only the sidecar; `bash scripts/build-net.sh all` cross-compiles
    darwin/arm64, darwin/amd64, windows/amd64 and linux/amd64 into `resources/net/<platform>-<arch>/`
-   (with `manifest.json` sha256s). Windows: `npm run build:backend:win`. Instead of the PyInstaller
+   (with `manifest.json` sha256s). The script vendors `tailscale.com` (gitignored `vendor/`), empties
+   tsnet's built-in DNS-fallback server list so the sidecar can never contact Tailscale-operated hosts,
+   runs the Go tests against that tree, and refuses any binary that still embeds `derpN.tailscale.com`. Windows: `npm run build:backend:win`. Instead of the PyInstaller
    binary you can run the engine from source: create a venv with `../airbridge/requirements.txt` and export
    `AIRBRIDGE_PYTHON=<venv>/bin/python`.
 4. Start it **without** `AIRBRIDGE_DEV_MOCKS` (and don't copy `.env.example`, which turns mocks on):
