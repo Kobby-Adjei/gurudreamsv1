@@ -226,7 +226,7 @@ jobs:
       - name: Wait for the server (upload route, no deploy in progress)
         shell: bash
         run: |
-          set -uo pipefail
+          set +e -uo pipefail   # polling: a failed probe is not a failed step
           for i in $(seq 1 300); do
             code="$(curl -s -o /dev/null -w '%{http_code}' -X POST "$SERVER/v1/releases/upload")"
             state="$(curl -fsS "$SERVER/v1/deploy/status" 2>/dev/null | jq -r '.state // empty' 2>/dev/null)"

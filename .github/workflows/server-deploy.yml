@@ -68,7 +68,7 @@ jobs:
         env:
           MODE: ${{ steps.ask.outputs.mode }}
         run: |
-          set -uo pipefail
+          set +e -uo pipefail   # polling: a failed probe is not a failed step
           tries=60; [ "$MODE" = manual ] && tries=300   # 30 min, or 150 min while someone runs the console command
           for i in $(seq 1 "$tries"); do
             s="$(curl -fsS "$SERVER/v1/deploy/status" 2>/dev/null || true)"
