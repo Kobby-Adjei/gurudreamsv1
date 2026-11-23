@@ -1,5 +1,5 @@
 #cloud-config
-# AirBridge cloud droplet first boot (deploy/digitalocean). Rendered by provision.sh; the placeholders @@NAME@@ are
+# AirBridge cloud droplet first boot (deploy/digitalocean). Rendered by provision.sh; the double-at placeholders are
 # replaced there. No SSH is needed or allowed: this fetches the PUBLIC repo at one pinned commit, checks that
 # HEAD == that commit, and runs deploy/digitalocean/bin/airbridge-install (host setup + airbridge-bootstrap).
 # NOTE: DigitalOcean keeps user_data in the droplet metadata (readable from the droplet only, at
