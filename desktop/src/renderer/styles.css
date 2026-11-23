@@ -4,54 +4,61 @@
 
 /*
  * Colour tokens (RGB triplets so Tailwind can apply alpha).
- * Warm near-black canvas, warm off-white text, warm greys, and one accent:
- * International Orange (the Golden Gate's paint), used only for the single
- * primary action. Green appears only for "Online".
- * Dark is the default; light follows the OS via prefers-color-scheme.
+ * "Night flight": deep navy canvas with layered navy surfaces, cool near-white
+ * text, cool blue-greys, and one accent: a soft light blue (#8EC5FF), used only
+ * for the single primary action, focus rings and active states (the primary
+ * button is light-blue fill with navy text). Green appears only for "Online".
+ * Dark is the default; light ("daylight sky": pale cool-blue canvas, navy ink,
+ * a deeper sky-blue accent) follows the OS via prefers-color-scheme.
+ * International Orange (#C83A23) is superseded and must not come back.
  * All text/background pairs meet WCAG AA (4.5:1); see docs/brand/palette.png.
  */
 @layer base {
   :root {
     color-scheme: dark;
-    --canvas: 13 12 11; /* #0D0C0B */
-    --surface-1: 22 20 18; /* #161412 */
-    --surface-2: 29 27 24; /* #1D1B18 */
-    --surface-3: 38 35 32; /* #262320 */
-    --line: 255 248 240; /* #FFF8F0 */
-    --ink: 242 238 232; /* #F2EEE8 */
-    --ink-muted: 171 164 155; /* #ABA49B */
-    --ink-faint: 143 135 125; /* #8F877D */
-    --accent: 200 58 35; /* #C83A23 */
-    --accent-hover: 181 51 30; /* #B5331E */
-    --accent-ink: 255 122 89; /* #FF7A59 */
-    --accent-fg: 251 248 243; /* #FBF8F3 */
-    --ok: 91 191 138; /* #5BBF8A */
-    --ok-dot: 91 191 138; /* #5BBF8A */
-    --warn: 224 168 74; /* #E0A84A */
-    --danger: 240 122 106; /* #F07A6A */
+    --canvas: 7 11 20; /* #070B14 */
+    --surface-1: 11 17 29; /* #0B111D */
+    --surface-2: 15 24 40; /* #0F1828 */
+    --surface-3: 22 34 54; /* #162236 */
+    --line: 230 238 250; /* #E6EEFA */
+    --ink: 238 243 250; /* #EEF3FA */
+    --ink-muted: 164 178 199; /* #A4B2C7 */
+    --ink-faint: 133 147 169; /* #8593A9 */
+    --accent: 142 197 255; /* #8EC5FF */
+    --accent-hover: 168 210 255; /* #A8D2FF */
+    --accent-ink: 142 197 255; /* #8EC5FF */
+    --accent-fg: 7 17 31; /* #07111F */
+    --ok: 92 201 154; /* #5CC99A */
+    --ok-dot: 92 201 154; /* #5CC99A */
+    --warn: 230 179 92; /* #E6B35C */
+    --danger: 242 139 130; /* #F28B82 */
+    --scrim: 3 6 12; /* #03060C, behind the sheet */
+    --scrim-alpha: 0.6;
     --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
   @media (prefers-color-scheme: light) {
     :root {
       color-scheme: light;
-      --canvas: 246 243 238; /* #F6F3EE */
-      --surface-1: 255 253 250; /* #FFFDFA */
-      --surface-2: 239 235 229; /* #EFEBE5 */
-      --surface-3: 230 225 218; /* #E6E1DA */
-      --line: 42 30 20; /* #2A1E14 */
-      --ink: 31 27 23; /* #1F1B17 */
-      --ink-muted: 90 83 75; /* #5A534B */
-      --ink-faint: 107 100 91; /* #6B645B */
-      --accent: 192 54 44; /* #C0362C */
-      --accent-hover: 168 47 38; /* #A82F26 */
-      --accent-ink: 169 58 31; /* #A93A1F */
-      --accent-fg: 251 248 243; /* #FBF8F3 */
-      --ok: 47 125 85; /* #2F7D55 */
-      --ok-dot: 62 158 107; /* #3E9E6B */
-      --warn: 138 90 0; /* #8A5A00 */
+      --canvas: 238 243 249; /* #EEF3F9 */
+      --surface-1: 251 252 254; /* #FBFCFE */
+      --surface-2: 227 235 244; /* #E3EBF4 */
+      --surface-3: 215 225 238; /* #D7E1EE */
+      --line: 11 26 51; /* #0B1A33 */
+      --ink: 11 22 38; /* #0B1626 */
+      --ink-muted: 67 82 106; /* #43526A */
+      --ink-faint: 83 98 121; /* #536279 */
+      --accent: 31 99 181; /* #1F63B5 */
+      --accent-hover: 25 84 156; /* #19549C */
+      --accent-ink: 26 93 173; /* #1A5DAD */
+      --accent-fg: 255 255 255; /* #FFFFFF */
+      --ok: 24 106 71; /* #186A47 */
+      --ok-dot: 46 154 107; /* #2E9A6B */
+      --warn: 135 88 0; /* #875800 */
       --danger: 179 38 30; /* #B3261E */
-      --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .04 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      --scrim: 11 22 38; /* #0B1626, a navy veil rather than grey */
+      --scrim-alpha: 0.28;
+      --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .04 0 0 0 0 .1 0 0 0 0 .2 0 0 0 .03 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     }
   }
 
@@ -122,6 +129,10 @@
   .map-backdrop {
     background-image: var(--grain), radial-gradient(rgb(var(--line) / 0.07) 1px, transparent 1px);
     background-size: 160px 160px, 24px 24px;
+  }
+  /* Veil behind overlays (the Send-a-task sheet). */
+  .scrim {
+    background-color: rgb(var(--scrim) / var(--scrim-alpha));
   }
   .grain {
     background-image: var(--grain);

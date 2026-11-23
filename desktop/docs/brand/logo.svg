@@ -1,7 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
   <!-- (d) A-frame pylon, chosen. The bridge tower doubles as the "A" of AirBridge.
        Pylon cues: a short vertical mast head instead of a pointed apex, flat-cut feet,
-       and a road deck that runs through the legs and past them on both sides. -->
+       and a road deck that runs through the legs and past them on both sides.
+       Colour ("night flight" palette): monochrome via currentColor. Near-white #EEF3FA on navy,
+       light blue #8EC5FF for the app icon (build/icon.svg), navy ink #0B1626 on light. -->
   <path d="M10.875 1.5h2.25v2.3l6.825 18.7h-2.4L12 7.3 6.45 22.5h-2.4l6.825-18.7V1.5Z"/>
   <rect x="0" y="15" width="24" height="2.25" rx="0.75"/>
 </svg>

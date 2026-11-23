@@ -118,13 +118,21 @@ type, spacing and alignment, not from effects.
   make it read as a pylon rather than a letter. It is monochrome (`currentColor`) and crisp at
   16px. The concepts sheet (`docs/brand/logo-concepts.png`), the chosen mark
   (`docs/brand/logo.svg`, mirrored in `LogoMark` in `components/Icons.tsx`) and the palette
-  sheet are in `docs/brand/`. The app icon is `build/icon.svg` (International Orange on
-  near-black), rendered to `build/icon.png` at 1024×1024.
-- **Colour:** a warm near-black canvas (`#0D0C0B`) with a subtle film grain and dot grid, warm
-  off-white text (`#F2EEE8`) and warm greys. There is one accent, **International Orange**
-  (`#C83A23` dark / `#C0362C` light, the Golden Gate's paint). It is used only for the single
-  primary action on a screen. A calm green is used only for *Online*. Every text pair meets
-  WCAG AA; see `docs/brand/palette.png`.
+  sheet are in `docs/brand/`. In the app the mark is near-white on navy (navy ink in light
+  mode). The app icon is `build/icon.svg` (light blue `#8EC5FF` on a navy `#0D1626` rounded
+  square), rendered to `build/icon.png` at 1024×1024.
+- **Colour ("night flight"):** a deep navy canvas (`#070B14`) with layered navy surfaces
+  (`#0B111D` → `#0F1828` → `#162236`), a subtle film grain and dot grid, cool near-white text
+  (`#EEF3FA`) and cool blue-greys (`#A4B2C7`, `#8593A9`) for secondary text and hairlines. There
+  is one accent, a soft **light blue** (`#8EC5FF`). It is used only for the single primary action
+  on a screen (light-blue fill with navy `#07111F` text, 10.4:1), focus rings and active states
+  (the selected sidebar item's icon, the chosen device in *Send a task*, a link on the map as a
+  task goes out). A calm green (`#5CC99A`) is used only for *Online*. Light mode ("daylight
+  sky") follows the OS: a pale cool-blue canvas (`#EEF3F9`), navy ink (`#0B1626`) and a deeper
+  sky blue (`#1F63B5`, white text 6.0:1; links `#1A5DAD`). Every text pair meets WCAG AA; hex
+  values and contrast ratios are in `docs/brand/palette.png`.
+- **Superseded:** the earlier warm palette (International Orange `#C83A23` / `#C0362C` on a warm
+  near-black `#0D0C0B`) is retired. Do not reintroduce orange or warm greys.
 - **Surfaces:** flat cards with hairline borders and `rounded-2xl` corners. There are no glows,
   gradients or glass blur, and only overlays (sheet, toast) cast a shadow.
 - **Status:** a small solid dot plus text, never colour alone and never pulsing.
@@ -145,8 +153,9 @@ type, spacing and alignment, not from effects.
 | ![Settings](docs/screenshots/settings.png) | ![Sign in](docs/screenshots/signin.png) |
 | ![Paywall](docs/screenshots/paywall.png) | ![Private network in Settings](docs/screenshots/extra/settings-network.png) |
 
-More states (Starting steps, network error, private network *Details* and *Connecting…*, no
-other devices, Send-a-task sheet, light mode, narrow window) are in `docs/screenshots/extra/`.
+More states (Starting steps, network error, *stopped unexpectedly*, private network *Details*
+and *Connecting…*, no other devices, list layout, Send-a-task sheet, toast, narrow window, and
+light mode for every main screen as `*-light.png`) are in `docs/screenshots/extra/`.
 They were rendered with Playwright (system Chrome) from a production Vite build of
 `src/renderer` with a mocked `window.airbridge`.
 

@@ -140,7 +140,7 @@ export function SendTaskSheet({
 
   return (
     <div className="fixed inset-0 z-40 flex justify-end">
-      <div className="absolute inset-0 bg-black/50 animate-fade-in" onClick={onClose} aria-hidden="true" />
+      <div className="scrim absolute inset-0 animate-fade-in" onClick={onClose} aria-hidden="true" />
       <div
         ref={panelRef}
         role="dialog"
@@ -185,7 +185,7 @@ export function SendTaskSheet({
                         key={n.hostname}
                         className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 transition duration-150 ease-calm has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent-ink ${
                           !n.online ? 'cursor-not-allowed opacity-60' : ''
-                        } ${checked ? 'border-ink/40 bg-surface-3' : 'border-line/[0.08] bg-surface-2 hover:border-line/15'}`}
+                        } ${checked ? 'border-accent-ink/70 bg-surface-3' : 'border-line/[0.08] bg-surface-2 hover:border-line/15'}`}
                       >
                         <input
                           type="radio"
@@ -208,9 +208,9 @@ export function SendTaskSheet({
                         <StatusDot status={n.online ? 'online' : 'offline'} />
                         <span
                           aria-hidden="true"
-                          className={`grid h-4 w-4 place-items-center rounded-full border ${checked ? 'border-ink bg-ink' : 'border-line/25'}`}
+                          className={`grid h-4 w-4 place-items-center rounded-full border ${checked ? 'border-accent bg-accent' : 'border-line/25'}`}
                         >
-                          {checked ? <span className="h-1.5 w-1.5 rounded-full bg-canvas" /> : null}
+                          {checked ? <span className="h-1.5 w-1.5 rounded-full bg-accent-fg" /> : null}
                         </span>
                       </label>
                     )

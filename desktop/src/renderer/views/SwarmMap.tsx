@@ -244,18 +244,18 @@ function RadialMap({
           const { x, y } = pos[i]
           const active = activePeers?.has(n.hostname)
           // 1px static hairlines in neutral grey; online a little brighter.
-          // A task briefly brightens the line (one short fade, never looping).
+          // A task briefly tints the line light blue (one short fade, never looping).
           return (
             <path
               key={n.hostname}
               d={`M50 50 L${x.toFixed(2)} ${y.toFixed(2)}`}
-              stroke="rgb(var(--line))"
-              strokeOpacity={active ? 0.45 : n.online ? 0.22 : 0.09}
+              stroke={active ? 'rgb(var(--accent-ink))' : 'rgb(var(--line))'}
+              strokeOpacity={active ? 0.7 : n.online ? 0.22 : 0.09}
               strokeWidth={1}
               vectorEffect="non-scaling-stroke"
               fill="none"
               data-link={n.online ? 'online' : 'offline'}
-              className="transition-[stroke-opacity] duration-500 ease-out"
+              className="transition-[stroke,stroke-opacity] duration-500 ease-out"
             />
           )
         })}

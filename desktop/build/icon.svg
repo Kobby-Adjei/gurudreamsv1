@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
-  <!-- AirBridge app icon: the A-frame pylon mark in International Orange on the warm near-black canvas. -->
-  <rect width="1024" height="1024" rx="228" fill="#0D0C0B"/>
-  <g transform="translate(224 224) scale(24)" fill="#C83A23">
+  <!-- AirBridge app icon ("night flight"): the A-frame pylon mark in light blue (#8EC5FF) on a navy rounded square (#0D1626). -->
+  <rect width="1024" height="1024" rx="228" fill="#0D1626"/>
+  <g transform="translate(224 224) scale(24)" fill="#8EC5FF">
     <path d="M10.875 1.5h2.25v2.3l6.825 18.7h-2.4L12 7.3 6.45 22.5h-2.4l6.825-18.7V1.5Z"/>
     <rect x="0" y="15" width="24" height="2.25" rx="0.75"/>
   </g>

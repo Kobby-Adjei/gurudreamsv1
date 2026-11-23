@@ -68,7 +68,7 @@ export function Sidebar({
                       : 'text-ink-muted hover:bg-line/[0.04] hover:text-ink'
                   }`}
                 >
-                  <span className={active ? 'text-ink' : 'text-ink-faint group-hover:text-ink-muted'}>
+                  <span className={active ? 'text-accent-ink' : 'text-ink-faint group-hover:text-ink-muted'}>
                     {item.icon}
                   </span>
                   <span className="flex-1 text-left">{item.label}</span>
