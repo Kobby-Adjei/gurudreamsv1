@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit -p .",
     "build:backend": "bash ../airbridge/build_backend.sh",
-    "dist": "electron-vite build && electron-builder --config electron-builder.yml"
+    "dist": "electron-vite build && electron-builder --config electron-builder.yml",
+    "build:tailscale": "bash scripts/build-tailscale.sh"
   },
   "dependencies": {
     "react": "^18.3.1",

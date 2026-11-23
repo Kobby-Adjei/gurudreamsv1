@@ -21,6 +21,20 @@ extraResources:
     filter:
       - airbridge-core
       - airbridge-core.exe
+  # Phase 3: bundled userspace tailscaled + CLI (desktop/scripts/build-tailscale.sh / .ps1),
+  # at <resources>/tailscale/<platform>-<arch>/ (index.ts tailscaleBinDir), plus license notices.
+  - from: resources/tailscale/${platform}-${arch}
+    to: tailscale/${platform}-${arch}
+    filter:
+      - tailscaled
+      - tailscale
+      - tailscaled.exe
+      - tailscale.exe
+      - manifest.json
+  - from: resources/licenses
+    to: licenses
+    filter:
+      - "*LICENSE*"
 protocols:
   - name: AirBridge
     schemes:
@@ -43,6 +57,12 @@ mac:
       arch: [arm64, x64]
   hardenedRuntime: true
   gatekeeperAssess: false
+  # Sign (hardened runtime) + notarize the extra executables too, not just the app bundle.
+  # NOTE: these paths are inside Contents/Resources; electron-builder signs them with the app identity.
+  binaries:
+    - Contents/Resources/bin/darwin-${arch}/airbridge-core
+    - Contents/Resources/tailscale/darwin-${arch}/tailscaled
+    - Contents/Resources/tailscale/darwin-${arch}/tailscale
   # Signing/notarization happen in CI (CSC_LINK / APPLE_ID env); unsigned locally.
   notarize: false
 win:

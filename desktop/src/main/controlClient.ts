@@ -1,7 +1,8 @@
 /**
- * Main-process client for the daemon's local control API (127.0.0.1 only).
+ * Main-process client for the daemon's local control API (loopback only: `[::1]` by default since
+ * Phase 3 / PHASE3_SECURITY.md F-1, `127.0.0.1` only when the daemon reports the IPv4 fallback).
  *
- * HTTP via fetch with `Authorization: Bearer <token>`; Node's fetch sends Host=127.0.0.1:<port>
+ * HTTP via fetch with `Authorization: Bearer <token>`; Node's fetch sends Host=[::1]:<port>
  * and no Origin header, which is exactly what the daemon's guard requires.
  * Live events via WebSocket `/events/stream` using the `ws` package (Node 22's global WebSocket
  * cannot set request headers), reconnecting with exponential backoff.
@@ -15,6 +16,8 @@ import type { AirEvent, BackendStatus, NodesResponse, SendTaskRequest, SendTaskR
 import { AIR_EVENT_TYPES } from '../shared/types';
 
 export const CONTROL_HOST = '127.0.0.1';
+export const CONTROL_HOST_V6 = '::1';
+export type ControlHost = typeof CONTROL_HOST | typeof CONTROL_HOST_V6;
 const REQUEST_TIMEOUT_MS = 10_000;
 const SEND_TIMEOUT_MS = 30_000;
 const STATUS_POLL_MS = 5_000;
@@ -23,6 +26,13 @@ const WS_MAX_PAYLOAD = 64 * 1024;
 export interface ControlConnection {
   port: number;
   token: string;
+  /** Bound loopback from the daemon's READY line; absent = 127.0.0.1 (Phase-2 daemons). */
+  host?: ControlHost;
+}
+
+/** `[::1]:<port>` or `127.0.0.1:<port>` (exactly what the daemon's Host check expects). */
+export function controlHostPort(conn: Pick<ControlConnection, 'port' | 'host'>): string {
+  return conn.host === CONTROL_HOST_V6 ? `[::1]:${conn.port}` : `${CONTROL_HOST}:${conn.port}`;
 }
 
 /** Minimal surface of `ws` used here (lets tests inject a fake). */
@@ -118,6 +128,7 @@ export class ControlClient extends EventEmitter<ControlClientEvents> {
   connect(conn: ControlConnection): void {
     if (!Number.isInteger(conn.port) || conn.port < 1 || conn.port > 65535) throw new Error('bad port');
     if (typeof conn.token !== 'string' || conn.token.length < 32) throw new Error('bad token');
+    if (conn.host !== undefined && conn.host !== CONTROL_HOST && conn.host !== CONTROL_HOST_V6) throw new Error('bad host');
     this.disconnect();
     this.conn = { ...conn };
     this.generation += 1;
@@ -158,7 +169,7 @@ export class ControlClient extends EventEmitter<ControlClientEvents> {
 
   private base(): string {
     if (!this.conn) throw new ControlError('backend not running');
-    return `http://${CONTROL_HOST}:${this.conn.port}`;
+    return `http://${controlHostPort(this.conn)}`;
   }
 
   private async request<T>(path: string, init: RequestInit = {}, timeoutMs = REQUEST_TIMEOUT_MS): Promise<{ status: number; body: T }> {
@@ -247,7 +258,7 @@ export class ControlClient extends EventEmitter<ControlClientEvents> {
 
   private openStream(gen: number): void {
     if (!this.conn || gen !== this.generation) return;
-    const url = `ws://${CONTROL_HOST}:${this.conn.port}/events/stream`;
+    const url = `ws://${controlHostPort(this.conn)}/events/stream`;
     let ws: WsLike;
     try {
       ws = this.wsFactory(url, { Authorization: `Bearer ${this.conn.token}` });

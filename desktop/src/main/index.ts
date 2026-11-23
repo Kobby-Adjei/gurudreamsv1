@@ -3,16 +3,18 @@
  *
  * Wiring:
  *   single-instance lock + airbridge:// deep links -> OidcClient (Clerk, PKCE)
- *   OidcClient -> LicenseGate -> (only on a valid license) ProcessManager.start()
- *   ProcessManager READY -> ControlClient (HTTP + WS to 127.0.0.1) -> IPC push to the renderer
- *   before-quit -> ProcessManager.stop() (SIGTERM -> 3 s -> kill)
+ *   OidcClient -> LicenseGate -> (only on a valid license)
+ *       TailscaleManager.start() -> ensureEnrolled() -> ProcessManager.start() (with AIRBRIDGE_TS_* env)
+ *   ProcessManager READY -> ControlClient (HTTP + WS to [::1]) -> IPC push to the renderer
+ *   sign-out / license lost -> stop daemon, `tailscale logout` (sign-out only), stop tailscaled
+ *   before-quit -> ProcessManager.stop() then TailscaleManager.stop() (SIGTERM -> 3 s -> kill)
  *
  * Dev mocks (AIRBRIDGE_DEV_MOCKS=1, unpackaged only) replace auth/license/backend with demo data;
  * no daemon is spawned in that mode.
  */
 import { app, BrowserWindow, safeStorage, session, shell } from 'electron';
 import { join, resolve } from 'node:path';
-import type { AirEvent, AuthState, BackendLifecycle, BackendStatus, LicenseStatus } from '../shared/types';
+import type { AirEvent, AuthState, BackendLifecycle, BackendStatus, LicenseStatus, NetStatus } from '../shared/types';
 import { OidcClient } from './auth/oidc';
 import { createSafeStorageTokenStore } from './auth/tokenStore';
 import { ControlClient } from './controlClient';
@@ -22,11 +24,14 @@ import { createFileLicenseCache, LicenseGate } from './license/gate';
 import { getLicensePublicKeys } from './license/publicKeys';
 import { getMcpConfigJson } from './mcpConfig';
 import { resolveCoreCommand } from './mcpConfig';
-import { licenseGateCallbacks, ProcessManager } from './processManager';
+import { defaultDataDir } from './network/dataDir';
+import { EnrollError, ensureEnrolled } from './network/enroll';
+import { TailscaleManager } from './network/TailscaleManager';
+import { ProcessManager } from './processManager';
 import { appOriginFor, applySecurityPolicies, enableGlobalSandbox, secureWebPreferences } from './security';
 
 const PROTOCOL = 'airbridge';
-const QUIT_TIMEOUT_MS = 6000;
+const QUIT_TIMEOUT_MS = 8000; // daemon stop (<=3 s) + tailscaled stop (<=3 s) + slack
 
 /** Runtime env first, then build-time MAIN_VITE_* values injected by electron-vite. */
 function config(name: string): string | undefined {
@@ -103,6 +108,7 @@ function main(): void {
     lifecycle: (l: BackendLifecycle) => ipc?.push.backendLifecycle(l),
     auth: (s: AuthState) => ipc?.push.authChanged(s),
     license: (s: LicenseStatus) => ipc?.push.licenseChanged(s),
+    network: (s: NetStatus) => ipc?.push.networkChanged(s),
   };
 
   const createWindow = (): BrowserWindow => {
@@ -155,7 +161,7 @@ function main(): void {
     };
     const mcpJson: IpcDeps['getMcpConfigJson'] = (client) => getMcpConfigJson(client, coreOptions);
 
-    let deps: Pick<IpcDeps, 'auth' | 'license' | 'backend'>;
+    let deps: Pick<IpcDeps, 'auth' | 'license' | 'backend' | 'network'>;
     let afterWindow: () => Promise<void> = async () => undefined;
 
     if (useMocks) {
@@ -166,8 +172,9 @@ function main(): void {
         onLifecycle: push.lifecycle,
         onAuth: push.auth,
         onLicense: push.license,
+        onNetwork: push.network,
       });
-      deps = { auth: mocks.auth, license: mocks.license, backend: mocks.backend };
+      deps = { auth: mocks.auth, license: mocks.license, backend: mocks.backend, network: mocks.network };
       afterWindow = async () => mocks.start();
       shutdown = async () => mocks.stop();
     } else {
@@ -232,7 +239,14 @@ interface RealServicesOptions {
     lifecycle(l: BackendLifecycle): void;
     auth(s: AuthState): void;
     license(s: LicenseStatus): void;
+    network(s: NetStatus): void;
   };
+}
+
+/** Bundled tailscaled/tailscale for this platform (electron-builder extraResources). */
+function tailscaleBinDir(o: Parameters<typeof resolveCoreCommand>[0]): string {
+  const dir = `${process.platform}-${process.arch}`;
+  return o.isPackaged ? join(o.resourcesPath, 'tailscale', dir) : join(o.appPath, 'resources', 'tailscale', dir);
 }
 
 function createRealServices(o: RealServicesOptions) {
@@ -242,13 +256,25 @@ function createRealServices(o: RealServicesOptions) {
   // --- backend (daemon) -------------------------------------------------------------------
   // AIRBRIDGE_DATA_DIR is deliberately NOT set: the daemon and the MCP stdio process launched by
   // Claude/Cursor must share the same default data dir so the feed shows both origins.
+  // --- private network (bundled userspace tailscaled) ----------------------------------------
+  const dataDir = defaultDataDir();
+  const tm = new TailscaleManager({
+    binDir: tailscaleBinDir(o.coreOptions),
+    dataDir,
+    log: (m) => log(`network: ${m}`),
+  });
+  tm.on('status', o.push.network);
+
   const pm = new ProcessManager({
     core: () => resolveCoreCommand(o.coreOptions),
+    extraEnv: () => tm.daemonEnv(),
     log: (m) => log(`backend: ${m}`),
   });
   const control = new ControlClient({ log: (m) => log(`control: ${m}`) });
   pm.on('lifecycle', o.push.lifecycle);
-  pm.on('ready', (conn) => control.connect({ port: conn.port, token: conn.token }));
+  pm.on('ready', (conn) =>
+    control.connect({ port: conn.port, token: conn.token, ...(conn.host ? { host: conn.host } : {}) }),
+  );
   pm.on('exit', () => control.disconnect());
   control.on('event', o.push.event);
   control.on('status', o.push.status);
@@ -286,7 +312,10 @@ function createRealServices(o: RealServicesOptions) {
       },
       handleDeepLink: (_url: string) => undefined,
       start: async () => o.push.lifecycle(blocked),
-      stop: async () => pm.stop(),
+      stop: async () => {
+        await pm.stop();
+        await tm.stop();
+      },
     };
   }
 
@@ -302,12 +331,73 @@ function createRealServices(o: RealServicesOptions) {
     getUserId: () => oidc.getUserId(),
     publicKeys: getLicensePublicKeys({ isPackaged: o.isPackaged }),
     isPackaged: o.isPackaged,
-    ...licenseGateCallbacks(pm),
+    // Startup order (PHASE3_PLAN.md §2): license valid -> tailscaled -> enrollment -> daemon.
+    onValid: async () => {
+      await bringUp();
+    },
+    onInvalid: async (reason: string) => {
+      await pm.block(`License check: ${reason}`);
+      await tm.stop();
+    },
     cache: createFileLicenseCache(join(userData, 'license.jwt')),
     openExternal,
     log: (m) => log(`license: ${m}`),
   });
   gate.onChange(o.push.license);
+
+  // ensureEnrolled has no lock of its own: serialize startup vs. retry.
+  let enrolling: Promise<void> | null = null;
+  const enroll = (): Promise<void> => {
+    enrolling ??= ensureEnrolled({
+      tm,
+      getAuthToken: () => oidc.getApiToken(),
+      getUserSub: () => oidc.getUserId(),
+      licenseUrl: o.licenseUrl!,
+      dataDir,
+      log: (m) => log(`network: ${m}`),
+    })
+      .then(() => undefined)
+      .catch((e: unknown) => {
+        // Only the fixed code: never the message of anything that touched the key.
+        log(`network: enrollment failed: ${e instanceof EnrollError ? e.code : 'unexpected'}`);
+      })
+      .finally(() => {
+        enrolling = null;
+      });
+    return enrolling;
+  };
+
+  const startDaemon = async (): Promise<void> => {
+    const want = JSON.stringify(tm.daemonEnv());
+    if (pm.isRunning() && want !== daemonNetEnv) await pm.stop(); // SOCKS endpoint moved: respawn
+    daemonNetEnv = want;
+    await pm.start();
+  };
+  let daemonNetEnv = '';
+
+  const bringUp = async (): Promise<void> => {
+    await tm.start();
+    await enroll();
+    // The daemon runs even if enrollment failed (feed, MCP config); its inbox reports degraded.
+    await startDaemon();
+  };
+
+  const network: IpcDeps['network'] = {
+    getStatus: () => tm.status(),
+    retry: async () => {
+      const st = tm.lastStatus();
+      if (st.state === 'stopped' || st.state === 'error') await tm.start();
+      await enroll();
+      if (gate.getStatus().state === 'valid' || gate.getStatus().state === 'grace') await startDaemon();
+      return tm.status();
+    },
+  };
+
+  const signOutNetwork = async (): Promise<void> => {
+    await pm.stop();
+    await tm.logout().catch(() => undefined);
+    await tm.stop();
+  };
 
   let lastAuth = oidc.getState().state;
   oidc.onChange((s) => {
@@ -315,7 +405,7 @@ function createRealServices(o: RealServicesOptions) {
     if (s.state === lastAuth) return;
     lastAuth = s.state;
     if (s.state === 'signed_in') void gate.check();
-    else if (s.state === 'signed_out') void gate.reset();
+    else if (s.state === 'signed_out') void signOutNetwork().finally(() => void gate.reset());
   });
 
   return {
@@ -324,6 +414,7 @@ function createRealServices(o: RealServicesOptions) {
         getState: () => oidc.getState(),
         signIn: () => oidc.signIn(),
         signOut: async () => {
+          await signOutNetwork();
           await oidc.signOut();
           await gate.reset();
         },
@@ -334,7 +425,8 @@ function createRealServices(o: RealServicesOptions) {
         openCheckout: () => gate.openCheckout(),
       },
       backend,
-    } satisfies Pick<IpcDeps, 'auth' | 'license' | 'backend'>,
+      network,
+    } satisfies Pick<IpcDeps, 'auth' | 'license' | 'backend' | 'network'>,
     handleDeepLink: (url: string) => {
       if (!OidcClient.isCallbackUrl(url)) return;
       void oidc.handleCallback(url).catch((e) => log(`deep link rejected: ${e instanceof Error ? e.message : String(e)}`));
@@ -347,7 +439,8 @@ function createRealServices(o: RealServicesOptions) {
     stop: async () => {
       gate.dispose();
       control.disconnect();
-      await pm.stop();
+      await pm.stop(); // daemon first, then tailscaled
+      await tm.stop();
     },
   };
 }

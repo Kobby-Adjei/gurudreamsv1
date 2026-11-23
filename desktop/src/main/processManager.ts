@@ -32,6 +32,8 @@ export interface BackendConnection {
   port: number;
   pid: number;
   token: string;
+  /** Loopback the control API bound (`::1` preferred, F-1); absent on Phase-2 daemons (= 127.0.0.1). */
+  host?: '::1' | '127.0.0.1';
 }
 
 export interface CoreCommand {
@@ -48,6 +50,11 @@ export interface ProcessManagerOptions {
   env?: NodeJS.ProcessEnv;
   /** AIRBRIDGE_DATA_DIR for the daemon (activity.jsonl, logs). */
   dataDir?: string;
+  /**
+   * Phase 3: extra variables evaluated at every spawn (TailscaleManager.daemonEnv():
+   * AIRBRIDGE_NETWORK=embedded, AIRBRIDGE_TS_SOCKET, AIRBRIDGE_TS_SOCKS5). null/undefined = none.
+   */
+  extraEnv?: () => Record<string, string> | null | undefined;
   /**
    * Working directory for the daemon. Default: the binary's own directory (or main.py's in dev),
    * never the app's inherited cwd: on Windows the tailscale lookup would otherwise consider a
@@ -86,16 +93,18 @@ export function defaultBackoffMs(attempt: number): number {
   return Math.min(30_000, 1000 * 2 ** Math.max(0, attempt - 1));
 }
 
-/** Parse one stderr line; returns {port,pid} for a valid READY line, else null. */
-export function parseReadyLine(line: string): { port: number; pid: number } | null {
+/** Parse one stderr line; returns {port,pid[,host]} for a valid READY line, else null. */
+export function parseReadyLine(line: string): { port: number; pid: number; host?: '::1' | '127.0.0.1' } | null {
   if (!line.startsWith(READY_PREFIX)) return null;
   try {
-    const obj = JSON.parse(line.slice(READY_PREFIX.length)) as { control_port?: unknown; pid?: unknown };
+    const obj = JSON.parse(line.slice(READY_PREFIX.length)) as { control_port?: unknown; pid?: unknown; control_host?: unknown };
     const port = obj.control_port;
     const pid = obj.pid;
     if (typeof port !== 'number' || !Number.isInteger(port) || port < 1 || port > 65535) return null;
     if (typeof pid !== 'number' || !Number.isInteger(pid) || pid < 1) return null;
-    return { port, pid };
+    if (obj.control_host === undefined) return { port, pid };
+    if (obj.control_host !== '::1' && obj.control_host !== '127.0.0.1') return null;
+    return { port, pid, host: obj.control_host };
   } catch {
     return null;
   }
@@ -202,6 +211,16 @@ export class ProcessManager extends EventEmitter<ProcessManagerEvents> {
       PYTHONUNBUFFERED: '1',
     };
     if (this.opts.dataDir) env.AIRBRIDGE_DATA_DIR = this.opts.dataDir;
+    // Never inherit a stale network selection from the app's own environment.
+    delete env.AIRBRIDGE_NETWORK;
+    delete env.AIRBRIDGE_TS_SOCKET;
+    delete env.AIRBRIDGE_TS_SOCKS5;
+    const extra = this.opts.extraEnv?.();
+    if (extra) {
+      for (const k of ['AIRBRIDGE_NETWORK', 'AIRBRIDGE_TS_SOCKET', 'AIRBRIDGE_TS_SOCKS5'] as const) {
+        if (typeof extra[k] === 'string' && extra[k]) env[k] = extra[k];
+      }
+    }
     delete env.ELECTRON_RUN_AS_NODE;
 
     this.connection = null;
@@ -270,7 +289,7 @@ export class ProcessManager extends EventEmitter<ProcessManagerEvents> {
     if (ready && !this.connection) {
       if (this.readyTimer) clearTimeout(this.readyTimer);
       this.readyTimer = null;
-      this.connection = { port: ready.port, pid: ready.pid, token };
+      this.connection = { port: ready.port, pid: ready.pid, token, ...(ready.host ? { host: ready.host } : {}) };
       this.setLifecycle({ phase: 'running' });
       this.emit('ready', { ...this.connection });
       this.resolveWaiters(true);

@@ -368,3 +368,56 @@ describe('license gate -> process manager', () => {
     await pm.stop();
   });
 });
+
+// ------------------------------------------------------------------ Phase 3
+
+describe('Phase 3: network env + IPv6 control host', () => {
+  it('passes the embedded-network env from extraEnv at every spawn, never inherited', async () => {
+    let net: Record<string, string> | null = {
+      AIRBRIDGE_NETWORK: 'embedded',
+      AIRBRIDGE_TS_SOCKET: '/data/tailscaled.sock',
+      AIRBRIDGE_TS_SOCKS5: '[::1]:41234',
+    };
+    const { pm, calls } = makePm({
+      env: { PATH: '/usr/bin', AIRBRIDGE_NETWORK: 'system', AIRBRIDGE_TS_SOCKS5: '127.0.0.1:1' },
+      extraEnv: () => net,
+    });
+    const started = pm.start();
+    await flush();
+    calls[0]!.child.ready();
+    await started;
+    const env = calls[0]!.options.env as Record<string, string>;
+    expect(env.AIRBRIDGE_NETWORK).toBe('embedded');
+    expect(env.AIRBRIDGE_TS_SOCKET).toBe('/data/tailscaled.sock');
+    expect(env.AIRBRIDGE_TS_SOCKS5).toBe('[::1]:41234');
+    expect(calls[0]!.args.join(' ')).not.toContain('41234');
+    await pm.stop();
+
+    net = null; // network unavailable -> no stale inherited values
+    const again = pm.start();
+    await flush();
+    calls[1]!.child.ready();
+    await again;
+    const env2 = calls[1]!.options.env as Record<string, string>;
+    expect(env2.AIRBRIDGE_NETWORK).toBeUndefined();
+    expect(env2.AIRBRIDGE_TS_SOCKS5).toBeUndefined();
+    await pm.stop();
+  });
+
+  it('parses control_host from READY (::1 preferred) and rejects anything else', () => {
+    expect(parseReadyLine('AIRBRIDGE_READY {"control_port":5000,"pid":12,"control_host":"::1"}')).toEqual({ port: 5000, pid: 12, host: '::1' });
+    expect(parseReadyLine('AIRBRIDGE_READY {"control_port":5000,"pid":12,"control_host":"127.0.0.1"}')).toEqual({
+      port: 5000,
+      pid: 12,
+      host: '127.0.0.1',
+    });
+    expect(parseReadyLine('AIRBRIDGE_READY {"control_port":5000,"pid":12,"control_host":"0.0.0.0"}')).toBeNull();
+    expect(parseReadyLine('AIRBRIDGE_READY {"control_port":5000,"pid":12,"control_host":"evil.example"}')).toBeNull();
+  });
+
+  it('controlClient builds bracketed IPv6 URLs', async () => {
+    const { controlHostPort } = await import('../src/main/controlClient');
+    expect(controlHostPort({ port: 5000, host: '::1' })).toBe('[::1]:5000');
+    expect(controlHostPort({ port: 5000 })).toBe('127.0.0.1:5000');
+  });
+});
