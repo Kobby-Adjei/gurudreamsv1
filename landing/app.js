@@ -3,7 +3,7 @@
   'use strict';
 
   var HEADLINES = {
-    private: 'Drop a task from one computer\'s AI to another.',
+    private: 'Drop a task to any of your AI agents.',
     cross: 'Send a task from Claude on your Mac to Codex on your PC.',
     bridge: 'Stop copy-pasting between your AIs. Drop the task to the other computer.',
     current: 'Connect your computers so your AI agents can hand off tasks.'
