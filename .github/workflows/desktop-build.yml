@@ -2,6 +2,8 @@
 # Each runner builds its own airbridge-core (PyInstaller cannot cross-compile) and airbridge-net,
 # then packages the app with desktop/electron-builder.unsigned.yml. The public build config in
 # desktop/.env.production is baked in by `electron-vite build` (production mode).
+# On a push to the branch, the `publish` job uploads the three installers to our server (GitHub Actions OIDC, no
+# stored secret; license-server/src/releases.ts) and makes them the latest download on the landing page.
 name: desktop-build
 
 on:
@@ -178,3 +180,118 @@ jobs:
             desktop/release/*.dmg
             desktop/release/*.zip
             desktop/release/*.exe
+
+  publish:
+    name: publish to the download server
+    needs: build
+    if: github.ref == 'refs/heads/claude/airbridge-p2p-network-ha3opt' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    # Long only on a server that does not have the upload route yet (first deploy): it waits for it (below).
+    timeout-minutes: 180
+    permissions:
+      contents: read
+      id-token: write # GitHub-signed OIDC token: the server checks repository, branch and this workflow file
+    env:
+      SERVER: https://167-99-125-208.sslip.io
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: desktop/package.json
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Collect the installers under their public names
+        id: files
+        shell: bash
+        run: |
+          set -euo pipefail
+          ver="$(jq -r .version desktop/package.json)"
+          [[ "$ver" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-][0-9A-Za-z.]+)?$ ]] || { echo "bad version $ver" >&2; exit 1; }
+          mkdir -p out
+          pick() { # source name, public name
+            local src
+            src="$(find artifacts -type f -name "$1" | head -1)"
+            [ -n "$src" ] || { echo "missing artifact: $1" >&2; ls -lR artifacts >&2; exit 1; }
+            cp "$src" "out/$2"
+          }
+          pick "AirBridge Pro-$ver-arm64.dmg" "AirBridge-Pro-$ver-mac-arm64.dmg"
+          pick "AirBridge Pro-$ver.dmg" "AirBridge-Pro-$ver-mac-x64.dmg"
+          pick "AirBridge Pro Setup $ver.exe" "AirBridge-Pro-$ver-win-x64.exe"
+          (cd out && sha256sum * | tee ../SHA256SUMS && ls -l)
+          echo "version=$ver" >>"$GITHUB_OUTPUT"
+
+      - name: Wait for the server (upload route, no deploy in progress)
+        shell: bash
+        run: |
+          set -uo pipefail
+          for i in $(seq 1 300); do
+            code="$(curl -s -o /dev/null -w '%{http_code}' -X POST "$SERVER/v1/releases/upload")"
+            state="$(curl -fsS "$SERVER/v1/deploy/status" 2>/dev/null | jq -r '.state // empty' 2>/dev/null)"
+            if [ "$code" = 401 ] && [ "$state" != deploying ]; then echo "server ready"; exit 0; fi
+            if [ $((i % 10)) = 1 ]; then
+              echo "waiting: upload route answers $code (401 = ready), deploy state '${state:-n/a}'."
+              [ "$code" = 404 ] && echo "  The server has no upload route yet: deploy this commit once from the DigitalOcean console: sudo airbridge-update $GITHUB_SHA"
+            fi
+            sleep 30
+          done
+          echo "server not ready after 150 minutes" >&2
+          exit 1
+
+      - name: Upload and publish
+        shell: bash
+        env:
+          VERSION: ${{ steps.files.outputs.version }}
+        run: |
+          set -euo pipefail
+          token() {
+            local t
+            t="$(curl -fsS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+              "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=airbridge-releases" | jq -r .value)"
+            echo "::add-mask::$t"
+            printf '%s' "$t"
+          }
+          for f in out/*; do
+            name="$(basename "$f")"
+            want="$(sha256sum "$f" | cut -d' ' -f1)"
+            for attempt in 1 2 3; do
+              tok="$(token)"
+              if curl -sS --fail-with-body -o resp.json -X POST -T "$f" \
+                   -H "Authorization: Bearer $tok" -H 'Content-Type: application/octet-stream' \
+                   "$SERVER/v1/releases/upload?name=$name"; then
+                got="$(jq -r .sha256 resp.json)"
+                [ "$got" = "$want" ] || { echo "sha256 mismatch for $name: $got != $want" >&2; exit 1; }
+                echo "uploaded $name ($(jq -r .size resp.json) bytes) -> $(jq -r .url resp.json)"
+                break
+              fi
+              cat resp.json || true
+              [ "$attempt" = 3 ] && exit 1
+              sleep 20
+            done
+          done
+          tok="$(token)"
+          curl -sS --fail-with-body -o latest.json -X POST -H "Authorization: Bearer $tok" -H 'Content-Type: application/json' \
+            --data "{\"version\":\"$VERSION\"}" "$SERVER/v1/releases/publish"
+          jq . latest.json
+
+      - name: Verify the public downloads
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS "$SERVER/downloads/latest.json" -o public.json
+          [ "$(jq -r .commit public.json)" = "$GITHUB_SHA" ] || { echo "latest.json is not this commit" >&2; exit 1; }
+          [ "$(jq '.files | length' public.json)" = 3 ] || { echo "expected 3 files" >&2; exit 1; }
+          jq -r '.files[] | [.name, .size, .sha256, .url] | @tsv' public.json | while IFS=$'\t' read -r name size sha url; do
+            [ "$(sha256sum "out/$name" | cut -d' ' -f1)" = "$sha" ] || { echo "manifest sha256 differs for $name" >&2; exit 1; }
+            len="$(curl -fsSI "$SERVER$url" | tr -d '\r' | awk 'tolower($1)=="content-length:"{print $2}')"
+            [ "$len" = "$size" ] || { echo "HEAD $url: length $len != $size" >&2; exit 1; }
+            echo "OK $SERVER$url ($size bytes)"
+          done
+          {
+            echo "### Downloads published"
+            echo
+            jq -r '"Version \(.version) (\(.id))\n"' public.json
+            jq -r '.files[] | "- [\(.name)]('"$SERVER"'\(.url)) \(.size) bytes, sha256 `\(.sha256)`"' public.json
+          } >>"$GITHUB_STEP_SUMMARY"

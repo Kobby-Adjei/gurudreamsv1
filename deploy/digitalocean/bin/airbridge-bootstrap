@@ -33,6 +33,9 @@ install -d -m 0755 "$AIRBRIDGE_STATE"
 install -d -m 0700 -o "$HEADSCALE_UID" -g "$HEADSCALE_UID" "$AIRBRIDGE_STATE/headscale"
 install -d -m 0755 "$AIRBRIDGE_STATE/headscale-config" "$AIRBRIDGE_STATE/site"
 install -d -m 0700 -o "$NODE_UID" -g "$NODE_UID" "$AIRBRIDGE_STATE/license" "$AIRBRIDGE_STATE/license/waitlist" "$AIRBRIDGE_SECRETS"
+# Desktop installers (written by the license server, served read-only by Caddy at /downloads/) and the self-deploy
+# hand-off directory (request.json from the license server, status.json from airbridge-autodeploy).
+install -d -m 0755 -o "$NODE_UID" -g "$NODE_UID" "$AIRBRIDGE_STATE/releases" "$AIRBRIDGE_STATE/deploy"
 install -d -m 0700 "$AIRBRIDGE_STATE/caddy" "$AIRBRIDGE_STATE/caddy/data" "$AIRBRIDGE_STATE/caddy/config" "$AIRBRIDGE_STATE/backups"
 if [ -e "$AIRBRIDGE_STATE/license/waitlist/waitlist.jsonl" ]; then
   chown "$NODE_UID:$NODE_UID" "$AIRBRIDGE_STATE/license/waitlist/waitlist.jsonl"
@@ -100,6 +103,8 @@ PREAUTH_TTL_SECONDS=${PREAUTH_TTL_SECONDS:-600}
 SMOKE_TEST=$SMOKE_TEST
 SMOKE_TEST_UNTIL=$([ "$SMOKE_TEST" = 1 ] && printf '%s' "${SMOKE_TEST_UNTIL:-}")
 CADDY_LOCAL_CERTS=${CADDY_LOCAL_CERTS:-}
+AIRBRIDGE_GITHUB_REPOSITORY=${AIRBRIDGE_GITHUB_REPOSITORY:-Kobby-Adjei/gurudreamsv1}
+AIRBRIDGE_GITHUB_REF=${AIRBRIDGE_GITHUB_REF:-refs/heads/claude/airbridge-p2p-network-ha3opt}
 EOF
 mv -f "$AIRBRIDGE_ETC/runtime.env.new" "$AIRBRIDGE_ETC/runtime.env"
 
@@ -157,4 +162,8 @@ else
   die "Headscale policy NOT verified by the license server (pre-auth keys are refused)"
 fi
 docker image prune -f >/dev/null 2>&1 || true
+# What is deployed, for GET /v1/deploy/status (also after a manual airbridge-update). Non-secret.
+jq -n --arg c "$COMMIT" --arg t "$(date -u +%FT%TZ)" '{commit: $c, state: "deployed", requested: $c, finished_at: $t}' \
+  >"$AIRBRIDGE_STATE/deploy/.status.new" && chmod 0644 "$AIRBRIDGE_STATE/deploy/.status.new" &&
+  mv -f "$AIRBRIDGE_STATE/deploy/.status.new" "$AIRBRIDGE_STATE/deploy/status.json" || true
 log "ready: https://$DOMAIN (smoke test: $([ "$SMOKE_TEST" = 1 ] && echo ON || echo off))"

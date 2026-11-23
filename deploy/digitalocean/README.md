@@ -18,6 +18,7 @@ It replaces Railway, whose edge strips non-WebSocket `Upgrade` headers so Headsc
 ```
 internet ─┬─ 80/443 tcp ─> caddy ─(edge)─┬─> headscale:8080        /ts2021 /key /derp /derp/probe /derp/latency-check /bootstrap-dns /health
           │                              ├─> license-server:8787   /v1/* /healthz /checkout/*
+          │                              ├─> /srv/releases (static) /downloads/latest.json, /downloads/<id>/<installer>
           │                              └─> /srv/landing (static) everything else      /api* /swagger* -> 404
           └─ 3478 udp ──> headscale (STUN)
 license-server ─(control: internal network, no egress)─> headscale:8080 /api/v1   (the ONLY path to the admin API)
@@ -32,6 +33,9 @@ license-server ─(control: internal network, no egress)─> headscale:8080 /api
 | `/var/lib/airbridge/secrets/` | `license_signing_key.pem`, `license_key_id`, `headscale_api_key`, `waitlist_admin_token` (0400, uid 1000) |
 | `/var/lib/airbridge/license/` | `waitlist/waitlist.jsonl` (emails), `smoke/` |
 | `/var/lib/airbridge/site/` | public landing files copied from `landing/` (no `tools/`, `docs/`, `blender/`, dotfiles, `*.md`) |
+| `/var/lib/airbridge/releases/` | desktop installers published by CI + `latest.json` (served at `/downloads/`; not backed up, CI can republish) |
+| `/var/lib/airbridge/deploy/` | self-deploy hand-off: `request.json` (from `POST /v1/deploy`), `status.json` (what is deployed) |
+| `/var/lib/airbridge/license/downloads/counts.json` | download counts (also in `/v1/waitlist/stats`) |
 | `/var/lib/airbridge/caddy/` | ACME account + certificates |
 | `/var/lib/airbridge/backups/` | nightly backups (0600) |
 
@@ -45,6 +49,7 @@ Files in this directory:
 | `bin/airbridge-bootstrap` | idempotent: keys on first run, config render, landing copy, build, start, API key, policy check |
 | `bin/airbridge-compose` | `docker compose` for this stack (`sudo airbridge-compose ps`, `logs -f headscale`, …) |
 | `bin/airbridge-update <sha>` | deploy another commit (from the DO console) |
+| `bin/airbridge-autodeploy` | self-deploy: runs `airbridge-update` for the commit CI asked for (below); restores the previous commit on failure |
 | `bin/airbridge-backup`, `bin/airbridge-rotate-apikey`, `bin/airbridge-smoke-off` | nightly backup, monthly API-key rotation, smoke-test shut-off |
 | `docker-compose.yml`, `Caddyfile`, `license-server.Dockerfile`, `license-entrypoint.sh` | the stack |
 | `smoke/e2e.py` | two real sidecars + daemons against the live server (temporary smoke test) |
@@ -118,6 +123,40 @@ For a longer session you can temporarily add an SSH key in the panel and a firew
 3. Desktop builds must ship the new login-server/license URL. Devices enrolled against the sslip.io name keep that
    name in their state: keep the old name working (both names can be served by adding the old name to the
    Caddyfile site address) until all devices have re-enrolled, or re-enroll them.
+
+## Self-deploy from CI (no SSH, no stored secret)
+
+`.github/workflows/server-deploy.yml` runs on every push to `claude/airbridge-p2p-network-ha3opt` that touches
+`license-server/`, `landing/` or `deploy/digitalocean/`: license-server tests, then `POST /v1/deploy` with a GitHub
+Actions OIDC token (audience `airbridge-deploy`). The license server verifies it against GitHub's JWKS and accepts it
+only for repository `Kobby-Adjei/gurudreamsv1`, ref `refs/heads/claude/airbridge-p2p-network-ha3opt` and
+`workflow_ref` = that workflow file; it writes the token's `sha` to `/var/lib/airbridge/deploy/request.json`.
+`airbridge-autodeploy.path` starts `airbridge-autodeploy`, which reads only a 40-hex commit from the file and runs
+`airbridge-update <sha>` (fetch exactly that commit, verify HEAD, install, bootstrap). If that fails it redeploys the
+previous commit. Keys, the Headscale DB, the waitlist, certificates and releases are never touched by an update; the
+license signing key is only generated when it does not exist. The job waits for `GET /v1/deploy/status` to report
+the commit. Who can deploy = who can push to that branch. Off switch: `AIRBRIDGE_AUTODEPLOY=0` in `airbridge.env`,
+then `sudo airbridge-bootstrap` (or just leave it: requests are then recorded as `disabled`). Log:
+`/var/log/airbridge-autodeploy.log`.
+
+**First time only**: a droplet installed before this existed has no `/v1/deploy`. Deploy the commit once from the
+DigitalOcean Recovery Console: `sudo airbridge-update <40-hex commit>`; every later push deploys itself.
+
+## Desktop downloads
+
+`.github/workflows/desktop-build.yml` builds the installers; its `publish` job (push to the branch only) renames them
+to `AirBridge-Pro-<version>-<mac-arm64|mac-x64|win-x64>.<dmg|exe>`, uploads each with a GitHub OIDC token (audience
+`airbridge-releases`, workflow `desktop-build.yml`) to `POST /v1/releases/upload` (streamed, sha256 computed on the
+server, ≤ 400 MB, name whitelist), then `POST /v1/releases/publish` writes `latest.json`. Releases live in
+`/var/lib/airbridge/releases/<version>-<sha7>/`; the newest 3 are kept, `latest.json` names the previous one.
+
+Caddy serves `GET /downloads/latest.json` (no-cache) and `/downloads/<version>-<sha7>/<installer>` (attachment,
+`application/x-apple-diskimage` / `application/vnd.microsoft.portable-executable`, cached for a year, Range + HEAD).
+Each installer GET passes a `forward_auth` to the license server, which counts it (per platform/arch and version, once
+per client and file per 10 minutes, resumed ranges not counted); the counts are in `/v1/waitlist/stats` → `downloads`.
+
+Roll back the download to a kept release: `curl -X POST -H "Authorization: Bearer $WAITLIST_ADMIN_TOKEN"
+-H 'Content-Type: application/json' -d '{"id":"0.2.0-abcdef0"}' https://<host>/v1/releases/rollback`.
 
 ## Waitlist
 

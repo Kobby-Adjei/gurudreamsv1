@@ -6,6 +6,7 @@
 #
 #   internet ─┬─ 80/443 tcp ─> caddy ─(edge)─┬─> headscale:8080   /ts2021 /key /derp* /bootstrap-dns /health
 #             │                              ├─> license-server:8787   /v1/* /healthz /checkout/*
+#             │                              ├─> /srv/releases (static) /downloads/* (installers, latest.json)
 #             │                              └─> /srv/landing (static)  everything else;  /api* /swagger* -> 404
 #             └─ 3478 udp ──> headscale (STUN)
 #   license-server ─(control, internal: true)─> headscale:8080 /api/v1 (the ONLY path to the admin API)
@@ -73,6 +74,12 @@ services:
       SMOKE_TEST: ${SMOKE_TEST:-0}
       SMOKE_TEST_UNTIL: ${SMOKE_TEST_UNTIL:-}
       SMOKE_STATE_DIR: /data/smoke
+      # Desktop installers published by CI (GitHub Actions OIDC; no shared secret) + download counts + self-deploy.
+      RELEASES_DIR: /releases
+      DOWNLOAD_COUNTS_PATH: /data/downloads/counts.json
+      DEPLOY_DIR: /deploy
+      GITHUB_OIDC_REPOSITORY: ${AIRBRIDGE_GITHUB_REPOSITORY:-Kobby-Adjei/gurudreamsv1}
+      GITHUB_OIDC_REF: ${AIRBRIDGE_GITHUB_REF:-refs/heads/claude/airbridge-p2p-network-ha3opt}
       # Read by license-entrypoint.sh, exported to the server process only (never in `docker inspect`).
       HEADSCALE_API_KEY_FILE: /run/airbridge-secrets/headscale_api_key
       LICENSE_SIGNING_KEY_PEM_FILE: /run/airbridge-secrets/license_signing_key.pem
@@ -80,6 +87,8 @@ services:
       WAITLIST_ADMIN_TOKEN_FILE: /run/airbridge-secrets/waitlist_admin_token
     volumes:
       - ${AIRBRIDGE_STATE:?}/license:/data
+      - ${AIRBRIDGE_STATE:?}/releases:/releases
+      - ${AIRBRIDGE_STATE:?}/deploy:/deploy
       - ${AIRBRIDGE_STATE:?}/secrets:/run/airbridge-secrets:ro
     depends_on:
       headscale:
@@ -107,6 +116,7 @@ services:
     volumes:
       - ${AIRBRIDGE_SRC:?}/deploy/digitalocean/Caddyfile:/etc/caddy/Caddyfile:ro
       - ${AIRBRIDGE_STATE:?}/site:/srv/landing:ro
+      - ${AIRBRIDGE_STATE:?}/releases:/srv/releases:ro
       - ${AIRBRIDGE_STATE:?}/caddy/data:/data
       - ${AIRBRIDGE_STATE:?}/caddy/config:/config
     ports:

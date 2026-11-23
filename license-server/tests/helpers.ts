@@ -85,6 +85,8 @@ export async function makeHarness(
     trustProxyHops?: number;
     publicBaseUrl?: string | null;
     waitlist?: AppDeps['waitlist'];
+    releases?: AppDeps['releases'];
+    getClientIp?: AppDeps['getClientIp'];
     logger?: Logger;
   } = {},
 ) {
@@ -107,6 +109,8 @@ export async function makeHarness(
     logger: opts.logger ?? silentLogger,
     now: opts.now,
     waitlist: opts.waitlist,
+    releases: opts.releases,
+    getClientIp: opts.getClientIp,
     rateLimit: { verifyPerMinute: opts.verifyPerMinute ?? 1000, checkoutPerMinute: 1000 },
   });
 

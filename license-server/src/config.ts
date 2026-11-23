@@ -46,6 +46,24 @@ export interface Config {
    * WAITLIST_ADMIN_TOKEN. SMOKE_STATE_DIR (default /data/smoke), SMOKE_TEST_UNTIL (optional unix seconds).
    */
   smoke: SmokeConfig | null;
+  /**
+   * Desktop installer publishing (releases.ts). RELEASES_DIR unset -> /v1/releases/* are not registered.
+   * GITHUB_OIDC_REPOSITORY (owner/repo) and GITHUB_OIDC_REF (refs/heads/...) say whose CI may publish;
+   * RELEASES_WORKFLOW (default .github/workflows/desktop-build.yml); DOWNLOAD_COUNTS_PATH (default
+   * /data/downloads/counts.json). DEPLOY_DIR (optional) + DEPLOY_WORKFLOW (default .github/workflows/server-deploy.yml)
+   * enable POST /v1/deploy for the host's airbridge-autodeploy.
+   */
+  releases: ReleasesConfig | null;
+}
+
+export interface ReleasesConfig {
+  dir: string;
+  downloadCountsPath: string;
+  repository: string;
+  ref: string;
+  workflow: string;
+  deployDir: string | null;
+  deployWorkflow: string;
 }
 
 export interface HeadscaleConfig {
@@ -254,6 +272,26 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     problems.push('SMOKE_TEST must be 0 or 1');
   }
 
+  let releases: ReleasesConfig | null = null;
+  const releasesDir = env.RELEASES_DIR?.trim() || '';
+  if (releasesDir) {
+    const repository = env.GITHUB_OIDC_REPOSITORY?.trim() || '';
+    const ref = env.GITHUB_OIDC_REF?.trim() || '';
+    const workflow = env.RELEASES_WORKFLOW?.trim() || '.github/workflows/desktop-build.yml';
+    const deployWorkflow = env.DEPLOY_WORKFLOW?.trim() || '.github/workflows/server-deploy.yml';
+    const downloadCountsPath = env.DOWNLOAD_COUNTS_PATH?.trim() || '/data/downloads/counts.json';
+    const deployDir = env.DEPLOY_DIR?.trim() || null;
+    if (!releasesDir.startsWith('/')) problems.push('RELEASES_DIR must be an absolute path');
+    if (!downloadCountsPath.startsWith('/')) problems.push('DOWNLOAD_COUNTS_PATH must be an absolute path');
+    if (deployDir && !deployDir.startsWith('/')) problems.push('DEPLOY_DIR must be an absolute path');
+    if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository)) problems.push('RELEASES_DIR requires GITHUB_OIDC_REPOSITORY=owner/repo');
+    if (!/^refs\/(heads|tags)\/[A-Za-z0-9._\/-]+$/.test(ref)) problems.push('RELEASES_DIR requires GITHUB_OIDC_REF=refs/heads/<branch>');
+    for (const w of [workflow, deployWorkflow]) {
+      if (!/^\.github\/workflows\/[A-Za-z0-9_.-]+\.ya?ml$/.test(w)) problems.push(`workflow path invalid: ${w}`);
+    }
+    releases = { dir: releasesDir, downloadCountsPath, repository, ref, workflow, deployDir, deployWorkflow };
+  }
+
   if (problems.length > 0 || !licenseSigningKey || (authConfigured && !clerkJwksUrl)) {
     throw new ConfigError(problems.length ? problems : ['configuration incomplete']);
   }
@@ -284,6 +322,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     waitlistPath,
     waitlistAdminToken,
     smoke,
+    releases,
   };
 }
 

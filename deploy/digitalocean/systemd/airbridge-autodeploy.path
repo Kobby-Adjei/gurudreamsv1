@@ -1,0 +1,8 @@
+[Unit]
+Description=Deploy the commit CI asked for (POST /v1/deploy writes the request)
+
+[Path]
+PathExists=/var/lib/airbridge/deploy/request.json
+
+[Install]
+WantedBy=paths.target

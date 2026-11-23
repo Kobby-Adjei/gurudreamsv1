@@ -7,6 +7,8 @@ import { createHeadscaleClient } from './headscale.js';
 import { createLicenseSigner } from './licenseToken.js';
 import { InMemorySubscriptionStore, PostgresSubscriptionStore, type SubscriptionStore } from './store.js';
 import { JsonlWaitlistStore } from './waitlist.js';
+import { createGithubOidcVerifier } from './githubOidc.js';
+import { DownloadCounter, ReleaseStore } from './releases.js';
 
 /** Build the production app from environment variables (throws ConfigError with every problem listed). */
 export function buildFromEnv(env: NodeJS.ProcessEnv = process.env): { app: ReturnType<typeof createApp>; config: Config; store: SubscriptionStore } {
@@ -63,6 +65,20 @@ export function buildFromEnv(env: NodeJS.ProcessEnv = process.env): { app: Retur
   if (!config.waitlistAdminToken) {
     consoleLogger.warn('waitlist_admin_disabled', { hint: 'set WAITLIST_ADMIN_TOKEN to enable /v1/waitlist/stats and /export' });
   }
+  let releases: Parameters<typeof createApp>[0]['releases'] = null;
+  if (config.releases) {
+    const r = config.releases;
+    const relStore = new ReleaseStore(r.dir);
+    relStore.init().catch((e: Error) => consoleLogger.error('releases_dir_unavailable', { err: e.message }));
+    releases = {
+      store: relStore,
+      counter: new DownloadCounter(r.downloadCountsPath),
+      verifyOidc: createGithubOidcVerifier(),
+      releasePolicy: { repository: r.repository, ref: r.ref, workflows: [r.workflow], audience: 'airbridge-releases' },
+      deployPolicy: r.deployDir ? { repository: r.repository, ref: r.ref, workflows: [r.deployWorkflow], audience: 'airbridge-deploy' } : null,
+      deployDir: r.deployDir,
+    };
+  }
   const app = createApp({
     store,
     billing,
@@ -81,6 +97,7 @@ export function buildFromEnv(env: NodeJS.ProcessEnv = process.env): { app: Retur
     waitlist: { store: waitlistStore, adminToken: config.waitlistAdminToken },
     licensePublicKey: { kid: config.licenseKeyId, pem: config.licensePublicKeyPem },
     smoke: config.smoke,
+    releases,
   });
   return { app, config, store };
 }

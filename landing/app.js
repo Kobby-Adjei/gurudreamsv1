@@ -111,7 +111,7 @@
       showError('Couldn’t reach the server. Check your connection and try again.');
     }).then(function () {
       button.disabled = false;
-      button.textContent = 'Join the list';
+      button.textContent = 'Get updates';
     });
   });
 

@@ -110,8 +110,76 @@ h1 {
   text-wrap: balance;
 }
 
+[hidden] { display: none !important; }
+
+/* ---------- download: the main action */
+.get {
+  display: flex; flex-direction: column; align-items: center;
+  width: min(520px, 100%); margin-top: clamp(30px, 4.6vh, 44px);
+}
+.get[data-state="loading"] .get-ready { visibility: hidden; }
+.get[data-state="soon"] .get-ready { display: none; }
+.get-ready { display: flex; flex-direction: column; align-items: center; width: 100%; }
+.get-soon { display: none; margin: 0; font-size: 17px; color: var(--ink-muted); }
+.get[data-state="soon"] .get-soon { display: block; }
+
+.dl {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 56px; padding: 0 32px;
+  border-radius: 999px;
+  background: var(--accent); color: var(--accent-fg);
+  font-size: 17px; font-weight: 600; letter-spacing: -0.012em; text-decoration: none;
+  box-shadow: 0 10px 30px -12px rgb(142 197 255 / 0.55);
+  transition: background-color 0.15s ease;
+}
+.dl:hover { background: var(--accent-hover); }
+.dl:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.dl-icon { width: 20px; height: 20px; flex: none; }
+
+.dl-meta { margin: 14px 0 0; font-size: 14px; color: var(--ink-muted); }
+.dl-other { margin: 8px 0 0; font-size: 14px; color: var(--ink-muted); text-wrap: balance; }
+.dl-other:empty, .dl-note:empty, .dl-meta:empty { display: none; }
+.dl-other a, .dl-other a:visited { color: var(--accent); text-underline-offset: 3px; text-decoration-thickness: 1px; border-radius: 3px; }
+.dl-other a:hover { color: var(--accent-hover); }
+.dl-note { margin: 10px 0 0; max-width: 46em; font-size: 13px; line-height: 1.45; color: var(--ink-faint); text-wrap: balance; }
+
+.updates { margin: 10px 0 0; }
+.linkish {
+  height: auto; padding: 2px 4px; border-radius: 4px;
+  background: none; color: var(--accent);
+  font-size: 14px; font-weight: 400; letter-spacing: 0;
+  text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px;
+}
+.linkish:hover { background: none; color: var(--accent-hover); }
+
+/* ---------- form: "get updates", secondary to the download */
+html[data-downloads="loading"] .cta { display: none; }
+.cta { width: min(440px, 100%); margin-top: 18px; }
+/* Over the clouds: a dark glass panel keeps the form readable. */
+html[data-downloads="ready"] .cta, html[data-downloads="list"] .cta {
+  padding: 14px 16px 12px; border-radius: 22px;
+  background: rgb(7 12 22 / 0.66);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: inset 0 0 0 1px rgb(var(--line) / 0.12);
+}
+.cta-label { display: block; margin: 0 0 8px; font-size: 14px; color: var(--ink-muted); }
+.cta input[type="email"] { height: 44px; font-size: 15px; }
+.cta button {
+  height: 44px; padding: 0 20px; font-size: 15px;
+  background: transparent; color: var(--ink);
+  box-shadow: inset 0 0 0 1px rgb(var(--line) / 0.4);
+}
+.cta button:hover { background: rgb(var(--line) / 0.1); }
+.cta .price { margin-top: 10px; font-size: 13px; }
+
+/* No downloads yet: the email is the main action again. */
+html[data-downloads="soon"] .get { margin-top: clamp(24px, 3.6vh, 36px); }
+html[data-downloads="soon"] .cta { width: min(460px, 100%); margin-top: 18px; }
+html[data-downloads="soon"] .cta input[type="email"], html[data-downloads="soon"] .cta button { height: 50px; font-size: 16px; }
+html[data-downloads="soon"] .cta button { background: var(--accent); color: var(--accent-fg); box-shadow: none; }
+html[data-downloads="soon"] .cta button:hover { background: var(--accent-hover); }
+
 /* ---------- form */
-.cta { width: min(460px, 100%); margin-top: clamp(30px, 4.6vh, 44px); }
 .row { display: flex; gap: 10px; }
 input[type="email"] {
   flex: 1 1 auto; min-width: 0; height: 50px; padding: 0 18px;
@@ -167,7 +235,9 @@ button:disabled { cursor: progress; opacity: 0.75; }
   .copy { padding-top: clamp(28px, 6vh, 56px); }
   h1 { font-size: clamp(32px, 8.6vw, 40px); line-height: 1.08; letter-spacing: -0.03em; }
   .sub { margin-top: 14px; font-size: 16px; }
-  .cta { margin-top: 26px; }
+  .get { margin-top: 26px; }
+  .dl { width: 100%; max-width: 360px; }
+  .cta { margin-top: 24px; }
   .facts ul { padding: 48px 0 28px; }
   .facts li { font-size: 15px; }
 }
@@ -177,5 +247,11 @@ button:disabled { cursor: progress; opacity: 0.75; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sky canvas, .poster img, input, button { transition: none; }
+  .sky canvas, .poster img, input, button, .dl { transition: none; }
+}
+
+/* The "Get updates by email" toggle already says what the field is for. */
+html[data-downloads="ready"] .cta-label {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }

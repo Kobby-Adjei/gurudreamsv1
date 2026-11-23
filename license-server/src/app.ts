@@ -7,6 +7,7 @@ import { registerNetworkRoutes, revokeUserNodes, type NetworkConfig, type Networ
 import { registerSmokeRoutes, type SmokeConfig } from './smoke.js';
 import { RateLimiter } from './rateLimit.js';
 import { isEntitled, type SubscriptionStatus, type SubscriptionStore } from './store.js';
+import { registerReleaseRoutes, type ReleaseRouteDeps } from './releases.js';
 import { registerWaitlistRoutes, type WaitlistRouteDeps, type WaitlistStore } from './waitlist.js';
 
 export interface Logger {
@@ -58,6 +59,8 @@ export interface AppDeps {
   licensePublicKey?: { kid: string; pem: string } | null;
   /** TEMPORARY smoke-test routes (SMOKE_TEST=1). Needs `network` and the waitlist admin token; see smoke.ts. */
   smoke?: SmokeConfig | null;
+  /** Desktop installers + download counts + CI self-deploy (releases.ts). null -> not registered. */
+  releases?: Pick<ReleaseRouteDeps, 'store' | 'counter' | 'verifyOidc' | 'releasePolicy' | 'deployPolicy' | 'deployDir' | 'maxUploadBytes'> | null;
 }
 
 const MAX_WEBHOOK_BYTES = 1_000_000;
@@ -308,11 +311,17 @@ export function createApp(deps: AppDeps): Hono {
       store: deps.waitlist.store,
       adminToken: deps.waitlist.adminToken,
       limits: deps.waitlist.limits,
+      extraStats: deps.releases ? () => ({ downloads: deps.releases!.counter.stats() }) : undefined,
       expectedOrigin: baseUrl,
       clientIp,
       now,
       log,
     });
+  }
+
+  // ---------------------------------------------------------------- Desktop installers (CI-published) + self-deploy
+  if (deps.releases) {
+    registerReleaseRoutes(app, { ...deps.releases, adminToken: deps.waitlist?.adminToken?.trim() || null, clientIp, now, log });
   }
 
   // ---------------------------------------------------------------- Checkout landing pages

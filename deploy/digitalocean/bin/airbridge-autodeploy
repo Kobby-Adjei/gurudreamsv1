@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+# airbridge-autodeploy: deploy the commit CI asked for. Triggered by airbridge-autodeploy.path when the license server
+# writes $AIRBRIDGE_STATE/deploy/request.json, which it does only for POST /v1/deploy carrying a GitHub Actions OIDC
+# token from .github/workflows/server-deploy.yml on the configured repository + branch (license-server/src/releases.ts).
+# The commit comes from the token's `sha` claim, i.e. the commit that workflow run was started for.
+#
+# The request file is untrusted input here: only a 40-hex commit is read from it. airbridge-update then fetches that
+# exact commit from GitHub and verifies HEAD == commit. If install/bootstrap fails, the previous commit is redeployed.
+# State (signing key, Headscale keys + DB, waitlist, certificates, releases) is never touched by an update.
+# Off switch: AIRBRIDGE_AUTODEPLOY=0 in /etc/airbridge/airbridge.env.
+set -euo pipefail
+# shellcheck source=airbridge-common.sh
+. "${AIRBRIDGE_LIB:-/usr/local/lib/airbridge}/airbridge-common.sh"
+load_env
+dir="$AIRBRIDGE_STATE/deploy"
+req="$dir/request.json"
+logf=/var/log/airbridge-autodeploy.log
+[ -f "$req" ] || exit 0
+# Consume the request first (the .path unit re-triggers while request.json exists).
+taken="$dir/.request.$$"
+mv -f "$req" "$taken"
+want=""
+if [ "$(stat -c %s "$taken")" -lt 4096 ]; then
+  want="$(jq -r '.commit // empty' "$taken" 2>/dev/null || true)"
+fi
+rm -f "$taken"
+
+status() { # commit state requested
+  local tmp
+  tmp="$(mktemp "$dir/.status.XXXXXX")"
+  jq -n --arg commit "$1" --arg state "$2" --arg requested "$3" --arg t "$(date -u +%FT%TZ)" \
+    '{commit: $commit, state: $state, requested: $requested, finished_at: $t}' >"$tmp"
+  chmod 0644 "$tmp"
+  mv -f "$tmp" "$dir/status.json"
+}
+
+current="$(git -C "$AIRBRIDGE_SRC" rev-parse HEAD)"
+if ! [[ "$want" =~ ^[0-9a-f]{40}$ ]]; then
+  log "autodeploy: ignoring a malformed request"
+  status "$current" rejected ""
+  exit 0
+fi
+if [ "${AIRBRIDGE_AUTODEPLOY:-1}" != 1 ]; then
+  log "autodeploy: off (AIRBRIDGE_AUTODEPLOY=${AIRBRIDGE_AUTODEPLOY:-}); not deploying $want"
+  status "$current" disabled "$want"
+  exit 0
+fi
+if [ "$want" = "$current" ]; then
+  status "$current" deployed "$want"
+  exit 0
+fi
+
+status "$current" deploying "$want"
+log "autodeploy: $current -> $want (log: $logf)"
+if "${AIRBRIDGE_UPDATE:-/usr/local/sbin/airbridge-update}" "$want" >>"$logf" 2>&1; then
+  log "autodeploy: deployed $want"
+  status "$want" deployed "$want"
+else
+  log "autodeploy: $want FAILED; restoring $current"
+  if "${AIRBRIDGE_UPDATE:-/usr/local/sbin/airbridge-update}" "$current" >>"$logf" 2>&1; then
+    status "$current" failed-restored "$want"
+  else
+    status "$(git -C "$AIRBRIDGE_SRC" rev-parse HEAD)" failed "$want"
+  fi
+  # The failure is in status.json (CI reads it) and the log; exit 0 keeps the .path unit armed for the next request.
+fi

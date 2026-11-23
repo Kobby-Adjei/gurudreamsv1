@@ -1,0 +1,86 @@
+# Deploy the server (license server, landing page, deploy/digitalocean) to the droplet on every push that changes it.
+# No SSH and no stored secret: this job proves who it is with a GitHub Actions OIDC token; the server accepts it only
+# for this repository, this branch and this workflow file, and deploys exactly the commit the token names
+# (POST /v1/deploy -> host airbridge-autodeploy -> airbridge-update <sha>; state and keys are never touched).
+name: server-deploy
+
+on:
+  push:
+    branches: [claude/airbridge-p2p-network-ha3opt]
+    paths:
+      - "license-server/**"
+      - "landing/**"
+      - "deploy/digitalocean/**"
+      - ".github/workflows/server-deploy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: server-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      SERVER: https://167-99-125-208.sslip.io
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: license-server/package-lock.json
+
+      - name: License server tests (a failing commit is never deployed)
+        working-directory: license-server
+        run: |
+          npm ci --no-audit --no-fund
+          npm run typecheck
+          npm test
+
+      - name: Ask the server to deploy this commit
+        id: ask
+        shell: bash
+        run: |
+          set -euo pipefail
+          tok="$(curl -fsS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=airbridge-deploy" | jq -r .value)"
+          echo "::add-mask::$tok"
+          code="$(curl -sS -o resp.json -w '%{http_code}' -X POST -H "Authorization: Bearer $tok" "$SERVER/v1/deploy")"
+          cat resp.json; echo
+          case "$code" in
+            202) echo "mode=auto" >>"$GITHUB_OUTPUT" ;;
+            404) echo "::warning::The server cannot deploy itself yet. Deploy once from the DigitalOcean console: sudo airbridge-update $GITHUB_SHA"
+                 echo "mode=manual" >>"$GITHUB_OUTPUT" ;;
+            *) echo "deploy request refused ($code)" >&2; exit 1 ;;
+          esac
+
+      - name: Wait until the server runs this commit
+        shell: bash
+        env:
+          MODE: ${{ steps.ask.outputs.mode }}
+        run: |
+          set -uo pipefail
+          tries=60; [ "$MODE" = manual ] && tries=300   # 30 min, or 150 min while someone runs the console command
+          for i in $(seq 1 "$tries"); do
+            s="$(curl -fsS "$SERVER/v1/deploy/status" 2>/dev/null || true)"
+            commit="$(jq -r '.commit // empty' <<<"$s" 2>/dev/null)"; state="$(jq -r '.state // empty' <<<"$s" 2>/dev/null)"
+            requested="$(jq -r '.requested // empty' <<<"$s" 2>/dev/null)"
+            if [ "$commit" = "$GITHUB_SHA" ] && [ "$state" = deployed ]; then
+              echo "deployed $GITHUB_SHA"; curl -fsS "$SERVER/healthz"; echo; exit 0
+            fi
+            if [ "$requested" = "$GITHUB_SHA" ] && [[ "$state" == failed* ]]; then
+              echo "deploy of $GITHUB_SHA failed on the server (state $state); the server runs $commit" >&2; exit 1
+            fi
+            [ $((i % 10)) = 1 ] && echo "waiting: server at ${commit:-?} (${state:-no status})"
+            sleep 30
+          done
+          echo "timed out" >&2; exit 1

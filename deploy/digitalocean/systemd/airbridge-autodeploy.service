@@ -1,0 +1,9 @@
+[Unit]
+Description=AirBridge self-deploy of a CI-verified commit
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+TimeoutStartSec=50min
+ExecStart=/usr/local/sbin/airbridge-autodeploy

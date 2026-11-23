@@ -7,11 +7,12 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 KIT="$(cd "$HERE/.." && pwd)"
 [ "$(id -u)" = 0 ] || { echo "run as root" >&2; exit 1; }
+NODE_UID_HOST=1000
 log() { printf '%s airbridge-install: %s\n' "$(date -u +%FT%TZ)" "$*" >&2; }
 
 install -d -m 0755 /usr/local/lib/airbridge
 install -m 0644 "$HERE/airbridge-common.sh" /usr/local/lib/airbridge/airbridge-common.sh
-for f in airbridge-bootstrap airbridge-compose airbridge-backup airbridge-rotate-apikey airbridge-smoke-off airbridge-update; do
+for f in airbridge-bootstrap airbridge-compose airbridge-backup airbridge-rotate-apikey airbridge-smoke-off airbridge-update airbridge-autodeploy; do
   install -m 0755 "$HERE/$f" "/usr/local/sbin/$f"
 done
 
@@ -47,4 +48,16 @@ else
   systemctl disable --now airbridge-smoke-off.path airbridge-smoke-off.timer >/dev/null 2>&1 || true
 fi
 
-exec /usr/local/sbin/airbridge-bootstrap
+# Self-deploy (CI -> POST /v1/deploy -> request file -> airbridge-autodeploy). Off: AIRBRIDGE_AUTODEPLOY=0.
+install -d -m 0755 -o "$NODE_UID_HOST" -g "$NODE_UID_HOST" "${AIRBRIDGE_STATE:-/var/lib/airbridge}/deploy"
+if [ "${AIRBRIDGE_AUTODEPLOY:-1}" = 1 ]; then
+  systemctl enable airbridge-autodeploy.path >/dev/null 2>&1 || true
+  # Started after bootstrap (below), so a request that arrives during this update is handled after it.
+else
+  systemctl disable --now airbridge-autodeploy.path >/dev/null 2>&1 || true
+fi
+
+/usr/local/sbin/airbridge-bootstrap
+if [ "${AIRBRIDGE_AUTODEPLOY:-1}" = 1 ]; then
+  systemctl start airbridge-autodeploy.path >/dev/null 2>&1 || true
+fi

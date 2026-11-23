@@ -243,6 +243,8 @@ export interface WaitlistLogger {
 
 export interface WaitlistRouteDeps {
   store: WaitlistStore;
+  /** Extra sections merged into GET /v1/waitlist/stats (e.g. download counts). */
+  extraStats?: () => Record<string, unknown>;
   /** WAITLIST_ADMIN_TOKEN; null/empty -> /stats and /export answer 404. */
   adminToken: string | null;
   /** Expected browser Origin (PUBLIC_BASE_URL origin, or the request's own origin in local dev). */
@@ -422,6 +424,7 @@ export function registerWaitlistRoutes(app: Hono, deps: WaitlistRouteDeps): void
         },
         by_variant_price: cells,
         by_utm_source: bySource,
+        ...(deps.extraStats?.() ?? {}),
       });
     } catch (e) {
       return unavailable(c, e);

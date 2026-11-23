@@ -14,9 +14,15 @@ const types = {
   '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.avif': 'image/avif'
 };
 
-export async function serve() {
+// extra: { '/path': () => ({ status, type, body }) } for stubbed responses (e.g. /downloads/latest.json).
+export async function serve(extra = {}) {
   const server = createServer(async (req, res) => {
     const url = new URL(req.url, 'http://x');
+    if (extra[url.pathname]) {
+      const r = extra[url.pathname]();
+      res.writeHead(r.status, { 'Content-Type': r.type || 'application/json' });
+      return res.end(r.body || '');
+    }
     if (url.pathname.startsWith('/v1/waitlist')) {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       return res.end('{"ok":true}');

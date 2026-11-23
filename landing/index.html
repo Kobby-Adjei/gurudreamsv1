@@ -23,7 +23,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://airbridge-cloud-production.up.railway.app/assets/og.png">
 <link rel="stylesheet" href="styles.css">
-<noscript><style>.poster { display: block; } .poster img { opacity: 1; }</style></noscript>
+<noscript><style>.poster { display: block; } .poster img { opacity: 1; } .get .get-ready { display: none; } .get .get-soon { display: block; }</style></noscript>
 </head>
 <body>
 <main>
@@ -52,12 +52,26 @@
       <h1 id="headline">Drop a task to any of your AI agents.</h1>
       <p class="sub">Works with Claude Code, Codex and Cursor.</p>
 
+      <div class="get" id="get" data-state="loading">
+        <div class="get-ready">
+          <a class="dl" id="dl-main" href="#get">
+            <svg class="dl-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M10 2.5v10m0 0-4-4m4 4 4-4M3.5 15.5h13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span id="dl-label">Download</span>
+          </a>
+          <p class="dl-meta" id="dl-meta"></p>
+          <p class="dl-other" id="dl-other"></p>
+          <p class="dl-note" id="dl-note"></p>
+          <p class="updates"><button type="button" class="linkish" id="updates-toggle" aria-expanded="false" aria-controls="cta">Get updates by email</button></p>
+        </div>
+        <p class="get-soon" id="get-soon">Downloads coming soon.</p>
+      </div>
+
       <div class="cta" id="cta">
         <form id="waitlist" novalidate>
-          <label class="sr" for="email">Email address</label>
+          <label class="cta-label" id="email-label" for="email">Get updates by email</label>
           <div class="row">
             <input id="email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="you@example.com" required aria-describedby="form-msg">
-            <button type="submit" id="submit">Join the list</button>
+            <button type="submit" id="submit">Get updates</button>
           </div>
           <div class="hp" aria-hidden="true">
             <label for="company">Company</label>
@@ -69,7 +83,7 @@
         </form>
         <div class="done" id="done" tabindex="-1" hidden>
           <p class="done-title">You&rsquo;re on the list.</p>
-          <p class="done-sub">We&rsquo;ll email you when your invite is ready.</p>
+          <p class="done-sub" id="done-sub">We&rsquo;ll email you when there&rsquo;s news.</p>
         </div>
       </div>
     </div>
@@ -88,6 +102,7 @@
 </footer>
 
 <script src="app.js"></script>
+<script src="download.js"></script>
 <script src="hero.js"></script>
 </body>
 </html>
