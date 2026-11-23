@@ -16,6 +16,7 @@ export const INVOKE = {
   settingsMcp: 'ab:settings:mcp',
   settingsCopy: 'ab:settings:copy',
   networkStatus: 'ab:network:status',
+  networkRetry: 'ab:network:retry',
 } as const;
 
 /** Main → renderer (webContents.send / ipcRenderer.on). */

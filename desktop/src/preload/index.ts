@@ -63,6 +63,7 @@ export const api: AirbridgeApi = {
   },
   network: {
     getStatus: () => ipcRenderer.invoke(INVOKE.networkStatus) as Promise<NetStatus>,
+    retry: () => ipcRenderer.invoke(INVOKE.networkRetry) as Promise<NetStatus>,
     onChange: (cb) => subscribe<NetStatus>(PUSH.networkChanged, cb),
   },
   settings: {

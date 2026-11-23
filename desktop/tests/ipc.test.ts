@@ -8,7 +8,7 @@ vi.mock('electron', () => ({
 }));
 
 import { registerIpc, type IpcDeps } from '../src/main/ipc';
-import { INVOKE_CHANNELS } from '../src/shared/ipcChannels';
+import { INVOKE_CHANNELS, PUSH_CHANNELS } from '../src/shared/ipcChannels';
 
 const DEV_ORIGIN = 'http://localhost:5173';
 const FILE_ORIGIN = 'file:///Applications/AirBridge%20Pro.app/Contents/Resources/app.asar/out/renderer/';
@@ -47,6 +47,10 @@ function setup(allowedOrigin: string | string[] = DEV_ORIGIN) {
       getEvents: vi.fn(async (_n: number) => []),
       sendTask: vi.fn(async () => ({ ok: true as const, file: 'f.md', target: 'Desktop-PC' })),
     },
+    network: {
+      getStatus: vi.fn(async () => ({ state: 'connected' as const, ip: '100.64.0.7' })),
+      retry: vi.fn(async () => ({ state: 'connecting' as const })),
+    },
     getMcpConfigJson: vi.fn((c) => `{"client":"${c}"}`),
     getWebContents: () => wc as never,
     ipcMain,
@@ -68,6 +72,63 @@ describe('registerIpc', () => {
   it('registers exactly the frozen invoke channels', () => {
     expect([...s.handlers.keys()].sort()).toEqual([...INVOKE_CHANNELS].sort());
   });
+
+  it('frozen channel sets include exactly the Phase 3 network additions', () => {
+    expect([...INVOKE_CHANNELS].sort()).toEqual(
+      [
+        'ab:auth:get', 'ab:auth:signin', 'ab:auth:signout',
+        'ab:license:get', 'ab:license:refresh', 'ab:license:checkout',
+        'ab:backend:status', 'ab:backend:lifecycle', 'ab:backend:nodes', 'ab:backend:events', 'ab:backend:send',
+        'ab:settings:mcp', 'ab:settings:copy',
+        'ab:network:status', 'ab:network:retry',
+      ].sort(),
+    );
+    expect([...PUSH_CHANNELS].sort()).toEqual(
+      ['ab:auth:changed', 'ab:license:changed', 'ab:backend:event', 'ab:backend:status', 'ab:backend:lifecycle', 'ab:network:changed'].sort(),
+    );
+  });
+
+  it('network: status/retry delegate, validate args, sanitize output and hide internal errors', async () => {
+    await expect(s.call('ab:network:status', s.app)).resolves.toEqual({ state: 'connected', ip: '100.64.0.7' });
+    await expect(s.call('ab:network:retry', s.app)).resolves.toEqual({ state: 'connecting' });
+    expect(s.deps.network!.retry).toHaveBeenCalledTimes(1);
+    await expect(s.call('ab:network:status', s.app, 'x')).rejects.toThrow(/invalid_payload/);
+    await expect(s.call('ab:network:retry', s.app, {})).rejects.toThrow(/invalid_payload/);
+    expect(s.deps.network!.retry).toHaveBeenCalledTimes(1);
+
+    (s.deps.network!.getStatus as any).mockResolvedValueOnce({
+      state: 'connected',
+      ip: 'not-an-ip; rm -rf /',
+      detail: 'line1\nline2',
+      socket: '/Users/x/Library/Application Support/AirBridge/tailscaled.sock',
+    });
+    await expect(s.call('ab:network:status', s.app)).resolves.toEqual({ state: 'connected', detail: 'line1 line2' });
+    (s.deps.network!.getStatus as any).mockResolvedValueOnce({ state: 'bogus' });
+    await expect(s.call('ab:network:status', s.app)).resolves.toEqual({ state: 'error' });
+
+    (s.deps.network!.retry as any).mockRejectedValueOnce(new Error('spawn /opt/tailscaled EACCES authkey=secret'));
+    const r = await s.call('ab:network:retry', s.app);
+    expect(r).toMatchObject({ state: 'error' });
+    expect(JSON.stringify(r)).not.toMatch(/secret|EACCES|tailscaled/);
+  });
+
+  it('network: absent dep -> stopped; retry falls back to getStatus', async () => {
+    const base = setup();
+    const handlers = new Map<string, Handler>();
+    registerIpc({
+      ...base.deps,
+      network: undefined,
+      ipcMain: { handle: (ch: string, fn: Handler) => void handlers.set(ch, fn), removeHandler: () => {} } as never,
+    });
+    expect([...handlers.keys()].sort()).toEqual([...INVOKE_CHANNELS].sort());
+    await expect(handlers.get('ab:network:status')!({ senderFrame: base.app })).resolves.toEqual({ state: 'stopped' });
+    await expect(handlers.get('ab:network:retry')!({ senderFrame: base.app })).resolves.toEqual({ state: 'stopped' });
+
+    const r = setup();
+    delete (r.deps.network as { retry?: unknown }).retry;
+    await expect(r.call('ab:network:retry', r.app)).resolves.toEqual({ state: 'connected', ip: '100.64.0.7' });
+  });
+
 
   it.each([
     ['foreign https page', { url: 'https://evil.example/index.html', parent: null }],
@@ -166,16 +227,20 @@ describe('registerIpc', () => {
     s.handle.push.licenseChanged({ state: 'inactive', plan: null, exp: null });
     s.handle.push.backendStatus({} as never);
     s.handle.push.backendLifecycle({ phase: 'blocked' });
+    s.handle.push.networkChanged({ state: 'connected', ip: '100.64.0.9', socket: '/secret/path' } as never);
     expect(s.sent.map(([c]) => c)).toEqual([
       'ab:backend:event',
       'ab:auth:changed',
       'ab:license:changed',
       'ab:backend:status',
       'ab:backend:lifecycle',
+      'ab:network:changed',
     ]);
+    expect(s.sent[5]![1]).toEqual({ state: 'connected', ip: '100.64.0.9' });
     s.wc.mainFrame.url = 'https://evil.example/';
     s.handle.push.backendEvent({ id: 'e2' } as never);
-    expect(s.sent).toHaveLength(5);
+    s.handle.push.networkChanged({ state: 'connected' });
+    expect(s.sent).toHaveLength(6);
   });
 
   it('dispose removes all handlers', () => {

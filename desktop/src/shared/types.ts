@@ -143,6 +143,8 @@ export interface AirbridgeApi {
   };
   network: {
     getStatus(): Promise<NetStatus>;
+    /** Restart tailscaled if stopped/error, then re-run enrollment; resolves to the resulting status. */
+    retry(): Promise<NetStatus>;
     onChange(cb: (status: NetStatus) => void): Unsubscribe;
   };
   settings: {

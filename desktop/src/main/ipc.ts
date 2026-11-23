@@ -69,6 +69,8 @@ export interface IpcDeps {
    */
   network?: {
     getStatus(): Promise<NetStatus> | NetStatus;
+    /** Restart tailscaled if stopped/error, then re-run ensureEnrolled (Systems' index.ts). */
+    retry?(): Promise<NetStatus>;
   };
   /** Returns the JSON config text for the client (see mcpConfig.ts getMcpConfigJson). */
   getMcpConfigJson(client: McpClient): string;
@@ -225,6 +227,17 @@ export function registerIpc(deps: IpcDeps): IpcHandle {
       'network_status',
       async () => sanitizeNetStatus(await net.getStatus()),
       (): NetStatus => ({ state: 'error', detail: 'Private network status unavailable.' }),
+    );
+  });
+
+  handle(INVOKE.networkRetry, (a) => {
+    noArgs(a);
+    const net = deps.network;
+    if (!net) return { state: 'stopped' } satisfies NetStatus;
+    return safe(
+      'network_retry',
+      async () => sanitizeNetStatus(await (net.retry ? net.retry() : net.getStatus())),
+      (): NetStatus => ({ state: 'error', detail: 'Could not reconnect the private network.' }),
     );
   });
 

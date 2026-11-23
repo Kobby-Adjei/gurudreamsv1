@@ -57,3 +57,11 @@ App path never mentions or needs system Tailscale; shows "Private network: Conne
 
 ## 6. Risks
 Headscale ops burden (uptime, DB backups, upgrades, API-key rotation). Own DERP = single point of failure for NAT'd users (budget a second region). Windows: unprivileged userspace tailscaled (console, not service) + custom pipe name unproven — day-1 spike; fallback default pipe name with per-user suffix. macOS: `CGO_ENABLED=0` tailscaled needs the same spike. SOCKS5 proxy is unauthenticated: any local process can reach the user's own devices (ACL limits to :8989). macOS notarization of extra binaries. ~2×30 MB per platform. Go 1.27 toolchain download needed in CI. Trademark: no "Tailscale" in branding/UI; license notices only. Subscription lapse: nodes stay enrolled → follow-up: Stripe webhook expires user's nodes.
+
+## 7. Tech-lead amendments after security review (see PHASE3_SECURITY.md F-1…F-12)
+- **F-1 (critical):** netstack forwards ALL inbound tailnet ports to 127.0.0.1. Control API and tailscaled SOCKS5 bind to `[::1]` (never 127.0.0.1) so they're unreachable from the tailnet regardless of ACL; `network.json.socks5` becomes `"[::1]:P"`. Policy is exactly `{"action":"accept","proto":"tcp","src":["autogroup:member"],"dst":["autogroup:self:8989"]}`; license server verifies `GET /api/v1/policy` at boot and refuses to mint keys on mismatch; never send `acl_tags`.
+- **F-3:** Caddy 404s `/api/*` and `/swagger*` publicly; license server reaches Headscale over an internal network; gRPC loopback only.
+- **F-4 (Windows):** custom pipe requires `--windows-mode=dev`; pipe name gets a random per-launch suffix (recorded in network.json); Python verifies pipe owner where feasible.
+- **F-5:** inbox applies a global concurrency semaphore + token bucket before any LocalAPI whois call.
+- **F-2/F-7:** whois always `proto=tcp`; prefer `Node.Name` (done).
+- **F-8:** `<D>` and socket dir 0700 with lstat/owner checks; `read_network_json` rejects files not owned by the user or group/other-writable.

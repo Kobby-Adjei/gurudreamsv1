@@ -164,6 +164,10 @@ export function createDevMocks(opts: DevMocksOptions) {
     },
     network: {
       getStatus: async (): Promise<NetStatus> => ({ ...network }),
+      retry: async (): Promise<NetStatus> => {
+        opts.onNetwork?.({ ...network });
+        return { ...network };
+      },
     },
     start(): void {
       if (timer) return;

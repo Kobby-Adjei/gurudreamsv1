@@ -25,11 +25,12 @@ vi.mock('electron', () => ({
   ipcRenderer: { invoke: h.invoke, on: h.on, removeListener: h.removeListener },
 }));
 
-/** Frozen contract (PHASE2_PLAN.md §2 "Preload window.airbridge"). */
+/** Frozen contract (PHASE2_PLAN.md §2 "Preload window.airbridge" + PHASE3_PLAN.md §2 network). */
 const CONTRACT: Record<string, string[]> = {
   auth: ['getState', 'signIn', 'signOut', 'onChange'],
   license: ['getStatus', 'refresh', 'openCheckout', 'onChange'],
   backend: ['getStatus', 'getLifecycle', 'getNodes', 'getEvents', 'sendTask', 'onEvent', 'onStatus', 'onLifecycle'],
+  network: ['getStatus', 'retry', 'onChange'],
   settings: ['getMcpConfig', 'copyMcpConfig'],
   app: ['version', 'platform'],
 };
@@ -85,6 +86,8 @@ describe('preload window.airbridge', () => {
       [() => api.backend.getNodes(), 'ab:backend:nodes', []],
       [() => api.backend.getEvents(50), 'ab:backend:events', [50]],
       [() => api.backend.sendTask({ target_hostname: 'a', task_description: 'b' }), 'ab:backend:send', [{ target_hostname: 'a', task_description: 'b' }]],
+      [() => api.network.getStatus(), 'ab:network:status', []],
+      [() => api.network.retry(), 'ab:network:retry', []],
       [() => api.settings.getMcpConfig('claude'), 'ab:settings:mcp', ['claude']],
       [() => api.settings.copyMcpConfig('cursor'), 'ab:settings:copy', ['cursor']],
     ];
@@ -103,6 +106,7 @@ describe('preload window.airbridge', () => {
       ['ab:backend:event', api.backend.onEvent],
       ['ab:backend:status', api.backend.onStatus],
       ['ab:backend:lifecycle', api.backend.onLifecycle],
+      ['ab:network:changed', api.network.onChange],
     ];
     for (const [channel, subscribe] of subs) {
       const cb = vi.fn();
