@@ -42,13 +42,13 @@ export async function serve() {
 export const launch = () => pw.chromium.launch({ args: ['--enable-unsafe-swiftshader', '--use-angle=swiftshader', '--ignore-gpu-blocklist'] });
 
 // Render one still frame of the hero at flight time t. scale: cloud buffer size in CSS px multiples.
-export async function still(browser, base, { t, scale, viewport, dpr = 2, query = '?v=private&p=8', path, hideCopy = false, clip, timeout = 900000 }) {
+export async function still(browser, base, { t, scale, live = false, jitter, viewport, dpr = 2, query = '?v=private&p=8', path, hideCopy = false, clip, timeout = 900000 }) {
   const ctx = await browser.newContext({ viewport, deviceScaleFactor: dpr });
   const page = await ctx.newPage();
   const errors = [];
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('pageerror', (e) => errors.push(String(e)));
-  await page.addInitScript((o) => { window.__hero = { still: o }; }, { t, scale });
+  await page.addInitScript((o) => { window.__hero = { still: { t: o.t, scale: o.scale, live: o.live }, jitter: o.jitter, passes: o.passes }; }, { t, scale, live, jitter: jitter ?? null, passes: +(process.env.PASSES || 0) || null });
   await page.goto(base + '/' + query);
   if (hideCopy) await page.addStyleTag({ content: '.bar,.copy{visibility:hidden}' });
   await page.waitForSelector('.hero[data-hero-done]', { timeout });

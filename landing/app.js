@@ -4,9 +4,9 @@
 
   var HEADLINES = {
     private: 'Drop a task to any of your AI agents.',
-    cross: 'Send a task from Claude on your Mac to Codex on your PC.',
-    bridge: 'Stop copy-pasting between your AIs. Drop the task to the other computer.',
-    current: 'Connect your computers so your AI agents can hand off tasks.'
+    cross: 'Pass a task from Claude Code to Codex.',
+    bridge: 'Stop copy-pasting between your AI agents.',
+    current: 'Your AI agents, one drop away.'
   };
   var VARIANTS = ['private', 'cross', 'bridge', 'current'];
   var PRICES = ['8', '15'];
