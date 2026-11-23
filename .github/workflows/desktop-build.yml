@@ -144,7 +144,9 @@ jobs:
             codesign -dv "$b" 2>&1 | grep -E "Signature|Identifier|Format"
             codesign --verify --strict "$b"
           done
-          lipo -archs "$app/Contents/MacOS/"* "$res/bin/$PLAT_DIR/airbridge-core" "$res/net/$PLAT_DIR/airbridge-net" || true
+          for b in "$app/Contents/MacOS/"* "$res/bin/$PLAT_DIR/airbridge-core" "$res/net/$PLAT_DIR/airbridge-net"; do
+            echo "$(lipo -archs "$b") $b"
+          done
           export AIRBRIDGE_DATA_DIR="$RUNNER_TEMP/abdata2" AIRBRIDGE_LOG_FILE="$RUNNER_TEMP/ab2.log"
           "$res/bin/$PLAT_DIR/airbridge-core" --help 2>&1 | grep -q -- "--daemon"
           set +e; "$res/net/$PLAT_DIR/airbridge-net" </dev/null 2>/dev/null; rc=$?; set -e
