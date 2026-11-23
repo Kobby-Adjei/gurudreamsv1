@@ -94,10 +94,10 @@
     '}',
     // Wisps part around the plane: a soft tube along its recent path.
     'float wake(vec3 p) {',
-    '  vec3 a = uPlanePos; vec3 b = uPlanePos - uPlaneDir * 2.2;',
+    '  vec3 a = uPlanePos; vec3 b = uPlanePos - uPlaneDir * 0.9;',
     '  vec3 pa = p - a, ba = b - a; float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);',
-    '  float r = mix(0.2, 0.5, h);',
-    '  return mix(0.35 + 0.65 * h, 1.0, smoothstep(0.0, r, length(pa - ba * h)));',
+    '  float r = mix(0.3, 0.42, h);',
+    '  return mix(0.45 + 0.55 * h * h, 1.0, smoothstep(0.0, r, length(pa - ba * h)));',
     '}',
     // Signed field: > 0 inside cloud. Its gradient stays under ~5, so -field/5 is a safe step through clear air.
     'float field(vec3 p, float f) {',
