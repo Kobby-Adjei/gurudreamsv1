@@ -2,9 +2,9 @@
 
 **Hand a task from the AI on one computer to the AI on another, privately, over your own Tailscale network.**
 
-AirBridge is a small MCP server. Ask Claude on your Mac to send a function to your Windows PC, and a
-tidy Markdown task file appears there seconds later, ready for Cursor, Codex or Claude to pick up.
-Nothing passes through a cloud service, and nothing leaves your tailnet.
+Ask Claude on your Mac to send a function to your Windows PC, and a tidy task file appears there
+seconds later, ready for Cursor, Codex or Claude to pick up. Nothing passes through a cloud service,
+and nothing leaves your own private network.
 
 ```
    MacBook                                           Windows PC
@@ -21,40 +21,70 @@ Every computer runs the same AirBridge. Each one can send and receive.
 
 ---
 
-## Before you start
+## Setup for everyone (2 minutes)
 
-- **Python 3.11 or newer** on each computer.
-- **Tailscale** installed, signed in to the same tailnet, and running on each computer
-  ([download](https://tailscale.com/download)).
-- An MCP client: Claude Desktop, Cursor or Codex.
+Do these three steps on **each** computer you want to connect.
 
-## Get started in 3 steps
+**1. Install Tailscale and sign in.**
+Download it from [tailscale.com/download](https://tailscale.com/download), open it, and sign in.
+Use the **same account** on both computers.
 
-### macOS
+**2. Double-click _Install AirBridge_.**
+In the AirBridge folder, double-click:
 
-1. **Get AirBridge** and open a terminal in the `airbridge` folder.
-2. **Install:**
-   ```bash
-   python3 install.py
-   ```
-   It creates a private virtual environment in `airbridge/.venv`, installs the dependencies, and
-   prints the exact configuration for your computer.
-3. **Connect your client.** Paste the printed `airbridge` entry into
-   `~/Library/Application Support/Claude/claude_desktop_config.json` (keep any servers you already
-   have), then quit and reopen Claude.
+- **Mac:** `Install AirBridge.command`
+- **Windows:** `Install AirBridge.bat`
 
-### Windows
+A window opens and walks you through four short steps. When it asks
+*"Add AirBridge to Claude Desktop for you?"*, press **Enter** for yes. It keeps a backup of your
+previous settings.
 
-1. **Get AirBridge** and open PowerShell in the `airbridge` folder.
-2. **Install:**
-   ```powershell
-   py -3 install.py
-   ```
-3. **Connect your client.** Paste the printed entry into
-   `%APPDATA%\Claude\claude_desktop_config.json`, then quit Claude from the system tray and reopen it.
-   Then allow port 8989 on the Tailscale interface (see [Troubleshooting](#windows-firewall)).
+**3. Restart Claude.**
+Quit Claude Desktop completely and open it again, then ask:
 
-The installer's output looks like this (paths are filled in for you):
+> List my AirBridge nodes.
+
+That's it.
+
+<details>
+<summary><b>If something gets in the way</b></summary>
+
+- **"Python 3.11 or newer is needed."** The installer opens the download page for you. Install
+  Python from [python.org/downloads](https://www.python.org/downloads/) (on Windows, tick
+  **Add python.exe to PATH**), then double-click _Install AirBridge_ again.
+- **Mac says the file "can't be opened because it is from an unidentified developer".**
+  Right-click `Install AirBridge.command`, choose **Open**, then click **Open** again.
+- **Windows says "Windows protected your PC".** Click **More info**, then **Run anyway**.
+- **Windows asks whether Python may use networks.** Click **Allow**. If you clicked Cancel, see
+  [the firewall fix](#windows-firewall).
+- **"Tailscale is installed but not connected."** Open the Tailscale app, sign in, and press
+  Enter in the installer window to check again.
+
+</details>
+
+---
+
+## Advanced setup
+
+Everything the double-click installer does, by hand. You need **Python 3.11+**, **Tailscale**
+running on each computer, and an MCP client (Claude Desktop, Cursor or Codex).
+
+```bash
+python3 install.py            # macOS / Linux
+py -3 install.py              # Windows
+```
+
+| Option | What it does |
+|---|---|
+| `--yes` | Accept every offer and never wait for input (for scripts and remote setup). |
+| `--dry-run` | Change nothing; show what would happen. |
+| `--json-only` | Print only the JSON configuration. |
+| `--venv PATH` | Keep AirBridge's virtual environment somewhere other than `airbridge/.venv`. |
+
+The installer creates `airbridge/.venv`, installs `requirements.txt`, checks Tailscale, and merges
+an `airbridge` entry into Claude Desktop's and Cursor's configuration. It never overwrites a file it
+can't parse, and it saves a timestamped `.bak-YYYYMMDD-HHMMSS` copy before changing one.
+To configure a client by hand, add:
 
 ```json
 {
@@ -67,17 +97,13 @@ The installer's output looks like this (paths are filled in for you):
 }
 ```
 
-**Using Cursor or Codex instead?** The installer prints those too.
+On macOS and Linux the command is `.../airbridge/.venv/bin/python`.
 
 | Client | Config file | Format |
 |---|---|---|
 | Claude Desktop | macOS `~/Library/Application Support/Claude/claude_desktop_config.json`<br>Windows `%APPDATA%\Claude\claude_desktop_config.json` | JSON, as above |
 | Cursor | `~/.cursor/mcp.json` | JSON, as above |
 | Codex | `~/.codex/config.toml` | `[mcp_servers.airbridge]` with `command` and `args` |
-
-Installer options: `--dry-run` prints the configuration without creating anything,
-`--json-only` prints only the JSON (handy for scripts), and `--venv PATH` picks a different
-environment folder.
 
 ## Using it
 
