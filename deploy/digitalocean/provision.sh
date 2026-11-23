@@ -31,6 +31,8 @@ if do_api "$API/droplets?tag_name=$TAG" | python3 -c "import json,sys; sys.exit(
 fi
 
 # --- cloud firewall: 80/tcp, 443/tcp, 3478/udp, ICMP in; port 22 stays CLOSED ---------------------------------
+# A firewall can only target an existing tag (creating an existing tag is a no-op).
+do_api -o /dev/null -X POST "$API/tags" -d "{\"name\":\"$TAG\"}"
 FW_ID="$(do_api "$API/firewalls" | python3 -c "import json,sys; print(next((f['id'] for f in json.load(sys.stdin)['firewalls'] if f['name']=='airbridge-cloud-fw'),''))")"
 if [ -z "$FW_ID" ]; then
   FW_ID="$(do_api -X POST "$API/firewalls" -d @- <<JSON | python3 -c "import json,sys; print(json.load(sys.stdin)['firewall']['id'])"
