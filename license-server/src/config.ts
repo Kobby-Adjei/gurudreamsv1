@@ -2,13 +2,22 @@ import { createPrivateKey, type KeyObject } from 'node:crypto';
 
 export interface Config {
   port: number;
+  /** HOST (default 0.0.0.0): listen address. 127.0.0.1 when a co-located reverse proxy fronts the server. */
+  host: string;
   publicBaseUrl: string | null;
   stripeSecretKey: string;
   stripeWebhookSecret: string;
   stripePriceIdPro: string;
   clerkIssuer: string;
-  clerkJwksUrl: URL;
+  clerkJwksUrl: URL | null;
   clerkAudience: string[];
+  /**
+   * false only in preview mode (ENFORCE_ENTITLEMENT=false) with STRIPE_* all unset: Stripe endpoints answer
+   * 503 billing_not_configured and the in-memory store is allowed in production (no subscriptions exist).
+   */
+  billingConfigured: boolean;
+  /** false only in preview mode with CLERK_* all unset: every authenticated endpoint answers 503 auth_not_configured. */
+  authConfigured: boolean;
   licenseSigningKeyPem: string;
   licenseSigningKey: KeyObject;
   licenseKeyId: string;
@@ -98,27 +107,50 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     return v;
   };
 
-  const stripeSecretKey = req('STRIPE_SECRET_KEY');
-  if (stripeSecretKey && !/^(sk|rk)_(live|test)_/.test(stripeSecretKey) && !isPlaceholder(stripeSecretKey)) {
-    problems.push('STRIPE_SECRET_KEY must be a Stripe secret or restricted key');
+  // ENFORCE_ENTITLEMENT is parsed first: preview mode (false) may run without Stripe and/or Clerk.
+  let enforceEntitlement = true;
+  const enforceRaw = env.ENFORCE_ENTITLEMENT?.trim().toLowerCase();
+  if (enforceRaw) {
+    if (enforceRaw === 'false' || enforceRaw === '0') enforceEntitlement = false;
+    else if (enforceRaw !== 'true' && enforceRaw !== '1') problems.push('ENFORCE_ENTITLEMENT must be true or false');
   }
-  const stripeWebhookSecret = req('STRIPE_WEBHOOK_SECRET');
-  if (stripeWebhookSecret && !stripeWebhookSecret.startsWith('whsec_') && !isPlaceholder(stripeWebhookSecret)) {
-    problems.push('STRIPE_WEBHOOK_SECRET must start with whsec_');
-  }
-  const stripePriceIdPro = req('STRIPE_PRICE_ID_PRO');
-  if (stripePriceIdPro && !stripePriceIdPro.startsWith('price_') && !isPlaceholder(stripePriceIdPro)) {
-    problems.push('STRIPE_PRICE_ID_PRO must be a Stripe price id (price_...)');
+  const unset = (names: string[]) => names.every((n) => !env[n]?.trim());
+  const STRIPE_VARS = ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'STRIPE_PRICE_ID_PRO'];
+  const CLERK_VARS = ['CLERK_ISSUER', 'CLERK_JWKS_URL', 'CLERK_AUDIENCE'];
+  // Only an explicit ENFORCE_ENTITLEMENT=false relaxes this; production with enforcement stays strict.
+  const billingConfigured = enforceEntitlement || !unset(STRIPE_VARS);
+  const authConfigured = enforceEntitlement || !unset(CLERK_VARS);
+
+  let stripeSecretKey = '';
+  let stripeWebhookSecret = '';
+  let stripePriceIdPro = '';
+  if (billingConfigured) {
+    stripeSecretKey = req('STRIPE_SECRET_KEY');
+    if (stripeSecretKey && !/^(sk|rk)_(live|test)_/.test(stripeSecretKey) && !isPlaceholder(stripeSecretKey)) {
+      problems.push('STRIPE_SECRET_KEY must be a Stripe secret or restricted key');
+    }
+    stripeWebhookSecret = req('STRIPE_WEBHOOK_SECRET');
+    if (stripeWebhookSecret && !stripeWebhookSecret.startsWith('whsec_') && !isPlaceholder(stripeWebhookSecret)) {
+      problems.push('STRIPE_WEBHOOK_SECRET must start with whsec_');
+    }
+    stripePriceIdPro = req('STRIPE_PRICE_ID_PRO');
+    if (stripePriceIdPro && !stripePriceIdPro.startsWith('price_') && !isPlaceholder(stripePriceIdPro)) {
+      problems.push('STRIPE_PRICE_ID_PRO must be a Stripe price id (price_...)');
+    }
   }
 
-  const issuerUrl = httpsUrl('CLERK_ISSUER', env.CLERK_ISSUER?.trim(), problems);
-  const clerkIssuer = issuerUrl ? env.CLERK_ISSUER!.trim().replace(/\/+$/, '') : '';
-  const clerkJwksUrl = httpsUrl('CLERK_JWKS_URL', env.CLERK_JWKS_URL?.trim(), problems);
-  const audRaw = req('CLERK_AUDIENCE');
-  const clerkAudience = audRaw
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean);
+  let clerkIssuer = '';
+  let clerkJwksUrl: URL | null = null;
+  let clerkAudience: string[] = [];
+  if (authConfigured) {
+    const issuerUrl = httpsUrl('CLERK_ISSUER', env.CLERK_ISSUER?.trim(), problems);
+    clerkIssuer = issuerUrl ? env.CLERK_ISSUER!.trim().replace(/\/+$/, '') : '';
+    clerkJwksUrl = httpsUrl('CLERK_JWKS_URL', env.CLERK_JWKS_URL?.trim(), problems);
+    clerkAudience = req('CLERK_AUDIENCE')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
 
   const licenseKeyId = req('LICENSE_KEY_ID');
   if (licenseKeyId && !/^[A-Za-z0-9._-]{1,64}$/.test(licenseKeyId)) {
@@ -159,7 +191,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
 
   const databaseUrl = env.DATABASE_URL?.trim() || null;
   if (databaseUrl && isPlaceholder(databaseUrl)) problems.push('DATABASE_URL still contains a placeholder');
-  if (!databaseUrl && production) {
+  if (!databaseUrl && production && billingConfigured) {
     problems.push('DATABASE_URL is required when NODE_ENV=production (the in-memory store loses subscriptions on restart)');
   }
 
@@ -182,19 +214,15 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
 
   const headscale = loadHeadscaleConfig(env, problems);
 
-  let enforceEntitlement = true;
-  const enforceRaw = env.ENFORCE_ENTITLEMENT?.trim().toLowerCase();
-  if (enforceRaw) {
-    if (enforceRaw === 'false' || enforceRaw === '0') enforceEntitlement = false;
-    else if (enforceRaw !== 'true' && enforceRaw !== '1') problems.push('ENFORCE_ENTITLEMENT must be true or false');
-  }
+  const host = env.HOST?.trim() || '0.0.0.0';
 
-  if (problems.length > 0 || !licenseSigningKey || !clerkJwksUrl) {
+  if (problems.length > 0 || !licenseSigningKey || (authConfigured && !clerkJwksUrl)) {
     throw new ConfigError(problems.length ? problems : ['configuration incomplete']);
   }
 
   return {
     port,
+    host,
     publicBaseUrl,
     stripeSecretKey,
     stripeWebhookSecret,
@@ -202,6 +230,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     clerkIssuer,
     clerkJwksUrl,
     clerkAudience,
+    billingConfigured,
+    authConfigured,
     licenseSigningKeyPem,
     licenseSigningKey,
     licenseKeyId,

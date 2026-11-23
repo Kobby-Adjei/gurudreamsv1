@@ -136,3 +136,47 @@ describe('scripts/generate-license-keys.ts', () => {
     expect(c.licenseSigningKey.asymmetricKeyType).toBe('ed25519');
   });
 });
+
+describe('preview mode without Stripe / Clerk (ENFORCE_ENTITLEMENT=false)', () => {
+  const noBillingNoAuth = {
+    STRIPE_SECRET_KEY: undefined, STRIPE_WEBHOOK_SECRET: undefined, STRIPE_PRICE_ID_PRO: undefined,
+    CLERK_ISSUER: undefined, CLERK_JWKS_URL: undefined, CLERK_AUDIENCE: undefined,
+  };
+  const prodPreview = { ...noBillingNoAuth, NODE_ENV: 'production', PUBLIC_BASE_URL: 'https://x.up.railway.app', ENFORCE_ENTITLEMENT: 'false' };
+
+  it('boots with Stripe and Clerk unset, without DATABASE_URL, even in production', () => {
+    const c = loadConfig(env(prodPreview));
+    expect(c.billingConfigured).toBe(false);
+    expect(c.authConfigured).toBe(false);
+    expect(c.clerkJwksUrl).toBeNull();
+    expect(c.databaseUrl).toBeNull();
+    expect(c.enforceEntitlement).toBe(false);
+  });
+
+  it('stays strict when ENFORCE_ENTITLEMENT is true or unset', () => {
+    for (const enforce of [undefined, 'true']) {
+      try {
+        loadConfig(env({ ...prodPreview, ENFORCE_ENTITLEMENT: enforce }));
+        expect.unreachable();
+      } catch (e) {
+        const msg = (e as Error).message;
+        for (const k of ['STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'STRIPE_PRICE_ID_PRO', 'CLERK_ISSUER', 'CLERK_JWKS_URL', 'CLERK_AUDIENCE', 'DATABASE_URL']) {
+          expect(msg).toContain(k);
+        }
+      }
+    }
+  });
+
+  it('validates a group fully once any of its variables is set', () => {
+    expect(() => loadConfig(env({ ...prodPreview, STRIPE_SECRET_KEY: FAKE_STRIPE_KEY }))).toThrow(/STRIPE_WEBHOOK_SECRET[\s\S]*DATABASE_URL|DATABASE_URL[\s\S]*STRIPE_WEBHOOK_SECRET/);
+    expect(() => loadConfig(env({ ...prodPreview, CLERK_ISSUER: 'https://x.clerk.accounts.dev' }))).toThrow(/CLERK_JWKS_URL/);
+    const authOnly = loadConfig(env({ ...prodPreview, CLERK_ISSUER: 'https://x.clerk.accounts.dev', CLERK_JWKS_URL: 'https://x.clerk.accounts.dev/.well-known/jwks.json', CLERK_AUDIENCE: 'client_a' }));
+    expect(authOnly.authConfigured).toBe(true);
+    expect(authOnly.billingConfigured).toBe(false);
+  });
+
+  it('HOST defaults to 0.0.0.0', () => {
+    expect(loadConfig(env()).host).toBe('0.0.0.0');
+    expect(loadConfig(env({ HOST: '127.0.0.1' })).host).toBe('127.0.0.1');
+  });
+});

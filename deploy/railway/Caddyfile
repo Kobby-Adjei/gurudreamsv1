@@ -1,0 +1,39 @@
+# AirBridge cloud front door inside the Railway container (deploy/railway).
+# Railway's edge terminates TLS and forwards plain HTTP/1.1 to $PORT.
+{
+	admin off
+	auto_https off
+	servers {
+		# Only Railway's edge reaches $PORT; append its peer address to X-Forwarded-For
+		# (license server: TRUST_PROXY=1, TRUST_PROXY_HOPS=2).
+		trusted_proxies static 0.0.0.0/0 ::/0
+	}
+}
+
+:{$PORT} {
+	# PHASE3_SECURITY F-3: the Headscale admin REST API and its docs are never public.
+	@admin path /api /api/* /swagger /swagger*
+	handle @admin {
+		respond 404
+	}
+
+	# License server (Clerk/Stripe/pre-auth keys).
+	@license path /v1/* /healthz /checkout/*
+	handle @license {
+		reverse_proxy 127.0.0.1:8787
+	}
+
+	# Everything else is Headscale: /ts2021 (Upgrade: tailscale-control-protocol), /derp (Upgrade: DERP),
+	# /key, /machine, /register, /oidc, /health, /generate_204. Caddy proxies any HTTP/1.1 Upgrade.
+	handle {
+		reverse_proxy 127.0.0.1:8081 {
+			flush_interval -1
+		}
+	}
+
+	header -Server
+	log {
+		output stdout
+		format json
+	}
+}

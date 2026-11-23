@@ -3,6 +3,9 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -19,7 +22,8 @@ const (
 	maxReplyBody = 64 * 1024
 	meshPort     = 8989
 
-	headerSidecarToken = "X-AirBridge-Sidecar-Token"
+	headerSidecarTS    = "X-AirBridge-Sidecar-Ts"
+	headerSidecarSig   = "X-AirBridge-Sidecar-Sig"
 	headerPeerNode     = "X-AirBridge-Peer-Node"
 	headerPeerIP       = "X-AirBridge-Peer-IP"
 	headerPeerUser     = "X-AirBridge-Peer-User"
@@ -101,6 +105,18 @@ type meshHandler struct {
 	slots   chan struct{}
 	client  *http.Client // loopback client to the inbox (no proxy, no redirects)
 	logf    func(string, ...any)
+	now     func() time.Time
+}
+
+// signForward is the HMAC-SHA256 (key = inbox token) over
+// "AIRBRIDGE-FWD-1\n<METHOD>\n<path>\n<unix ts>\n<hex sha256(body)>\n<peer node>\n<peer ip>\n<peer user>".
+// The Python inbox (airbridge_app/inbox.py verify_forward) recomputes it and allows ±60 s.
+func signForward(key, method, path, ts string, body []byte, node, ip, user string) string {
+	sum := sha256.Sum256(body)
+	mac := hmac.New(sha256.New, []byte(key))
+	mac.Write([]byte("AIRBRIDGE-FWD-1\n" + method + "\n" + path + "\n" + ts + "\n" + hex.EncodeToString(sum[:]) +
+		"\n" + node + "\n" + ip + "\n" + user))
+	return hex.EncodeToString(mac.Sum(nil))
 }
 
 func newMeshHandler(be netBackend, inbox *inboxTarget, logf func(string, ...any)) *meshHandler {
@@ -111,6 +127,7 @@ func newMeshHandler(be netBackend, inbox *inboxTarget, logf func(string, ...any)
 		slots:   make(chan struct{}, meshMaxInFlight),
 		client:  loopbackClient(15 * time.Second),
 		logf:    logf,
+		now:     time.Now,
 	}
 }
 
@@ -200,19 +217,31 @@ func (m *meshHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, http.StatusInternalServerError, "internal error")
 		return
 	}
+	user := strconv.FormatInt(int64(who.UserProfile.ID), 10)
+	ts := strconv.FormatInt(m.now().Unix(), 10)
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set(headerSidecarToken, token)
 	req.Header.Set(headerPeerNode, name)
 	if ip != "" {
 		req.Header.Set(headerPeerIP, ip)
 	}
-	req.Header.Set(headerPeerUser, strconv.FormatInt(int64(who.UserProfile.ID), 10))
+	req.Header.Set(headerPeerUser, user)
+	// S-2: the inbox token is never sent. Each forward is HMAC-signed with it, bound to this exact
+	// request (method, path, time, body, verified identity), so whatever listens on the port learns
+	// nothing it could replay elsewhere or later.
+	req.Header.Set(headerSidecarTS, ts)
+	req.Header.Set(headerSidecarSig, signForward(token, http.MethodPost, "/incoming_task", ts, body, name, ip, user))
 	if s := r.Header.Get(headerSecret); s != "" && len(s) <= 1024 {
 		req.Header.Set(headerSecret, s)
 	}
 	resp, err := m.client.Do(req)
 	if err != nil {
-		m.logf("mesh: inbox unreachable: %v", err)
+		// S-2: a registration whose port no longer answers is stale (daemon gone); forget it so a
+		// process that later binds that port never receives forwarded tasks.
+		if m.inbox.clearIf(port) {
+			m.logf("mesh: inbox unreachable; registration cleared until the engine registers again")
+		} else {
+			m.logf("mesh: inbox unreachable")
+		}
 		writeErr(w, http.StatusServiceUnavailable, "AirBridge is not ready to receive tasks on this device")
 		return
 	}

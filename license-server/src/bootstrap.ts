@@ -1,7 +1,7 @@
 import pg from 'pg';
 import { createApp, consoleLogger } from './app.js';
-import { createStripeBillingApi, createStripeClient, createWebhookVerifier } from './billing.js';
-import { createClerkVerifier } from './clerkAuth.js';
+import { createStripeBillingApi, createStripeClient, createWebhookVerifier, type BillingApi, type WebhookVerifier } from './billing.js';
+import { AuthError, createClerkVerifier, type ClerkVerifier } from './clerkAuth.js';
 import { loadConfig, type Config } from './config.js';
 import { createHeadscaleClient } from './headscale.js';
 import { createLicenseSigner } from './licenseToken.js';
@@ -10,7 +10,7 @@ import { InMemorySubscriptionStore, PostgresSubscriptionStore, type Subscription
 /** Build the production app from environment variables (throws ConfigError with every problem listed). */
 export function buildFromEnv(env: NodeJS.ProcessEnv = process.env): { app: ReturnType<typeof createApp>; config: Config; store: SubscriptionStore } {
   const config = loadConfig(env);
-  const stripe = createStripeClient(config.stripeSecretKey);
+  const stripe = config.billingConfigured ? createStripeClient(config.stripeSecretKey) : null;
   let store: SubscriptionStore;
   if (config.databaseUrl) {
     store = new PostgresSubscriptionStore(new pg.Pool({ connectionString: config.databaseUrl, max: 5 }));
@@ -28,15 +28,36 @@ export function buildFromEnv(env: NodeJS.ProcessEnv = process.env): { app: Retur
   if (!network) {
     consoleLogger.warn('network_disabled', { hint: 'set HEADSCALE_URL, HEADSCALE_API_KEY, HEADSCALE_PUBLIC_URL; /v1/network/* answer 503' });
   }
+  if (!config.billingConfigured) {
+    consoleLogger.warn('billing_not_configured', { hint: 'preview mode without Stripe: billing endpoints answer 503' });
+  }
+  if (!config.authConfigured) {
+    consoleLogger.warn('auth_not_configured', { hint: 'preview mode without Clerk: authenticated endpoints answer 503' });
+  }
+  // Unreachable stand-ins: createApp answers 503 before these are used (billingConfigured/authConfigured false).
+  const notConfigured = (what: string) => () => {
+    throw new Error(`${what} not configured`);
+  };
+  const billing: BillingApi = stripe
+    ? createStripeBillingApi(stripe)
+    : { createCheckoutSession: notConfigured('billing'), createPortalSession: notConfigured('billing'), retrieveSubscription: notConfigured('billing') };
+  const verifyWebhook: WebhookVerifier = stripe ? createWebhookVerifier(stripe) : notConfigured('billing');
+  const clerk: ClerkVerifier = config.clerkJwksUrl
+    ? createClerkVerifier({ issuer: config.clerkIssuer, audience: config.clerkAudience, jwksUrl: config.clerkJwksUrl })
+    : {
+        verifyAuthorization: async () => {
+          throw new AuthError('auth_not_configured');
+        },
+      };
   if (!config.enforceEntitlement) {
     consoleLogger.warn('entitlement_not_enforced', { hint: 'preview mode: any signed-in user can get a network key; set ENFORCE_ENTITLEMENT=true before launch' });
   }
   const app = createApp({
     store,
-    billing: createStripeBillingApi(stripe),
-    verifyWebhook: createWebhookVerifier(stripe),
+    billing,
+    verifyWebhook,
     webhookSecret: config.stripeWebhookSecret,
-    clerk: createClerkVerifier({ issuer: config.clerkIssuer, audience: config.clerkAudience, jwksUrl: config.clerkJwksUrl }),
+    clerk,
     signer: createLicenseSigner({ privateKey: config.licenseSigningKey, kid: config.licenseKeyId, ttlSeconds: config.licenseTtlSeconds }),
     priceId: config.stripePriceIdPro,
     publicBaseUrl: config.publicBaseUrl,
@@ -44,6 +65,8 @@ export function buildFromEnv(env: NodeJS.ProcessEnv = process.env): { app: Retur
     trustProxyHops: config.trustProxyHops,
     network,
     enforceEntitlement: config.enforceEntitlement,
+    billingConfigured: config.billingConfigured,
+    authConfigured: config.authConfigured,
   });
   return { app, config, store };
 }

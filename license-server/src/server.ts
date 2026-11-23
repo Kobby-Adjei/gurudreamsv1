@@ -14,7 +14,7 @@ try {
 }
 
 const { app, config, store } = built;
-const server = serve({ fetch: app.fetch, port: config.port, hostname: '0.0.0.0' }, (info) => {
+const server = serve({ fetch: app.fetch, port: config.port, hostname: config.host }, (info) => {
   console.log(JSON.stringify({ level: 'info', msg: 'listening', port: info.port }));
 });
 

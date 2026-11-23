@@ -238,13 +238,29 @@ func resolvePeer(st *ipnstate.Status, target string) string {
 }
 
 func (c *controlAPI) registerInbox(w http.ResponseWriter, r *http.Request) {
+	// {port, token} registers; {port: 0[, if_port: P]} deregisters (S-2: the daemon does this on
+	// shutdown; with if_port only if P is still the registered port, so a newer daemon is never undone).
 	var req struct {
-		Port  int    `json:"port"`
-		Token string `json:"token"`
+		Port   int    `json:"port"`
+		Token  string `json:"token"`
+		IfPort int    `json:"if_port"`
 	}
 	dec := json.NewDecoder(io.LimitReader(r.Body, 4096))
 	dec.DisallowUnknownFields()
-	if err := dec.Decode(&req); err != nil || req.Port < 1 || req.Port > 65535 || !tokenRe.MatchString(req.Token) {
+	if err := dec.Decode(&req); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]any{"ok": false, "error": "invalid_request"})
+		return
+	}
+	if req.Port == 0 && req.Token == "" {
+		if req.IfPort != 0 {
+			c.inbox.clearIf(req.IfPort)
+		} else {
+			c.inbox.set(0, "")
+		}
+		writeJSON(w, http.StatusOK, map[string]any{"ok": true})
+		return
+	}
+	if req.Port < 1 || req.Port > 65535 || !tokenRe.MatchString(req.Token) || req.IfPort != 0 {
 		writeJSON(w, http.StatusBadRequest, map[string]any{"ok": false, "error": "invalid_request"})
 		return
 	}

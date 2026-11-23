@@ -38,3 +38,4 @@ airbridge/dist/
 # AirBridge Phase 3 §9: airbridge-net sidecar built by desktop/scripts/build-net.sh / .ps1
 # (binaries and their per-build manifests are never committed; the license notice is)
 desktop/resources/net/
+desktop/sidecar/airbridge-net/vendor/

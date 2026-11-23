@@ -215,6 +215,17 @@ func (t *inboxTarget) set(port int, token string) {
 	t.port, t.token = port, token
 }
 
+// clearIf forgets the registration only if it is still the given port (a newer one wins).
+func (t *inboxTarget) clearIf(port int) bool {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if t.port != port || port == 0 {
+		return false
+	}
+	t.port, t.token = 0, ""
+	return true
+}
+
 func (t *inboxTarget) get() (int, string) {
 	t.mu.Lock()
 	defer t.mu.Unlock()

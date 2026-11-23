@@ -46,6 +46,10 @@ export interface AppDeps {
   network?: NetworkConfig | null;
   /** ENFORCE_ENTITLEMENT (default true). false: /v1/network/preauth-key skips the 402 check (preview mode). */
   enforceEntitlement?: boolean;
+  /** Preview mode without Stripe (default true): false -> Stripe-backed endpoints answer 503 billing_not_configured. */
+  billingConfigured?: boolean;
+  /** Preview mode without Clerk (default true): false -> authenticated endpoints answer 503 auth_not_configured. */
+  authConfigured?: boolean;
 }
 
 const MAX_WEBHOOK_BYTES = 1_000_000;
@@ -101,6 +105,18 @@ export function createApp(deps: AppDeps): Hono {
   app.notFound((c) => c.json({ error: 'not_found' }, 404));
 
   app.get('/healthz', (c) => c.json({ ok: true }));
+
+  // Preview mode (ENFORCE_ENTITLEMENT=false) may run without Stripe and/or Clerk configured (config.ts).
+  const authOff = deps.authConfigured === false;
+  const billingOff = deps.billingConfigured === false;
+  const authNotConfigured = (c: Context) => c.json({ error: 'auth_not_configured' }, 503);
+  const billingNotConfigured = (c: Context) => c.json({ error: 'billing_not_configured' }, 503);
+  if (billingOff) app.post('/v1/stripe/webhook', billingNotConfigured);
+  for (const path of ['/v1/license/verify', '/v1/billing/checkout']) {
+    if (authOff) app.post(path, authNotConfigured);
+    else if (billingOff) app.post(path, billingNotConfigured);
+  }
+  if (authOff) app.post('/v1/network/*', authNotConfigured);
 
   // ---------------------------------------------------------------- Stripe webhook
   async function applySubscription(clerkUserId: string | null | undefined, subscriptionId: string, eventId: string) {
