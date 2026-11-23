@@ -55,6 +55,15 @@ describe('App state machine', () => {
     expect(await screen.findByRole('heading', { name: 'Starting AirBridge' })).toBeInTheDocument()
   })
 
+  it('moves from Paywall to Starting instantly when license.onChange pushes', async () => {
+    const mock = installMockApi({ license: inactive, lifecycle: { phase: 'stopped' } })
+    render(<App />)
+    await screen.findByRole('button', { name: 'Subscribe' })
+    mock.state.lifecycle = { phase: 'starting' }
+    act(() => mock.emitLicense(valid))
+    expect(await screen.findByRole('heading', { name: 'Starting AirBridge' })).toBeInTheDocument()
+  })
+
   it('shows Starting while the backend spins up, then the main app when ready', async () => {
     const mock = installMockApi({ license: valid, lifecycle: { phase: 'starting' } })
     render(<App />)

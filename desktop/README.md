@@ -20,7 +20,9 @@ the app. The Python `airbridge-core` daemon starts only once a valid licence is 
 ```bash
 cd desktop
 npm install
-AIRBRIDGE_DEV_MOCKS=1 npm run dev     # fake signed-in user, valid licence, live mock swarm + events
+AIRBRIDGE_DEV_MOCKS=1 npm run dev     # fake signed-in user + valid licence; this computer is
+                                      # "Dev-Workstation", peers MacBook-Pro, Desktop-PC, Studio-Mac,
+                                      # with live mock events
 npm test                              # vitest (renderer tests run in jsdom)
 npm run typecheck
 ```

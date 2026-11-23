@@ -78,6 +78,7 @@ export interface MockHandle {
   emitEvent: (e: AirEvent) => void
   emitLifecycle: (l: BackendLifecycle) => void
   emitAuth: (a: AuthState) => void
+  emitLicense: (l: LicenseStatus) => void
 }
 
 export function defaultState(): MockState {
@@ -98,7 +99,8 @@ export function installMockApi(overrides: Partial<MockState> = {}): MockHandle {
     event: new Set<(e: AirEvent) => void>(),
     status: new Set<(s: BackendStatus) => void>(),
     lifecycle: new Set<(l: BackendLifecycle) => void>(),
-    auth: new Set<(a: AuthState) => void>()
+    auth: new Set<(a: AuthState) => void>(),
+    license: new Set<(l: LicenseStatus) => void>()
   }
   const sub = <T,>(set: Set<T>) => (cb: T) => {
     set.add(cb)
@@ -114,8 +116,9 @@ export function installMockApi(overrides: Partial<MockState> = {}): MockHandle {
     license: {
       getStatus: vi.fn(async () => state.license),
       refresh: vi.fn(async () => state.license),
-      openCheckout: vi.fn(async () => undefined)
-    },
+      openCheckout: vi.fn(async () => undefined),
+      onChange: vi.fn(sub(listeners.license))
+    } as AirbridgeApi['license'],
     backend: {
       getStatus: vi.fn(async () => state.status),
       getLifecycle: vi.fn(async () => state.lifecycle),
@@ -146,6 +149,10 @@ export function installMockApi(overrides: Partial<MockState> = {}): MockHandle {
     emitLifecycle: (l) => {
       state.lifecycle = l
       listeners.lifecycle.forEach((cb) => cb(l))
+    },
+    emitLicense: (l) => {
+      state.license = l
+      listeners.license.forEach((cb) => cb(l))
     },
     emitAuth: (a) => {
       state.auth = a

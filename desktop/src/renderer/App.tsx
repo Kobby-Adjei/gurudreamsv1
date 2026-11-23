@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { AuthState, BackendLifecycle, LicenseStatus } from '../shared/types'
+import type { AuthState, BackendLifecycle, LicenseStatus, Unsubscribe } from '../shared/types'
 import { WifiOffIcon } from './components/Icons'
 import { ToastProvider } from './components/Toast'
 import { api, errorText } from './lib/api'
@@ -107,10 +107,18 @@ function AppStates() {
       setLifecycle(l)
       void loadLicense()
     })
+    // Contract amendment: license.onChange pushes ab:license:changed, so the
+    // Paywall → Starting transition is instant after subscribing. Optional-chained
+    // so older preloads (without it) still work; "check again" stays as fallback.
+    const licenseApi = a.license as typeof a.license & {
+      onChange?: (cb: (l: LicenseStatus) => void) => Unsubscribe
+    }
+    const offLicense = licenseApi.onChange?.((l) => alive.current && setLicense(l))
     return () => {
       alive.current = false
       offAuth()
       offLife()
+      offLicense?.()
     }
   }, [loadLicense])
 
