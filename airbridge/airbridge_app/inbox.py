@@ -10,6 +10,13 @@ Inbound checks run in a fixed order (see docs/PLAN.md section 3.2):
 3. per-IP rate limit                                -> 429
 4. shared secret, if one is configured              -> 401
 5. payload validation                               -> 400
+
+Embedded network (desktop app, Phase 3): the inbox binds 127.0.0.1 and the
+bundled tailscaled forwards tailnet connections to it, so step 1 is replaced by
+``security.verify_embedded_peer`` - the client must be loopback, LocalAPI
+``whois`` of its ``host:port`` must resolve to a tailnet node, and that node
+must belong to this node's user - else 403. Steps 2-5 are unchanged (the rate
+limit is keyed on the verified sender node instead of the shared loopback IP).
 """
 
 from __future__ import annotations
@@ -21,6 +28,7 @@ import threading
 from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 import uvicorn
 from fastapi import BackgroundTasks, FastAPI, Request
@@ -132,15 +140,55 @@ def _client_ip(request: Request) -> str:
     return request.client.host if request.client else ""
 
 
+def _client_port(request: Request) -> int:
+    return int(request.client.port) if request.client and request.client.port else 0
+
+
+def _embedded_identity(backend: Any, host: str, port: int) -> tuple[dict[str, Any] | None, str]:
+    """Embedded-mode step 1 (blocking: LocalAPI calls), via
+    ``security.verify_embedded_peer``. Returns ``(peer, "")`` with
+    ``peer = {node, ip, node_id}`` on success, or ``(None, reason)``."""
+    seen: dict[str, Any] = {}
+
+    def whois(addr: str) -> dict[str, Any] | None:
+        result = backend.whois(addr)
+        if isinstance(result, dict):
+            seen.update(result)
+        return result
+
+    try:
+        self_uid = backend.self_user_id()
+    except Exception:
+        logger.warning("could not read own network identity; rejecting %s:%s", host, port)
+        return None, "forbidden: network identity unavailable"
+    try:
+        node = security.verify_embedded_peer(host, port, whois, self_uid)
+    except security.SecurityError as exc:
+        reason = getattr(exc, "reason", "forbidden")
+        return None, f"forbidden: {reason}"
+    except Exception:
+        logger.exception("embedded peer verification failed")
+        return None, "forbidden: could not verify sender"
+    ip = seen.get("tailnet_ip", seen.get("ip"))
+    return {"node": node, "ip": ip if isinstance(ip, str) else None,
+            "node_id": seen.get("node_id") if isinstance(seen.get("node_id"), str) else None}, ""
+
+
 def create_app(
     settings: config.Settings,
     peers_provider: Callable[[], dict[str, str]] = network.get_airbridge_peers,
+    *,
+    backend: Any = None,
 ) -> FastAPI:
     """Build the inbox FastAPI application.
 
     ``peers_provider`` is kept for API compatibility and future use (verifying
     that the sender is a known peer); the required check is the tailnet range.
+    ``backend``: an embedded :mod:`netbackend` backend switches step 1 to the
+    loopback + whois + same-user check; None (default) keeps the Phase-1
+    tailnet-source-IP check.
     """
+    embedded = getattr(backend, "kind", None) == "embedded"
     app = FastAPI(
         title="AirBridge Inbox",
         docs_url=None,
@@ -154,18 +202,34 @@ def create_app(
     app.state.settings = settings
     app.state.peers_provider = peers_provider
 
+    async def _verify_embedded(request: Request) -> tuple[dict[str, Any] | None, str]:
+        return await run_in_threadpool(_embedded_identity, backend, _client_ip(request), _client_port(request))
+
     @app.get("/health")
     async def health(request: Request) -> JSONResponse:
-        if not security.is_tailnet_ip(_client_ip(request)):
+        if embedded:
+            peer, reason = await _verify_embedded(request)
+            if peer is None:
+                return _error(403, reason)
+        elif not security.is_tailnet_ip(_client_ip(request)):
             return _error(403, "forbidden: not a tailnet address")
         return JSONResponse(status_code=200, content={"status": "ok"})
 
     @app.post("/incoming_task")
     async def incoming_task(request: Request, background_tasks: BackgroundTasks) -> JSONResponse:
         source_ip = _client_ip(request)
+        limit_key = source_ip
 
-        # 1. Tailnet only.
-        if not security.is_tailnet_ip(source_ip):
+        # 1. Tailnet only (embedded: loopback + whois + same user).
+        if embedded:
+            peer, reason = await _verify_embedded(request)
+            if peer is None:
+                logger.warning("rejected task from unverified local connection %s:%s (%s)",
+                               source_ip, _client_port(request), reason)
+                return _error(403, reason)
+            source_ip = peer.get("ip") or source_ip
+            limit_key = "node:" + str(peer.get("node_id") or peer.get("node") or source_ip)
+        elif not security.is_tailnet_ip(source_ip):
             logger.warning("rejected task from non-tailnet address %s", source_ip)
             return _error(403, "forbidden: not a tailnet address")
 
@@ -180,7 +244,7 @@ def create_app(
                 logger.warning("rejected oversized task (%s bytes declared) from %s", declared_len, source_ip)
                 return _error(413, f"payload too large (max {security.MAX_BODY_BYTES} bytes)")
         # 3. Rate limit per source IP (before reading the body, so floods stay cheap).
-        if not limiter.allow(source_ip):
+        if not limiter.allow(limit_key):
             logger.warning("rate limit exceeded for %s", source_ip)
             return _error(429, "too many requests, slow down")
 

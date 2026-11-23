@@ -1,0 +1,36 @@
+# AirBridge Headscale front door (Caddy 2). Env: HEADSCALE_DOMAIN, ACME_EMAIL, LICENSE_SERVER_IPS.
+{
+	email {$ACME_EMAIL}
+}
+
+http://{$HEADSCALE_DOMAIN} {
+	# Tailscale captive-portal detection
+	handle /generate_204 {
+		respond 204
+	}
+	handle {
+		redir https://{host}{uri} permanent
+	}
+}
+
+{$HEADSCALE_DOMAIN} {
+	# The REST API (/api/*) and its docs are reachable ONLY from the license server's egress IPs.
+	# Everyone else gets 404, so the API key is never even testable from the internet.
+	@restricted {
+		path /api /api/* /swagger /swagger/*
+		not remote_ip {$LICENSE_SERVER_IPS}
+	}
+	respond @restricted 404
+
+	# Control protocol (TS2021 upgrade), embedded DERP (/derp), /key, /health, /api for the license server.
+	# Caddy proxies Upgrade/WebSocket connections natively.
+	reverse_proxy headscale:8080 {
+		header_up X-Real-IP {remote_host}
+	}
+
+	header -Server
+	log {
+		output stdout
+		format json
+	}
+}

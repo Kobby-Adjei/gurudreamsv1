@@ -39,7 +39,7 @@ export function useNow(intervalMs = 30_000): number {
 export interface NodesState {
   data: NodesResponse | null
   loading: boolean
-  /** IPC-level failure (distinct from data.error, which is Tailscale's own). */
+  /** IPC-level failure (distinct from data.error, which comes from the network itself). */
   error: string | null
   refresh: () => Promise<void>
 }

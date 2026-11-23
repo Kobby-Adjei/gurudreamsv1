@@ -1,0 +1,58 @@
+# AirBridge Headscale stack: headscale v0.29.7 + Caddy (automatic TLS). See README.md.
+# Required env (put them in ./.env next to this file): HEADSCALE_DOMAIN, ACME_EMAIL, LICENSE_SERVER_IPS.
+name: airbridge-headscale
+
+services:
+  headscale:
+    image: docker.io/headscale/headscale:v0.29.7
+    restart: unless-stopped
+    command: serve
+    read_only: true
+    tmpfs:
+      - /var/run/headscale
+    volumes:
+      - ./config/config.yaml:/etc/headscale/config.yaml:ro
+      - ./policy.hujson:/etc/headscale/policy.hujson:ro
+      - ./data:/var/lib/headscale
+    ports:
+      # STUN for the embedded DERP relay (the only port published by headscale itself).
+      - "3478:3478/udp"
+      # Uncomment ONLY when the license server runs on this same host (HEADSCALE_URL=http://127.0.0.1:8080):
+      # - "127.0.0.1:8080:8080"
+    networks:
+      edge: {}
+    healthcheck:
+      test: ["CMD", "headscale", "health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  caddy:
+    image: docker.io/library/caddy:2.10.2
+    restart: unless-stopped
+    depends_on:
+      - headscale
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      HEADSCALE_DOMAIN: ${HEADSCALE_DOMAIN:?set HEADSCALE_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL}
+      LICENSE_SERVER_IPS: ${LICENSE_SERVER_IPS:?set LICENSE_SERVER_IPS (space-separated IPs/CIDRs)}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      edge: {}
+
+networks:
+  edge:
+    ipam:
+      config:
+        # Must match trusted_proxies in config.yaml.tmpl.
+        - subnet: 172.30.53.0/24
+
+volumes:
+  caddy-data: {}
+  caddy-config: {}

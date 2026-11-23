@@ -1,6 +1,6 @@
 /**
  * Preload (sandboxed, contextIsolation). Exposes exactly the frozen `window.airbridge` surface
- * (PHASE2_PLAN.md §2) — never raw ipcRenderer, never Electron event objects.
+ * (PHASE2_PLAN.md §2 + PHASE3_PLAN.md §2 network) — never raw ipcRenderer, never Electron event objects.
  */
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron';
 import { INVOKE, PUSH, type PushChannel } from '../shared/ipcChannels';
@@ -12,6 +12,7 @@ import type {
   BackendStatus,
   LicenseStatus,
   McpClient,
+  NetStatus,
   NodesResponse,
   SendTaskRequest,
   SendTaskResult,
@@ -59,6 +60,10 @@ export const api: AirbridgeApi = {
     onEvent: (cb) => subscribe<AirEvent>(PUSH.backendEvent, cb),
     onStatus: (cb) => subscribe<BackendStatus>(PUSH.backendStatus, cb),
     onLifecycle: (cb) => subscribe<BackendLifecycle>(PUSH.backendLifecycle, cb),
+  },
+  network: {
+    getStatus: () => ipcRenderer.invoke(INVOKE.networkStatus) as Promise<NetStatus>,
+    onChange: (cb) => subscribe<NetStatus>(PUSH.networkChanged, cb),
   },
   settings: {
     getMcpConfig: (client: McpClient) => ipcRenderer.invoke(INVOKE.settingsMcp, client) as Promise<{ json: string }>,

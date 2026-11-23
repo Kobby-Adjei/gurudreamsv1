@@ -3,7 +3,7 @@ import { Button } from '../components/Button'
 import { AlertIcon, RefreshIcon } from '../components/Icons'
 import { OnboardingFrame } from './OnboardingFrame'
 
-/** Full-window problem state with exactly one clear next action. */
+/** Full-window problem state with exactly one clear next action; technical detail stays behind “Details”. */
 export function ErrorScreen({
   icon = <AlertIcon size={28} />,
   title,
@@ -41,7 +41,14 @@ export function ErrorScreen({
             {actionLabel}
           </Button>
         </div>
-        {detail ? <p className="mt-5 max-w-[360px] font-mono text-[11.5px] text-ink-faint selectable">{detail}</p> : null}
+        {detail ? (
+          <details className="mt-6 max-w-[360px] text-[13px]">
+            <summary className="mx-auto w-fit cursor-pointer select-none rounded-md text-ink-faint hover:text-ink-muted">
+              Details
+            </summary>
+            <p className="mt-2 font-mono text-[11.5px] text-ink-faint selectable [overflow-wrap:anywhere]">{detail}</p>
+          </details>
+        ) : null}
       </div>
     </OnboardingFrame>
   )

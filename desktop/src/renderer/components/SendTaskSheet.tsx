@@ -22,7 +22,7 @@ export function friendlySendError(raw: string, target: string): string {
   if (/401|403|secret|forbidden|unauthori/.test(s))
     return `${target} said no. Make sure both computers use the same AirBridge settings.`
   if (/not found|unknown|no such|resolve/.test(s))
-    return `We can’t find ${target} on your network any more. Check it’s signed in to Tailscale.`
+    return `We can’t find ${target} any more. Make sure AirBridge is open on it and signed in to your account.`
   if (/timeout|timed out|unreach|refused|502|connect|offline/.test(s))
     return `Couldn’t reach ${target} — is it awake and running AirBridge?`
   return raw || 'Something went wrong. Please try again.'

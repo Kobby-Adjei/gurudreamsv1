@@ -1,4 +1,4 @@
-/** IPC channel names (frozen contract, PHASE2_PLAN.md §2). */
+/** IPC channel names (frozen contract, PHASE2_PLAN.md §2 + PHASE3_PLAN.md §2 "IPC additions"). */
 
 /** Renderer → main (ipcRenderer.invoke / ipcMain.handle). */
 export const INVOKE = {
@@ -15,6 +15,7 @@ export const INVOKE = {
   backendSend: 'ab:backend:send',
   settingsMcp: 'ab:settings:mcp',
   settingsCopy: 'ab:settings:copy',
+  networkStatus: 'ab:network:status',
 } as const;
 
 /** Main → renderer (webContents.send / ipcRenderer.on). */
@@ -24,6 +25,7 @@ export const PUSH = {
   backendEvent: 'ab:backend:event',
   backendStatus: 'ab:backend:status',
   backendLifecycle: 'ab:backend:lifecycle',
+  networkChanged: 'ab:network:changed',
 } as const;
 
 export type InvokeChannel = (typeof INVOKE)[keyof typeof INVOKE];

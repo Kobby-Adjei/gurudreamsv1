@@ -1,18 +1,24 @@
 # AirBridge Pro (desktop)
 
-AirBridge Pro is the desktop app for the computers you own that run AirBridge on your private
-Tailscale network. It lets the AI apps on those computers (Claude Desktop, Cursor, Codex) hand
-tasks and code to each other, and gives you a quiet place to see what is going on:
+AirBridge Pro is the desktop app for the computers you own. It lets the AI apps on those
+computers (Claude Desktop, Cursor, Codex) hand tasks and code to each other, and gives you a
+quiet place to see what is going on. It brings its own private network: there is nothing else to
+install or sign in to. Any computer running AirBridge Pro and signed in to the same account
+appears automatically.
 
 - **Devices** shows a live map. This computer sits in the middle and your other computers are
   arranged around it, each marked *Online* or *Offline* with when it was last seen.
 - **Activity** is a real-time feed written in plain sentences, such as "Received task from
   MacBook", "Sent code to Desktop-PC" and "Couldn't reach Studio-Mac — is it awake?".
-- **Settings** gives you a one-click config snippet for Claude Desktop or Cursor, your account
-  and plan, and the health of the background service.
+- **Settings** gives you a one-click config snippet for Claude Desktop or Cursor, the private
+  network's status (*Connected*, *Connecting…* or *Couldn't connect* with Retry; the address is
+  behind *Details*), the health of the background service, and your account and plan.
 
 Sign-in uses Clerk in your browser. A $15/month AirBridge Pro subscription (Stripe) unlocks
-the app. The Python `airbridge-core` daemon starts only once a valid licence is confirmed.
+the app. Once a valid licence is confirmed, main starts the bundled network daemon, enrols this
+computer in your account's private network, and then starts the Python `airbridge-core` daemon.
+The Starting screen shows those two steps ("Connecting your private network", "Starting
+AirBridge").
 
 ## Develop
 
@@ -43,22 +49,28 @@ npm run dist            # electron-builder installers (signing/notarisation requ
 │ Renderer (React+Tailwind)│ ◀─────────────────▶ │   Preload    │ ◀────────────▶ │          Main            │
 │ sandboxed, no Node, CSP  │   frozen, Promise   │ contextBridge│  sender-origin │ auth (Clerk OIDC+PKCE)   │
 │ SignIn·Paywall·Devices…  │   based API only    └──────────────┘   validated    │ licence gate (Ed25519)   │
-└──────────────────────────┘                                                    │ processManager           │
-                                                                                └────────────┬─────────────┘
-                                                        HTTP + WS on 127.0.0.1, bearer token │ (token never
-                                                                                             ▼  leaves main)
-                                                                                ┌──────────────────────────┐
-                                                                                │ airbridge-core --daemon  │
-                                                                                │ control API · events     │
-                                                                                │ inbox :8989 (tailnet IP) │
-                                                                                └────────────┬─────────────┘
-                                                                                             │ Tailscale
-                                                                                             ▼
-                                                                                ┌──────────────────────────┐
-                                                                                │ your other computers     │
-                                                                                │ (tailnet peers)          │
-                                                                                └──────────────────────────┘
+└──────────────────────────┘                                                    │ network manager + enrol  │
+                                                                                │ processManager           │
+                                                                                └──────┬────────────┬──────┘
+                                                      local socket / pipe, never argv  │            │ HTTP + WS on 127.0.0.1,
+                                                                                       ▼            ▼ bearer token (main only)
+                                                   ┌─────────────────────────────┐  ┌──────────────────────────┐
+                                                   │ bundled private-network     │  │ airbridge-core --daemon  │
+                                                   │ daemon (userspace, no admin)│◀─│ control API · events     │
+                                                   │ local SOCKS5 + LocalAPI     │  │ inbox :8989 on 127.0.0.1 │
+                                                   └──────────────┬──────────────┘  └──────────────────────────┘
+                                                                  │ encrypted (WireGuard), same account only
+                                                                  ▼
+                                                   ┌─────────────────────────────┐
+                                                   │ your other computers running│
+                                                   │ AirBridge Pro               │
+                                                   └─────────────────────────────┘
 ```
+
+In short: renderer ⇄ preload ⇄ main ⇄ (bundled private-network daemon + `airbridge-core`).
+The network daemon is built from the open-source Tailscale client (BSD-3; licence notices ship
+in `resources/licenses/`) and talks only to AirBridge's own coordination server. See
+`../airbridge/docs/PHASE3_PLAN.md`. The app UI never names it; it is just "your private network".
 
 The renderer only ever talks to `window.airbridge` (see `src/shared/types.ts`). It never
 sees the control token or any Clerk token.
@@ -67,10 +79,10 @@ sees the control token or any Clerk token.
 
 | Path | What it is |
 |---|---|
-| `App.tsx` | State machine (`deriveScreen`): loading → sign in → checking → paywall / starting → ready, plus *Tailscale is off* and *stopped unexpectedly* screens |
+| `App.tsx` | State machine (`deriveScreen`): loading → sign in → checking → paywall / starting (two steps: network, then backend) → ready, plus *Couldn't connect your devices* (network error) and *stopped unexpectedly* screens |
 | `views/` | `SignIn`, `Paywall`, `Starting`, `ErrorScreen`, `MainShell`, `SwarmMap`, `ActivityFeed`, `Settings` |
-| `components/` | `Sidebar`, `StatusDot`, `Card`, `Button`, `CopyButton`, `EmptyState`, `Toast`, `Skeleton`, `SendTaskSheet`, `DeviceGlyph`, hand-drawn `Icons` |
-| `lib/` | `api.ts` (bridge access), `hooks.ts` (5-second node polling, live events capped at 500), `format.ts` (event → sentence, relative time) |
+| `components/` | `Sidebar` (footer line "Private network · Connected"), `PrivateNetworkCard`, `StatusDot`, `Card`, `Button`, `CopyButton`, `EmptyState`, `Toast`, `Skeleton`, `SendTaskSheet`, `DeviceGlyph`, hand-drawn `Icons` |
+| `lib/` | `api.ts` (bridge access), `network.ts` (`window.airbridge.network` status hook, plain-language states), `hooks.ts` (5-second node polling, live events capped at 500), `format.ts` (event → sentence, relative time) |
 | `styles.css` | Colour tokens as CSS variables. Dark by default, with a light palette under `prefers-color-scheme: light` |
 | `devCsp.ts` | Vite plugin for the dev server only. It relaxes the CSP so HMR can work. Production keeps the strict policy |
 
@@ -106,8 +118,9 @@ type, spacing and alignment, not from effects.
 |---|---|
 | ![Devices](docs/screenshots/swarm.png) | ![Activity](docs/screenshots/activity.png) |
 | ![Settings](docs/screenshots/settings.png) | ![Sign in](docs/screenshots/signin.png) |
-| ![Paywall](docs/screenshots/paywall.png) | |
+| ![Paywall](docs/screenshots/paywall.png) | ![Private network in Settings](docs/screenshots/extra/settings-network.png) |
 
-More states (no other devices, Tailscale off, Send-a-task sheet, light mode, narrow window) are in
-`docs/screenshots/extra/`. They were rendered with Playwright from the production renderer
-build with a mocked `window.airbridge`.
+More states (Starting steps, network error, private network *Details* and *Connecting…*, no
+other devices, Send-a-task sheet, light mode, narrow window) are in `docs/screenshots/extra/`.
+They were rendered with Playwright (system Chrome) from a production Vite build of
+`src/renderer` with a mocked `window.airbridge`.

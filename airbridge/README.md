@@ -19,6 +19,15 @@ and nothing leaves your own private network.
 
 Every computer runs the same AirBridge. Each one can send and receive.
 
+> **Free CLI vs. AirBridge Pro.** This README covers the free command-line AirBridge, which runs
+> on the system Tailscale you install and sign in to yourself. The **AirBridge Pro** desktop app
+> (`desktop/`) bundles its own private network instead: there is nothing else to install or sign
+> in to, and computers signed in to the same AirBridge account find each other automatically.
+> Under the hood Pro runs a bundled, unprivileged network daemon against AirBridge's own
+> coordination server, so it doesn't use (or need) a system Tailscale install. Both speak the
+> same task format, but a Pro device and a CLI device are on different networks and won't see
+> each other.
+
 ---
 
 ## Setup for everyone (2 minutes)

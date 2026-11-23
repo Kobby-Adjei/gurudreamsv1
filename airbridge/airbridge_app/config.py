@@ -6,7 +6,10 @@ import time) so tests and launchers can adjust the environment freely.
 
 from __future__ import annotations
 
+import json
+import logging
 import os
+import stat
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -29,6 +32,16 @@ ENV_CONTROL_TOKEN = "AIRBRIDGE_CONTROL_TOKEN"
 ENV_CONTROL_PORT = "AIRBRIDGE_CONTROL_PORT"
 ENV_PARENT_PID = "AIRBRIDGE_PARENT_PID"
 APP_DIRNAME = "AirBridge"
+
+# Phase 3 (embedded private network).
+ENV_NETWORK = "AIRBRIDGE_NETWORK"  # auto | embedded | system
+ENV_TS_SOCKET = "AIRBRIDGE_TS_SOCKET"
+ENV_TS_SOCKS5 = "AIRBRIDGE_TS_SOCKS5"
+NETWORK_MODES = ("auto", "embedded", "system")
+NETWORK_JSON = "network.json"
+_NETWORK_JSON_MAX_BYTES = 64 * 1024
+
+_logger = logging.getLogger("airbridge.config")
 
 
 def is_frozen() -> bool:
@@ -57,6 +70,38 @@ def default_data_dir() -> Path:
     return base / "airbridge"
 
 
+def network_mode() -> str:
+    """``AIRBRIDGE_NETWORK`` (auto|embedded|system); anything else means auto."""
+    raw = os.environ.get(ENV_NETWORK, "").strip().lower()
+    if raw in NETWORK_MODES:
+        return raw
+    if raw:
+        _logger.warning("ignoring invalid %s=%.20r (using auto)", ENV_NETWORK, raw)
+    return "auto"
+
+
+def network_json_path(data_dir: Path | None = None) -> Path:
+    return (data_dir if data_dir is not None else default_data_dir()) / NETWORK_JSON
+
+
+def read_network_json(data_dir: Path | None = None) -> dict | None:
+    """Parse ``<data dir>/network.json`` (written by the desktop app's
+    TailscaleManager). Returns None when absent, unreadable, not a regular
+    file, oversized, or not a v1 object. Values are validated by the caller."""
+    path = network_json_path(data_dir)
+    try:
+        st = os.stat(path)
+        if not stat.S_ISREG(st.st_mode) or st.st_size > _NETWORK_JSON_MAX_BYTES:
+            return None
+        with open(path, "rb") as fh:
+            data = json.loads(fh.read(_NETWORK_JSON_MAX_BYTES + 1))
+    except (OSError, ValueError):
+        return None
+    if not isinstance(data, dict) or data.get("v") != 1:
+        return None
+    return data
+
+
 @dataclass(frozen=True)
 class Settings:
     port: int = PORT
@@ -66,6 +111,7 @@ class Settings:
     http_timeout_s: float = 10
     rate_limit_per_minute: int = 30
     data_dir: Path = field(default_factory=lambda: default_data_dir())
+    network: str = "auto"
 
     def __repr__(self) -> str:  # never leak the secret into logs
         secret = "<set>" if self.shared_secret else None
@@ -74,7 +120,7 @@ class Settings:
             f"log_file={str(self.log_file)!r}, shared_secret={secret!r}, "
             f"http_timeout_s={self.http_timeout_s!r}, "
             f"rate_limit_per_minute={self.rate_limit_per_minute!r}, "
-            f"data_dir={str(self.data_dir)!r})"
+            f"data_dir={str(self.data_dir)!r}, network={self.network!r})"
         )
 
     __str__ = __repr__
@@ -103,4 +149,5 @@ def load() -> Settings:
         log_file=log_file,
         shared_secret=shared_secret,
         data_dir=data_dir,
+        network=network_mode(),
     )

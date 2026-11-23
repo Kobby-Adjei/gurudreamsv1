@@ -38,6 +38,7 @@ RETRY_S = 10.0
 PARENT_POLL_S = 2.0
 SHUTDOWN_GRACE_S = 5.0
 STARTUP_TIMEOUT_S = 15.0
+EMBEDDED_BIND_HOST = "127.0.0.1"
 
 
 def _stderr(line: str) -> None:
@@ -155,6 +156,7 @@ class _InboxSupervisor:
         self.state = state
         self.stop = stop
         self.server: Any = None
+        self.backend: Any = None
         self._last_reason: str | None = None
 
     def _degraded(self, reason: str) -> None:
@@ -166,6 +168,23 @@ class _InboxSupervisor:
             events.emit("inbox_degraded", summary=f"Inbox unavailable: {reason}", error=reason)
 
     async def _resolve_host(self) -> str | None:
+        """Inbox bind host for the selected backend, or None (degraded).
+
+        System Tailscale: this machine's tailnet IP (validate_bind_host).
+        Embedded tailscaled: loopback only - its netstack forwards inbound
+        tailnet connections for :8989 to 127.0.0.1:8989 and the inbox then
+        authenticates every caller with LocalAPI whois.
+        """
+        try:
+            backend = await asyncio.to_thread(network.get_backend)
+        except network.TailscaleError as exc:
+            self.state.tailnet_ip = None
+            self.backend = None
+            self._degraded(str(exc))
+            return None
+        self.backend = backend
+        if getattr(backend, "kind", "system") == "embedded":
+            return await self._resolve_embedded_host(backend)
         try:
             ip = await asyncio.to_thread(network.get_local_tailscale_ip)
         except network.TailscaleError as exc:
@@ -181,6 +200,20 @@ class _InboxSupervisor:
         self.state.tailnet_ip = host
         return host
 
+    async def _resolve_embedded_host(self, backend: Any) -> str | None:
+        try:
+            ip = await asyncio.to_thread(backend.local_ip)
+        except network.TailscaleError as exc:
+            self.state.tailnet_ip = None
+            self._degraded(str(exc))
+            return None
+        self.state.tailnet_ip = ip
+        bind = backend.inbound_bind_host()
+        if bind != EMBEDDED_BIND_HOST:  # never widen beyond loopback
+            self._degraded(f"refusing to bind the inbox to {bind!r} in embedded mode")
+            return None
+        return EMBEDDED_BIND_HOST
+
     async def run(self) -> None:
         while not self.stop.is_set():
             host = await self._resolve_host()
@@ -193,7 +226,8 @@ class _InboxSupervisor:
 
     async def _serve_once(self, host: str) -> None:
         port = self.settings.port
-        app = inbox.create_app(self.settings)
+        backend = self.backend if getattr(self.backend, "kind", "system") == "embedded" else None
+        app = inbox.create_app(self.settings, backend=backend)
         server = inbox.build_server(app, host, port)
         _disable_signal_capture(server)
         self.server = server

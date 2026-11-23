@@ -47,6 +47,9 @@ HIDDEN_IMPORTS = [
     "uvicorn.lifespan",
     "uvicorn.lifespan.on",
     "uvicorn.lifespan.off",
+    # Phase 3: requests loads SOCKS support lazily for socks5h:// proxies.
+    "socks",
+    "urllib3.contrib.socks",
     # AirBridge modules imported lazily by main.py via importlib.
     "airbridge_app",
     "airbridge_app.config",
@@ -56,6 +59,7 @@ HIDDEN_IMPORTS = [
     "airbridge_app.formatting",
     "airbridge_app.inbox",
     "airbridge_app.logging_setup",
+    "airbridge_app.netbackend",
     "airbridge_app.network",
     "airbridge_app.notify",
     "airbridge_app.outbox",

@@ -17,6 +17,19 @@ export interface Config {
   trustProxy: boolean;
   trustProxyHops: number;
   production: boolean;
+  /** Phase 3 Headscale integration; null when HEADSCALE_* are all unset (network endpoints answer 503). */
+  headscale: HeadscaleConfig | null;
+}
+
+export interface HeadscaleConfig {
+  /** HEADSCALE_URL: where this server reaches the Headscale REST API (https, or http on localhost). */
+  url: string;
+  /** HEADSCALE_API_KEY: `headscale apikeys create --expiration 90d`. Secret. */
+  apiKey: string;
+  /** HEADSCALE_PUBLIC_URL: the login server URL clients enroll against (server_url in config.yaml). */
+  publicUrl: string;
+  /** PREAUTH_TTL_SECONDS (default 600). */
+  preauthTtlSeconds: number;
 }
 
 export class ConfigError extends Error {
@@ -162,6 +175,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     else trustProxyHops = n;
   }
 
+  const headscale = loadHeadscaleConfig(env, problems);
+
   if (problems.length > 0 || !licenseSigningKey || !clerkJwksUrl) {
     throw new ConfigError(problems.length ? problems : ['configuration incomplete']);
   }
@@ -183,5 +198,51 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     trustProxy: env.TRUST_PROXY === '1' || env.TRUST_PROXY === 'true',
     trustProxyHops,
     production,
+    headscale,
+  };
+}
+
+const DEFAULT_PREAUTH_TTL = 600;
+const MIN_PREAUTH_TTL = 60;
+const MAX_PREAUTH_TTL = 3600;
+const HEADSCALE_API_KEY_RE = /^[A-Za-z0-9._-]{20,512}$/;
+
+/**
+ * HEADSCALE_URL / HEADSCALE_API_KEY / HEADSCALE_PUBLIC_URL are all-or-nothing. All unset -> null
+ * (network disabled, endpoints 503; a warning is logged at boot in production by bootstrap).
+ */
+function loadHeadscaleConfig(env: NodeJS.ProcessEnv, problems: string[]): HeadscaleConfig | null {
+  const rawUrl = env.HEADSCALE_URL?.trim() ?? '';
+  const apiKey = env.HEADSCALE_API_KEY?.trim() ?? '';
+  const rawPublic = env.HEADSCALE_PUBLIC_URL?.trim() ?? '';
+  if (!rawUrl && !apiKey && !rawPublic) return null;
+
+  const before = problems.length;
+  const url = httpsUrl('HEADSCALE_URL', rawUrl || undefined, problems);
+  const pub = httpsUrl('HEADSCALE_PUBLIC_URL', rawPublic || undefined, problems);
+  if (!apiKey) problems.push('HEADSCALE_API_KEY is required when HEADSCALE_URL / HEADSCALE_PUBLIC_URL are set');
+  else if (isPlaceholder(apiKey)) problems.push('HEADSCALE_API_KEY still contains a REPLACE_ME placeholder');
+  else if (!HEADSCALE_API_KEY_RE.test(apiKey)) problems.push('HEADSCALE_API_KEY does not look like a Headscale API key');
+  for (const [name, u] of [['HEADSCALE_URL', url], ['HEADSCALE_PUBLIC_URL', pub]] as const) {
+    if (u && (u.username || u.password || u.search || u.hash)) problems.push(`${name} must not contain credentials, a query or a fragment`);
+  }
+
+  let preauthTtlSeconds = DEFAULT_PREAUTH_TTL;
+  if (env.PREAUTH_TTL_SECONDS?.trim()) {
+    const n = Number(env.PREAUTH_TTL_SECONDS.trim());
+    if (!Number.isInteger(n) || n < MIN_PREAUTH_TTL || n > MAX_PREAUTH_TTL) {
+      problems.push(`PREAUTH_TTL_SECONDS must be an integer between ${MIN_PREAUTH_TTL} and ${MAX_PREAUTH_TTL}`);
+    } else {
+      preauthTtlSeconds = n;
+    }
+  }
+
+  if (problems.length > before || !url || !pub) return null;
+  return {
+    url: (url.origin + url.pathname).replace(/\/+$/, ''),
+    apiKey,
+    // Clients compare login_server byte-for-byte (network.json); keep a canonical form without trailing slash.
+    publicUrl: (pub.origin + pub.pathname).replace(/\/+$/, ''),
+    preauthTtlSeconds,
   };
 }

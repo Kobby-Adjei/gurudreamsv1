@@ -78,9 +78,15 @@ async def list_nodes() -> str:
     )
 
 
-def _post(url: str, body: dict[str, Any], headers: dict[str, str], timeout: float) -> requests.Response:
+def _post(url: str, body: dict[str, Any], headers: dict[str, str], timeout: float,
+          proxies: dict[str, str] | None = None) -> requests.Response:
     with requests.Session() as session:
         session.trust_env = False  # never route tailnet traffic through env proxies
+        if proxies:
+            # Embedded network: tailscaled's SOCKS5 (socks5h://127.0.0.1:P).
+            # Session-level so trust_env=False still applies to everything else.
+            session.proxies.clear()
+            session.proxies.update(proxies)
         return session.post(url, json=body, headers=headers, timeout=timeout, allow_redirects=False)
 
 
@@ -239,8 +245,9 @@ async def _send_task(
     # --- resolve the target on the tailnet ---
     try:
         ip = await asyncio.to_thread(network.resolve_peer, target)
+        proxies = await asyncio.to_thread(network.requests_proxies) if ip else None
     except network.TailscaleError as exc:
-        return _fail(f"could not query Tailscale: {exc}", 502, target, encoded_len)
+        return _fail(f"could not query the network: {exc}", 502, target, encoded_len)
     if not ip:
         hint = await _available_hosts_hint()
         return _fail(f"no online node named '{target}' was found on your tailnet. {hint}", 404, target, encoded_len)
@@ -257,7 +264,10 @@ async def _send_task(
 
     logger.info("sending task to %s (%s): %s", target, ip, security.truncate_for_log(task, 200))
     try:
-        resp = await asyncio.to_thread(_post, url, body, headers, settings.http_timeout_s)
+        if proxies:
+            resp = await asyncio.to_thread(_post, url, body, headers, settings.http_timeout_s, proxies)
+        else:
+            resp = await asyncio.to_thread(_post, url, body, headers, settings.http_timeout_s)
     except requests.exceptions.Timeout:
         return _fail(
             f"timed out after {settings.http_timeout_s}s waiting for {target} ({ip}). "

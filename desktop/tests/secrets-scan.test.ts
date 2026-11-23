@@ -2,7 +2,8 @@
  * Repository secrets scan + renderer-bundle leak checks (Security-owned).
  *
  * Scans desktop/, license-server/ and airbridge/ (skipping dependency/build dirs) for
- * real-looking Stripe/Clerk secrets, webhook secrets and private-key PEMs. Obvious placeholders
+ * real-looking Stripe/Clerk secrets, webhook secrets, private-key PEMs and (Phase 3) Tailscale /
+ * Headscale pre-auth + API keys, literal --auth-key values, and committed key drops / tailscaled state. Obvious placeholders
  * (REPLACE_ME, xxx, example, ...) are allowlisted. Patterns are assembled from fragments so this
  * file does not match itself.
  */
@@ -47,6 +48,33 @@ const RULES: Rule[] = [
   },
   { name: 'aws access key id', re: new RegExp(P('\\bAK', 'IA[0-9A-Z]{16}\\b'), 'g') },
   { name: 'github token', re: new RegExp(P('\\bgh[pousr]_', '[A-Za-z0-9]{36,}\\b'), 'g') },
+  // Phase 3: Tailscale-format keys (tskey-auth-<id>-<secret>, tskey-client-, tskey-api-).
+  { name: 'tailscale key', re: new RegExp(P('\\bts', 'key-[a-z]+-[A-Za-z0-9]{6,}-[A-Za-z0-9]{16,}'), 'g') },
+  // Headscale v0.29 pre-auth / API keys: hskey-{auth|api}-{12-char prefix}-{secret}. The masked
+  // display form "hskey-auth-<prefix>-***" never matches (needs >= 16 secret chars).
+  { name: 'headscale key', re: new RegExp(P('\\bhs', 'key-(?:auth|api)-[A-Za-z0-9_-]{12}-[A-Za-z0-9_-]{16,}'), 'g') },
+  // Legacy Headscale API key ("<7-10 char prefix>.<secret>") or any value assigned to a
+  // Headscale/Tailscale key variable in config/env/compose/source.
+  {
+    name: 'headscale/tailscale key assignment',
+    re: new RegExp(
+      P(
+        '\\b(?:HEADSCALE_API_KEY|HEADSCALE_APIKEY|TS_AUTH_?KEY|TAILSCALE_AUTH_?KEY|PREAUTH_KEY|AUTH_KEY)',
+        '\\s*[:=]\\s*["\']?([A-Za-z0-9._~+/-]{20,})',
+      ),
+      'g',
+    ),
+  },
+  // A literal key on a tailscale command line (only --auth-key=file:<path> is allowed).
+  { name: 'auth key in argv', re: new RegExp(P('--auth-?key[= ]["\']?', '(?!file:)[A-Za-z0-9_-]{20,}'), 'g') },
+];
+
+/** Files that must never be committed at all (enrollment key drops, tailscaled state). */
+const FORBIDDEN_FILES: Array<[string, RegExp]> = [
+  ['enrollment key file', /(?:^|[\\/])\.authkey(?:-[^\\/]*)?$/],
+  ['tailscaled state', /(?:^|[\\/])tailscaled\.state$/],
+  ['tailscaled state dir', /(?:^|[\\/])tailscaled[\\/](?:tailscaled\.state|derpmap\.cached\.json|files[\\/])/],
+  ['network.json', /(?:^|[\\/])network\.json$/],
 ];
 
 /** Only obviously-fake values are allowed. */
@@ -58,6 +86,13 @@ function isPlaceholder(match: string, line: string, rule: Rule): boolean {
     return false;
   }
   if (PLACEHOLDER_RE.test(match)) return true;
+  if (rule.name === 'headscale/tailscale key assignment') {
+    // Only the captured value matters; references like `process.env.X` / `${X}` / config lookups are fine.
+    const value = match.replace(/^[^:=]*[:=]\s*["']?/, '');
+    if (/^(?:process\.env|env\.|config\.|opts\.|cfg\.|settings\.)/.test(value)) return true;
+    if (/^[A-Za-z_.]+$/.test(value) && !/\d/.test(value)) return true; // identifiers, not secrets
+    return new Set(value).size < 8;
+  }
   // Very low-entropy bodies (e.g. sk_test_0000000000000000) are fake.
   const body = match.replace(/^[a-z]+_(?:live_|test_)?/, '');
   if (new Set(body).size < 6) return true;
@@ -179,6 +214,38 @@ describe('secrets scan', () => {
     expect(find(P('sk_', 'test_', '0000000000000000000000'))).toHaveLength(0);
     expect(find(P('wh', 'sec_', 'your_webhook_secret_goes_here'))).toHaveLength(0);
     expect(find('STRIPE_SECRET_KEY=REPLACE_ME')).toHaveLength(0);
+    // Phase 3: Tailscale / Headscale keys
+    expect(find(P('ts', 'key-auth-', 'kQ7wXz3CNTRL-', 'Zk2mN8pQ4rS6tU1vW3xY5aB7cD9eF'))).toHaveLength(1);
+    expect(find(P('ts', 'key-client-', 'kAbCdEf123-', 'q1W2e3R4t5Y6u7I8o9P0aSdF'))).toHaveLength(1);
+    expect(find(P('hs', 'key-auth-', 'a1B2c3D4e5F6', '-', 'Q9w8E7r6T5y4U3i2O1p0LkJhGfDsAzXc'))).toHaveLength(1);
+    expect(find(P('hs', 'key-api-', 'Zx9Yw8Vu7Ts6', '-', 'mN3bV5cX7zL9kJ1hG3fD5sA7qW9eR1tY'))).toHaveLength(1);
+    expect(find(P('HEADSCALE_', 'API_KEY=', 'Ab3dEf.9kLmN0pQr5sTuV7wXyZ1a2B3c4D'))).toHaveLength(1);
+    expect(find(P('tailscale up --auth', '-key=', 'Zk2mN8pQ4rS6tU1vW3xY5aB7'))).toHaveLength(1);
+    // allowed
+    expect(find(P('hs', 'key-auth-', 'a1B2c3D4e5F6', '-***'))).toHaveLength(0); // Headscale's masked form
+    expect(find(P('ts', 'key-auth-', 'xxxxxxxxxxxx-', 'xxxxxxxxxxxxxxxxxxxxxxxx'))).toHaveLength(0);
+    expect(find(P('--auth', '-key=file:', '/Users/me/Library/Application Support/AirBridge/.authkey-abc'))).toHaveLength(0);
+    expect(find(P('HEADSCALE_', 'API_KEY=', 'REPLACE_ME_WITH_HEADSCALE_API_KEY'))).toHaveLength(0);
+    expect(find(P('HEADSCALE_', 'API_KEY: process.env.HEADSCALE_API_KEY_FROM_ENVIRONMENT'))).toHaveLength(0);
+    expect(find(P('HEADSCALE_', 'API_KEY=', ''))).toHaveLength(0);
+  });
+
+  it('forbidden-file rules match key drops and tailscaled state (self-test)', () => {
+    const hit = (p: string) => FORBIDDEN_FILES.some(([, re]) => re.test(p));
+    expect(hit('desktop/.authkey-3f9a')).toBe(true);
+    expect(hit('airbridge/data/.authkey')).toBe(true);
+    expect(hit('x/tailscaled/tailscaled.state')).toBe(true);
+    expect(hit('x/tailscaled.state')).toBe(true);
+    expect(hit('desktop/network.json')).toBe(true);
+    expect(hit('desktop/src/main/network/enroll.ts')).toBe(false);
+    expect(hit('desktop/package.json')).toBe(false);
+  });
+
+  it('no enrollment key files, tailscaled state or network.json are committed', () => {
+    const offenders = candidateFiles()
+      .map((f) => relative(REPO, f))
+      .filter((rel) => FORBIDDEN_FILES.some(([, re]) => re.test(rel)));
+    expect(offenders).toEqual([]);
   });
 
   it('no committed secrets in desktop/, license-server/, airbridge/', () => {
@@ -201,7 +268,7 @@ describe('secrets scan', () => {
         if (eq < 0) continue;
         const key = line.slice(0, eq).trim();
         const value = line.slice(eq + 1).trim().replace(/^["']|["']$/g, '');
-        if (!/SECRET|PRIVATE|SIGNING_KEY|_PEM$|PASSWORD|API_KEY|CONTROL_TOKEN/.test(key)) continue;
+        if (!/SECRET|PRIVATE|SIGNING_KEY|_PEM$|PASSWORD|API_KEY|CONTROL_TOKEN|AUTH_?KEY$|PREAUTH_KEY/.test(key)) continue;
         expect(value === '' || PLACEHOLDER_RE.test(value), `${relative(REPO, f)}: ${key} must be a placeholder`).toBe(true);
       }
     }
@@ -216,6 +283,7 @@ describe('renderer isolation', () => {
     ['control token', /AIRBRIDGE_CONTROL_TOKEN/],
     ['node builtins', /from\s+['"]node:|require\(\s*['"](?:fs|child_process|net|http)['"]\s*\)/],
     ['process.env', /\bprocess\.env\b/],
+    ['tailscale/headscale key', /\b(?:ts|hs)key-|HEADSCALE_API_KEY|authKey|auth_key/],
     ['eval', /\beval\s*\(|new\s+Function\s*\(/],
     ['dangerouslySetInnerHTML', /dangerouslySetInnerHTML/],
   ];
@@ -249,7 +317,7 @@ describe('renderer isolation', () => {
       if (text === null) continue;
       if (/AIRBRIDGE_CONTROL_TOKEN/.test(text)) problems.push(`${file}: AIRBRIDGE_CONTROL_TOKEN`);
       if (/\bipcRenderer\b/.test(text)) problems.push(`${file}: ipcRenderer`);
-      if (/LICENSE_SIGNING_KEY|STRIPE_SECRET_KEY|CLERK_SECRET/.test(text)) problems.push(`${file}: server secret name`);
+      if (/LICENSE_SIGNING_KEY|STRIPE_SECRET_KEY|CLERK_SECRET|HEADSCALE_API_KEY/.test(text)) problems.push(`${file}: server secret name`);
       for (const rule of RULES) {
         for (const m of text.matchAll(new RegExp(rule.re.source, 'g'))) {
           if (!isPlaceholder(m[0], '', rule)) problems.push(`${file}: ${rule.name}`);

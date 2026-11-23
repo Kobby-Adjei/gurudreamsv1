@@ -39,6 +39,15 @@ __all__ = [
     "neutralize_markdown",
     "truncate_for_log",
     "redact",
+    "EmbeddedPeerError",
+    "EMBEDDED_LOOPBACK_HOSTS",
+    "PEER_NOT_LOOPBACK",
+    "PEER_UNKNOWN",
+    "PEER_FOREIGN_USER",
+    "PEER_BAD_WHOIS",
+    "embedded_peer_node_name",
+    "VerifiedPeer",
+    "verify_embedded_peer",
 ]
 
 
@@ -415,3 +424,230 @@ def redact(s: object) -> str:
     if s is None or s == "" or s == b"":
         return "<unset>"
     return "<redacted>"
+
+
+
+# --------------------------------------------------------------------------- #
+# Phase 3: embedded (userspace-networking) tailscaled peer verification
+# --------------------------------------------------------------------------- #
+# In userspace mode tailscaled's netstack terminates inbound tailnet TCP and
+# re-dials it to ``127.0.0.1:<dport>`` (wgengine/netstack/netstack.go,
+# acceptTCP -> forwardTCP), registering the *local* end of that dial in its
+# ProxyMapper (netstack.go:1857, proto "tcp"). The inbox therefore only ever
+# sees 127.0.0.1 as the client address and must ask LocalAPI
+# ``/localapi/v0/whois?proto=tcp&addr=127.0.0.1:<client port>`` who that is.
+# A process on this machine that connects to 127.0.0.1:8989 directly has no
+# ProxyMapper entry, so whois fails -> 403. See docs/PHASE3_SECURITY.md.
+
+#: Reason codes carried by :class:`EmbeddedPeerError` (stable; Systems maps all to 403).
+PEER_NOT_LOOPBACK = "not_loopback"
+PEER_UNKNOWN = "unknown_peer"
+PEER_FOREIGN_USER = "foreign_user"
+PEER_BAD_WHOIS = "bad_whois"
+
+#: The only client addresses accepted on the embedded inbound path (exact strings).
+EMBEDDED_LOOPBACK_HOSTS: frozenset[str] = frozenset({"127.0.0.1", "::1"})
+
+_EMBEDDED_HOST_PREFIX = "airbridge-"
+_MAX_USER_ID_LEN = 64
+_USER_ID_STR_RE = re.compile(r"[A-Za-z0-9._:@-]{1,%d}" % _MAX_USER_ID_LEN)
+
+
+class EmbeddedPeerError(SecurityError):
+    """Inbound connection on the embedded path could not be attributed to a same-user peer.
+
+    ``reason`` is one of ``not_loopback``, ``unknown_peer``, ``foreign_user``,
+    ``bad_whois``. The message is safe to log (no untrusted data beyond a
+    truncated, escaped port/host).
+    """
+
+    def __init__(self, reason: str, message: str = "") -> None:
+        self.reason = reason
+        super().__init__(f"{reason}: {message}" if message else reason)
+
+
+def _norm_user_id(value: object) -> str | None:
+    """Return the canonical string form of a user id, or None if malformed.
+
+    Accepts non-negative ``int`` (not ``bool``) or a short token string. Ids
+    are compared as strings so ``123`` (LocalAPI int) == ``"123"`` (JSON str).
+    """
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return str(value) if value >= 0 else None
+    if isinstance(value, str) and _USER_ID_STR_RE.fullmatch(value):
+        if value.isdigit():  # "007" and "7" are the same numeric id
+            return str(int(value))
+        return value
+    return None
+
+
+def embedded_peer_node_name(name: object) -> str:
+    """Normalize a tailnet node name to an AirBridge sender name.
+
+    ``airbridge-mac.u-xyz.example.com.`` -> ``mac``: trailing dot removed,
+    first DNS label kept, ``airbridge-`` prefix (case-insensitive) stripped,
+    then validated with :func:`validate_sender` rules (no further fixing).
+    Raises :class:`SecurityError` when the result is not a valid sender.
+    """
+    if not isinstance(name, str) or not name or len(name) > 255:
+        raise SecurityError("node name must be a non-empty string")
+    label = name[:-1] if name.endswith(".") else name
+    label = label.split(".", 1)[0]
+    if label.lower().startswith(_EMBEDDED_HOST_PREFIX) and len(label) > len(_EMBEDDED_HOST_PREFIX):
+        label = label[len(_EMBEDDED_HOST_PREFIX):]
+    return validate_sender(label)
+
+
+def _short_token(value: object) -> str | None:
+    """A short printable id (StableID etc.) or None; never raises."""
+    if isinstance(value, str) and _USER_ID_STR_RE.fullmatch(value):
+        return value
+    return None
+
+
+class VerifiedPeer(str):
+    """Result of :func:`verify_embedded_peer`.
+
+    It *is* the sanitized node name (a ``str``, per the contract) and also
+    carries the verified attributes ``node``, ``user_id`` (str),
+    ``tailnet_ip`` (str | None) and ``node_id`` (str | None). ``get(key)``
+    gives dict-style access (``"ip"`` is an alias of ``"tailnet_ip"``) for
+    callers that treat the result as the normalized whois mapping.
+    """
+
+    node: str
+    user_id: str
+    tailnet_ip: str | None
+    node_id: str | None
+
+    def __new__(cls, node: str, user_id: str, tailnet_ip: str | None = None,
+                node_id: str | None = None) -> VerifiedPeer:
+        obj = super().__new__(cls, node)
+        obj.node = node
+        obj.user_id = user_id
+        obj.tailnet_ip = tailnet_ip
+        obj.node_id = node_id
+        return obj
+
+    def get(self, key: str, default: object = None) -> object:
+        if key == "ip":
+            key = "tailnet_ip"
+        if key in ("node", "user_id", "tailnet_ip", "node_id"):
+            value = getattr(self, key)
+            return default if value is None else value
+        return default
+
+
+def _parse_whois_result(result: object) -> tuple[str, str, str | None, str | None]:
+    """Validate a whois result; return ``(node_name, user_id_str, tailnet_ip, node_id)``.
+
+    Two accepted shapes (anything else -> ``bad_whois``):
+
+    * **normalized** (what ``netbackend.EmbeddedTailscale.whois`` returns)::
+
+        {"node": str, "user_id": int | str, "tailnet_ip": str}
+
+      ``tailnet_ip`` (alias ``ip``) is optional; when present and not None it
+      must be inside the tailnet ranges. Extra keys are ignored.
+
+    * **raw** LocalAPI ``apitype.WhoIsResponse``::
+
+        {"Node": {"Name": "airbridge-mac.example.", "Addresses": [...], ...},
+         "UserProfile": {"ID": 123, ...}}
+
+      The node name comes from the control-assigned ``Node.Name`` only (never
+      the peer-asserted ``Hostinfo.Hostname``).
+    """
+    if not isinstance(result, dict):
+        raise EmbeddedPeerError(PEER_BAD_WHOIS, "whois result is not an object")
+    if "node" in result or "user_id" in result:
+        node_raw = result.get("node")
+        uid_raw = result.get("user_id")
+        ip_raw = result.get("tailnet_ip", result.get("ip"))
+        if ip_raw is not None and not is_tailnet_ip(ip_raw):
+            raise EmbeddedPeerError(PEER_BAD_WHOIS, "whois tailnet_ip is not a tailnet address")
+        ip = str(_parse_ip(ip_raw)) if ip_raw is not None else None
+        node_id = _short_token(result.get("node_id"))
+    elif "Node" in result or "UserProfile" in result:
+        node_obj = result.get("Node")
+        prof_obj = result.get("UserProfile")
+        if not isinstance(node_obj, dict) or not isinstance(prof_obj, dict):
+            raise EmbeddedPeerError(PEER_BAD_WHOIS, "whois Node/UserProfile missing")
+        node_raw = node_obj.get("Name")
+        uid_raw = prof_obj.get("ID")
+        addrs = node_obj.get("Addresses")
+        ip = None
+        if addrs is not None:
+            if not isinstance(addrs, list) or not addrs:
+                raise EmbeddedPeerError(PEER_BAD_WHOIS, "whois Node.Addresses malformed")
+            for a in addrs:
+                if not isinstance(a, str) or not is_tailnet_ip(a.split("/", 1)[0]):
+                    raise EmbeddedPeerError(PEER_BAD_WHOIS, "whois Node.Addresses not tailnet")
+            ip = str(_parse_ip(addrs[0].split("/", 1)[0]))
+        node_id = _short_token(node_obj.get("StableID"))
+    else:
+        raise EmbeddedPeerError(PEER_BAD_WHOIS, "whois result has an unknown shape")
+    uid = _norm_user_id(uid_raw)
+    if uid is None:
+        raise EmbeddedPeerError(PEER_BAD_WHOIS, "whois user id missing or malformed")
+    try:
+        node = embedded_peer_node_name(node_raw)
+    except SecurityError:
+        raise EmbeddedPeerError(PEER_BAD_WHOIS, "whois node name invalid") from None
+    return node, uid, ip, node_id
+
+
+def verify_embedded_peer(
+    client_host: str,
+    client_port: int,
+    whois: Callable[[str], dict | None],
+    self_user_id: object | Callable[[], object],
+) -> VerifiedPeer:
+    """Attribute an inbound embedded-mode connection to a same-user tailnet peer.
+
+    Steps (fail closed, pure apart from calling *whois*):
+
+    1. ``client_host`` must be exactly ``"127.0.0.1"`` or ``"::1"`` and
+       ``client_port`` an ``int`` in 1..65535, else ``not_loopback``.
+    2. ``whois("127.0.0.1:<port>")`` (``"[::1]:<port>"`` for IPv6). ``None`` or
+       any exception -> ``unknown_peer`` (a local process, or a connection the
+       ProxyMapper no longer knows). The callable MUST query LocalAPI with
+       ``proto=tcp`` so a UDP proxymap entry can never vouch for a TCP socket.
+    3. Result schema validated (see :func:`_parse_whois_result`) -> else
+       ``bad_whois``. ``self_user_id`` may be the id itself or a zero-arg
+       callable returning it (called only after whois succeeded, so unknown
+       local callers cost one LocalAPI call, not two). A missing/invalid own
+       id, or a callable that raises, is ``bad_whois``.
+    4. ``str(user_id) == str(self_user_id)`` else ``foreign_user``.
+
+    Returns a :class:`VerifiedPeer`: the verified, sanitized peer node name
+    (``airbridge-`` prefix stripped) carrying ``user_id``/``tailnet_ip``/
+    ``node_id``. Raises :class:`EmbeddedPeerError` (a :class:`SecurityError`).
+    Must be called per request, on the live connection; never cache by port.
+    """
+    if not isinstance(client_host, str) or client_host not in EMBEDDED_LOOPBACK_HOSTS:
+        raise EmbeddedPeerError(PEER_NOT_LOOPBACK, f"client {truncate_for_log(client_host, 64)}")
+    if not isinstance(client_port, int) or isinstance(client_port, bool) or not 0 < client_port < 65536:
+        raise EmbeddedPeerError(PEER_NOT_LOOPBACK, f"bad client port {truncate_for_log(client_port, 16)}")
+    addr = f"[{client_host}]:{client_port}" if ":" in client_host else f"{client_host}:{client_port}"
+    try:
+        result = whois(addr)
+    except Exception:  # noqa: BLE001 - any lookup failure is "unknown", fail closed
+        raise EmbeddedPeerError(PEER_UNKNOWN, f"whois failed for {addr}") from None
+    if result is None:
+        raise EmbeddedPeerError(PEER_UNKNOWN, f"no tailnet peer behind {addr}")
+    node, uid, ip, node_id = _parse_whois_result(result)
+    own = self_user_id
+    if callable(own):
+        try:
+            own = own()
+        except Exception:  # noqa: BLE001 - fail closed
+            raise EmbeddedPeerError(PEER_BAD_WHOIS, "own user id lookup failed") from None
+    self_uid = _norm_user_id(own)
+    if self_uid is None:
+        raise EmbeddedPeerError(PEER_BAD_WHOIS, "own user id unknown")
+    if not hmac.compare_digest(uid.encode(), self_uid.encode()):
+        raise EmbeddedPeerError(PEER_FOREIGN_USER, f"peer {node} belongs to another user")
+    return VerifiedPeer(node, uid, ip, node_id)

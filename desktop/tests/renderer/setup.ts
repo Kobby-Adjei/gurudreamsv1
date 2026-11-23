@@ -14,6 +14,7 @@ import type {
   LicenseStatus,
   NodesResponse
 } from '../../src/shared/types'
+import type { NetworkBridge, NetStatus } from '../../src/renderer/lib/network'
 
 const isDom = typeof window !== 'undefined'
 
@@ -70,15 +71,20 @@ export interface MockState {
   nodes: NodesResponse | null
   status: BackendStatus | null
   events: AirEvent[]
+  network: NetStatus
 }
 
+/** The bridge plus `network` (Phase 3), whether or not shared/types.ts declares it yet. */
+export type MockApi = AirbridgeApi & { network: NetworkBridge }
+
 export interface MockHandle {
-  api: AirbridgeApi
+  api: MockApi
   state: MockState
   emitEvent: (e: AirEvent) => void
   emitLifecycle: (l: BackendLifecycle) => void
   emitAuth: (a: AuthState) => void
   emitLicense: (l: LicenseStatus) => void
+  emitNetwork: (n: NetStatus) => void
 }
 
 export function defaultState(): MockState {
@@ -88,7 +94,8 @@ export function defaultState(): MockState {
     lifecycle: { phase: 'running' },
     nodes: fixtures.nodes(),
     status: fixtures.status(),
-    events: fixtures.events()
+    events: fixtures.events(),
+    network: { state: 'connected', ip: '100.64.0.1' }
   }
 }
 
@@ -100,13 +107,14 @@ export function installMockApi(overrides: Partial<MockState> = {}): MockHandle {
     status: new Set<(s: BackendStatus) => void>(),
     lifecycle: new Set<(l: BackendLifecycle) => void>(),
     auth: new Set<(a: AuthState) => void>(),
-    license: new Set<(l: LicenseStatus) => void>()
+    license: new Set<(l: LicenseStatus) => void>(),
+    network: new Set<(n: NetStatus) => void>()
   }
   const sub = <T,>(set: Set<T>) => (cb: T) => {
     set.add(cb)
     return () => set.delete(cb)
   }
-  const api: AirbridgeApi = {
+  const api: MockApi = {
     auth: {
       getState: vi.fn(async () => state.auth),
       signIn: vi.fn(async () => undefined),
@@ -139,6 +147,10 @@ export function installMockApi(overrides: Partial<MockState> = {}): MockHandle {
       })),
       copyMcpConfig: vi.fn(async () => undefined)
     },
+    network: {
+      getStatus: vi.fn(async () => state.network),
+      onChange: vi.fn(sub(listeners.network))
+    },
     app: { version: '0.2.0', platform: 'darwin' }
   }
   ;(window as unknown as { airbridge: AirbridgeApi }).airbridge = api
@@ -153,6 +165,10 @@ export function installMockApi(overrides: Partial<MockState> = {}): MockHandle {
     emitLicense: (l) => {
       state.license = l
       listeners.license.forEach((cb) => cb(l))
+    },
+    emitNetwork: (n) => {
+      state.network = n
+      listeners.network.forEach((cb) => cb(n))
     },
     emitAuth: (a) => {
       state.auth = a

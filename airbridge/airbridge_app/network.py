@@ -1,7 +1,12 @@
-"""Tailscale discovery helpers.
+"""Network discovery helpers.
 
-Shells out to the ``tailscale`` CLI (list args, shell=False, short timeout) and
-parses its output defensively. Never writes to stdout.
+The public functions (``get_local_tailscale_ip``, ``get_airbridge_peers``,
+``resolve_peer`` and the Phase-3 additions ``get_backend``,
+``inbound_bind_host``, ``requests_proxies``, ``peer_details``, ``whois``) keep
+their Phase-1 signatures and delegate to the selected backend
+(:mod:`netbackend`): the system ``tailscale`` CLI or the desktop app's embedded
+tailscaled. The CLI code below (``_cli_*``; list args, shell=False, short
+timeout, defensive parsing) is the system backend. Never writes to stdout.
 """
 
 from __future__ import annotations
@@ -134,7 +139,7 @@ def _is_tailscale_ipv4(value: str) -> bool:
     return ip.version == 4 and ip in TAILSCALE_CGNAT
 
 
-def get_local_tailscale_ip() -> str:
+def _cli_local_ip() -> str:
     """Return this machine's Tailscale IPv4 (100.64.0.0/10) via ``tailscale ip -4``."""
     proc = _run(["ip", "-4"])
     out = (proc.stdout or "").strip()
@@ -219,7 +224,7 @@ def _iter_online_peers(data: dict[str, Any]):
         yield name, dns_short, ip
 
 
-def get_airbridge_peers() -> dict[str, str]:
+def _cli_peers() -> dict[str, str]:
     """Online peers as {hostname.lower(): first tailnet IPv4}. Self excluded."""
     data = _status_json()
     result: dict[str, str] = {}
@@ -228,7 +233,7 @@ def get_airbridge_peers() -> dict[str, str]:
     return result
 
 
-def resolve_peer(hostname: str) -> str | None:
+def _cli_resolve(hostname: str) -> str | None:
     """Resolve an online peer by HostName or MagicDNS short name (case-insensitive)."""
     if not isinstance(hostname, str):
         return None
@@ -245,3 +250,54 @@ def resolve_peer(hostname: str) -> str | None:
         if dns_short is not None and dns_short in (wanted, wanted_short):
             return ip
     return None
+
+
+# --------------------------------------------------------------------------- #
+# Public API: delegate to the selected backend (netbackend.select_backend)
+# --------------------------------------------------------------------------- #
+def get_backend():
+    """The backend for this call (system CLI or embedded tailscaled).
+
+    Raises :class:`TailscaleError` (``netbackend.NetworkOff``) when the
+    desktop app's network is configured but off and no system Tailscale exists.
+    """
+    from . import netbackend
+
+    return netbackend.select_backend()
+
+
+def get_local_tailscale_ip() -> str:
+    """This machine's tailnet IPv4 (100.64.0.0/10)."""
+    return get_backend().local_ip()
+
+
+def get_airbridge_peers() -> dict[str, str]:
+    """Online peers as {hostname.lower(): first tailnet IPv4}. Self excluded."""
+    return get_backend().peers()
+
+
+def resolve_peer(hostname: str) -> str | None:
+    """Resolve an online peer by name (case-insensitive) to its tailnet IPv4."""
+    if not isinstance(hostname, str):
+        return None
+    return get_backend().resolve(hostname)
+
+
+def peer_details() -> dict:
+    """``{self:{hostname, ip, os}, nodes:[{hostname, ip, os, online, last_seen}]}``."""
+    return get_backend().peer_details()
+
+
+def inbound_bind_host() -> str:
+    """Where the inbox listens: tailnet IP (system) or 127.0.0.1 (embedded)."""
+    return get_backend().inbound_bind_host()
+
+
+def requests_proxies() -> dict | None:
+    """Proxies for outbound requests (embedded: tailscaled's SOCKS5)."""
+    return get_backend().requests_proxies()
+
+
+def whois(remote_addr: str) -> dict | None:
+    """``{node, user_id, ip}`` for a connection's remote ``host:port``, or None."""
+    return get_backend().whois(remote_addr)

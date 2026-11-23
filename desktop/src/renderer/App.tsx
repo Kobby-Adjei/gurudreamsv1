@@ -3,54 +3,71 @@ import type { AuthState, BackendLifecycle, LicenseStatus, Unsubscribe } from '..
 import { WifiOffIcon } from './components/Icons'
 import { ToastProvider } from './components/Toast'
 import { api, errorText } from './lib/api'
+import { useNetworkStatus, type NetStatus } from './lib/network'
 import { ErrorScreen } from './views/ErrorScreen'
 import { MainShell } from './views/MainShell'
 import { Paywall } from './views/Paywall'
 import { SignIn } from './views/SignIn'
-import { Starting } from './views/Starting'
+import { Starting, type StartStep } from './views/Starting'
 
 /**
- * App-level state machine, derived purely from the three main-process sources
- * of truth (auth, licence gate, backend lifecycle):
+ * App-level state machine, derived purely from the main-process sources of
+ * truth (auth, licence gate, private network, backend lifecycle):
  *
  *   loading ─▶ signin ─▶ checking ─▶ paywall
  *                              └───▶ starting ─▶ ready
- *                                          └───▶ tailscale | crashed
+ *                                          └───▶ network | crashed
+ *
+ * While starting, two quiet steps follow the network and then the backend.
  */
 export type Screen =
   | { kind: 'loading' }
   | { kind: 'signin'; signingIn: boolean }
   | { kind: 'checking' }
   | { kind: 'paywall' }
-  | { kind: 'starting' }
-  | { kind: 'tailscale'; detail?: string }
+  | { kind: 'starting'; steps: StartStep[] }
+  | { kind: 'network'; detail?: string }
   | { kind: 'crashed'; detail?: string }
   | { kind: 'ready' }
 
-const TAILSCALE_RE = /tailscale|tailnet|not logged in|needslogin/i
+export const START_STEPS = ['Connecting your private network', 'Starting AirBridge'] as const
 
+/** Two steps: the network comes up first, then the background service. */
+export function startSteps(network: NetStatus | null | undefined, lifecycle: BackendLifecycle | null): StartStep[] {
+  // Without a network bridge (older preload) there is nothing to wait for.
+  const netDone = network === undefined || network?.state === 'connected'
+  const backendDone = lifecycle?.phase === 'running'
+  return [
+    { label: START_STEPS[0], state: netDone || backendDone ? 'done' : 'active' },
+    { label: START_STEPS[1], state: backendDone ? 'done' : netDone ? 'active' : 'pending' }
+  ]
+}
+
+/**
+ * `network` is `undefined` when the preload has no network surface, `null`
+ * while its first status is still on the way.
+ */
 export function deriveScreen(
   auth: AuthState | null,
   license: LicenseStatus | null,
-  lifecycle: BackendLifecycle | null
+  lifecycle: BackendLifecycle | null,
+  network?: NetStatus | null
 ): Screen {
   if (!auth) return { kind: 'loading' }
   if (auth.state !== 'signed_in') return { kind: 'signin', signingIn: auth.state === 'signing_in' }
   if (!license || license.state === 'unknown') return { kind: 'checking' }
   if (license.state === 'inactive') return { kind: 'paywall' }
-  if (!lifecycle) return { kind: 'starting' }
+  if (network?.state === 'error') return { kind: 'network', detail: network.detail }
+  if (!lifecycle) return { kind: 'starting', steps: startSteps(network, lifecycle) }
   switch (lifecycle.phase) {
     case 'running':
       return { kind: 'ready' }
     case 'crashed':
+      return { kind: 'crashed', detail: lifecycle.detail }
     case 'blocked':
-      return TAILSCALE_RE.test(lifecycle.detail ?? '')
-        ? { kind: 'tailscale', detail: lifecycle.detail }
-        : lifecycle.phase === 'blocked'
-          ? { kind: 'paywall' }
-          : { kind: 'crashed', detail: lifecycle.detail }
+      return { kind: 'paywall' }
     default:
-      return { kind: 'starting' }
+      return { kind: 'starting', steps: startSteps(network, lifecycle) }
   }
 }
 
@@ -71,6 +88,7 @@ function AppStates() {
   const [busy, setBusy] = useState(false)
   const [signInError, setSignInError] = useState<string | null>(null)
   const alive = useRef(true)
+  const network = useNetworkStatus()
 
   const loadLicense = useCallback(async (refresh = false) => {
     try {
@@ -120,7 +138,7 @@ function AppStates() {
     }
   }, [loadLicense])
 
-  const screen = deriveScreen(auth, license, lifecycle)
+  const screen = deriveScreen(auth, license, lifecycle, network.available ? network.status : undefined)
 
   // Coming back from the browser checkout? Re-check automatically.
   useEffect(() => {
@@ -152,6 +170,7 @@ function AppStates() {
   async function retryBackend() {
     setBusy(true)
     try {
+      if (screen.kind === 'network') await network.retry()
       await loadLicense(true)
       const l = await api().backend.getLifecycle()
       setLifecycle(l)
@@ -172,16 +191,17 @@ function AppStates() {
     case 'paywall':
       return <Paywall user={auth?.user} onRecheck={async () => isActive(await loadLicense(true))} />
     case 'starting':
-      return <Starting />
-    case 'tailscale':
+      return <Starting title="Getting ready" steps={screen.steps} />
+    case 'network':
       return (
         <ErrorScreen
           icon={<WifiOffIcon size={28} />}
-          title="Tailscale is off"
-          body="AirBridge uses Tailscale to reach your other computers, and it isn’t connected right now."
-          step="Open Tailscale and sign in"
+          title="Couldn’t connect your devices"
+          body="AirBridge links your computers through its own private network, and it couldn’t start just now."
+          step="Check that this computer is online, then press Retry."
           onAction={retryBackend}
-          busy={busy}
+          busy={busy || network.retrying}
+          detail={screen.detail}
         />
       )
     case 'crashed':

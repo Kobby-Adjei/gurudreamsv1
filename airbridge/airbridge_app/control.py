@@ -41,7 +41,6 @@ CONTROL_HOST = "127.0.0.1"
 WS_CLOSE_UNAUTHORIZED = 4401
 WS_CLOSE_FORBIDDEN = 4403
 MAX_SEND_BODY_BYTES = security.MAX_BODY_BYTES + 4096
-_ZERO_TIME_PREFIX = "0001-01-01"
 
 
 # --------------------------------------------------------------------------- #
@@ -72,33 +71,6 @@ class DaemonState:
 # --------------------------------------------------------------------------- #
 # Node snapshot (online and offline peers, with OS / last seen)
 # --------------------------------------------------------------------------- #
-def _first_ipv4(ips: Any) -> str | None:
-    if not isinstance(ips, list):
-        return None
-    for ip in ips:
-        if isinstance(ip, str) and security.is_tailnet_ip(ip):
-            try:
-                if ipaddress.ip_address(ip.strip()).version == 4:
-                    return ip.strip()
-            except ValueError:
-                continue
-    return None
-
-
-def _node_name(entry: dict[str, Any]) -> str | None:
-    host = entry.get("HostName")
-    if isinstance(host, str) and host.strip():
-        return host.strip()[:64]
-    dns = entry.get("DNSName")
-    if isinstance(dns, str) and dns.strip():
-        return dns.strip().rstrip(".").split(".", 1)[0][:64] or None
-    return None
-
-
-def _str_or_none(value: Any, limit: int = 64) -> str | None:
-    return value.strip()[:limit] if isinstance(value, str) and value.strip() else None
-
-
 def _local_os() -> str:
     if sys.platform == "darwin":
         return "macOS"
@@ -112,48 +84,18 @@ def _fallback_self() -> dict[str, Any]:
 
 
 def nodes_snapshot() -> dict[str, Any]:
-    """``GET /nodes`` body. Never raises: Tailscale problems land in ``error``
-    (``self`` is then this machine's hostname with ``ip: null``)."""
+    """``GET /nodes`` body via the selected backend's ``peer_details()``.
+    Never raises: network problems land in ``error`` (``self`` is then this
+    machine's hostname with ``ip: null``)."""
     try:
-        data = network._status_json()
+        details = network.peer_details()
     except network.TailscaleError as exc:
         return {"self": _fallback_self(), "nodes": [], "error": str(exc)[:200]}
     except Exception as exc:
-        logger.exception("unexpected error reading tailscale status")
+        logger.exception("unexpected error reading network status")
         return {"self": _fallback_self(), "nodes": [], "error": f"unexpected error: {type(exc).__name__}"}
-
-    self_entry = data.get("Self") if isinstance(data.get("Self"), dict) else {}
-    self_ips = {ip for ip in self_entry.get("TailscaleIPs") or [] if isinstance(ip, str)}
-    me = {
-        "hostname": _node_name(self_entry) or events.local_node_name(),
-        "ip": _first_ipv4(self_entry.get("TailscaleIPs")),
-        "os": _str_or_none(self_entry.get("OS")) or _local_os(),
-    }
-    nodes: list[dict[str, Any]] = []
-    peers = data.get("Peer")
-    if isinstance(peers, dict):
-        for entry in peers.values():
-            if not isinstance(entry, dict):
-                continue
-            name = _node_name(entry)
-            ip = _first_ipv4(entry.get("TailscaleIPs"))
-            if not name or not ip or ip in self_ips:
-                continue
-            online = entry.get("Online") is True
-            last_seen = _str_or_none(entry.get("LastSeen"))
-            if last_seen and last_seen.startswith(_ZERO_TIME_PREFIX):
-                last_seen = None
-            nodes.append(
-                {
-                    "hostname": name,
-                    "ip": ip,
-                    "os": _str_or_none(entry.get("OS")),
-                    "online": online,
-                    "last_seen": last_seen,
-                }
-            )
-    nodes.sort(key=lambda n: (not n["online"], n["hostname"].lower()))
-    return {"self": me, "nodes": nodes, "error": None}
+    return {"self": details.get("self") or _fallback_self(), "nodes": list(details.get("nodes") or []),
+            "error": None}
 
 
 # --------------------------------------------------------------------------- #

@@ -9,7 +9,7 @@ const POINTS: { title: string; body: string }[] = [
   },
   {
     title: 'Private by design',
-    body: 'Tasks travel straight between your own computers over Tailscale.'
+    body: 'Tasks travel straight between your own computers, encrypted end to end. Nothing else to install.'
   },
   {
     title: 'Ready in two minutes',

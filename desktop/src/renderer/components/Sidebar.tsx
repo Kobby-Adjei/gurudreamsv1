@@ -2,7 +2,9 @@ import type { ReactNode } from 'react'
 import type { AuthUser, LicenseStatus } from '../../shared/types'
 import { initials, planLabel } from '../lib/format'
 import { Badge } from './Badge'
+import type { NetworkState } from '../lib/network'
 import { ActivityIcon, LaptopIcon, LogoMark, SettingsIcon } from './Icons'
+import { PrivateNetworkStatusLine } from './PrivateNetworkCard'
 import { StatusDot, type DotStatus } from './StatusDot'
 
 export type ViewId = 'swarm' | 'activity' | 'settings'
@@ -20,7 +22,8 @@ export function Sidebar({
   license,
   onlineCount,
   unseenActivity = 0,
-  service = { status: 'online', label: 'AirBridge is running' }
+  service,
+  network
 }: {
   current: ViewId
   onNavigate: (v: ViewId) => void
@@ -28,7 +31,9 @@ export function Sidebar({
   license: LicenseStatus | null
   onlineCount: number | null
   unseenActivity?: number
-  service?: { status: DotStatus; label: string }
+  /** Only passed when the background service needs attention. */
+  service?: { status: DotStatus; label: string } | null
+  network?: NetworkState
 }) {
   const name = user?.name || user?.email?.split('@')[0] || 'You'
   return (
@@ -90,18 +95,19 @@ export function Sidebar({
             {initials(user?.name || user?.email)}
           </span>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[13px] font-medium text-ink" title={user?.email}>
-              {name}
+            <p className="flex items-center gap-2 text-[13px] font-medium text-ink" title={user?.email}>
+              <span className="min-w-0 truncate">{name}</span>
+              <Badge tone="neutral">{planLabel(license?.plan)}</Badge>
             </p>
             <p className="truncate text-[12px] text-ink-faint">{user?.email ?? 'Signed in'}</p>
           </div>
         </div>
-        <div className="mt-3 flex items-center justify-between gap-2 border-t border-line/[0.06] pt-2.5">
-          <StatusDot status={service.status} label={service.label} className="min-w-0 truncate" />
-          <Badge tone="neutral">
-            {planLabel(license?.plan)}
-          </Badge>
-        </div>
+        {network || service ? (
+          <div className="mt-3 space-y-1.5 border-t border-line/[0.06] pt-2.5">
+            {network ? <PrivateNetworkStatusLine network={network} /> : null}
+            {service ? <StatusDot status={service.status} label={service.label} className="min-w-0 truncate" /> : null}
+          </div>
+        ) : null}
       </div>
     </aside>
   )

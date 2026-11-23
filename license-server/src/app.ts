@@ -3,6 +3,7 @@ import type Stripe from 'stripe';
 import { customerIdOf, mapStripeStatus, periodEndOf, type BillingApi, type WebhookVerifier } from './billing.js';
 import { AuthError, type ClerkVerifier } from './clerkAuth.js';
 import type { LicenseSigner } from './licenseToken.js';
+import { registerNetworkRoutes, revokeUserNodes, type NetworkConfig } from './network.js';
 import { RateLimiter } from './rateLimit.js';
 import { isEntitled, type SubscriptionStore } from './store.js';
 
@@ -34,7 +35,15 @@ export interface AppDeps {
   getClientIp?: (c: Context) => string;
   now?: () => number;
   logger?: Logger;
-  rateLimit?: { verifyPerMinute?: number; checkoutPerMinute?: number };
+  rateLimit?: {
+    verifyPerMinute?: number;
+    checkoutPerMinute?: number;
+    networkPerUserPerMinute?: number;
+    networkGlobalPerDay?: number;
+    networkPerIpPerMinute?: number;
+  };
+  /** Headscale integration (Phase 3). null/undefined -> /v1/network/* answer 503. */
+  network?: NetworkConfig | null;
 }
 
 const MAX_WEBHOOK_BYTES = 1_000_000;
@@ -121,6 +130,10 @@ export function createApp(deps: AppDeps): Hono {
       lastEventCreated: Math.floor(now() / 1000),
     });
     log.info('subscription_updated', { eventId, subscriptionId, status, applied });
+    if (applied && !isEntitled(status)) {
+      // Lapsed: take the customer's devices off the private network (best-effort, never throws).
+      await revokeUserNodes(deps.network ?? null, userId, log);
+    }
   }
 
   async function handleEvent(event: Stripe.Event): Promise<void> {
@@ -224,6 +237,21 @@ export function createApp(deps: AppDeps): Hono {
       return c.json({ url });
     }
     return c.json({ url: await checkoutUrl(c, user, rec?.stripeCustomerId ?? null) });
+  });
+
+  // ---------------------------------------------------------------- Private network (Phase 3)
+  registerNetworkRoutes(app, {
+    network: deps.network ?? null,
+    store: deps.store,
+    authenticate,
+    clientIp,
+    now,
+    log,
+    limits: {
+      perUserPerMinute: deps.rateLimit?.networkPerUserPerMinute,
+      globalPerDay: deps.rateLimit?.networkGlobalPerDay,
+      perIpPerMinute: deps.rateLimit?.networkPerIpPerMinute,
+    },
   });
 
   // ---------------------------------------------------------------- Checkout landing pages

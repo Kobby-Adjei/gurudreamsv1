@@ -15,10 +15,12 @@ import type {
   BackendStatus,
   LicenseStatus,
   McpClient,
+  NetStatus,
   NodesResponse,
   SendTaskRequest,
   SendTaskResult,
 } from '../shared/types';
+import { NET_STATES } from '../shared/types';
 import { isTrustedSender } from './security';
 
 // Phase-1 limits (airbridge_app/security.py)
@@ -61,6 +63,13 @@ export interface IpcDeps {
     getEvents(limit: number): Promise<AirEvent[]>;
     sendTask(req: SendTaskRequest): Promise<SendTaskResult>;
   };
+  /**
+   * Embedded private network (Phase 3): TailscaleManager.status(). Optional so builds without the
+   * network still register the channel; absent -> `{state:'stopped'}`.
+   */
+  network?: {
+    getStatus(): Promise<NetStatus> | NetStatus;
+  };
   /** Returns the JSON config text for the client (see mcpConfig.ts getMcpConfigJson). */
   getMcpConfigJson(client: McpClient): string;
   /** Window to push events to (null when no window). */
@@ -78,6 +87,7 @@ export interface IpcHandle {
     backendEvent(event: AirEvent): void;
     backendStatus(status: BackendStatus): void;
     backendLifecycle(lifecycle: BackendLifecycle): void;
+    networkChanged(status: NetStatus): void;
   };
   dispose(): void;
 }
@@ -138,6 +148,25 @@ export function validateSendTask(args: unknown[]): SendTaskRequest {
   return out;
 }
 
+const IP_RE = /^(?:[0-9]{1,3}(?:\.[0-9]{1,3}){3}|[0-9A-Fa-f:]{2,39})$/;
+const MAX_NET_DETAIL = 200;
+
+/**
+ * Whitelist NetStatus before it crosses into the renderer: known state, short single-line detail,
+ * IP-shaped ip. Anything else from TailscaleManager (paths, argv, raw stderr) is dropped.
+ */
+export function sanitizeNetStatus(s: unknown): NetStatus {
+  if (!s || typeof s !== 'object') return { state: 'stopped' };
+  const o = s as Record<string, unknown>;
+  const state = NET_STATES.includes(o.state as NetStatus['state']) ? (o.state as NetStatus['state']) : 'error';
+  const out: NetStatus = { state };
+  if (typeof o.detail === 'string' && o.detail.trim()) {
+    out.detail = o.detail.replace(/[\r\n\t]+/g, ' ').trim().slice(0, MAX_NET_DETAIL);
+  }
+  if (typeof o.ip === 'string' && IP_RE.test(o.ip)) out.ip = o.ip;
+  return out;
+}
+
 // ------------------------------------------------------------------ registration
 
 export function registerIpc(deps: IpcDeps): IpcHandle {
@@ -188,6 +217,17 @@ export function registerIpc(deps: IpcDeps): IpcHandle {
     return safe<SendTaskResult>('send', () => deps.backend.sendTask(req), () => ({ ok: false, error: 'Backend is not running.' }));
   });
 
+  handle(INVOKE.networkStatus, (a) => {
+    noArgs(a);
+    const net = deps.network;
+    if (!net) return { state: 'stopped' } satisfies NetStatus;
+    return safe(
+      'network_status',
+      async () => sanitizeNetStatus(await net.getStatus()),
+      (): NetStatus => ({ state: 'error', detail: 'Private network status unavailable.' }),
+    );
+  });
+
   handle(INVOKE.settingsMcp, (a) => {
     const client = validateMcpClient(a);
     return { json: deps.getMcpConfigJson(client) };
@@ -211,6 +251,7 @@ export function registerIpc(deps: IpcDeps): IpcHandle {
       backendEvent: (e) => send(PUSH.backendEvent, e),
       backendStatus: (s) => send(PUSH.backendStatus, s),
       backendLifecycle: (l) => send(PUSH.backendLifecycle, l),
+      networkChanged: (n) => send(PUSH.networkChanged, sanitizeNetStatus(n)),
     },
     dispose() {
       for (const c of channels) ipc.removeHandler(c);

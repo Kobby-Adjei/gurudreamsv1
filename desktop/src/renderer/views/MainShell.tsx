@@ -8,6 +8,7 @@ import { useToast } from '../components/Toast'
 import { api } from '../lib/api'
 import { eventSentence } from '../lib/format'
 import { useBackendStatus, useEvents, useNodes } from '../lib/hooks'
+import { useNetworkStatus } from '../lib/network'
 import { ActivityFeed } from './ActivityFeed'
 import { Settings } from './Settings'
 import { SwarmMap } from './SwarmMap'
@@ -35,6 +36,7 @@ export function MainShell({
 
   const nodes = useNodes()
   const status = useBackendStatus()
+  const network = useNetworkStatus()
 
   const onLive = useCallback(
     (e: AirEvent) => {
@@ -94,11 +96,13 @@ export function MainShell({
   }, [view])
 
   const online = nodes.data ? nodes.data.nodes.filter((n) => n.online).length : null
-  const service: { status: DotStatus; label: string } =
+  // The footer always shows the private network; the background service only
+  // speaks up when something needs attention.
+  const service: { status: DotStatus; label: string } | null =
     status && !status.inbox.listening
       ? { status: 'warning', label: 'Can’t receive tasks' }
-      : nodes.data?.error
-        ? { status: 'warning', label: 'Tailscale not connected' }
+      : network.available
+        ? null
         : { status: 'online', label: 'AirBridge is running' }
 
   return (
@@ -117,6 +121,7 @@ export function MainShell({
         onlineCount={online}
         unseenActivity={unseen}
         service={service}
+        network={network.available ? network : undefined}
       />
       <main
         id="content"
@@ -146,7 +151,7 @@ export function MainShell({
           ) : view === 'activity' ? (
             <ActivityFeed events={feed.events} loading={feed.loading} freshIds={feed.freshIds} />
           ) : (
-            <Settings user={user} license={license} lifecycle={lifecycle} status={status} />
+            <Settings user={user} license={license} lifecycle={lifecycle} status={status} network={network} />
           )}
         </div>
       </main>

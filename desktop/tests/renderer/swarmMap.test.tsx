@@ -38,21 +38,22 @@ describe('Swarm Map', () => {
     expect(screen.queryByRole('button', { name: /Studio-Mac/ })).toBeNull()
   })
 
-  it('explains Tailscale in plain language when there are no other computers', () => {
+  it('says in plain language how to add another computer when there are none', () => {
     const data = { ...fixtures.nodes(), nodes: [] }
     render(<SwarmMap data={data} loading={false} platform="darwin" onRetry={noop} onSendTask={noop} />)
     expect(screen.getByRole('heading', { name: 'Just this computer so far' })).toBeInTheDocument()
-    expect(screen.getByText('Install Tailscale on your other computer')).toBeInTheDocument()
-    expect(screen.getByText('Install AirBridge Pro there too')).toBeInTheDocument()
-    expect(screen.getByText(/connects your own devices privately/)).toBeInTheDocument()
+    expect(screen.getByText('Sign in to AirBridge on your other computer and it will appear here.')).toBeInTheDocument()
+    expect(screen.getByText('Install AirBridge on your other computer')).toBeInTheDocument()
+    expect(screen.getByText('Sign in with the same account')).toBeInTheDocument()
     expect(screen.queryByTestId('status-dot-online')).toBeNull()
   })
 
-  it('shows one clear next step when Tailscale is off', async () => {
+  it('shows one clear next step when the network can’t list devices', async () => {
     const onRetry = vi.fn()
-    const data = { ...fixtures.nodes(), nodes: [], error: 'tailscale: not running' }
+    const data = { ...fixtures.nodes(), nodes: [], error: 'network: not running' }
     render(<SwarmMap data={data} loading={false} platform="darwin" onRetry={onRetry} onSendTask={noop} />)
-    expect(screen.getByText('Open Tailscale and sign in, then press Retry.')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Can’t see your other devices right now' })).toBeInTheDocument()
+    expect(screen.getByText('Check that this computer is online, then press Retry.')).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Retry' }))
     expect(onRetry).toHaveBeenCalledOnce()
   })
@@ -80,6 +81,28 @@ describe('Swarm Map', () => {
     expect(deviceKind('macOS', 'topcat')).toBe('laptop') // "pc" inside a word is not a hint
   })
 
+  it('lets laptop words ("air", "book") beat desktop ones like "studio"', () => {
+    expect(deviceKind('macOS', 'Studio-Air')).toBe('laptop')
+    expect(deviceKind('macOS', 'StudioAir')).toBe('laptop')
+    expect(deviceKind('macOS', 'studio_air')).toBe('laptop')
+    expect(deviceKind('macOS', 'MacBook Air')).toBe('laptop')
+    expect(deviceKind('macOS', 'Graces-MacBook-Air')).toBe('laptop')
+    expect(deviceKind('macOS', 'Air')).toBe('laptop')
+    expect(deviceKind('windows', 'Studio-Book')).toBe('laptop')
+    expect(deviceKind('windows', 'Studio-Notebook')).toBe('laptop')
+    expect(deviceKind(null, 'Studio-Air')).toBe('laptop')
+    // …but "air" hidden inside another word is not a hint.
+    expect(deviceKind('macOS', 'Claire-iMac')).toBe('desktop')
+    expect(deviceKind('windows', 'Repair-Tower')).toBe('desktop')
+    expect(deviceKind('macOS', 'Studio')).toBe('desktop')
+  })
+
+  it('draws this computer (Studio-Air) as a laptop', () => {
+    render(<SwarmMap data={fixtures.nodes()} loading={false} platform="darwin" onRetry={noop} onSendTask={noop} />)
+    const self = screen.getByText('Studio-Air').closest('div.relative')!
+    expect(self.querySelector('[data-device]')).toHaveAttribute('data-device', 'laptop')
+  })
+
   it('draws Studio-Mac as a desktop on the map', () => {
     render(<SwarmMap data={fixtures.nodes()} loading={false} platform="darwin" onRetry={noop} onSendTask={noop} />)
     const card = screen.getByText('Studio-Mac').closest('[data-testid="peer-card"]')!
@@ -88,7 +111,7 @@ describe('Swarm Map', () => {
     expect(mac.querySelector('[data-device]')).toHaveAttribute('data-device', 'laptop')
   })
 
-  it('renders gracefully when ip / os are null (Tailscale down, OS unknown)', () => {
+  it('renders gracefully when ip / os are null (network down, OS unknown)', () => {
     const data = {
       self: { hostname: 'Studio-Air', ip: null, os: null },
       nodes: [{ hostname: 'mystery', ip: null, os: null, online: true, last_seen: null }],

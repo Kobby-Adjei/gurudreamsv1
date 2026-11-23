@@ -1,0 +1,99 @@
+# AirBridge Headscale v0.29.7 configuration template.
+# Render with: envsubst '${HEADSCALE_DOMAIN} ${PUBLIC_IPV4} ${PUBLIC_IPV6}' < config.yaml.tmpl > config/config.yaml
+# Every key below is checked against hscontrol/types/config.go of v0.29.7. See README.md.
+---
+# Public URL clients use as --login-server. Must equal the license server's HEADSCALE_PUBLIC_URL.
+server_url: https://${HEADSCALE_DOMAIN}
+
+# Plain HTTP inside the compose network only; Caddy terminates TLS (the port is never published).
+listen_addr: 0.0.0.0:8080
+# Metrics and gRPC stay on the container's loopback: unreachable from outside the container.
+metrics_listen_addr: 127.0.0.1:9090
+grpc_listen_addr: 127.0.0.1:50443
+grpc_allow_insecure: false
+
+# Caddy's address range on the compose network (docker-compose.yml `edge` subnet) so client IPs in logs are real.
+trusted_proxies:
+  - 172.30.53.0/24
+
+noise:
+  private_key_path: /var/lib/headscale/noise_private.key
+
+prefixes:
+  v4: 100.64.0.0/10
+  v6: fd7a:115c:a1e0::/48
+  allocation: sequential
+
+derp:
+  server:
+    # Embedded DERP relay + STUN. Relay traffic rides on https://${HEADSCALE_DOMAIN}/derp via Caddy;
+    # STUN needs 3478/udp published straight to this container.
+    enabled: true
+    region_id: 999
+    region_code: "airbridge"
+    region_name: "AirBridge Relay"
+    verify_clients: true
+    stun_listen_addr: "0.0.0.0:3478"
+    private_key_path: /var/lib/headscale/derp_server_private.key
+    automatically_add_embedded_derp_region: true
+    ipv4: ${PUBLIC_IPV4}
+    ipv6: ${PUBLIC_IPV6}
+  # No Tailscale-operated DERP servers: the default DERP map is NOT loaded.
+  urls: []
+  paths: []
+  auto_update_enabled: false
+  update_frequency: 24h
+
+disable_check_updates: true
+
+node:
+  # 0 = registered nodes never expire (devices are removed by the license server instead).
+  expiry: 0
+  ephemeral:
+    inactivity_timeout: 30m
+
+database:
+  type: sqlite
+  debug: false
+  gorm:
+    prepare_stmt: true
+    parameterized_queries: true
+    skip_err_record_not_found: true
+    slow_threshold: 1000
+  sqlite:
+    path: /var/lib/headscale/db.sqlite
+    write_ahead_log: true
+    wal_autocheckpoint: 1000
+
+# TLS is handled by Caddy.
+tls_letsencrypt_hostname: ""
+tls_cert_path: ""
+tls_key_path: ""
+
+log:
+  level: info
+  format: json
+
+policy:
+  mode: file
+  path: /etc/headscale/policy.hujson
+
+dns:
+  # AirBridge resolves peers itself; no MagicDNS, never touch the user's resolvers.
+  magic_dns: false
+  base_domain: ""
+  override_local_dns: false
+  nameservers:
+    global: []
+    split: {}
+  search_domains: []
+  extra_records: []
+
+unix_socket: /var/run/headscale/headscale.sock
+unix_socket_permission: "0770"
+
+logtail:
+  enabled: false
+
+taildrop:
+  enabled: false

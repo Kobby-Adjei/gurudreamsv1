@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import axe from 'axe-core'
 import { describe, expect, it } from 'vitest'
 import App from '../../src/renderer/App'
+import { PrivateNetworkCard } from '../../src/renderer/components/PrivateNetworkCard'
 import { SendTaskSheet } from '../../src/renderer/components/SendTaskSheet'
 import { ToastProvider } from '../../src/renderer/components/Toast'
 import { MainShell } from '../../src/renderer/views/MainShell'
@@ -36,7 +37,31 @@ describe('Accessibility (axe-core)', () => {
   it('Starting', async () => {
     installMockApi({ lifecycle: { phase: 'starting' } })
     const { container } = render(<App />)
-    await screen.findByRole('heading', { name: 'Starting AirBridge' })
+    await screen.findByRole('heading', { name: 'Getting ready' })
+    await expectNoViolations(container)
+  })
+
+  it('Starting – waiting for the private network', async () => {
+    installMockApi({ lifecycle: { phase: 'stopped' }, network: { state: 'connecting' } })
+    const { container } = render(<App />)
+    await screen.findByText('Connecting your private network')
+    await expectNoViolations(container)
+  })
+
+  it('Private network error screen', async () => {
+    installMockApi({ lifecycle: { phase: 'stopped' }, network: { state: 'error', detail: 'gave up' } })
+    const { container } = render(<App />)
+    await screen.findByRole('heading', { name: 'Couldn’t connect your devices' })
+    await expectNoViolations(container)
+  })
+
+  it('Private network card – error with details open', async () => {
+    const { container } = render(
+      <main>
+        <PrivateNetworkCard network={{ status: { state: 'error', detail: 'gave up', ip: '100.64.0.1' }, available: true, retrying: false, retry: async () => {} }} />
+      </main>
+    )
+    container.querySelector('details')!.open = true
     await expectNoViolations(container)
   })
 

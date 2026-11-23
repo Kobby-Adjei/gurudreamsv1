@@ -3,6 +3,7 @@ import { createApp, consoleLogger } from './app.js';
 import { createStripeBillingApi, createStripeClient, createWebhookVerifier } from './billing.js';
 import { createClerkVerifier } from './clerkAuth.js';
 import { loadConfig, type Config } from './config.js';
+import { createHeadscaleClient } from './headscale.js';
 import { createLicenseSigner } from './licenseToken.js';
 import { InMemorySubscriptionStore, PostgresSubscriptionStore, type SubscriptionStore } from './store.js';
 
@@ -17,6 +18,16 @@ export function buildFromEnv(env: NodeJS.ProcessEnv = process.env): { app: Retur
     consoleLogger.warn('using_in_memory_store', { hint: 'set DATABASE_URL; subscriptions are lost on restart' });
     store = new InMemorySubscriptionStore();
   }
+  const network = config.headscale
+    ? {
+        client: createHeadscaleClient({ baseUrl: config.headscale.url, apiKey: config.headscale.apiKey }),
+        loginServer: config.headscale.publicUrl,
+        preauthTtlSeconds: config.headscale.preauthTtlSeconds,
+      }
+    : null;
+  if (!network) {
+    consoleLogger.warn('network_disabled', { hint: 'set HEADSCALE_URL, HEADSCALE_API_KEY, HEADSCALE_PUBLIC_URL; /v1/network/* answer 503' });
+  }
   const app = createApp({
     store,
     billing: createStripeBillingApi(stripe),
@@ -28,6 +39,7 @@ export function buildFromEnv(env: NodeJS.ProcessEnv = process.env): { app: Retur
     publicBaseUrl: config.publicBaseUrl,
     trustProxy: config.trustProxy,
     trustProxyHops: config.trustProxyHops,
+    network,
   });
   return { app, config, store };
 }

@@ -10,7 +10,7 @@ const BENEFITS = [
   'Send tasks and code between Claude, Cursor and Codex',
   'Live map of which computers are online',
   'Activity feed of everything sent and received',
-  'Private: tasks go directly over your own Tailscale'
+  'Private: tasks go straight between your own computers'
 ]
 
 export function Paywall({ user, onRecheck }: { user?: AuthUser; onRecheck: () => Promise<boolean> }) {

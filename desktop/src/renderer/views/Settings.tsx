@@ -5,11 +5,13 @@ import { Card, CardHeader } from '../components/Card'
 import { CopyButton } from '../components/CopyButton'
 import { ArrowRightIcon } from '../components/Icons'
 import { PageHeader } from '../components/PageHeader'
+import { PrivateNetworkCard } from '../components/PrivateNetworkCard'
 import { Skeleton } from '../components/Skeleton'
 import { StatusDot, type DotStatus } from '../components/StatusDot'
 import { useToast } from '../components/Toast'
 import { api, errorText } from '../lib/api'
 import { formatUptime, planLabel, platformLabel } from '../lib/format'
+import type { NetworkState } from '../lib/network'
 
 const CLIENTS: { id: McpClient; label: string; steps: [string, ReactNode][] }[] = [
   {
@@ -55,12 +57,14 @@ export function Settings({
   user,
   license,
   lifecycle,
-  status
+  status,
+  network
 }: {
   user?: AuthUser
   license: LicenseStatus | null
   lifecycle: BackendLifecycle | null
   status: BackendStatus | null
+  network: NetworkState
 }) {
   return (
     <>
@@ -68,9 +72,10 @@ export function Settings({
       <div className="space-y-5 pb-10">
         <ConnectApps />
         <div className="grid gap-5 lg:grid-cols-2">
-          <AccountCard user={user} license={license} />
+          <PrivateNetworkCard network={network} />
           <ServiceCard lifecycle={lifecycle} status={status} />
         </div>
+        <AccountCard user={user} license={license} />
         <AboutCard />
       </div>
     </>
@@ -309,9 +314,6 @@ function ServiceCard({ lifecycle, status }: { lifecycle: BackendLifecycle | null
               : status.inbox.degraded_reason ?? 'Not right now'
             : '—'}
         </Row>
-        <Row label="Tailscale address">
-          <span className="font-mono text-[12.5px]">{status?.tailnet_ip ?? 'Not connected'}</span>
-        </Row>
         <Row label="Running for">{status ? formatUptime(status.uptime_s) : '—'}</Row>
       </dl>
       {lifecycle?.detail && lifecycle.phase !== 'running' ? (
@@ -335,7 +337,7 @@ function AboutCard() {
           </p>
         </div>
         <p className="max-w-sm text-right text-[12px] leading-5 text-ink-faint">
-          Your tasks travel directly between your own computers over Tailscale. They never pass through our servers.
+          Tasks travel between your own computers, encrypted end to end. We can’t read them.
         </p>
       </div>
     </Card>

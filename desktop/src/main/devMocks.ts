@@ -1,7 +1,7 @@
 /**
  * Demo data for `npm run dev` without Clerk/Stripe/Tailscale/daemon.
  * Enabled ONLY when the app is unpackaged AND AIRBRIDGE_DEV_MOCKS=1 (see devMocksEnabled()).
- * The returned object plugs straight into registerIpc() deps (auth/license/backend).
+ * The returned object plugs straight into registerIpc() deps (auth/license/backend/network).
  */
 import { randomUUID } from 'node:crypto';
 import type {
@@ -11,6 +11,7 @@ import type {
   BackendLifecycle,
   BackendStatus,
   LicenseStatus,
+  NetStatus,
   Node,
   NodesResponse,
   SendTaskRequest,
@@ -27,6 +28,7 @@ export interface DevMocksOptions {
   onLifecycle(l: BackendLifecycle): void;
   onAuth?(s: AuthState): void;
   onLicense?(s: LicenseStatus): void;
+  onNetwork?(s: NetStatus): void;
   intervalMs?: number;
   now?: () => number;
   random?: () => number;
@@ -65,6 +67,8 @@ export function createDevMocks(opts: DevMocksOptions) {
     plan: 'airbridge_pro',
     exp: Math.floor(startedAt / 1000) + 72 * 3600,
   };
+
+  const network: NetStatus = { state: 'connected', ip: SELF.ip };
 
   const status = (): BackendStatus => ({
     version: '0.2.0-dev',
@@ -158,8 +162,12 @@ export function createDevMocks(opts: DevMocksOptions) {
         return { ok: true, file: `task_${Date.now()}.md`, target: n.hostname };
       },
     },
+    network: {
+      getStatus: async (): Promise<NetStatus> => ({ ...network }),
+    },
     start(): void {
       if (timer) return;
+      opts.onNetwork?.({ ...network });
       opts.onLifecycle(lifecycle);
       opts.onStatus(status());
       opts.onLicense?.(license);

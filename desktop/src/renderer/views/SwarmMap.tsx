@@ -51,7 +51,7 @@ export function SwarmMap({ data, loading, ipcError, platform, onRetry, onSendTas
 
   const peers = useMemo(() => sortPeers(data?.nodes ?? []), [data])
   const online = peers.filter((n) => n.online).length
-  const tailscaleProblem = !!data?.error && peers.length === 0
+  const networkProblem = !!data?.error && peers.length === 0
   const radial = layout === 'map' && wide && peers.length <= MAX_RADIAL
 
   const subtitle = loading && !data
@@ -110,20 +110,20 @@ export function SwarmMap({ data, loading, ipcError, platform, onRetry, onSendTas
             It may still be starting up. Give it a moment, then retry.
           </EmptyState>
         </Card>
-      ) : tailscaleProblem ? (
+      ) : networkProblem ? (
         <Card>
           <EmptyState
             tone="warn"
             icon={<WifiOffIcon size={26} />}
-            title="Tailscale isn’t connected"
+            title="Can’t see your other devices right now"
             action={
               <Button variant="primary" icon={<RefreshIcon size={16} />} onClick={onRetry}>
                 Retry
               </Button>
             }
           >
-            <p>AirBridge uses Tailscale to find your other computers.</p>
-            <p className="mt-1 font-medium text-ink">Open Tailscale and sign in, then press Retry.</p>
+            <p>Your private network is still connecting.</p>
+            <p className="mt-1 font-medium text-ink">Check that this computer is online, then press Retry.</p>
           </EmptyState>
         </Card>
       ) : peers.length === 0 ? (
@@ -153,7 +153,6 @@ function SelfCard({ self, platform, compact = false }: { self?: NodesResponse['s
       <div className={compact ? 'min-w-0 flex-1' : 'mt-3 min-w-0'}>
         <p className="text-[12px] font-medium text-ink-faint">{thisComputerLabel(platform)}</p>
         <p className="mt-0.5 truncate text-[15px] font-semibold text-ink selectable">{self?.hostname ?? '—'}</p>
-        {self?.ip ? <p className="mt-0.5 truncate font-mono text-[11.5px] text-ink-faint selectable">{self.ip}</p> : null}
       </div>
     </div>
   )
@@ -302,12 +301,12 @@ function EmptyDevices({ self, platform }: { self?: NodesResponse['self']; platfo
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
       <div className="map-backdrop relative flex min-h-[320px] items-center justify-center gap-6 overflow-hidden rounded-2xl border border-line/[0.06] bg-surface-1/40 p-8">
         <SelfCard self={self} platform={platform} />
-        <svg width="56" height="8" viewBox="0 0 56 8" aria-hidden="true" className="hidden shrink-0 text-line/30 xl:block">
+        <svg width="56" height="8" viewBox="0 0 56 8" aria-hidden="true" className="hidden shrink-0 text-line/30 2xl:block">
           <path d="M0 4h56" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 5" />
         </svg>
         <div
           aria-hidden="true"
-          className="hidden h-[148px] w-[160px] shrink-0 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-line/20 text-ink-faint xl:flex"
+          className="hidden h-[148px] w-[160px] shrink-0 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-line/20 text-ink-faint 2xl:flex"
         >
           <PlusIcon size={22} />
           <span className="text-[12px] font-medium">Your next computer</span>
@@ -316,13 +315,12 @@ function EmptyDevices({ self, platform }: { self?: NodesResponse['self']; platfo
       <Card className="flex flex-col justify-center">
         <h2 className="text-[17px] font-semibold tracking-tightish">Just this computer so far</h2>
         <p className="mt-2 text-[14px] leading-6 text-ink-muted">
-          AirBridge links your computers with <strong className="font-semibold text-ink">Tailscale</strong> — a free
-          app that connects your own devices privately, as if they were on the same Wi‑Fi, wherever they are.
+          Sign in to AirBridge on your other computer and it will appear here.
         </p>
         <ol className="mt-5 space-y-3">
           {[
-            ['Install Tailscale on your other computer', 'Sign in with the same account you use here.'],
-            ['Install AirBridge Pro there too', 'Sign in, and it will appear on this map by itself.']
+            ['Install AirBridge on your other computer', 'The same app you’re using now, on Mac, Windows or Linux.'],
+            ['Sign in with the same account', 'It connects privately and shows up here by itself.']
           ].map(([title, body], i) => (
             <li key={title} className="flex gap-3">
               <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-line/15 text-[12px] font-medium text-ink-muted">

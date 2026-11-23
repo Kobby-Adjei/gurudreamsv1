@@ -1,5 +1,5 @@
 /**
- * Shared types between main, preload and renderer (frozen contract, PHASE2_PLAN.md §2).
+ * Shared types between main, preload and renderer (frozen contract, PHASE2_PLAN.md §2 + PHASE3_PLAN.md §2).
  * Shapes mirror the Python control API (airbridge_app/control.py) and event schema exactly.
  * This file must stay free of runtime imports so every process can use it.
  */
@@ -104,6 +104,17 @@ export interface BackendLifecycle {
 
 export type McpClient = 'claude' | 'cursor';
 
+/** Embedded private network (PHASE3_PLAN.md §2, TailscaleManager.status()). */
+export type NetState = 'stopped' | 'starting' | 'needs_login' | 'connecting' | 'connected' | 'error';
+
+export const NET_STATES: readonly NetState[] = ['stopped', 'starting', 'needs_login', 'connecting', 'connected', 'error'] as const;
+
+export interface NetStatus {
+  state: NetState;
+  detail?: string;
+  ip?: string;
+}
+
 export type Unsubscribe = () => void;
 
 /** window.airbridge (frozen surface, exposed by src/preload/index.ts) */
@@ -129,6 +140,10 @@ export interface AirbridgeApi {
     onEvent(cb: (event: AirEvent) => void): Unsubscribe;
     onStatus(cb: (status: BackendStatus) => void): Unsubscribe;
     onLifecycle(cb: (lifecycle: BackendLifecycle) => void): Unsubscribe;
+  };
+  network: {
+    getStatus(): Promise<NetStatus>;
+    onChange(cb: (status: NetStatus) => void): Unsubscribe;
   };
   settings: {
     getMcpConfig(client: McpClient): Promise<{ json: string }>;

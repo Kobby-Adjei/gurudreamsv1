@@ -5,7 +5,9 @@ Small HTTPS service behind **AirBridge Pro** ($15/month). It:
 1. receives Stripe webhooks and keeps one subscription record per Clerk user,
 2. verifies the desktop app's Clerk JWT and, for `active`/`trialing` subscribers, returns a short-lived
    **Ed25519-signed license token** that the desktop verifies offline,
-3. creates Stripe Checkout sessions for everyone else.
+3. creates Stripe Checkout sessions for everyone else,
+4. (Phase 3) issues single-use **Headscale pre-auth keys** so the desktop app can join the customer's private
+   network, and takes a customer's devices off that network when the subscription lapses.
 
 Stack: Node 22, TypeScript, [Hono](https://hono.dev), `stripe`, `jose`, `pg`. Security notes: [`SECURITY.md`](./SECURITY.md).
 
@@ -18,6 +20,23 @@ Stack: Node 22, TypeScript, [Hono](https://hono.dev), `stripe`, `jose`, `pg`. Se
 | `POST /v1/license/verify` | `Authorization: Bearer <Clerk JWT>` | `200 {token, status, exp}` · `401` · `402 {status, checkout_url}` · `429` |
 | `POST /v1/billing/checkout` | `Authorization: Bearer <Clerk JWT>` | `200 {url}` — Checkout for non-subscribers, Billing Portal for active subscribers |
 | `GET /checkout/success`, `/checkout/cancel` | – | Small landing pages Checkout redirects to |
+| `POST /v1/network/preauth-key` | `Authorization: Bearer <Clerk JWT>` | `200 {auth_key, login_server, expires_at}` (`Cache-Control: no-store`; `expires_at` unix seconds) · `401` · `402 {error:"subscription_required", status}` · `429` · `502` Headscale error · `503` network not configured |
+| `POST /v1/network/devices/:id/remove` | `Authorization: Bearer <Clerk JWT>` | `200 {removed:true}` · `401` · `404` unknown node **or another customer's node** · `429` · `502` · `503` |
+
+### Private network (Headscale)
+
+One Headscale user per customer, named `u-<first 20 hex of sha256(clerk sub)>` — no email or Clerk id is sent
+to Headscale. `preauth-key` (entitled users only) ensures that user exists (`GET /api/v1/user?name=` →
+`POST /api/v1/user`; Headscale reports a concurrent duplicate as HTTP 500, so a failed create is followed by
+one re-GET) and creates a **single-use, non-ephemeral** key expiring after `PREAUTH_TTL_SECONDS` (600 s).
+Rate limits (per process): 5/min per user, 1000/day globally, 60/min per IP. Keys are never logged.
+Headscale errors become `502 {error:"upstream_unavailable"}`; upstream bodies are never forwarded or logged.
+
+When a webhook moves a user to a non-entitled status (`past_due`, `canceled`, `unpaid`, `incomplete`), all of
+that user's Headscale nodes are deleted (best-effort: failures are logged, the webhook still succeeds).
+Re-subscribing re-enrolls automatically on the next app start.
+
+Headscale deployment kit (Docker Compose + Caddy, policy, config): [`headscale/README.md`](./headscale/README.md).
 
 License token (compact JWS): header `{alg:"EdDSA", typ:"airbridge-license+jwt", kid}`, payload
 `{iss:"airbridge-license", aud:"airbridge-desktop", sub:<clerk user id>, plan:"airbridge_pro", status, iat, exp}`;
@@ -62,6 +81,10 @@ Without `DATABASE_URL` the server uses an in-memory store (refused when `NODE_EN
 | `TRUST_PROXY` | `1` behind Railway/Fly/Vercel so rate limiting uses `X-Forwarded-For` (rightmost entry appended by the proxy — client-supplied entries are ignored). |
 | `TRUST_PROXY_HOPS` | Number of trusted proxies in front of the app (default `1`). |
 | `PORT` | Default `8787`. |
+| `HEADSCALE_URL` | Where this server reaches the Headscale REST API (`https://`, `http://` only for localhost). Unset together with the next two → `/v1/network/*` answer 503. |
+| `HEADSCALE_API_KEY` | **Secret.** `headscale apikeys create --expiration 90d` (see `headscale/README.md` for rotation). |
+| `HEADSCALE_PUBLIC_URL` | Public login server URL clients enroll with (Headscale `server_url`), e.g. `https://hs.example.com`. |
+| `PREAUTH_TTL_SECONDS` | Pre-auth key lifetime, default `600` (60 … 3600). |
 
 Config is validated at boot; the process exits with code 2 and lists every problem.
 
@@ -134,5 +157,6 @@ if you need a global limit.
 
 `npm test` runs entirely offline: Ed25519 and RS256 keys are generated per run, Clerk's JWKS is a local key
 set, Stripe signatures come from `stripe.webhooks.generateTestHeaderString`, and Checkout/Subscriptions use a
-fake `BillingApi`. If `desktop/src/main/license/verify.ts` exists, a cross-check confirms tokens from this
+fake `BillingApi`; Headscale is an in-memory fake of its v0.29.7 REST API behind an injected `fetch`
+(`tests/network.test.ts`). If `desktop/src/main/license/verify.ts` exists, a cross-check confirms tokens from this
 server pass the desktop verifier.

@@ -2,7 +2,7 @@ import type { AirEvent, AirEventType } from '../../shared/types'
 
 export type OsKind = 'mac' | 'windows' | 'linux' | 'phone' | 'unknown'
 
-/** Tailscale reports OS as "macOS", "windows", "linux", "iOS", "android"… */
+/** The network reports OS as "macOS", "windows", "linux", "iOS", "android"… */
 export function osKind(os: string | null | undefined): OsKind {
   const s = (os ?? '').toLowerCase()
   if (s.includes('mac') || s.includes('darwin')) return 'mac'
@@ -15,19 +15,24 @@ export function osKind(os: string | null | undefined): OsKind {
 
 export type DeviceKind = 'laptop' | 'desktop' | 'server' | 'phone'
 
-const LAPTOP_HINT = /macbook|laptop|notebook|\bbook\b/i
+// "air" starting a word or a camel-case part (Studio-Air, MacBook Air, StudioAir),
+// never inside another word (Claire, Repair).
+const LAPTOP_HINT = /book|laptop|notebook|(?:^|[^a-z])air/i
+const CAMEL_AIR = /[a-z]Air/
 const DESKTOP_HINT = /studio|imac|mini|desktop|tower|workstation|(^|[^a-z])pc([^a-z]|$)/i
 
 /**
  * Which glyph to draw. The hostname wins when it clearly names the hardware
- * ("Studio-Mac", "Mac-mini", "Desktop-PC", "MacBook-Pro"); otherwise the OS
+ * ("MacBook-Pro", "Studio-Air", "Studio-Mac", "Mac-mini", "Desktop-PC"), with
+ * laptop words ("air", "book") beating desktop ones; otherwise the OS
  * decides: Mac → laptop, Windows → desktop, Linux → server.
  */
 export function deviceKind(os: string | null | undefined, hostname?: string | null): DeviceKind {
   const kind = osKind(os)
   if (kind === 'phone') return 'phone'
   const name = hostname ?? ''
-  if (LAPTOP_HINT.test(name)) return 'laptop'
+  // Laptop hints win over desktop ones: "Studio-Air" is a MacBook Air, not a Studio.
+  if (LAPTOP_HINT.test(name) || CAMEL_AIR.test(name)) return 'laptop'
   if (DESKTOP_HINT.test(name)) return 'desktop'
   if (kind === 'mac') return 'laptop'
   if (kind === 'linux') return 'server'
@@ -146,7 +151,7 @@ export function eventDetail(e: AirEvent): string | null {
   if (e.detail?.bytes && (e.type === 'task_received' || e.type === 'task_sent'))
     parts.push(formatBytes(e.detail.bytes))
   if (e.type === 'inbox_degraded' && e.detail?.error) parts.push(e.detail.error)
-  if (e.type === 'send_failed') parts.push('Make sure it’s turned on and signed in to Tailscale.')
+  if (e.type === 'send_failed') parts.push('Make sure it’s turned on and AirBridge is open.')
   if (e.origin === 'mcp' && (e.type === 'task_sent' || e.type === 'send_failed'))
     parts.push('from your AI app')
   return parts.length ? parts.join(' · ') : null

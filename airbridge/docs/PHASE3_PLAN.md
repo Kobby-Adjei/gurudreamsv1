@@ -36,7 +36,7 @@ Verified in source (PM):
 
 **Startup order:** license valid → `tm.start()` → `ensureEnrolled()` → `pm.start()` with TS env. Sign-out → `logout` → `tm.stop()`. `before-quit`: stop daemon, then tailscaled.
 
-**IPC additions:** invoke `ab:network:status` → `NetStatus`; push `ab:network:changed`. Preload adds `network:{getStatus(), onChange(cb)→unsub}`. No other surface changes.
+**IPC additions:** invoke `ab:network:status` → `NetStatus`, `ab:network:retry` → `NetStatus` (tech-lead amendment: restarts tailscaled if stopped/error and re-runs ensureEnrolled); push `ab:network:changed`. Preload adds `network:{getStatus(), retry(), onChange(cb)→unsub}`. No other surface changes.
 
 **License server:** `POST /v1/network/preauth-key` — Clerk JWT + `isEntitled(status)` else 401/402; rate limit 5/min/user + 1000/day global; ensure Headscale user `name = "u-" + sha256(sub)[:20]` (no PII) via `GET /api/v1/user?name=` then `POST /api/v1/user` (409 → re-GET); `POST /api/v1/preauthkey {user:id, reusable:false, ephemeral:false, expiration: now+600s}` → `200 {auth_key, login_server, expires_at}` with `Cache-Control: no-store`. `POST /v1/network/devices/:id/remove` — `GET /api/v1/node/:id`, user mismatch → 404, else DELETE. Headscale errors → 502 without upstream body.
 

@@ -1,0 +1,12 @@
+{
+  "name": "tailscale",
+  "version": "v1.104.7",
+  "go": "go1.27.4",
+  "goos": "linux",
+  "goarch": "amd64",
+  "license": "BSD-3-Clause (see licenses/tailscale-LICENSE)",
+  "files": {
+    "tailscaled": "66a4386daa58a73908928758820d10725c8d33083baf094e15ee6c88009e005f",
+    "tailscale": "14af732b5463158cf43f29ba75dff8a1b8c9d3484f2b8962560ca732d02739ba"
+  }
+}
