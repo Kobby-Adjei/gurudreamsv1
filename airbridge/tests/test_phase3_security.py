@@ -414,21 +414,25 @@ def _payload_from(sender: str) -> dict[str, Any]:
     return {**_payload(), "sender_node": sender}
 
 
-def test_sidecar_sender_mismatch_is_overwritten_with_verified(sidecar_client, inbox_dir) -> None:  # noqa: ANN001
-    r = sidecar_client().post("/incoming_task", json=_payload_from("desktop"), headers=_peer_headers())
-    assert r.status_code == 201
-    text = _md(inbox_dir)[0].read_text(encoding="utf-8")
-    assert "laptop" in text and "desktop" not in text  # self-asserted name never recorded
-
-
-def test_sidecar_sender_mismatch_400_when_reject_enabled(sidecar_client, inbox_dir, monkeypatch) -> None:  # noqa: ANN001
+def test_sidecar_sender_mismatch_400_by_default(sidecar_client, inbox_dir) -> None:  # noqa: ANN001
+    """F-13: REJECT_SENDER_MISMATCH is enabled (sidecar outbox sends its verified name)."""
     from airbridge_app import inbox
 
-    monkeypatch.setattr(inbox, "REJECT_SENDER_MISMATCH", True)
+    assert inbox.REJECT_SENDER_MISMATCH is True
     r = sidecar_client().post("/incoming_task", json=_payload_from("desktop"), headers=_peer_headers())
     assert r.status_code == 400
     assert "sender_mismatch" in r.json()["detail"]
     assert _md(inbox_dir) == []
+
+
+def test_sidecar_sender_mismatch_overwritten_if_reject_disabled(sidecar_client, inbox_dir, monkeypatch) -> None:  # noqa: ANN001
+    from airbridge_app import inbox
+
+    monkeypatch.setattr(inbox, "REJECT_SENDER_MISMATCH", False)
+    r = sidecar_client().post("/incoming_task", json=_payload_from("desktop"), headers=_peer_headers())
+    assert r.status_code == 201
+    text = _md(inbox_dir)[0].read_text(encoding="utf-8")
+    assert "laptop" in text and "desktop" not in text  # self-asserted name never recorded
 
 
 @pytest.mark.parametrize(

@@ -159,12 +159,13 @@ def _client_port(request: Request) -> int:
     return int(request.client.port) if request.client and request.client.port else 0
 
 
-#: F-13. The stored/notified sender is ALWAYS the verified node name. Since the sidecar
-#: (§9) the outbox sends its own control-assigned name (sidecar ``/status`` self.hostname),
-#: which is exactly what receivers verify, so rejection (400 sender_mismatch) no longer drops
-#: legitimate app-to-app tasks; turning it on stays a Security decision.
-#: See docs/PHASE3_SECURITY.md section 8.
-REJECT_SENDER_MISMATCH = False
+#: F-13. The stored/notified sender is ALWAYS the verified node name, and a self-asserted
+#: ``sender_node`` that does not name the verified device is refused (400 sender_mismatch).
+#: Enabled by Security after the sidecar switch (§9): the outbox now sends its own
+#: control-assigned name (sidecar ``/status`` self.hostname = first label of Self.DNSName),
+#: exactly what the receiving sidecar verifies with WhoIs (Node.Name), so legitimate
+#: app-to-app tasks always match. See docs/PHASE3_SECURITY.md section 8.
+REJECT_SENDER_MISMATCH = True
 
 _CANON_DROP_RE = re.compile(r"[^a-z0-9]")
 
