@@ -83,7 +83,7 @@ export function Settings({
         <ConnectApps />
         <div className="grid gap-5 lg:grid-cols-2">
           {preview?.netMode === 'system' ? (
-            <ExistingNetworkCard problem={preview.devicesProblem} hint={SYSTEM_NETWORK_HINT} />
+            <ExistingNetworkCard network={network} devicesProblem={preview.devicesProblem} hint={SYSTEM_NETWORK_HINT} />
           ) : (
             <PrivateNetworkCard network={network} />
           )}

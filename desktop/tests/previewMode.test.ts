@@ -202,6 +202,7 @@ describe('preview (licenseEnforced() === false)', () => {
 
     signed = false;
     await w.net.signedOut();
+    await w.gate!.reset(); // index.ts order; shadow gate re-fires onValid -> supervisor ignores it (idempotent)
     expect(tm.logout).toHaveBeenCalled();
     expect(w.pm.getLifecycle().phase).toBe('running');
     expect(w.envs.map((e) => e.AIRBRIDGE_NETWORK)).toEqual(['system', 'embedded', 'system']);

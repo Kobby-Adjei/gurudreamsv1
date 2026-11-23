@@ -119,6 +119,8 @@ export interface NetStatus {
   state: NetState;
   detail?: string;
   ip?: string;
+  /** Which network the backend uses: the bundled private network or the user's own system Tailscale (preview). */
+  mode?: 'embedded' | 'system';
 }
 
 export type Unsubscribe = () => void;

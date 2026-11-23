@@ -66,12 +66,23 @@ export function PrivateNetworkCard({ network }: { network: NetworkState }) {
 }
 
 /**
- * Preview on the computer's existing network (PHASE3_PLAN.md §8): there is no
- * network of ours to manage, so this only says whether other devices can be
- * seen and, if not, the one thing to check.
+ * Preview on the computer's existing network (PHASE3_PLAN.md §8): nothing of
+ * ours to manage, so this only says whether it's working and, if not, the one
+ * thing to check.
  */
-export function ExistingNetworkCard({ problem, hint }: { problem: boolean; hint: string }) {
+export function ExistingNetworkCard({
+  network,
+  devicesProblem,
+  hint
+}: {
+  network: NetworkState
+  devicesProblem: boolean
+  hint: string
+}) {
   const headingId = useId()
+  const phase = netPhase(network.status)
+  const problem = phase === 'error' || devicesProblem
+  const copy = problem ? { dot: 'error' as const, label: 'Can’t see other devices' } : NET_COPY[phase]
   return (
     <Card as="section" aria-labelledby={headingId}>
       <CardHeader
@@ -83,11 +94,18 @@ export function ExistingNetworkCard({ problem, hint }: { problem: boolean; hint:
         <div className="flex min-h-[48px] items-center justify-between gap-4 py-2">
           <dt className="text-[13px] text-ink-muted">Status</dt>
           <dd className="flex items-center gap-3">
-            <StatusDot status={problem ? 'error' : 'online'} label={problem ? 'Can’t see other devices' : 'Connected'} />
+            <StatusDot status={copy.dot} label={copy.label} />
           </dd>
         </div>
       </dl>
-      {problem ? <p className="mt-4 text-[13px] font-medium text-ink">{hint}</p> : null}
+      {problem ? (
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <Button variant="secondary" icon={<RefreshIcon size={15} />} loading={network.retrying} onClick={() => void network.retry()}>
+            Retry
+          </Button>
+          <span className="text-[13px] font-medium text-ink">{hint}</span>
+        </div>
+      ) : null}
     </Card>
   )
 }

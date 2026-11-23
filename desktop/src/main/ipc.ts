@@ -166,6 +166,7 @@ export function sanitizeNetStatus(s: unknown): NetStatus {
     out.detail = o.detail.replace(/[\r\n\t]+/g, ' ').trim().slice(0, MAX_NET_DETAIL);
   }
   if (typeof o.ip === 'string' && IP_RE.test(o.ip)) out.ip = o.ip;
+  if (o.mode === 'embedded' || o.mode === 'system') out.mode = o.mode;
   return out;
 }
 

@@ -119,7 +119,7 @@ export function MainShell({
   const service: { status: DotStatus; label: string } | null =
     status && !status.inbox.listening
       ? { status: 'warning', label: 'Can’t receive tasks' }
-      : network.available && !systemNet
+      : network.available
         ? null
         : { status: 'online', label: 'AirBridge is running' }
 
@@ -139,8 +139,7 @@ export function MainShell({
         onlineCount={online}
         unseenActivity={unseen}
         service={service}
-        // On the computer's existing network there's no network of ours to report.
-        network={network.available && !systemNet ? network : undefined}
+        network={network.available ? network : undefined}
         preview={preview ? { auth: preview.auth } : undefined}
       />
       <main
