@@ -41,9 +41,11 @@ compares that policy semantically to
 If the policy differs or cannot be read, `preauth-key` answers `503` and `NETWORK_POLICY_MISMATCH` /
 `NETWORK_POLICY_UNVERIFIABLE` is logged at error level. A failed check is retried at most every 30 s.
 
-When a webhook moves a user to a non-entitled status (`past_due`, `canceled`, `unpaid`, `incomplete`), all of
-that user's Headscale nodes are deleted (best-effort: failures are logged, the webhook still succeeds).
-Re-subscribing re-enrolls automatically on the next app start.
+When a webhook moves a subscription to `canceled` or `unpaid` (`incomplete_expired` maps to `canceled`), all of
+that user's Headscale nodes are deleted. This is best-effort: failures are logged and the webhook still
+succeeds. `past_due` (Stripe's dunning window) and `incomplete` leave existing devices in place, though
+`preauth-key` still answers 402 for them. Re-subscribing re-enrolls the devices automatically the next time
+the app starts.
 
 Headscale deployment kit (Docker Compose + Caddy, policy, config): [`headscale/README.md`](./headscale/README.md).
 

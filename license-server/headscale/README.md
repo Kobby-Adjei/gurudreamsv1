@@ -144,7 +144,7 @@ versioned separately, so test enrollment on staging first.
   `999 "AirBridge Relay"` (relay over `https://hs.example.com/derp`, STUN on 3478/udp). This makes it a single
   point of failure for users behind NAT. Budget a second DERP region (`derp.paths`) for production.
 * `node.expiry: 0`: devices do not expire. Access is removed by the license server instead. When a
-  Stripe subscription becomes inactive, the webhook deletes all of that customer's nodes. A user can also remove
+  Stripe subscription becomes `canceled` or `unpaid` (not `past_due`), the webhook deletes all of that customer's nodes. A user can also remove
   one device through `POST /v1/network/devices/:id/remove`.
 * `dns.magic_dns: false`, `override_local_dns: false`: AirBridge never touches the user's DNS.
 * Logs are JSON on stdout (`docker compose logs`). Pre-auth keys never appear there: the license server
