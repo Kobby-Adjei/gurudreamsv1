@@ -147,3 +147,56 @@ More states (Starting steps, network error, private network *Details* and *Conne
 other devices, Send-a-task sheet, light mode, narrow window) are in `docs/screenshots/extra/`.
 They were rendered with Playwright (system Chrome) from a production Vite build of
 `src/renderer` with a mocked `window.airbridge`.
+
+<!-- Section owned by Systems (main process / backend). UI/UX sections are above. -->
+
+## Test the real app today (preview: no servers needed)
+
+Preview builds (the default until the app is approved, PHASE3_PLAN.md §8) need no Clerk, no license
+server and no Headscale. Without sign-in the engine runs on **this computer's own Tailscale**
+(`AIRBRIDGE_NETWORK=system`); the bundled `tailscaled` is never started.
+
+1. Install Tailscale on each computer you want to test with and sign them into the same tailnet
+   (`tailscale status` should list them). Without it the app opens on the "Couldn't connect your devices"
+   screen (`docs/screenshots/extra/preview-real.png`); Retry once Tailscale is up.
+2. Get the code and the desktop dependencies:
+   ```bash
+   git clone https://github.com/Kobby-Adjei/gurudreamsv1.git
+   cd gurudreamsv1/desktop
+   npm install
+   ```
+3. Give the app a backend, either:
+   - build it once: `npm run build:backend` (PyInstaller -> `resources/bin/<os>-<arch>/airbridge-core`;
+     used automatically when present), or
+   - run it from source: `python3 -m venv ~/abvenv && ~/abvenv/bin/pip install -r ../airbridge/requirements.txt`,
+     then export `AIRBRIDGE_PYTHON=~/abvenv/bin/python` (only used when no built binary exists).
+4. Start it **without** `AIRBRIDGE_DEV_MOCKS` (and don't copy `.env.example`, which turns mocks on):
+   ```bash
+   npm run dev
+   ```
+   The main-process log shows `license enforcement: off (preview …)` and the engine starts straight away.
+   Settings -> Account still offers sign-in; with `CLERK_OAUTH_*` + `AIRBRIDGE_LICENSE_URL` configured and a
+   license server running with `ENFORCE_ENTITLEMENT=false`, signing in moves the engine onto the embedded
+   private network (it restarts once); signing out moves it back to the system Tailscale.
+
+`AIRBRIDGE_DEV_MOCKS=1 npm run dev` still gives the fully mocked demo (no engine, no network).
+
+## Launch checklist (turn licensing on)
+
+Do these together, only after the product owner approves the app:
+
+1. **Desktop build flag:** build with `MAIN_VITE_AIRBRIDGE_ENFORCE_LICENSE=1` (CI env or `desktop/.env`).
+   It is inlined at compile time, so a shipped app cannot be flipped back at runtime. Check the bundle:
+   `grep -A2 'function licenseEnforced' out/main/index.js` must show `return true`.
+2. **License server:** set `ENFORCE_ENTITLEMENT=true` (the production default; preview uses `false`) so
+   `/v1/network/preauth-key` only issues keys to paying users.
+3. **Desktop config baked in:** `MAIN_VITE_AIRBRIDGE_LICENSE_URL`, `MAIN_VITE_CLERK_OAUTH_ISSUER`,
+   `MAIN_VITE_CLERK_OAUTH_CLIENT_ID` and the production license public keys (`publicKeys.ts`). An
+   enforced build without them keeps the engine **blocked** ("Sign-in is not configured in this build").
+4. **Embedded network:** bundled `tailscaled`/`tailscale` present (`npm run build:tailscale`) and Headscale
+   reachable at the license server's `HEADSCALE_PUBLIC_URL`; enforced builds always use the embedded
+   network, never the user's own Tailscale.
+5. **Smoke test the enforced build:** signed out -> sign-in wall and no `airbridge-core` process;
+   inactive subscription -> Paywall, engine blocked; active -> private network connects, then the engine.
+   `npx vitest run tests/previewMode.test.ts` covers both modes.
+6. Remove the "Preview" label / preview copy if UI/UX hasn't gated it on `LicenseStatus.enforced` already.

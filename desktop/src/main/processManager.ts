@@ -509,7 +509,7 @@ export class NetworkSupervisor {
     this.network = opts.enforced ? 'embedded' : 'system';
     this.log = opts.log ?? (() => undefined);
     opts.tm.on('status', (s) => {
-      if (this.network === 'embedded') this.opts.onNetwork(s);
+      if (this.network === 'embedded') this.opts.onNetwork(this.tag(s));
     });
   }
 
@@ -545,7 +545,7 @@ export class NetworkSupervisor {
 
   /** NetStatus for IPC (network.getStatus). */
   async status(fetchBackendStatus?: () => Promise<BackendStatus | null>): Promise<NetStatus> {
-    if (this.network === 'embedded') return this.opts.tm.status();
+    if (this.network === 'embedded') return this.tag(await this.opts.tm.status());
     if (fetchBackendStatus) {
       try {
         this.lastBackendStatus = await fetchBackendStatus();
@@ -553,7 +553,7 @@ export class NetworkSupervisor {
         /* keep the last poll */
       }
     }
-    return systemNetStatus(this.lastBackendStatus, this.pmRef().getLifecycle());
+    return this.tag(systemNetStatus(this.lastBackendStatus, this.pmRef().getLifecycle()));
   }
 
   /** App start (after the window loaded). Enforced: the gate drives everything. */
@@ -609,7 +609,7 @@ export class NetworkSupervisor {
       if (st.state === 'stopped' || st.state === 'error') await this.opts.tm.start();
       await this.opts.enroll();
       if (isEntitled()) await this.startDaemon();
-      return this.opts.tm.status();
+      return this.tag(await this.opts.tm.status());
     }
     await this.serial(() => this.bringUpPreview());
     return this.status();
@@ -656,7 +656,7 @@ export class NetworkSupervisor {
     if (!changed) return;
     this.log(`daemon network: ${n}`);
     this.lastPushed = '';
-    if (n === 'embedded') this.opts.onNetwork(this.opts.tm.lastStatus());
+    if (n === 'embedded') this.opts.onNetwork(this.tag(this.opts.tm.lastStatus()));
     else this.pushSystem();
   }
 
@@ -671,9 +671,14 @@ export class NetworkSupervisor {
     await pm.start();
   }
 
+  /** Every NetStatus leaving the supervisor says which network the daemon is on (NetStatus.mode). */
+  private tag(s: NetStatus): NetStatus {
+    return { ...s, mode: this.network };
+  }
+
   private pushSystem(): void {
     if (this.network !== 'system' || !this.pm) return;
-    const s = systemNetStatus(this.lastBackendStatus, this.pm.getLifecycle());
+    const s = this.tag(systemNetStatus(this.lastBackendStatus, this.pm.getLifecycle()));
     const json = JSON.stringify(s);
     if (json === this.lastPushed) return;
     this.lastPushed = json;

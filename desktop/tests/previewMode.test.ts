@@ -176,6 +176,8 @@ describe('preview (licenseEnforced() === false)', () => {
     expect(tm.start).toHaveBeenCalled();
     expect(w.spawn).toHaveBeenCalledTimes(1);
     expect(w.envs[0]).toMatchObject({ AIRBRIDGE_NETWORK: 'embedded', AIRBRIDGE_TS_SOCKET: '/d/tailscaled.sock' });
+    expect(w.network.at(-1)).toMatchObject({ mode: 'embedded' });
+    expect(await w.net.status()).toMatchObject({ state: 'connected', mode: 'embedded' });
   });
 
   it('signed in but enrollment fails: tailscaled stopped, system network', async () => {
@@ -219,8 +221,8 @@ describe('preview (licenseEnforced() === false)', () => {
       inbox: { listening: false, port: 8989, degraded_reason: 'Could not run the Tailscale CLI (tailscale): ENOENT' },
       uptime_s: 1,
     });
-    expect(w.network.at(-1)!.state).toBe('error');
-    expect((await w.net.status()).state).toBe('error');
+    expect(w.network.at(-1)).toMatchObject({ state: 'error', mode: 'system' });
+    expect(await w.net.status()).toMatchObject({ state: 'error', mode: 'system' });
     w.net.onBackendStatus({
       version: '1',
       mode: 'daemon',
@@ -228,7 +230,7 @@ describe('preview (licenseEnforced() === false)', () => {
       inbox: { listening: true, port: 8989, degraded_reason: null },
       uptime_s: 2,
     });
-    expect(w.network.at(-1)).toEqual({ state: 'connected', ip: '100.64.0.7' });
+    expect(w.network.at(-1)).toEqual({ state: 'connected', ip: '100.64.0.7', mode: 'system' });
   });
 });
 
