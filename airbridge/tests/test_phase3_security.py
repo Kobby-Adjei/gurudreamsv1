@@ -638,3 +638,130 @@ def test_ts_no_key_logging(network_ts: dict[str, str]) -> None:
 def test_security_module_exports() -> None:
     for name in ("verify_embedded_peer", "EmbeddedPeerError", "VerifiedPeer", "embedded_peer_node_name"):
         assert name in security.__all__
+
+
+# --------------------------------------------------------------------------- #
+# airbridge-net sidecar (Go, static): PHASE3_SECURITY.md §3 (sidecar review)
+# --------------------------------------------------------------------------- #
+SIDECAR = REPO / "desktop" / "sidecar" / "airbridge-net"
+
+
+def _strip_go_comments(src: str) -> str:
+    src = re.sub(r"(?m)(^|[ \t])/\*.*?\*/", r"\1", src, flags=re.S)
+    return re.sub(r"(?m)(^|[ \t])//[^\n]*", r"\1", src)  # not "http://" inside strings
+
+
+@pytest.fixture
+def go_src() -> dict[str, str]:
+    if not SIDECAR.is_dir():
+        pytest.skip("sidecar source not present")
+    return {
+        f.name: _strip_go_comments(f.read_text(encoding="utf-8"))
+        for f in sorted(SIDECAR.glob("*.go"))
+        if not f.name.endswith("_test.go")
+    }
+
+
+def _all_go(go_src: dict[str, str]) -> str:
+    return "\n".join(go_src.values())
+
+
+def test_go_whois_pins_tcp_and_same_user(go_src: dict[str, str]) -> None:
+    """F-2/F-13: WhoIs on the live connection with proto=tcp; user id must equal self's."""
+    assert re.search(r'WhoIsProto\(\s*ctx\s*,\s*"tcp"\s*,\s*remoteAddr\s*\)', go_src["backend.go"])
+    mesh = go_src["mesh.go"]
+    assert re.search(r"m\.be\.WhoIs\(\s*ctx\s*,\s*r\.RemoteAddr\s*\)", mesh), "WhoIs must use the live conn"
+    assert "who.UserProfile.ID != self.Self.UserID" in mesh
+    assert "self.Self.UserID == 0" in mesh  # unknown own identity fails closed
+    # control-assigned name only
+    assert "nodeLabel(who.Node.Name)" in mesh
+    assert "Hostinfo" not in mesh
+    # identity headers are set by the sidecar on a NEW request; peer headers are never copied wholesale
+    assert "r.Header.Clone()" not in mesh and "req.Header = r.Header" not in mesh
+
+
+def test_go_body_caps_match_python(go_src: dict[str, str]) -> None:
+    m = re.search(r"maxTaskBody\s*=\s*([0-9_]+)", go_src["mesh.go"])
+    assert m and int(m.group(1).replace("_", "")) == security.MAX_BODY_BYTES
+    mesh = go_src["mesh.go"]
+    assert "io.LimitReader(r.Body, maxTaskBody+1)" in mesh
+    assert "io.LimitReader(resp.Body, maxReplyBody)" in mesh
+    assert re.search(r"meshMaxInFlight\s*=\s*\d+", mesh) and "m.limiter.allow(" in mesh
+
+
+def test_go_only_listener_on_the_mesh_is_8989(go_src: dict[str, str]) -> None:
+    """F-1 eliminated: tsnet never forwards to host loopback (tsnet.go:1300); we expose exactly :8989."""
+    src = _all_go(go_src)
+    assert re.search(r"meshPort\s*=\s*8989\b", go_src["mesh.go"])
+    listens = re.findall(r"\bsrv\.(Listen\w*)\(", src)
+    assert listens == ["Listen"], listens  # no ListenTLS/ListenFunnel/ListenPacket/ListenService/ListenSSH
+    assert re.search(r'srv\.Listen\(\s*"tcp"\s*,\s*":"\s*\+\s*strconv\.Itoa\(meshPort\)\s*\)', src)
+    for forbidden in ("RegisterFallbackTCPHandler", "ListenFunnel", "RunWebClient", "ServeConfig", "Ephemeral:  true",
+                      "Ephemeral: true", "AdvertiseRoutes", "ExitNode"):
+        assert forbidden not in src, forbidden
+
+
+def test_go_control_api_guards(go_src: dict[str, str]) -> None:
+    ctl = go_src["control.go"]
+    assert "isLoopbackRemote(r.RemoteAddr)" in ctl
+    assert 'r.Header["Origin"]' in ctl
+    assert "r.Host != want" in ctl
+    assert "subtle.ConstantTimeCompare(got, c.bearer)" in ctl
+    # the auth checks come before routing
+    assert ctl.index("ConstantTimeCompare") < ctl.index('r.URL.Path == "/status"')
+    # /send: hostname only, resolved against current same-user online peers
+    assert "hostname_required" in ctl and "netip.ParseAddr" in ctl
+    assert "resolvePeer(st, target)" in ctl and "n.Online" in ctl
+    # control API binds loopback only
+    main = go_src["main.go"]
+    assert 'net.Listen("tcp6", "[::1]:0")' in main and 'net.Listen("tcp4", "127.0.0.1:0")' in main
+    assert not re.search(r'net\.Listen\(\s*"tcp\d?"\s*,\s*":', _all_go(go_src)), "no wildcard host listeners"
+
+
+def test_go_secrets_only_from_stdin(go_src: dict[str, str]) -> None:
+    src = _all_go(go_src)
+    main = go_src["main.go"]
+    assert "readConfig(os.Stdin)" in main
+    assert main.index("readConfig(os.Stdin)") < main.index("os.Stdin.Close()")
+    assert "DisallowUnknownFields" in go_src["config.go"]
+    assert "os.Args" not in src and "flag." not in src, "no argv configuration"
+    assert not re.search(r"os\.(Getenv|LookupEnv)\(", src), "no configuration or secrets from the environment"
+    for k in ("TS_AUTHKEY", "TS_AUTH_KEY", "TS_CLIENT_SECRET", "TS_CONTROL_URL", "TSNET_FORCE_LOGIN"):
+        assert f'"{k}"' in main, f"{k} must be scrubbed"
+    # redaction of this run's secrets and of key/URL shapes
+    assert all(f"red.Add(cfg.{f})" in main for f in ("AuthKey", "ControlToken", "InboxToken"))
+    assert "(?:hs|ts)key-" in go_src["logging.go"] and "https?://" in go_src["logging.go"]
+    # stdout is never written (Electron parses stderr; stdout must stay clean)
+    assert "os.Stdout" not in src and "fmt.Print" not in src
+
+
+def test_go_no_log_upload_before_start(go_src: dict[str, str]) -> None:
+    main = go_src["main.go"]
+    for call in ("envknob.SetNoLogsNoSupport()", "logtail.Disable()"):
+        assert call in main
+        assert main.index(call) < main.index("srv.Start()"), f"{call} must run before tsnet starts"
+    # the control server is always ours: validated, non-empty (tsnet defaults to controlplane.tailscale.com)
+    assert "validateControlURL" in go_src["config.go"] and "ControlURL: controlURL" in main
+
+
+def test_go_no_hardcoded_tailscale_hosts(go_src: dict[str, str]) -> None:
+    src = _all_go(go_src)
+    assert not re.search(r"[a-z0-9.-]*tailscale\.(com|io|net)\b(?!/)", re.sub(r'"tailscale\.com/[^"]*"', "", src))
+
+
+def test_go_state_dir_private(go_src: dict[str, str]) -> None:
+    main = go_src["main.go"]
+    assert "ensurePrivateDir(cfg.StateDir)" in main
+    assert "os.MkdirAll(dir, 0o700)" in main and "os.Lstat(dir)" in main and "ownedByMe(st)" in main
+    assert main.index("ensurePrivateDir(cfg.StateDir)") < main.index("srv.Start()")
+
+
+def test_go_inbox_target_is_loopback_only(go_src: dict[str, str]) -> None:
+    cfg = go_src["config.go"]
+    assert 'u.Hostname() != "127.0.0.1"' in cfg
+    mesh = go_src["mesh.go"]
+    assert '"http://127.0.0.1:"+strconv.Itoa(port)+"/incoming_task"' in mesh
+    assert "Proxy: nil" in mesh and "ErrUseLastResponse" in mesh
+    # /inbox registration requires the control token (all routes are behind the auth checks)
+    ctl = go_src["control.go"]
+    assert ctl.index("ConstantTimeCompare") < ctl.index('r.URL.Path == "/inbox"')
