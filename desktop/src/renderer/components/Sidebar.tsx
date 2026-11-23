@@ -1,14 +1,13 @@
-import { useState, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import type { AuthState, AuthUser } from '../../shared/types'
-import { api, errorText } from '../lib/api'
 import { initials, planLabel } from '../lib/format'
+import { useSignIn } from '../lib/signIn'
 import type { LicenseView } from '../lib/preview'
 import { Badge } from './Badge'
 import type { NetworkState } from '../lib/network'
 import { ActivityIcon, LaptopIcon, LogoMark, SettingsIcon } from './Icons'
 import { PrivateNetworkStatusLine } from './PrivateNetworkCard'
 import { StatusDot, type DotStatus } from './StatusDot'
-import { useToast } from './Toast'
 
 export type ViewId = 'swarm' | 'activity' | 'settings'
 
@@ -38,11 +37,12 @@ export function Sidebar({
   /** Only passed when the background service needs attention. */
   service?: { status: DotStatus; label: string } | null
   network?: NetworkState
-  /** Preview mode: sign-in is optional and the plan reads “Preview”. */
+  /** Preview mode: no wall; signed out, the network line asks for a sign-in, and the plan reads “Preview”. */
   preview?: { auth: AuthState }
 }) {
   const name = user?.name || user?.email?.split('@')[0] || 'You'
   const signedIn = !preview || preview.auth.state === 'signed_in'
+  const signIn = signedIn ? undefined : { signingIn: preview?.auth.state === 'signing_in' }
   return (
     <aside className="flex w-[232px] shrink-0 flex-col border-r border-line/[0.06] bg-surface-1">
       {/* Leaves room for macOS traffic lights and makes the top draggable. */}
@@ -95,7 +95,7 @@ export function Sidebar({
 
       <div className="m-3 rounded-2xl border border-line/[0.06] bg-surface-2 p-3">
         {!signedIn && preview ? (
-          <PreviewSignIn signingIn={preview.auth.state === 'signing_in'} />
+          <PreviewSignedOut signingIn={preview.auth.state === 'signing_in'} offerSignIn={!network} />
         ) : (
           <div className="flex items-center gap-3">
             <span
@@ -115,7 +115,7 @@ export function Sidebar({
         )}
         {network || service ? (
           <div className="mt-3 space-y-1.5 border-t border-line/[0.06] pt-2.5">
-            {network ? <PrivateNetworkStatusLine network={network} /> : null}
+            {network ? <PrivateNetworkStatusLine network={network} signIn={signIn} /> : null}
             {service ? <StatusDot status={service.status} label={service.label} className="min-w-0 truncate" /> : null}
           </div>
         ) : null}
@@ -129,35 +129,27 @@ function PreviewLabel() {
   return <span className="shrink-0 text-[11px] font-medium text-ink-faint">Preview</span>
 }
 
-/** Preview, signed out: an optional, low-key way to sign in. */
-function PreviewSignIn({ signingIn }: { signingIn: boolean }) {
-  const toast = useToast()
-  const [busy, setBusy] = useState(false)
-
-  async function signIn() {
-    setBusy(true)
-    try {
-      await api().auth.signIn()
-    } catch (err) {
-      toast.show({ tone: 'error', title: 'Couldn’t start sign-in', body: errorText(err) })
-    } finally {
-      setBusy(false)
-    }
-  }
-
+/**
+ * Preview, signed out. The network line below carries the "Sign in" action;
+ * only without a network line (older preload) is it offered here instead.
+ */
+function PreviewSignedOut({ signingIn, offerSignIn }: { signingIn: boolean; offerSignIn: boolean }) {
+  const { busy, signIn } = useSignIn()
   return (
     <div className="flex min-h-8 items-center justify-between gap-3" data-testid="account-footer">
       {signingIn ? (
         <span className="text-[13px] text-ink-muted">Finish signing in in the browser…</span>
-      ) : (
+      ) : offerSignIn ? (
         <button
           type="button"
-          onClick={signIn}
+          onClick={() => void signIn()}
           disabled={busy}
           className="app-no-drag -mx-1 rounded-md px-1 text-[13px] font-medium text-ink-muted hover:text-ink disabled:opacity-60"
         >
           Sign in
         </button>
+      ) : (
+        <span className="text-[13px] text-ink-muted">Not signed in</span>
       )}
       <PreviewLabel />
     </div>

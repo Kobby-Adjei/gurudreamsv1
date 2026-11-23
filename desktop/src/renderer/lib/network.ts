@@ -14,8 +14,8 @@ export interface NetStatus {
   state: NetState
   detail?: string
   ip?: string
-  /** Preview only (PHASE3_PLAN.md §8): which network the service is on, when main says. */
-  mode?: 'embedded' | 'system'
+  /** Informational only; the app always runs its own private network. */
+  mode?: 'embedded'
 }
 
 export interface NetworkBridge {

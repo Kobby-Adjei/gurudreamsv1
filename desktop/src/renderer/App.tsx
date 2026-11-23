@@ -4,7 +4,7 @@ import { WifiOffIcon } from './components/Icons'
 import { ToastProvider } from './components/Toast'
 import { api, errorText } from './lib/api'
 import { useNetworkStatus, type NetStatus } from './lib/network'
-import { isEnforced, networkMode, SYSTEM_NETWORK_HINT, type LicenseView } from './lib/preview'
+import { isEnforced, needsSignIn, type LicenseView } from './lib/preview'
 import { ErrorScreen } from './views/ErrorScreen'
 import { MainShell } from './views/MainShell'
 import { Paywall } from './views/Paywall'
@@ -41,8 +41,8 @@ export const START_STEPS = ['Connecting your private network', 'Starting AirBrid
 
 /**
  * Two steps: the network comes up first, then the background service.
- * With `ownNetwork: false` (preview on the computer's existing network) there
- * is no network of ours to wait for, so only the service step is shown.
+ * With `ownNetwork: false` (preview, signed out: the network waits for a
+ * sign-in) there is nothing to wait for, so only the service step is shown.
  */
 export function startSteps(
   network: NetStatus | null | undefined,
@@ -97,7 +97,8 @@ function derivePreview(
   lifecycle: BackendLifecycle | null,
   network?: NetStatus | null
 ): Screen {
-  const own = networkMode(license, auth, network) === 'embedded'
+  // Signed out, the network waits for a sign-in that happens inside the app.
+  const own = !needsSignIn(license, auth)
   if (network?.state === 'error') return { kind: 'network', detail: network.detail }
   switch (lifecycle?.phase) {
     case 'running':
@@ -180,9 +181,6 @@ function AppStates() {
   const netStatus = network.available ? network.status : undefined
   const screen = deriveScreen(auth, license, lifecycle, netStatus)
   const enforced = isEnforced(license)
-  // Preview on the computer's existing network: the one case where trouble
-  // gets the vendor hint instead of the invisible-network copy.
-  const systemNet = networkMode(license, auth, netStatus) === 'system'
 
   // Coming back from the browser checkout? Re-check automatically.
   useEffect(() => {
@@ -241,12 +239,8 @@ function AppStates() {
         <ErrorScreen
           icon={<WifiOffIcon size={28} />}
           title="Couldn’t connect your devices"
-          body={
-            systemNet
-              ? 'AirBridge couldn’t reach your other computers just now.'
-              : 'AirBridge links your computers through its own private network, and it couldn’t start just now.'
-          }
-          step={systemNet ? SYSTEM_NETWORK_HINT : 'Check that this computer is online, then press Retry.'}
+          body="AirBridge links your computers through its own private network, and it couldn’t start just now."
+          step="Check that this computer is online, then press Retry."
           onAction={retryBackend}
           busy={busy || network.retrying}
           detail={screen.detail}
@@ -257,7 +251,6 @@ function AppStates() {
         <ErrorScreen
           title="AirBridge stopped unexpectedly"
           body="It usually recovers on its own. If it doesn’t, try again — or quit and reopen the app."
-          step={systemNet ? SYSTEM_NETWORK_HINT : undefined}
           onAction={retryBackend}
           busy={busy}
           detail={screen.detail}
@@ -274,7 +267,6 @@ function AppStates() {
               ? undefined
               : {
                   auth: auth ?? { state: 'signed_out' },
-                  netMode: systemNet ? 'system' : 'embedded',
                   onRecheck: async () => isActive(await loadLicense(true))
                 }
           }

@@ -6,6 +6,7 @@ import { DeviceGlyph } from '../components/DeviceGlyph'
 import { EmptyState } from '../components/EmptyState'
 import { PlusIcon, RefreshIcon, SendIcon, WifiOffIcon } from '../components/Icons'
 import { PageHeader } from '../components/PageHeader'
+import { SignInPrompt } from '../components/SignInPrompt'
 import { Skeleton } from '../components/Skeleton'
 import { StatusDot } from '../components/StatusDot'
 import { useMediaQuery, useNow } from '../lib/hooks'
@@ -24,8 +25,8 @@ export interface SwarmMapProps {
   onSendTask: (target?: string) => void
   /** Peers with traffic in the last few seconds – their link glows. */
   activePeers?: ReadonlySet<string>
-  /** Preview on the computer's existing network: the one next step to show when devices can't be seen. */
-  networkHint?: string
+  /** Preview, signed out: the private network waits for a sign-in, so ask for it here. */
+  signIn?: { signingIn: boolean }
 }
 
 /** Evenly spread peers around an ellipse; a pleasing start angle per count. */
@@ -46,7 +47,7 @@ function sortPeers(nodes: Node[]): Node[] {
   )
 }
 
-export function SwarmMap({ data, loading, ipcError, platform, onRetry, onSendTask, activePeers, networkHint }: SwarmMapProps) {
+export function SwarmMap({ data, loading, ipcError, platform, onRetry, onSendTask, activePeers, signIn }: SwarmMapProps) {
   const wide = useMediaQuery('(min-width: 900px)', true)
   const [layout, setLayout] = useState<Layout>('map')
   useNow(30_000)
@@ -56,7 +57,9 @@ export function SwarmMap({ data, loading, ipcError, platform, onRetry, onSendTas
   const networkProblem = !!data?.error && peers.length === 0
   const radial = layout === 'map' && wide && peers.length <= MAX_RADIAL
 
-  const subtitle = loading && !data
+  const subtitle = signIn
+    ? 'Not connected yet'
+    : loading && !data
     ? 'Looking for your devices…'
     : peers.length === 0
       ? 'Only this computer so far'
@@ -68,34 +71,38 @@ export function SwarmMap({ data, loading, ipcError, platform, onRetry, onSendTas
         title="Your devices"
         subtitle={subtitle}
         actions={
-          <>
-            {peers.length > 0 && wide && peers.length <= MAX_RADIAL ? (
-              <div role="group" aria-label="Layout" className="flex rounded-xl border border-line/[0.08] bg-surface-1 p-0.5">
-                {(['map', 'list'] as const).map((l) => (
-                  <button
-                    key={l}
-                    type="button"
-                    aria-pressed={layout === l}
-                    onClick={() => setLayout(l)}
-                    className={`h-8 rounded-[10px] px-3 text-[13px] font-medium transition ${
-                      layout === l ? 'bg-surface-3 text-ink' : 'text-ink-muted hover:text-ink'
-                    }`}
-                  >
-                    {l === 'map' ? 'Map' : 'List'}
-                  </button>
-                ))}
-              </div>
-            ) : null}
-            {peers.length > 0 ? (
-              <Button variant="primary" icon={<SendIcon size={16} />} onClick={() => onSendTask()} disabled={online === 0}>
-                Send a task
-              </Button>
-            ) : null}
-          </>
+          signIn ? null : (
+            <>
+              {peers.length > 0 && wide && peers.length <= MAX_RADIAL ? (
+                <div role="group" aria-label="Layout" className="flex rounded-xl border border-line/[0.08] bg-surface-1 p-0.5">
+                  {(['map', 'list'] as const).map((l) => (
+                    <button
+                      key={l}
+                      type="button"
+                      aria-pressed={layout === l}
+                      onClick={() => setLayout(l)}
+                      className={`h-8 rounded-[10px] px-3 text-[13px] font-medium transition ${
+                        layout === l ? 'bg-surface-3 text-ink' : 'text-ink-muted hover:text-ink'
+                      }`}
+                    >
+                      {l === 'map' ? 'Map' : 'List'}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+              {peers.length > 0 ? (
+                <Button variant="primary" icon={<SendIcon size={16} />} onClick={() => onSendTask()} disabled={online === 0}>
+                  Send a task
+                </Button>
+              ) : null}
+            </>
+          )
         }
       />
 
-      {loading && !data ? (
+      {signIn ? (
+        <SignInPrompt signingIn={signIn.signingIn} />
+      ) : loading && !data ? (
         <MapSkeleton />
       ) : ipcError && !data ? (
         <Card>
@@ -124,8 +131,8 @@ export function SwarmMap({ data, loading, ipcError, platform, onRetry, onSendTas
               </Button>
             }
           >
-            <p>{networkHint ? 'AirBridge can’t reach your other computers.' : 'Your private network is still connecting.'}</p>
-            <p className="mt-1 font-medium text-ink">{networkHint ?? 'Check that this computer is online, then press Retry.'}</p>
+            <p>Your private network is still connecting.</p>
+            <p className="mt-1 font-medium text-ink">Check that this computer is online, then press Retry.</p>
           </EmptyState>
         </Card>
       ) : peers.length === 0 ? (
@@ -220,8 +227,6 @@ function RadialMap({
   peers: Node[]
   onSendTask: (t?: string) => void
   activePeers?: ReadonlySet<string>
-  /** Preview on the computer's existing network: the one next step to show when devices can't be seen. */
-  networkHint?: string
 }) {
   const pos = radialPositions(peers.length)
   return (

@@ -9,7 +9,7 @@ import { api } from '../lib/api'
 import { eventSentence } from '../lib/format'
 import { useBackendStatus, useEvents, useNodes } from '../lib/hooks'
 import { useNetworkStatus } from '../lib/network'
-import { SYSTEM_NETWORK_HINT, type LicenseView, type NetMode } from '../lib/preview'
+import type { LicenseView } from '../lib/preview'
 import { ActivityFeed } from './ActivityFeed'
 import { PlansPage } from './Paywall'
 import { Settings } from './Settings'
@@ -20,7 +20,6 @@ const ACTIVE_LINK_MS = 4000
 /** Present only in preview (license not enforced, PHASE3_PLAN.md §8). */
 export interface PreviewInfo {
   auth: AuthState
-  netMode: NetMode
   onRecheck: () => Promise<boolean>
 }
 
@@ -44,7 +43,8 @@ export function MainShell({
     setPlans(false)
     setViewRaw(v)
   }, [])
-  const systemNet = preview?.netMode === 'system'
+  // Preview, signed out: the private network waits for a sign-in (never a wall).
+  const signedOut = !!preview && preview.auth.state !== 'signed_in'
   const [sheet, setSheet] = useState<{ open: boolean; target?: string | null }>({ open: false })
   const [unseen, setUnseen] = useState(0)
   const [activePeers, setActivePeers] = useState<ReadonlySet<string>>(new Set())
@@ -136,7 +136,7 @@ export function MainShell({
         onNavigate={setView}
         user={user}
         license={license}
-        onlineCount={online}
+        onlineCount={signedOut ? null : online}
         unseenActivity={unseen}
         service={service}
         network={network.available ? network : undefined}
@@ -168,7 +168,7 @@ export function MainShell({
               onRetry={() => void nodes.refresh()}
               onSendTask={(target) => setSheet({ open: true, target })}
               activePeers={activePeers}
-              networkHint={systemNet ? SYSTEM_NETWORK_HINT : undefined}
+              signIn={signedOut ? { signingIn: preview?.auth.state === 'signing_in' } : undefined}
             />
           ) : view === 'activity' ? (
             <ActivityFeed events={feed.events} loading={feed.loading} freshIds={feed.freshIds} />
@@ -183,8 +183,6 @@ export function MainShell({
                 preview
                   ? {
                       auth: preview.auth,
-                      netMode: preview.netMode,
-                      devicesProblem: !!nodes.data?.error,
                       onOpenPlans: () => setPlans(true)
                     }
                   : undefined

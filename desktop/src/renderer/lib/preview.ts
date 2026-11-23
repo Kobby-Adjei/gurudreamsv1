@@ -1,5 +1,4 @@
 import type { AuthState, LicenseStatus } from '../../shared/types'
-import type { NetStatus } from './network'
 
 /**
  * Preview mode (PHASE3_PLAN.md §8): licensing is wired but not enforced until
@@ -20,30 +19,15 @@ export function isPreview(license: LicenseView | null | undefined): boolean {
 }
 
 /**
- * Which network the background service is using.
- * - `embedded`: AirBridge's own private network (the designed path).
- * - `system`: preview only, the computer's existing setup (no sign-in or no servers).
- *
- * Main may say so via `NetStatus.mode`; without it we infer from the plan's rule:
- * in preview, embedded needs a signed-in account.
+ * Preview + signed out: the app opens as usual, but the private network waits
+ * for a sign-in (main reports `needs_login`). The UI asks for that sign-in in
+ * place, never with a wall. Enforced mode has its own full-window sign-in.
  */
-export type NetMode = 'embedded' | 'system'
-
-export function networkMode(
+export function needsSignIn(
   license: LicenseView | null | undefined,
-  auth: AuthState | null | undefined,
-  network: NetStatus | null | undefined
-): NetMode {
-  if (!isPreview(license)) return 'embedded'
-  if (network?.mode) return network.mode
-  return auth?.state === 'signed_in' ? 'embedded' : 'system'
+  auth: AuthState | null | undefined
+): boolean {
+  return isPreview(license) && auth?.state !== 'signed_in'
 }
-
-/**
- * The single place the renderer may name the network vendor: shown only in
- * preview + system mode when the network or service reports trouble.
- * Allowlisted, by exact line, in tests/renderer/copy.test.ts.
- */
-export const SYSTEM_NETWORK_HINT = 'Make sure Tailscale is running on this computer.'
 
 export const PREVIEW_NOTE = 'AirBridge is in preview — everything is unlocked while we test.'

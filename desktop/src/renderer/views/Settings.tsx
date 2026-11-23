@@ -5,14 +5,14 @@ import { Card, CardHeader } from '../components/Card'
 import { CopyButton } from '../components/CopyButton'
 import { ArrowRightIcon } from '../components/Icons'
 import { PageHeader } from '../components/PageHeader'
-import { ExistingNetworkCard, PrivateNetworkCard } from '../components/PrivateNetworkCard'
+import { PrivateNetworkCard } from '../components/PrivateNetworkCard'
 import { Skeleton } from '../components/Skeleton'
 import { StatusDot, type DotStatus } from '../components/StatusDot'
 import { useToast } from '../components/Toast'
 import { api, errorText } from '../lib/api'
 import { formatUptime, planLabel, platformLabel } from '../lib/format'
 import type { NetworkState } from '../lib/network'
-import { PREVIEW_NOTE, SYSTEM_NETWORK_HINT, type LicenseView, type NetMode } from '../lib/preview'
+import { PREVIEW_NOTE, type LicenseView } from '../lib/preview'
 
 const CLIENTS: { id: McpClient; label: string; steps: [string, ReactNode][] }[] = [
   {
@@ -70,9 +70,6 @@ export function Settings({
   /** Preview mode only (license not enforced). */
   preview?: {
     auth: AuthState
-    netMode: NetMode
-    /** The service can't see other devices right now. */
-    devicesProblem: boolean
     onOpenPlans: () => void
   }
 }) {
@@ -82,11 +79,10 @@ export function Settings({
       <div className="space-y-5 pb-10">
         <ConnectApps />
         <div className="grid gap-5 lg:grid-cols-2">
-          {preview?.netMode === 'system' ? (
-            <ExistingNetworkCard network={network} devicesProblem={preview.devicesProblem} hint={SYSTEM_NETWORK_HINT} />
-          ) : (
-            <PrivateNetworkCard network={network} />
-          )}
+          <PrivateNetworkCard
+            network={network}
+            signIn={preview && preview.auth.state !== 'signed_in' ? { signingIn: preview.auth.state === 'signing_in' } : undefined}
+          />
           <ServiceCard lifecycle={lifecycle} status={status} />
         </div>
         {preview ? (
@@ -295,7 +291,7 @@ function AccountCard({ user, license }: { user?: AuthUser; license: LicenseView 
   )
 }
 
-/** Preview: nothing to buy or manage yet. Sign-in is optional; plans are a look, not a gate. */
+/** Preview: nothing to buy or manage yet. Sign-in connects your devices; plans are a look, not a gate. */
 function PreviewAccountCard({ user, auth, onOpenPlans }: { user?: AuthUser; auth: AuthState; onOpenPlans: () => void }) {
   const toast = useToast()
   const [busy, setBusy] = useState<'signin' | 'signout' | null>(null)
@@ -335,7 +331,7 @@ function PreviewAccountCard({ user, auth, onOpenPlans }: { user?: AuthUser; auth
             <Button variant="secondary" loading={busy === 'signin'} onClick={() => run('signin')}>
               Sign in
             </Button>
-            <span className="text-[13px] text-ink-faint">Optional</span>
+            <span className="text-[13px] text-ink-faint">To connect your devices</span>
           </>
         )}
         <button
