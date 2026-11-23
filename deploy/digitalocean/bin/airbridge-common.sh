@@ -24,8 +24,12 @@ load_env() {
   set +a
 }
 
+# Clean environment: load_env exports airbridge.env (e.g. AIRBRIDGE_DOMAIN= empty for sslip.io), and docker compose
+# lets shell variables OVERRIDE --env-file values, so an exported empty AIRBRIDGE_DOMAIN would break interpolation.
+# runtime.env (rendered by airbridge-bootstrap) is the only source of compose variables.
 compose() {
-  docker compose -p airbridge -f "$AIRBRIDGE_COMPOSE_FILE" --env-file "$AIRBRIDGE_ETC/runtime.env" "$@"
+  env -i PATH="$PATH" HOME="${HOME:-/root}" ${DOCKER_HOST:+DOCKER_HOST="$DOCKER_HOST"} \
+    docker compose -p airbridge -f "$AIRBRIDGE_COMPOSE_FILE" --env-file "$AIRBRIDGE_ETC/runtime.env" "$@"
 }
 
 # Set KEY=VALUE in airbridge.env (adds the line if missing).

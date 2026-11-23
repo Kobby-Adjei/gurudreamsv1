@@ -52,6 +52,8 @@ write_files:
       fail() {
         mkdir -p /run/airbridge-status
         tail -n 80 /var/log/airbridge-install.log > /run/airbridge-status/airbridge-install.txt || true
+        # If Caddy already holds :80/:443, the landing root serves it instead: https://<host>/airbridge-install.txt
+        [ -d /var/lib/airbridge/site ] && install -m 0644 /run/airbridge-status/airbridge-install.txt /var/lib/airbridge/site/ || true
         systemd-run --unit=airbridge-status python3 -m http.server 80 --directory /run/airbridge-status || true
       }
       trap fail ERR

@@ -91,7 +91,7 @@ curl https://<host>/healthz                  # {"ok":true,"policy":"verified"} a
 ```
 
 If first boot fails, the droplet serves the last 80 lines of its install log (no secrets) at
-`http://<ip>/airbridge-install.txt`.
+`http://<ip>/airbridge-install.txt` (or, when Caddy is already up, `https://<host>/airbridge-install.txt`).
 
 ## Operating it without SSH
 
