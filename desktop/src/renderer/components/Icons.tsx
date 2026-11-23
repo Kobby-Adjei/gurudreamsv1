@@ -197,23 +197,19 @@ export const WifiOffIcon = (p: IconProps) => (
 )
 
 /**
- * App mark: two offset rounded squares – two devices, one outlined, one solid.
- * Monochrome (currentColor) so it is white on dark and black on light, and
- * drawn on a 16-unit grid so it stays crisp at 16px.
+ * App mark: a suspension-bridge tower seen head-on (two legs, arched portal
+ * beams, the road deck passing through). Monochrome via currentColor, drawn on
+ * a 1.5-unit grid of a 24-unit box so it stays crisp at 16px.
+ * Source of truth: docs/brand/logo.svg.
  */
 export function LogoMark({ size = 20, className = '' }: { size?: number; className?: string }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 16 16"
-      aria-hidden="true"
-      focusable="false"
-      className={className}
-      shapeRendering="geometricPrecision"
-    >
-      <rect x="1.75" y="1.75" width="8.5" height="8.5" rx="2.25" fill="none" stroke="currentColor" strokeWidth="1.5" />
-      <rect x="6" y="6" width="9" height="9" rx="2.5" fill="currentColor" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" className={className}>
+      <rect x="4.5" y="1.5" width="3" height="21" rx="0.5" />
+      <rect x="16.5" y="1.5" width="3" height="21" rx="0.5" />
+      <path d="M7.5 3h9v5.25c0-1.24-1-2.25-2.25-2.25h-4.5C8.5 6 7.5 7 7.5 8.25V3Z" />
+      <path d="M7.5 9.75h9v3.75c0-1.24-1-2.25-2.25-2.25h-4.5c-1.24 0-2.25 1-2.25 2.25V9.75Z" />
+      <rect x="0" y="16.5" width="24" height="2.25" rx="0.75" />
     </svg>
   )
 }

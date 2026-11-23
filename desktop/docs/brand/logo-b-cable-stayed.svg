@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+  <!-- (b) Cable-stayed pylon with fanned cables over the deck. -->
+  <rect x="10.5" y="1.5" width="3" height="21" rx="0.75" fill="currentColor" stroke="none"/>
+  <rect x="0.75" y="16.5" width="22.5" height="2.25" rx="0.75" fill="currentColor" stroke="none"/>
+  <path d="M10.5 4.5 2.25 16.5M10.5 8.25 6 16.5M13.5 4.5l8.25 12M13.5 8.25 18 16.5"/>
+</svg>

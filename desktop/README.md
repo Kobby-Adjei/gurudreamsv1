@@ -1,12 +1,11 @@
 # AirBridge Pro (desktop)
 
-AirBridge Pro is the desktop app for your **AI swarm**: every computer you own that runs
-AirBridge on your private Tailscale network. It lets the AI apps on those computers (Claude
-Desktop, Cursor, Codex and friends) hand tasks and code to each other, and gives you a calm
-place to see what is going on:
+AirBridge Pro is the desktop app for the computers you own that run AirBridge on your private
+Tailscale network. It lets the AI apps on those computers (Claude Desktop, Cursor, Codex) hand
+tasks and code to each other, and gives you a quiet place to see what is going on:
 
-- **Swarm** shows a live map. This computer sits in the middle and your other computers are
-  arranged around it, each marked *Online* (green) or *Offline* with when it was last seen.
+- **Devices** shows a live map. This computer sits in the middle and your other computers are
+  arranged around it, each marked *Online* or *Offline* with when it was last seen.
 - **Activity** is a real-time feed written in plain sentences, such as "Received task from
   MacBook", "Sent code to Desktop-PC" and "Couldn't reach Studio-Mac — is it awake?".
 - **Settings** gives you a one-click config snippet for Claude Desktop or Cursor, your account
@@ -43,7 +42,7 @@ npm run dist            # electron-builder installers (signing/notarisation requ
 ┌──────────────────────────┐  window.airbridge   ┌──────────────┐   IPC (ab:*)   ┌──────────────────────────┐
 │ Renderer (React+Tailwind)│ ◀─────────────────▶ │   Preload    │ ◀────────────▶ │          Main            │
 │ sandboxed, no Node, CSP  │   frozen, Promise   │ contextBridge│  sender-origin │ auth (Clerk OIDC+PKCE)   │
-│ SignIn·Paywall·Swarm·…   │   based API only    └──────────────┘   validated    │ licence gate (Ed25519)   │
+│ SignIn·Paywall·Devices…  │   based API only    └──────────────┘   validated    │ licence gate (Ed25519)   │
 └──────────────────────────┘                                                    │ processManager           │
                                                                                 └────────────┬─────────────┘
                                                         HTTP + WS on 127.0.0.1, bearer token │ (token never
@@ -77,14 +76,26 @@ sees the control token or any Clerk token.
 
 ### Design system
 
-- **Surfaces:** a near-black canvas (`#0B0B0E`) with three layered surfaces, hairline borders
-  at 6–12% alpha, soft shadows and `rounded-2xl` cards.
-- **Colour:** one accent (`#3D63F5`). Green is used only for *Online*. Status always comes with
-  a text label, never colour alone.
+The aim is restraint in the spirit of Apple's System Settings and Find My. Hierarchy comes from
+type, spacing and alignment, not from effects.
+
+- **Brand:** the mark is a suspension-bridge tower seen head-on, with two legs, arched portal
+  beams and the road deck passing through. It is monochrome (`currentColor`) and crisp at 16px.
+  The concepts, the chosen mark (`docs/brand/logo.svg`) and the palette sheet are in
+  `docs/brand/`. The app icon is `build/icon.svg`.
+- **Colour:** a warm near-black canvas (`#0D0C0B`) with a subtle film grain and dot grid, warm
+  off-white text (`#F2EEE8`) and warm greys. There is one accent, **International Orange**
+  (`#C83A23` dark / `#C0362C` light, the Golden Gate's paint). It is used only for the single
+  primary action on a screen. A calm green is used only for *Online*. Every text pair meets
+  WCAG AA; see `docs/brand/palette.png`.
+- **Surfaces:** flat cards with hairline borders and `rounded-2xl` corners. There are no glows,
+  gradients or glass blur, and only overlays (sheet, toast) cast a shadow.
+- **Status:** a small solid dot plus text, never colour alone and never pulsing.
+- **Motion:** almost none. There are short one-shot fades for new items and the sheet, and a
+  link on the device map brightens briefly when a task is sent. Nothing loops except the
+  loading spinner. Everything turns off under `prefers-reduced-motion`.
 - **Type:** system stack (`-apple-system` / SF Pro, Segoe UI Variable). Spacing follows an
   8-point grid.
-- **Motion:** gentle movement such as pulse rings, data packets travelling along the swarm
-  links and fades on new items. All motion turns off under `prefers-reduced-motion`.
 - **Accessibility:** landmarks, a skip link, visible focus rings, full keyboard navigation
   (tabs, arrow keys, Esc, ⌘/Ctrl+1–3 to switch views, ⌘/Ctrl+N for *Send a task*), live
   regions, and body text that meets WCAG AA contrast. axe-core runs in the test suite.
@@ -93,10 +104,10 @@ sees the control token or any Clerk token.
 
 | | |
 |---|---|
-| ![Swarm](docs/screenshots/swarm.png) | ![Activity](docs/screenshots/activity.png) |
+| ![Devices](docs/screenshots/swarm.png) | ![Activity](docs/screenshots/activity.png) |
 | ![Settings](docs/screenshots/settings.png) | ![Sign in](docs/screenshots/signin.png) |
 | ![Paywall](docs/screenshots/paywall.png) | |
 
-More states (empty swarm, Tailscale off, Send-a-task sheet, light mode, narrow window) are in
+More states (no other devices, Tailscale off, Send-a-task sheet, light mode, narrow window) are in
 `docs/screenshots/extra/`. They were rendered with Playwright from the production renderer
 build with a mocked `window.airbridge`.

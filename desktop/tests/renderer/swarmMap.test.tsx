@@ -88,6 +88,21 @@ describe('Swarm Map', () => {
     expect(mac.querySelector('[data-device]')).toHaveAttribute('data-device', 'laptop')
   })
 
+  it('renders gracefully when ip / os are null (Tailscale down, OS unknown)', () => {
+    const data = {
+      self: { hostname: 'Studio-Air', ip: null, os: null },
+      nodes: [{ hostname: 'mystery', ip: null, os: null, online: true, last_seen: null }],
+      error: null
+    }
+    render(<SwarmMap data={data} loading={false} platform="darwin" onRetry={noop} onSendTask={noop} />)
+    const card = screen.getByRole('button', { name: 'mystery, online. Send a task' })
+    expect(card).toHaveTextContent(/^mysteryOnline$/)
+    expect(card.querySelector('[data-device]')).toHaveAttribute('data-device', 'desktop')
+    expect(screen.queryByText('null')).toBeNull()
+    expect(screen.queryByText('Computer')).toBeNull()
+    expect(screen.getByText('Studio-Air').parentElement!.querySelector('.font-mono')).toBeNull()
+  })
+
   it('places peers radially around the centre', () => {
     for (const n of [1, 2, 3, 5, 8]) {
       const pts = radialPositions(n)

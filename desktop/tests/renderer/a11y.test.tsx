@@ -56,7 +56,7 @@ describe('Accessibility (axe-core)', () => {
     })
   }
 
-  it('Swarm empty state', async () => {
+  it('Devices empty state', async () => {
     const { container } = render(
       <main>
         <SwarmMap data={{ ...fixtures.nodes(), nodes: [] }} loading={false} platform="darwin" onRetry={() => {}} onSendTask={() => {}} />

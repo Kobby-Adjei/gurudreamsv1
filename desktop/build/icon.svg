@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- AirBridge app icon: the tower mark in International Orange on the warm near-black canvas. -->
+  <rect width="1024" height="1024" rx="228" fill="#0D0C0B"/>
+  <g transform="translate(224 224) scale(24)" fill="#C83A23">
+    <rect x="4.5" y="1.5" width="3" height="21" rx="0.5"/>
+    <rect x="16.5" y="1.5" width="3" height="21" rx="0.5"/>
+    <path d="M7.5 3h9v5.25c0-1.24-1-2.25-2.25-2.25h-4.5C8.5 6 7.5 7 7.5 8.25V3Z"/>
+    <path d="M7.5 9.75h9v3.75c0-1.24-1-2.25-2.25-2.25h-4.5c-1.24 0-2.25 1-2.25 2.25V9.75Z"/>
+    <rect x="0" y="16.5" width="24" height="2.25" rx="0.75"/>
+  </g>
+</svg>
