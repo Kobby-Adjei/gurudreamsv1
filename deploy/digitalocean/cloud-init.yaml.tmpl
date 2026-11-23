@@ -1,0 +1,80 @@
+#cloud-config
+# AirBridge cloud droplet first boot (deploy/digitalocean). Rendered by provision.sh; the placeholders @@NAME@@ are
+# replaced there. No SSH is needed or allowed: this fetches the PUBLIC repo at one pinned commit, checks that
+# HEAD == that commit, and runs deploy/digitalocean/bin/airbridge-install (host setup + airbridge-bootstrap).
+# NOTE: DigitalOcean keeps user_data in the droplet metadata (readable from the droplet only, at
+# 169.254.169.254; containers are blocked from it by airbridge-docker-guard). It holds the waitlist admin token.
+package_update: true
+package_upgrade: true
+packages:
+  - docker.io
+  - docker-compose-v2
+  - git
+  - jq
+  - sqlite3
+  - gettext-base
+  - openssl
+  - curl
+  - unattended-upgrades
+
+write_files:
+  - path: /etc/airbridge/airbridge.env
+    permissions: "0600"
+    owner: root:root
+    content: |
+      # AirBridge droplet settings (non-secret). After editing, run: sudo airbridge-bootstrap
+      AIRBRIDGE_REPO=https://github.com/Kobby-Adjei/gurudreamsv1.git
+      AIRBRIDGE_COMMIT=@@AIRBRIDGE_COMMIT@@
+      # Empty = <public-ip-with-dashes>.sslip.io. Set to a real domain (A record -> this droplet) to switch.
+      AIRBRIDGE_DOMAIN=@@AIRBRIDGE_DOMAIN@@
+      ENFORCE_ENTITLEMENT=false
+      CLERK_ISSUER=https://emerging-joey-8658.clerk.accounts.dev
+      CLERK_JWKS_URL=https://emerging-joey-8658.clerk.accounts.dev/.well-known/jwks.json
+      CLERK_AUDIENCE=Sw26KIECiwd7qrWr
+      PREAUTH_TTL_SECONDS=600
+      # TEMPORARY deployment smoke test (README). Turned off automatically after cleanup or the deadline.
+      SMOKE_TEST=@@SMOKE_TEST@@
+      SMOKE_TEST_UNTIL=@@SMOKE_TEST_UNTIL@@
+  - path: /etc/airbridge/bootstrap/waitlist_admin_token
+    permissions: "0600"
+    owner: root:root
+    content: "@@WAITLIST_ADMIN_TOKEN@@"
+  - path: /usr/local/sbin/airbridge-firstboot
+    permissions: "0755"
+    owner: root:root
+    content: |
+      #!/usr/bin/env bash
+      # Fetch the pinned commit and install. On failure, serve the (secret-free) install log tail on :80 so the
+      # operator can see what broke without SSH: http://<ip>/airbridge-install.txt
+      set -euo pipefail
+      exec > >(tee -a /var/log/airbridge-install.log) 2>&1
+      fail() {
+        mkdir -p /run/airbridge-status
+        tail -n 80 /var/log/airbridge-install.log > /run/airbridge-status/airbridge-install.txt || true
+        systemd-run --unit=airbridge-status python3 -m http.server 80 --directory /run/airbridge-status || true
+      }
+      trap fail ERR
+      . /etc/airbridge/airbridge.env
+      [[ "$AIRBRIDGE_COMMIT" =~ ^[0-9a-f]{40}$ ]] || { echo "AIRBRIDGE_COMMIT must be a full sha"; false; }
+      src=/opt/airbridge/src
+      if [ ! -d "$src/.git" ]; then
+        install -d -m 0755 /opt/airbridge
+        git init -q "$src"
+        git -C "$src" remote add origin "$AIRBRIDGE_REPO"
+        git -C "$src" sparse-checkout set --cone license-server landing deploy/digitalocean
+      fi
+      for i in 1 2 3 4 5; do
+        git -C "$src" fetch --quiet --depth 1 --filter=blob:none origin "$AIRBRIDGE_COMMIT" && break
+        [ "$i" = 5 ] && false
+        sleep 10
+      done
+      git -C "$src" checkout --quiet --detach FETCH_HEAD
+      head="$(git -C "$src" rev-parse HEAD)"
+      [ "$head" = "$AIRBRIDGE_COMMIT" ] || { echo "HEAD $head != $AIRBRIDGE_COMMIT"; false; }
+      echo "airbridge-firstboot: source at $head (verified)"
+      "$src/deploy/digitalocean/bin/airbridge-install"
+      echo "airbridge-firstboot: done"
+
+runcmd:
+  - [systemctl, enable, --now, docker]
+  - [/usr/local/sbin/airbridge-firstboot]

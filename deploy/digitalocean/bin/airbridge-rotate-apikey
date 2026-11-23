@@ -3,7 +3,7 @@
 # airbridge-rotate-apikey.timer, or by hand after a suspected leak. Creates a new 90-day key, restarts the license
 # server with it, checks that the policy guard verifies through the new key, then expires every older key.
 # On failure the previous key is restored. Keys are never printed.
-set -euo pipefail
+set -Eeuo pipefail
 umask 077
 # shellcheck source=airbridge-common.sh
 . "${AIRBRIDGE_LIB:-/usr/local/lib/airbridge}/airbridge-common.sh"
@@ -20,13 +20,15 @@ chown "$NODE_UID:$NODE_UID" "$tmp"
 chmod 0400 "$tmp"
 cp -p "$f" "$f.prev"
 mv -f "$tmp" "$f"
-compose up -d --force-recreate --wait license-server
-if ! wait_policy_verified; then
-  log "new key does not work: restoring the previous key"
+restore() {
+  log "rotation failed: restoring the previous key (the new key stays unused until it expires)"
   mv -f "$f.prev" "$f"
-  compose up -d --force-recreate --wait license-server
-  die "rotation failed (previous key restored; the new key stays unused until it expires)"
-fi
+  compose up -d --no-build --force-recreate --wait license-server || true
+}
+trap 'restore' ERR
+compose up -d --no-build --force-recreate --wait license-server
+wait_policy_verified
+trap - ERR
 rm -f "$f.prev"
 n=0
 for id in $old_ids; do
