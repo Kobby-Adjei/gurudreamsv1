@@ -75,7 +75,7 @@ body {
 h1 {
   margin: 0;
   max-width: 100%;
-  font-size: clamp(30px, 2.65vw, 40px);
+  font-size: clamp(30px, 2.3vw, 36px);
   font-weight: 600;
   line-height: 1.15;
   letter-spacing: -0.028em;
@@ -158,13 +158,13 @@ button:disabled { cursor: progress; opacity: 0.7; }
 
 /* ---------- below the fold */
 .facts ul {
-  list-style: none; margin: 0 auto; padding: 56px 0;
-  max-width: 960px;
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;
+  list-style: none; margin: 0 auto; padding: 64px 0 56px;
+  max-width: 720px;
+  display: grid; gap: 14px;
   border-top: 1px solid rgb(var(--line) / 0.08);
   text-align: center;
 }
-.facts li { font-size: 15px; color: var(--ink-muted); letter-spacing: -0.005em; }
+.facts li { font-size: 17px; color: var(--ink-muted); letter-spacing: -0.01em; text-wrap: balance; }
 
 .foot p {
   margin: 0 auto; padding: 24px 0 40px; max-width: 960px;
@@ -182,7 +182,8 @@ button:disabled { cursor: progress; opacity: 0.7; }
   .card-skel { display: inline; }
   .lbl { font-size: 12px; }
   .lbl b { font-size: 14px; }
-  .facts ul { grid-template-columns: 1fr; gap: 14px; padding: 40px 0; }
+  .facts ul { padding: 40px 0 32px; gap: 12px; }
+  .facts li { font-size: 15px; }
 }
 @media (max-width: 400px) {
   .row { flex-direction: column; }

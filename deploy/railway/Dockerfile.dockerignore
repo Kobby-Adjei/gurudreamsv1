@@ -5,7 +5,9 @@
 !license-server/tsconfig.json
 !license-server/tsconfig.build.json
 !license-server/src
-!license-server/headscale/policy.hujson
-!deploy/railway/headscale.yaml.tmpl
+!landing
+landing/**/.*
+landing/**/*.md
+landing/**/node_modules
 !deploy/railway/Caddyfile
 !deploy/railway/entrypoint.sh

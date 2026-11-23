@@ -1,9 +1,0 @@
-*
-!desktop/sidecar/airbridge-net
-!airbridge/requirements.txt
-!airbridge/main.py
-!airbridge/airbridge_app
-!deploy/railway/smoke/smoke.py
-**/__pycache__
-**/vendor
-!deploy/railway/smoke/probe.py

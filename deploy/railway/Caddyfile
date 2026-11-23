@@ -1,5 +1,5 @@
-# AirBridge cloud front door inside the Railway container (deploy/railway).
-# Railway's edge terminates TLS and forwards plain HTTP/1.1 to $PORT.
+# AirBridge cloud front door inside the Railway container (deploy/railway): license server + static landing page.
+# Railway's edge terminates TLS and forwards plain HTTP/1.1 to $PORT. No Headscale here (see README.md).
 {
 	admin off
 	auto_https off
@@ -11,27 +11,45 @@
 }
 
 :{$PORT} {
-	# PHASE3_SECURITY F-3: the Headscale admin REST API and its docs are never public.
+	header {
+		-Server
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		Strict-Transport-Security "max-age=31536000"
+	}
+
+	# Never public: the Headscale admin REST API and its docs (PHASE3_SECURITY F-3). Kept as a guard even
+	# though Headscale no longer runs in this image, so these paths can never fall through to the landing page.
 	@admin path /api /api/* /swagger /swagger*
 	handle @admin {
 		respond 404
 	}
 
-	# License server (Clerk/Stripe/pre-auth keys).
+	# License server: /v1/* (incl. /v1/waitlist*), /healthz, Checkout return pages.
 	@license path /v1/* /healthz /checkout/*
 	handle @license {
 		reverse_proxy 127.0.0.1:8787
 	}
 
-	# Everything else is Headscale: /ts2021 (Upgrade: tailscale-control-protocol), /derp (Upgrade: DERP),
-	# /key, /machine, /register, /oidc, /health, /generate_204. Caddy proxies any HTTP/1.1 Upgrade.
+	# Everything else: the static landing page (landing/ copied to /srv/landing at build time).
 	handle {
-		reverse_proxy 127.0.0.1:8081 {
-			flush_interval -1
+		root * /srv/landing
+		header {
+			X-Frame-Options DENY
+			Permissions-Policy "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+			Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'"
+			Cache-Control "no-cache"
+		}
+		try_files {path} {path}/index.html
+		file_server {
+			hide .* *.md
 		}
 	}
 
-	header -Server
+	handle_errors {
+		respond "{err.status_code} {err.status_text}" {err.status_code}
+	}
+
 	log {
 		output stdout
 		format json

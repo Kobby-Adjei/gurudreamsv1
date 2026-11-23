@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>AirBridge OG</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+  /* No film grain here: noise does not compress, and it is invisible at share-card size. */
+  body { width: 1200px; height: 630px; min-height: 0; margin: 0; overflow: hidden; background-image: radial-gradient(rgb(var(--line) / 0.07) 1px, transparent 1px); background-size: 24px 24px; background-position: 12px 12px; }
+  .og { position: relative; width: 1200px; height: 630px; padding: 72px 80px; display: flex; flex-direction: column; justify-content: space-between; }
+  .og .brand { font-size: 26px; gap: 16px; }
+  .og .mark { width: 34px; height: 34px; }
+  .og h1 { font-size: 64px; line-height: 1.08; letter-spacing: -0.035em; text-align: left; }
+  .og h1 span { color: var(--ink-muted); }
+  .og .mark { fill: var(--accent); }
+</style></head>
+<body>
+<div class="og">
+  <div class="brand"><svg class="mark" viewBox="0 0 24 24"><path d="M10.875 1.5h2.25v2.3l6.825 18.7h-2.4L12 7.3 6.45 22.5h-2.4l6.825-18.7V1.5Z"/><rect x="0" y="15" width="24" height="2.25" rx="0.75"/></svg><span>AirBridge</span></div>
+  <h1>Send work from your laptop&rsquo;s AI<br>to your desktop&rsquo;s AI.<br><span>No server in between.</span></h1>
+</div>
+</body></html>

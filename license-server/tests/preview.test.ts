@@ -47,3 +47,21 @@ describe('preview mode without Stripe and Clerk', () => {
     expect((await app.request('/v1/network/preauth-key', { method: 'POST' })).status).not.toBe(503);
   });
 });
+
+describe('Railway landing-page build (no Headscale, no Stripe, no Clerk)', () => {
+  it('serves the waitlist from the JSONL file and keeps network endpoints in their 503 state', async () => {
+    const app = previewApp();
+    const r = await app.request('/v1/waitlist', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', origin: 'https://airbridge.example.com' },
+      body: JSON.stringify({ email: 'a@example.com', variant: 'private', price: 8 }),
+    });
+    expect(r.status).toBe(200);
+    expect(await r.json()).toEqual({ ok: true });
+    expect((await app.request('/v1/waitlist/stats')).status).toBe(404); // no WAITLIST_ADMIN_TOKEN
+    const token = 'x'.repeat(48);
+    const withAdmin = previewApp({ WAITLIST_ADMIN_TOKEN: token });
+    expect((await withAdmin.request('/v1/waitlist/stats', { headers: { authorization: `Bearer ${token}` } })).status).toBe(200);
+    expect((await app.request('/v1/network/preauth-key', { method: 'POST' })).status).toBe(503);
+  });
+});
