@@ -107,13 +107,11 @@ function AppStates() {
       setLifecycle(l)
       void loadLicense()
     })
-    // Contract amendment: license.onChange pushes ab:license:changed, so the
-    // Paywall → Starting transition is instant after subscribing. Optional-chained
-    // so older preloads (without it) still work; "check again" stays as fallback.
-    const licenseApi = a.license as typeof a.license & {
-      onChange?: (cb: (l: LicenseStatus) => void) => Unsubscribe
-    }
-    const offLicense = licenseApi.onChange?.((l) => alive.current && setLicense(l))
+    // license.onChange pushes ab:license:changed, so the Paywall → Starting
+    // transition is instant after subscribing ("check again" stays as fallback).
+    const offLicense: Unsubscribe | undefined = a.license.onChange?.((l) => {
+      if (alive.current) setLicense(l)
+    })
     return () => {
       alive.current = false
       offAuth()

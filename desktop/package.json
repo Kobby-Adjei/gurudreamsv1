@@ -4,6 +4,7 @@
   "version": "0.2.0",
   "private": true,
   "description": "AirBridge Pro desktop app: swarm map, activity feed and MCP bridge over Tailscale.",
+  "author": "AirBridge",
   "main": "./out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
@@ -33,7 +34,7 @@
     "autoprefixer": "^10.4.20",
     "axe-core": "^4.10.2",
     "electron": "^33.4.0",
-    "electron-builder": "^25.1.8",
+    "electron-builder": "^26.18.0",
     "electron-vite": "^2.3.0",
     "jsdom": "^25.0.1",
     "postcss": "^8.4.49",

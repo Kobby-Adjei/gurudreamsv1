@@ -146,7 +146,7 @@ function SelfCard({ self, platform, compact = false }: { self?: NodesResponse['s
     >
       <div className="relative">
         {!compact ? <span aria-hidden="true" className="absolute -inset-3 rounded-full bg-accent/20 blur-xl animate-breathe" /> : null}
-        <DeviceGlyph os={self?.os ?? platform} size={compact ? 20 : 26} tone="accent" className={compact ? 'h-10 w-10 rounded-xl' : 'relative h-14 w-14 rounded-2xl'} />
+        <DeviceGlyph os={self?.os ?? platform} hostname={self?.hostname} size={compact ? 20 : 26} tone="accent" className={compact ? 'h-10 w-10 rounded-xl' : 'relative h-14 w-14 rounded-2xl'} />
       </div>
       <div className={compact ? 'min-w-0 flex-1' : 'mt-3 min-w-0'}>
         <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-accent-ink">{thisComputerLabel(platform)}</p>
@@ -161,7 +161,7 @@ function SelfCard({ self, platform, compact = false }: { self?: NodesResponse['s
 function PeerCard({ node, onSendTask, className = '' }: { node: Node; onSendTask: (t?: string) => void; className?: string }) {
   const body = (
     <>
-      <DeviceGlyph os={node.os} size={20} tone={node.online ? 'neutral' : 'muted'} className="h-10 w-10 rounded-xl" />
+      <DeviceGlyph os={node.os} hostname={node.hostname} size={20} tone={node.online ? 'neutral' : 'muted'} className="h-10 w-10 rounded-xl" />
       <span className="min-w-0 flex-1 text-left">
         <span className={`block truncate text-[14px] font-semibold ${node.online ? 'text-ink' : 'text-ink-muted'}`}>
           {node.hostname}

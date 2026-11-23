@@ -265,7 +265,8 @@ def test_nodes_snapshot_tailscale_error(monkeypatch):
 
     monkeypatch.setattr(network, "_status_json", boom)
     snap = control.nodes_snapshot()
-    assert snap == {"self": None, "nodes": [], "error": "Tailscale is not running."}
+    assert snap["nodes"] == [] and snap["error"] == "Tailscale is not running."
+    assert snap["self"]["ip"] is None and snap["self"]["hostname"]
 
 
 def test_status_reflects_degraded():

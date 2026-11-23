@@ -13,6 +13,27 @@ export function osKind(os: string | null | undefined): OsKind {
   return 'unknown'
 }
 
+export type DeviceKind = 'laptop' | 'desktop' | 'server' | 'phone'
+
+const LAPTOP_HINT = /macbook|laptop|notebook|\bbook\b/i
+const DESKTOP_HINT = /studio|imac|mini|desktop|tower|workstation|(^|[^a-z])pc([^a-z]|$)/i
+
+/**
+ * Which glyph to draw. The hostname wins when it clearly names the hardware
+ * ("Studio-Mac", "Mac-mini", "Desktop-PC", "MacBook-Pro"); otherwise the OS
+ * decides: Mac → laptop, Windows → desktop, Linux → server.
+ */
+export function deviceKind(os: string | null | undefined, hostname?: string | null): DeviceKind {
+  const kind = osKind(os)
+  if (kind === 'phone') return 'phone'
+  const name = hostname ?? ''
+  if (LAPTOP_HINT.test(name)) return 'laptop'
+  if (DESKTOP_HINT.test(name)) return 'desktop'
+  if (kind === 'mac') return 'laptop'
+  if (kind === 'linux') return 'server'
+  return 'desktop'
+}
+
 export function osLabel(os: string | null | undefined): string {
   switch (osKind(os)) {
     case 'mac':

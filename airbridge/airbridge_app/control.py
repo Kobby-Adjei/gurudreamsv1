@@ -22,6 +22,7 @@ import ipaddress
 import json
 import logging
 import socket
+import sys
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -98,22 +99,35 @@ def _str_or_none(value: Any, limit: int = 64) -> str | None:
     return value.strip()[:limit] if isinstance(value, str) and value.strip() else None
 
 
+def _local_os() -> str:
+    if sys.platform == "darwin":
+        return "macOS"
+    if sys.platform.startswith("win"):
+        return "windows"
+    return "linux"
+
+
+def _fallback_self() -> dict[str, Any]:
+    return {"hostname": events.local_node_name(), "ip": None, "os": _local_os()}
+
+
 def nodes_snapshot() -> dict[str, Any]:
-    """``GET /nodes`` body. Never raises: Tailscale problems land in ``error``."""
+    """``GET /nodes`` body. Never raises: Tailscale problems land in ``error``
+    (``self`` is then this machine's hostname with ``ip: null``)."""
     try:
         data = network._status_json()
     except network.TailscaleError as exc:
-        return {"self": None, "nodes": [], "error": str(exc)[:200]}
+        return {"self": _fallback_self(), "nodes": [], "error": str(exc)[:200]}
     except Exception as exc:
         logger.exception("unexpected error reading tailscale status")
-        return {"self": None, "nodes": [], "error": f"unexpected error: {type(exc).__name__}"}
+        return {"self": _fallback_self(), "nodes": [], "error": f"unexpected error: {type(exc).__name__}"}
 
     self_entry = data.get("Self") if isinstance(data.get("Self"), dict) else {}
     self_ips = {ip for ip in self_entry.get("TailscaleIPs") or [] if isinstance(ip, str)}
     me = {
         "hostname": _node_name(self_entry) or events.local_node_name(),
         "ip": _first_ipv4(self_entry.get("TailscaleIPs")),
-        "os": _str_or_none(self_entry.get("OS")),
+        "os": _str_or_none(self_entry.get("OS")) or _local_os(),
     }
     nodes: list[dict[str, Any]] = []
     peers = data.get("Peer")

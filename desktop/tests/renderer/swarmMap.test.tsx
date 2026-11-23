@@ -2,6 +2,7 @@ import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { SwarmMap, radialPositions } from '../../src/renderer/views/SwarmMap'
+import { deviceKind } from '../../src/renderer/lib/format'
 import { MainShell } from '../../src/renderer/views/MainShell'
 import { ToastProvider } from '../../src/renderer/components/Toast'
 import { fixtures, installMockApi } from './setup'
@@ -62,6 +63,29 @@ describe('Swarm Map', () => {
     expect(screen.getByRole('region', { name: 'Swarm list' })).toBeInTheDocument()
     expect(screen.getByText('This PC')).toBeInTheDocument()
     expect(screen.getAllByText('Online')).toHaveLength(2)
+  })
+
+  it('picks a device glyph from hostname hints, then the OS', () => {
+    expect(deviceKind('macOS', 'Studio-Mac')).toBe('desktop')
+    expect(deviceKind('macOS', 'iMac-Kitchen')).toBe('desktop')
+    expect(deviceKind('macOS', 'Mac-mini')).toBe('desktop')
+    expect(deviceKind('windows', 'Desktop-PC')).toBe('desktop')
+    expect(deviceKind('linux', 'Dev-Workstation')).toBe('desktop')
+    expect(deviceKind('macOS', 'MacBook-Pro')).toBe('laptop')
+    expect(deviceKind('windows', 'Surface-Laptop')).toBe('laptop')
+    expect(deviceKind('macOS', 'graces-mac')).toBe('laptop')
+    expect(deviceKind('linux', 'Build-Server')).toBe('server')
+    expect(deviceKind('windows', 'GAMING')).toBe('desktop')
+    expect(deviceKind('iOS', 'iPhone')).toBe('phone')
+    expect(deviceKind('macOS', 'topcat')).toBe('laptop') // "pc" inside a word is not a hint
+  })
+
+  it('draws Studio-Mac as a desktop on the map', () => {
+    render(<SwarmMap data={fixtures.nodes()} loading={false} platform="darwin" onRetry={noop} onSendTask={noop} />)
+    const card = screen.getByText('Studio-Mac').closest('[data-testid="peer-card"]')!
+    expect(card.querySelector('[data-device]')).toHaveAttribute('data-device', 'desktop')
+    const mac = screen.getByText('MacBook').closest('[data-testid="peer-card"]')!
+    expect(mac.querySelector('[data-device]')).toHaveAttribute('data-device', 'laptop')
   })
 
   it('places peers radially around the centre', () => {

@@ -64,8 +64,12 @@ export function Sidebar({
                   </span>
                   <span className="flex-1 text-left">{item.label}</span>
                   {item.id === 'swarm' && onlineCount !== null ? (
-                    <span className="text-[12px] tabular-nums text-ink-faint" aria-label={`${onlineCount} online`}>
-                      {onlineCount}
+                    <span
+                      className="inline-flex items-center gap-1.5 text-[12px] tabular-nums text-ink-faint"
+                      aria-label={`${onlineCount} online`}
+                    >
+                      <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${onlineCount > 0 ? 'bg-ok-dot' : 'bg-ink-faint/60'}`} />
+                      <span aria-hidden="true">{onlineCount} online</span>
                     </span>
                   ) : null}
                   {item.id === 'activity' && unseenActivity > 0 ? (

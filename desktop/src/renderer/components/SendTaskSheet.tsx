@@ -196,7 +196,7 @@ export function SendTaskSheet({
                           onChange={() => setTarget(n.hostname)}
                           className="sr-only"
                         />
-                        <DeviceGlyph os={n.os} size={18} className="h-8 w-8 rounded-lg" />
+                        <DeviceGlyph os={n.os} hostname={n.hostname} size={18} className="h-8 w-8 rounded-lg" />
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-[14px] font-medium text-ink">{n.hostname}</span>
                           <span className="block text-[12px] text-ink-faint">

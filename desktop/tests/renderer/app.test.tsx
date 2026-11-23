@@ -72,6 +72,7 @@ describe('App state machine', () => {
     expect(await screen.findByRole('heading', { name: 'Your swarm' })).toBeInTheDocument()
     expect(screen.getByRole('navigation', { name: 'Main' })).toBeInTheDocument()
     expect(screen.getByRole('main')).toBeInTheDocument()
+    expect(await screen.findByLabelText('2 online')).toBeInTheDocument()
     await waitFor(() => expect(screen.getAllByText('Online').length).toBeGreaterThanOrEqual(2))
   })
 
