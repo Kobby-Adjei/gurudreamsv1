@@ -13,8 +13,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 from airbridge_app import config, inbox, security
-from tests.conftest import NON_TAILNET_CLIENT, TAILNET_CLIENT
-
+TAILNET_CLIENT = ("100.101.102.103", 50000)
+NON_TAILNET_CLIENT = ("192.168.1.20", 50000)
 URL = "/incoming_task"
 
 
