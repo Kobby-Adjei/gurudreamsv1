@@ -8,8 +8,17 @@ let pw; try { pw = require('playwright'); } catch { pw = require('/opt/node-tool
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const b = await pw.chromium.launch();
 
-const og = await b.newPage({ viewport: { width: 1200, height: 630 } });
+// The share card reuses the hero figure from index.html, shown in its finished state.
+const { readFile } = await import('node:fs/promises');
+const html = await readFile(join(root, 'index.html'), 'utf8');
+const figure = html.slice(html.indexOf('<figure class="viz"'), html.indexOf('</figure>') + 9);
+const ctx = await b.newContext({ viewport: { width: 1200, height: 630 }, reducedMotion: 'reduce' });
+const og = await ctx.newPage();
 await og.goto(pathToFileURL(join(root, 'tools/og.html')).href);
+await og.evaluate((f) => {
+  const c = Array.from(document.querySelector('.og').childNodes).find((n) => n.nodeType === 8 && n.data.includes('FIGURE'));
+  const t = document.createElement('template'); t.innerHTML = f; c.replaceWith(t.content);
+}, figure);
 await og.screenshot({ path: join(root, 'assets/og.png') });
 
 const svg = pathToFileURL(join(root, 'assets/favicon.svg')).href;

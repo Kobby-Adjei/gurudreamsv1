@@ -72,7 +72,7 @@ if (process.argv.includes('--extra')) {
   }));
   await page.waitForTimeout(1500);
   const later = await page.evaluate(() => [...document.querySelectorAll('.card')].map((c) => getComputedStyle(c).transform + '/' + getComputedStyle(c).opacity));
-  const ok = r.anims.length === 4 && r.anims.every((a) => a.state === 'finished' && a.iterations === 1) &&
+  const ok = r.anims.length === 8 && r.anims.every((a) => a.state === 'finished' && a.iterations === 1) &&
     r.card.every((c) => c === 'none/1' || c === 'matrix(1, 0, 0, 1, 0, 0)/1') && r.span.every((v) => v === 0) &&
     JSON.stringify(later) === JSON.stringify(r.card);
   console.log('animation start', early, '-> rest', JSON.stringify(r), ok ? 'PASS' : 'FAIL');

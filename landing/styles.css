@@ -86,44 +86,54 @@ h1 {
 .viz { position: relative; width: min(640px, 100%); margin: clamp(36px, 5vh, 56px) 0 0; }
 .viz svg { display: block; width: 100%; height: auto; overflow: visible; }
 
-/* One stroke weight for every drawing; strokes do not scale with the figure. */
-.viz svg * { vector-effect: non-scaling-stroke; }
-.fence-fill { fill: rgb(var(--line) / 0.012); }
-.fence { fill: none; stroke: rgb(var(--line) / 0.14); stroke-width: 1; }
-.fence-narrow { display: none; }
-.rail { fill: none; stroke: rgb(var(--line) / 0.2); stroke-width: 1; }
-.span { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-linecap: round; stroke-dasharray: 1 1; stroke-dashoffset: 0; }
+/* Flat, filled machines in warm greys; orange only for the links in use and the tasks. */
+.panel { fill: #191715; stroke: #46413b; stroke-width: 2; stroke-dasharray: 10 8; }
+.rail { fill: none; stroke: #46413b; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.span { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 1 1; stroke-dashoffset: 0; }
+.node { fill: #6b645b; stroke: #191715; stroke-width: 2; }
+.node-1, .node-2 { fill: var(--accent); }
 
-.device .body { fill: var(--surface-1); stroke: rgb(var(--line) / 0.46); stroke-width: 1.25; stroke-linejoin: round; }
-.device .display { fill: var(--canvas); stroke: rgb(var(--line) / 0.12); stroke-width: 1; }
-.device .detail { fill: none; stroke: rgb(var(--line) / 0.3); stroke-width: 1; stroke-linecap: round; }
-.device .hinge { fill: #3a3631; }
-.device .dot { fill: rgb(var(--line) / 0.35); }
-.device .led { fill: var(--ok); }
+.m-body { fill: #5e5850; }
+.m-top { fill: #726b62; }
+.m-dark { fill: #2e2a26; }
+.m-bezel { fill: #0f0e0d; }
+.m-side { fill: #1b1916; }
+.m-panel { fill: #524c45; }
+.m-line { fill: #7a7369; }
+.m-line2 { fill: #38342f; }
+.m-hi { fill: #aba49b; }
+.m-caret { fill: #f2eee8; }
+.m-vent { fill: none; stroke: #36322d; stroke-width: 3; stroke-linecap: round; }
+.led { fill: var(--ok); }
 
-.card-bg { fill: var(--surface-2); stroke: rgb(var(--line) / 0.22); stroke-width: 1; }
-.card-tick { fill: var(--accent); }
-.card-text { fill: var(--ink); font-family: var(--sans); font-size: 12.5px; font-weight: 500; letter-spacing: -0.005em; }
-.card-skel { display: none; fill: rgb(var(--line) / 0.32); }
+.card-bg { fill: var(--accent); }
+.card-text { fill: var(--accent-fg); font-family: var(--sans); font-size: 12.5px; font-weight: 600; letter-spacing: -0.005em; }
+.card-skel { display: none; fill: rgb(251 248 243 / 0.85); }
 
 /* Two calm, one-time hand-offs, then everything is still. */
 .card-1 { animation: across 2.4s cubic-bezier(0.65, 0, 0.35, 1) 0.8s both; }
 .span-1 { animation: draw 2.4s cubic-bezier(0.65, 0, 0.35, 1) 0.8s both; }
 .card-2 { animation: up 2s cubic-bezier(0.65, 0, 0.35, 1) 3.8s both; }
 .span-2 { animation: draw 2s cubic-bezier(0.65, 0, 0.35, 1) 3.8s both; }
+.node-1 { animation: lit 0.3s linear 0.8s both; }
+.node-2 { animation: lit 0.3s linear 3.8s both; }
 @keyframes across {
   0% { transform: translateX(-380px); opacity: 0; }
   8% { opacity: 1; }
   100% { transform: translateX(0); opacity: 1; }
 }
 @keyframes up {
-  0% { transform: translateY(215px); opacity: 0; }
+  0% { transform: translateY(222px); opacity: 0; }
   10% { opacity: 1; }
   100% { transform: translateY(0); opacity: 1; }
 }
 @keyframes draw {
   from { stroke-dashoffset: 1; }
   to { stroke-dashoffset: 0; }
+}
+@keyframes lit {
+  from { fill: #6b645b; }
+  to { fill: var(--accent); }
 }
 
 .labels { position: absolute; inset: 0; pointer-events: none; }
@@ -134,14 +144,14 @@ h1 {
 }
 .lbl b { font-size: 15px; font-weight: 500; color: var(--ink); letter-spacing: -0.01em; }
 .lbl.up { transform: translate(-50%, -100%); }
-.at-1 { left: calc(100% * 170 / 720); top: calc(100% * 100 / 500); }
-.at-2 { left: calc(100% * 550 / 720); top: calc(100% * 100 / 500); }
-.at-3 { left: calc(100% * 170 / 720); top: calc(100% * 426 / 500); }
-.at-4 { left: calc(100% * 550 / 720); top: calc(100% * 426 / 500); }
+.at-1 { left: calc(100% * 170 / 720); top: calc(100% * 90 / 500); }
+.at-2 { left: calc(100% * 550 / 720); top: calc(100% * 90 / 500); }
+.at-3 { left: calc(100% * 170 / 720); top: calc(100% * 432 / 500); }
+.at-4 { left: calc(100% * 594 / 720); top: calc(100% * 432 / 500); }
 .fence-lbl {
   position: absolute; left: 50%; top: 0; transform: translate(-50%, -50%);
-  padding: 0;
-  font-size: 12px; line-height: 1; letter-spacing: 0.02em; color: var(--ink-faint);
+  padding: 5px 12px; border-radius: 999px; background: #2a2723;
+  font-size: 12px; line-height: 1; font-weight: 500; letter-spacing: 0.01em; color: var(--ink-muted);
 }
 
 /* ---------- form */
@@ -207,8 +217,6 @@ button:disabled { cursor: progress; opacity: 0.7; }
   .lbl { font-size: 11px; }
   .lbl b { font-size: 13px; }
   .fence-lbl { font-size: 11px; }
-  .fence-wide { display: none; }
-  .fence-narrow { display: inline; }
   .facts ul { padding: 40px 0 32px; gap: 12px; }
   .facts li { font-size: 15px; }
 }
@@ -218,6 +226,6 @@ button:disabled { cursor: progress; opacity: 0.7; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card, .span { animation: none; }
+  .card, .span, .node { animation: none; }
   input, button { transition: none; }
 }

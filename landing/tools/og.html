@@ -4,16 +4,22 @@
 <style>
   /* No film grain here: noise does not compress, and it is invisible at share-card size. */
   body { width: 1200px; height: 630px; min-height: 0; margin: 0; overflow: hidden; background-image: radial-gradient(rgb(var(--line) / 0.07) 1px, transparent 1px); background-size: 24px 24px; background-position: 12px 12px; }
-  .og { position: relative; width: 1200px; height: 630px; padding: 72px 80px; display: flex; flex-direction: column; justify-content: space-between; }
-  .og .brand { font-size: 26px; gap: 16px; }
-  .og .mark { width: 34px; height: 34px; }
-  .og h1 { font-size: 64px; line-height: 1.08; letter-spacing: -0.035em; text-align: left; }
+  .og { width: 1200px; height: 630px; padding: 64px 72px; display: grid; grid-template-columns: 1fr 520px; gap: 48px; align-items: center; }
+  .og .text { height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+  .og .brand { font-size: 26px; gap: 14px; }
+  .og .mark { width: 32px; height: 32px; fill: var(--accent); }
+  .og h1 { font-size: 54px; line-height: 1.08; letter-spacing: -0.035em; text-align: left; }
   .og h1 span { color: var(--ink-muted); }
-  .og .mark { fill: var(--accent); }
+  .og .viz { width: 520px; margin: 0; }
+  .og .lbl { font-size: 11px; } .og .lbl b { font-size: 13px; }
+  .og .fence-lbl { font-size: 11px; }
 </style></head>
 <body>
 <div class="og">
-  <div class="brand"><svg class="mark" viewBox="0 0 24 24"><path d="M10.875 1.5h2.25v2.3l6.825 18.7h-2.4L12 7.3 6.45 22.5h-2.4l6.825-18.7V1.5Z"/><rect x="0" y="15" width="24" height="2.25" rx="0.75"/></svg><span>AirBridge</span></div>
-  <h1>A private network<br>for your AI agents<br><span>and your computers.</span></h1>
+  <div class="text">
+    <div class="brand"><svg class="mark" viewBox="0 0 24 24"><path d="M10.875 1.5h2.25v2.3l6.825 18.7h-2.4L12 7.3 6.45 22.5h-2.4l6.825-18.7V1.5Z"/><rect x="0" y="15" width="24" height="2.25" rx="0.75"/></svg><span>AirBridge</span></div>
+    <h1>A private network for your AI agents <span>and your computers.</span></h1>
+  </div>
+  <!-- FIGURE: icons.mjs copies the hero figure from index.html here -->
 </div>
 </body></html>
