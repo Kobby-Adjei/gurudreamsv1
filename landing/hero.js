@@ -66,7 +66,10 @@
     'uniform float uTime;',
     'const vec3 MOON = vec3(0.66, 0.80, 1.0);',
     'const float YTOP = 2.7;',
-    'const float YBOT = -0.6;',
+    'const float YBOT = -1.6;',
+    '#ifndef COVER_OFS',
+    '#define COVER_OFS vec2(31.0, -12.0)',
+    '#endif',
 
     // iq's 3D value noise from a 2D texture whose green channel is red shifted by (37,17).
     'float noise(vec3 x) {',
@@ -87,10 +90,12 @@
     '}',
     'const mat3 M3 = mat3(0.00, 0.80, 0.60, -0.80, 0.36, -0.48, -0.60, -0.48, 0.64);',
 
-    // Large, slow swell of the cloud sea: where the tops rise and where they fall away.
-    'float swell(vec3 p) {',
-    '  float a = noise(vec3(p.xz * 0.05, 1.7)), b = noise(vec3(p.xz * 0.14, 7.3));',
-    '  return a * 0.6 + (1.0 - abs(b * 2.0 - 1.0)) * 0.4;',
+    // Large-scale structure of the deck: a domain-warped coverage field (three octaves) that decides where
+    // the tall cumulus masses rise, where flat stratus lies, and where the deck opens onto dark depth.
+    'float cover(vec2 x) {',
+    '  vec2 w = vec2(noise(vec3(x * 0.03, 3.1)), noise(vec3(x * 0.03 + 17.0, 5.3)));',
+    '  x += (w - 0.5) * 24.0 + COVER_OFS;',
+    '  return noise(vec3(x * 0.04, 1.7)) * 0.55 + noise(vec3(x * 0.09, 7.3)) * 0.30 + noise(vec3(x * 0.2, 4.1)) * 0.15;',
     '}',
     // Wisps part around the plane: a soft tube along its recent path.
     'float wake(vec3 p) {',
@@ -101,9 +106,13 @@
     '}',
     // Signed field: > 0 inside cloud. Its gradient stays under ~5, so -field/5 is a safe step through clear air.
     'float field(vec3 p, float f) {',
-    '  return (f - 0.55) * 3.6 + (swell(p) - 0.5) * 1.6 + 0.95 - p.y;',
+    '  float c = cover(p.xz);',
+    '  float cu = smoothstep(0.44, 0.64, c);',
+    '  float gap = smoothstep(0.40, 0.31, c);',
+    '  float top = mix(0.75, 1.7, cu) - gap * 1.9;',
+    '  return (f - 0.55) * mix(1.4, 3.6, cu) + top - p.y;',
     '}',
-    'float dens(float fl, vec3 p) { return clamp(fl * 3.0, 0.0, 1.0) + clamp((0.1 - p.y) * 2.0, 0.0, 1.0); }',
+    'float dens(float fl, vec3 p) { return clamp(fl * 3.0, 0.0, 1.0) + clamp((-1.0 - p.y) * 2.0, 0.0, 1.0); }',
     'float bil(vec3 q) { return 1.0 - abs(noise(q) * 2.0 - 1.0); }',
     'vec3 wind(vec3 p) { return p * vec3(0.5, 0.62, 0.5) + vec3(uTime * 0.02, 0.0, uTime * 0.01); }',
     // Worley puffs give the rounded cumulus tops; value-noise octaves break them up and fray the edges.
@@ -177,7 +186,7 @@
     '  float powder = mix(1.0 - exp(-d * 8.0), 1.0, 0.35 + 0.65 * max(cosT, 0.0));',
     '  float top = smoothstep(YBOT, YTOP, p.y);',
     '  vec3 amb = mix(vec3(0.0010, 0.0016, 0.0040), vec3(0.008, 0.013, 0.028), top);',
-    '  return MOON * 3.6 * s * ps * powder + amb * 0.8 * exp(-ld * 0.35);',
+    '  return MOON * 3.0 * s * ps * powder + amb * 0.8 * exp(-ld * 0.35);',
     '}',
     // March the clouds between t0 and t1 along rd; returns premultiplied radiance and transmittance.
     // left: transmittance still unaccounted for when the step budget ran out (far, grazing rays).
@@ -230,12 +239,15 @@
     // Rays that ran out of budget end in far cloud, which at that distance is all haze.
     '    r.rgb += left * haze; dist = mix(dist, 95.0, left); r.a -= left;',
     // Aerial perspective: far clouds sink into the moonlit haze.
-    '    float fog = 1.0 - exp(-max(dist - 9.0, 0.0) * 0.06);',
+    '    float fog = 1.0 - exp(-max(dist - 6.0, 0.0) * 0.055);',
     '    r.rgb = mix(r.rgb, (1.0 - r.a) * haze, fog);',
     // Through gaps in the deck: the dark lower layer, fading to haze toward the horizon.
     '    bg = mix(vec3(0.0016, 0.0026, 0.0058), haze, exp(rd.y * 9.0));',
     '  }',
     '  vec3 c = r.rgb + r.a * bg;',
+    // Atmospheric haze lying on the horizon: blends the far deck into the sky with no visible edge.
+    '  float band = exp(-abs(rd.y + 0.006) * 30.0);',
+    '  c = mix(c, skyCol(normalize(vec3(rd.x, 0.0, rd.z))) * 1.3, band * 0.8);',
     '  gl_FragColor = vec4(sqrt(max(c, 0.0)) + tri(gl_FragCoord.xy) / 510.0, r.a);',
     '}'
   ].join('\n');
@@ -292,9 +304,9 @@
     // Soft occlusion where the wings meet the keel, and along the trailing edge folds.
     '  float ao = mix(0.62, 1.0, smoothstep(0.0, 0.09, abs(vL.x) + max(-vL.y, 0.0) * 0.6));',
     '  vec3 paper = vec3(0.93, 0.94, 0.955) * (0.985 + 0.03 * noise(vL * 90.0));',
-    '  vec3 sky = vec3(0.020, 0.032, 0.060);',
+    '  vec3 sky = vec3(0.030, 0.046, 0.085);',
     '  vec3 bounce = vec3(0.050, 0.064, 0.090);',
-    '  vec3 lit = MOON * 1.7 * max(ndl, 0.0) * sh;',
+    '  vec3 lit = MOON * 2.8 * max(ndl, 0.0) * sh;',
     '  vec3 thru = MOON * 0.30 * max(-ndl, 0.0) * sh;',
     '  vec3 amb = (sky * (0.5 + 0.5 * n.y) + bounce * (0.5 - 0.5 * n.y)) * ao;',
     '  vec3 col = paper * (lit * mix(0.8, 1.0, ao) + thru + amb);',
@@ -323,7 +335,7 @@
     return s;
   }
   function program(vs, fs, defs) {
-    var head = '#define STEPS ' + (hq ? 220 : lite ? 72 : 110) + '\n' + (lite ? '#define LITE\n' : '') + (defs || '');
+    var head = '#define STEPS ' + (hq ? 220 : lite ? 72 : 110) + '\n' + (lite ? '#define LITE\n' : '') + (hooks.ofs ? '#define COVER_OFS vec2(' + hooks.ofs + ')\n' : '') + (defs || '');
     var p = gl.createProgram();
     gl.attachShader(p, compile(gl.VERTEX_SHADER, head + COMMON + '\n' + vs));
     gl.attachShader(p, compile(gl.FRAGMENT_SHADER, head + COMMON + '\n' + fs));
@@ -489,22 +501,23 @@
   function easeOut(u) { return 1 - Math.pow(1 - u, 2.6); }
 
   var PASS = 7.5;
+  var PLANE_SIZE = 1.15;
   // Camera drifts diagonally (right and away), so the cruising plane is seen from behind, three-quarters.
   var DRIFT = norm([0.82, 0, 0.57]);
   function camAt(t) { return [DRIFT[0] * CRUISE_SPEED * t, 3.0 + 0.04 * Math.sin(t * 0.17), DRIFT[2] * CRUISE_SPEED * t]; }
   function relPath(t, aspect) {
     var narrow = Math.min(1, aspect / 1.5);
-    var end = [0.5 * narrow, -1.32, 7.0];
-    var p0 = [-6.2 * Math.max(narrow, 0.6), 0.15, 3.0];
-    var p1 = [-3.0 * narrow, -0.25, 6.2];
-    var p2 = [-0.7 * narrow, -1.25, 7.9];
+    var end = [0.3 * narrow, -0.46, 4.6];
+    var p0 = [-4.6 * Math.max(narrow, 0.6), 0.25, 2.4];
+    var p1 = [-2.2 * narrow, 0.05, 4.0];
+    var p2 = [-0.5 * narrow, -0.55, 5.3];
     var u = Math.min(Math.max(t / PASS, 0), 1);
     var p = bez(p0, p1, p2, end, easeOut(u));
     // Cruise: a long, slow sway that fades in as the arc ends.
     var w = Math.min(Math.max((t - PASS * 0.7) / 5, 0), 1);
     w = w * w * (3 - 2 * w);
     var c = t - PASS * 0.7;
-    return add(p, mul([0.22 * Math.sin(c * 0.19), 0.06 * Math.sin(c * 0.31 + 1.0), 0.3 * Math.sin(c * 0.13)], w));
+    return add(p, mul([0.16 * Math.sin(c * 0.19), 0.04 * Math.sin(c * 0.31 + 1.0), 0.2 * Math.sin(c * 0.13)], w));
   }
   function planeAt(t, aspect) { return add(camAt(t), relPath(t, aspect)); }
 
@@ -605,7 +618,7 @@
     gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LESS);
     pr = progs.plane; gl.useProgram(pr.p); common(pr, s);
     gl.uniform3fv(pr.u.uPR, s.pR); gl.uniform3fv(pr.u.uPU, s.pU); gl.uniform3fv(pr.u.uPF, s.pF);
-    gl.uniform1f(pr.u.uPS, 1.0);
+    gl.uniform1f(pr.u.uPS, PLANE_SIZE * (0.78 + 0.22 * Math.min(1, W / Math.max(H, 1) / 1.2)));
     gl.bindBuffer(gl.ARRAY_BUFFER, buf.plane);
     gl.enableVertexAttribArray(0); gl.enableVertexAttribArray(1);
     gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0);

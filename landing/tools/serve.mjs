@@ -48,7 +48,7 @@ export async function still(browser, base, { t, scale, live = false, jitter, vie
   const errors = [];
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('pageerror', (e) => errors.push(String(e)));
-  await page.addInitScript((o) => { window.__hero = { still: { t: o.t, scale: o.scale, live: o.live }, jitter: o.jitter, passes: o.passes }; }, { t, scale, live, jitter: jitter ?? null, passes: +(process.env.PASSES || 0) || null });
+  await page.addInitScript((o) => { window.__hero = { still: { t: o.t, scale: o.scale, live: o.live }, jitter: o.jitter, passes: o.passes, ofs: o.ofs }; }, { t, scale, live, jitter: jitter ?? null, passes: +(process.env.PASSES || 0) || null, ofs: process.env.OFS || null });
   await page.goto(base + '/' + query);
   if (hideCopy) await page.addStyleTag({ content: '.bar,.copy{visibility:hidden}' });
   await page.waitForSelector('.hero[data-hero-done]', { timeout });
