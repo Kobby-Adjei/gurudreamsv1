@@ -42,6 +42,26 @@ npm run build           # electron-vite: out/main, out/preload, out/renderer
 npm run dist            # electron-builder installers (signing/notarisation required for release)
 ```
 
+### App icon
+
+electron-builder reads `build/icon.png` (1024×1024, committed, rendered from `build/icon.svg`
+with Playwright and Chrome). For release builds also generate the platform formats from it:
+
+```bash
+# macOS .icns (on a Mac)
+mkdir -p build/icon.iconset
+for s in 16 32 128 256 512; do
+  sips -z $s $s build/icon.png --out build/icon.iconset/icon_${s}x${s}.png
+  sips -z $((s*2)) $((s*2)) build/icon.png --out build/icon.iconset/icon_${s}x${s}@2x.png
+done
+iconutil -c icns build/icon.iconset -o build/icon.icns && rm -r build/icon.iconset
+
+# Windows .ico (ImageMagick, any OS)
+magick build/icon.png -define icon:auto-resize=256,128,64,48,32,16 build/icon.ico
+```
+
+If `icon.png` changes, re-render it from the SVG at 1024×1024 with a transparent background.
+
 ## Architecture
 
 ```
@@ -91,10 +111,13 @@ sees the control token or any Clerk token.
 The aim is restraint in the spirit of Apple's System Settings and Find My. Hierarchy comes from
 type, spacing and alignment, not from effects.
 
-- **Brand:** the mark is a suspension-bridge tower seen head-on, with two legs, arched portal
-  beams and the road deck passing through. It is monochrome (`currentColor`) and crisp at 16px.
-  The concepts, the chosen mark (`docs/brand/logo.svg`) and the palette sheet are in
-  `docs/brand/`. The app icon is `build/icon.svg`.
+- **Brand:** the mark is concept (d), the A-frame pylon: a bridge tower that doubles as the
+  "A" of AirBridge. A short mast head, flat-cut feet and a road deck that runs past both legs
+  make it read as a pylon rather than a letter. It is monochrome (`currentColor`) and crisp at
+  16px. The concepts sheet (`docs/brand/logo-concepts.png`), the chosen mark
+  (`docs/brand/logo.svg`, mirrored in `LogoMark` in `components/Icons.tsx`) and the palette
+  sheet are in `docs/brand/`. The app icon is `build/icon.svg` (International Orange on
+  near-black), rendered to `build/icon.png` at 1024×1024.
 - **Colour:** a warm near-black canvas (`#0D0C0B`) with a subtle film grain and dot grid, warm
   off-white text (`#F2EEE8`) and warm greys. There is one accent, **International Orange**
   (`#C83A23` dark / `#C0362C` light, the Golden Gate's paint). It is used only for the single

@@ -1,5 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-  <!-- (d) A-frame pylon: the bridge's tower doubles as the "A" of AirBridge; the deck is its crossbar. -->
-  <path d="M12 1.5 4.5 22.5M12 1.5l7.5 21" stroke-width="2.25"/>
-  <rect x="0" y="14.25" width="24" height="2.25" rx="0.75" fill="currentColor" stroke="none"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+  <!-- (d) A-frame pylon, chosen. The bridge tower doubles as the "A" of AirBridge.
+       Pylon cues: a short vertical mast head instead of a pointed apex, flat-cut feet,
+       and a road deck that runs through the legs and past them on both sides. -->
+  <path d="M10.875 1.5h2.25v2.3l6.825 18.7h-2.4L12 7.3 6.45 22.5h-2.4l6.825-18.7V1.5Z"/>
+  <rect x="0" y="15" width="24" height="2.25" rx="0.75"/>
 </svg>

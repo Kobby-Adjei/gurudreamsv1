@@ -1,9 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-  <!-- (a) Suspension-bridge tower seen head-on (Golden Gate portal): two legs,
-       portal beams with arched openings, and the road deck passing through. -->
-  <rect x="4.5" y="1.5" width="3" height="21" rx="0.5"/>
-  <rect x="16.5" y="1.5" width="3" height="21" rx="0.5"/>
-  <path d="M7.5 3h9v5.25c0-1.24-1-2.25-2.25-2.25h-4.5C8.5 6 7.5 7 7.5 8.25V3Z"/>
-  <path d="M7.5 9.75h9v3.75c0-1.24-1-2.25-2.25-2.25h-4.5c-1.24 0-2.25 1-2.25 2.25V9.75Z"/>
-  <rect x="0" y="16.5" width="24" height="2.25" rx="0.75"/>
+  <!-- (d) A-frame pylon, chosen. The bridge tower doubles as the "A" of AirBridge.
+       Pylon cues: a short vertical mast head instead of a pointed apex, flat-cut feet,
+       and a road deck that runs through the legs and past them on both sides. -->
+  <path d="M10.875 1.5h2.25v2.3l6.825 18.7h-2.4L12 7.3 6.45 22.5h-2.4l6.825-18.7V1.5Z"/>
+  <rect x="0" y="15" width="24" height="2.25" rx="0.75"/>
 </svg>

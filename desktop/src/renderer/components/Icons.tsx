@@ -197,19 +197,17 @@ export const WifiOffIcon = (p: IconProps) => (
 )
 
 /**
- * App mark: a suspension-bridge tower seen head-on (two legs, arched portal
- * beams, the road deck passing through). Monochrome via currentColor, drawn on
- * a 1.5-unit grid of a 24-unit box so it stays crisp at 16px.
+ * App mark: the A-frame pylon. A bridge tower that doubles as the "A" of
+ * AirBridge, with a short mast head, flat-cut feet and a road deck that runs
+ * past both legs so it reads as a pylon rather than a letter. Monochrome via
+ * currentColor; legs are 2.4 units wide so it stays crisp at 16px.
  * Source of truth: docs/brand/logo.svg.
  */
 export function LogoMark({ size = 20, className = '' }: { size?: number; className?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" className={className}>
-      <rect x="4.5" y="1.5" width="3" height="21" rx="0.5" />
-      <rect x="16.5" y="1.5" width="3" height="21" rx="0.5" />
-      <path d="M7.5 3h9v5.25c0-1.24-1-2.25-2.25-2.25h-4.5C8.5 6 7.5 7 7.5 8.25V3Z" />
-      <path d="M7.5 9.75h9v3.75c0-1.24-1-2.25-2.25-2.25h-4.5c-1.24 0-2.25 1-2.25 2.25V9.75Z" />
-      <rect x="0" y="16.5" width="24" height="2.25" rx="0.75" />
+      <path d="M10.875 1.5h2.25v2.3l6.825 18.7h-2.4L12 7.3 6.45 22.5h-2.4l6.825-18.7V1.5Z" />
+      <rect x="0" y="15" width="24" height="2.25" rx="0.75" />
     </svg>
   )
 }
