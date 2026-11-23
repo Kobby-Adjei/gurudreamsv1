@@ -65,3 +65,11 @@ Headscale ops burden (uptime, DB backups, upgrades, API-key rotation). Own DERP 
 - **F-5:** inbox applies a global concurrency semaphore + token bucket before any LocalAPI whois call.
 - **F-2/F-7:** whois always `proto=tcp`; prefer `Node.Name` (done).
 - **F-8:** `<D>` and socket dir 0700 with lstat/owner checks; `read_network_json` rejects files not owned by the user or group/other-writable.
+
+## 8. Preview mode — license wired, not enforced (product owner, until app approval)
+- Build-time flag `MAIN_VITE_AIRBRIDGE_ENFORCE_LICENSE` (`"1"` = enforce). **Default for now: not enforced.** Compile-time only, so a packaged build can't be flipped by env at runtime.
+- Not enforced: no sign-in wall and no Paywall; backend always starts. Sign-in remains available (Settings → Account) and the gate still runs in **shadow mode**: verifies normally, logs the would-be verdict, exposes `LicenseStatus.state` as-is plus `enforced:false`, but never blocks `processManager.start()`.
+- Network in preview: if signed in AND license server/Headscale configured → embedded network enrollment as designed; otherwise run the backend with `AIRBRIDGE_NETWORK=system` (user's own Tailscale), so the app is fully testable today without any servers.
+- License server: env `ENFORCE_ENTITLEMENT` (default `true` in production config; set `false` during preview) — when false, `/v1/network/preauth-key` issues keys to any signed-in Clerk user (still rate-limited, still logs entitlement).
+- UI: quiet "Preview" label in the account footer; Paywall and Subscribe stay reachable from Settings → Account ("Plans") but never block.
+- Turning on enforcement = set both flags; documented in desktop/README.md "Launch checklist".
