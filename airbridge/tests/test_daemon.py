@@ -127,18 +127,20 @@ def test_run_daemon_ready_status_and_degraded_without_tailscale(settings, data_d
                 payload = json.loads(line.split(" ", 1)[1])
                 assert payload["pid"] == os.getpid()
                 port = payload["control_port"]
+                assert payload["control_host"] in ("::1", "127.0.0.1")
+                base = f"http://[::1]:{port}" if payload["control_host"] == "::1" else f"http://127.0.0.1:{port}"
                 break
             await asyncio.sleep(0.01)
         assert port, "no READY line"
         async with httpx.AsyncClient(trust_env=False) as client:
             for _ in range(100):
-                r = await client.get(f"http://127.0.0.1:{port}/status",
+                r = await client.get(f"{base}/status",
                                      headers={"Authorization": f"Bearer {TOKEN}"})
                 if r.json()["inbox"]["degraded_reason"]:
                     break
                 await asyncio.sleep(0.02)
             status = r.json()
-            nodes_r = await client.get(f"http://127.0.0.1:{port}/nodes",
+            nodes_r = await client.get(f"{base}/nodes",
                                        headers={"Authorization": f"Bearer {TOKEN}"})
         stop.set()
         rc = await asyncio.wait_for(task, timeout=10)
@@ -238,7 +240,8 @@ def test_subprocess_daemon_ready_and_parent_watchdog(tmp_path):
         assert line.startswith("AIRBRIDGE_READY "), line
         info = json.loads(line.split(" ", 1)[1])
         assert info["pid"] == proc.pid
-        r = httpx.get(f"http://127.0.0.1:{info['control_port']}/status",
+        h = "[::1]" if info.get("control_host") == "::1" else "127.0.0.1"
+        r = httpx.get(f"http://{h}:{info['control_port']}/status",
                       headers={"Authorization": f"Bearer {TOKEN}"}, trust_env=False, timeout=5)
         assert r.status_code == 200
         assert r.json()["tailnet_ip"] == "100.101.102.103"

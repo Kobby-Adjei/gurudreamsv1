@@ -293,3 +293,61 @@ def test_no_stdout_from_netbackend(api, capsys):
 @pytest.mark.skipif(sys.platform == "win32", reason="POSIX socket path length")
 def test_fake_socket_path_is_short(api):
     assert len(api.path.encode()) < 100
+
+
+# --------------------------------------------------------------------------- #
+# Security review fixes (PHASE3_SECURITY.md F-1, F-8)
+# --------------------------------------------------------------------------- #
+def test_ipv6_loopback_socks5_accepted(api):
+    write_network_json(_data_dir(), api.path, "[::1]:41080")
+    be = netbackend.select_backend()
+    assert be.requests_proxies() == {"http": "socks5h://[::1]:41080"}
+
+
+@pytest.mark.parametrize("socks", ["[::]:1080", "[fe80::1]:1080", "::1:1080", "[::1]:99999"])
+def test_other_ipv6_socks5_rejected(socks):
+    assert netbackend._valid_socks5(socks) is None
+
+
+def test_socks_adapter_strips_ipv6_brackets(monkeypatch):
+    """urllib3 keeps "[::1]" as the SOCKS host; PySocks must get "::1"."""
+    seen = {}
+
+    def fake_create_connection(dest_pair, **kw):
+        seen.update(dest=dest_pair, **kw)
+        raise OSError("stop here")
+
+    import socks
+
+    monkeypatch.setattr(socks, "create_connection", fake_create_connection)
+    with pytest.raises(requests.exceptions.RequestException):
+        outbox._post("http://100.64.0.2:8989/incoming_task", {}, {}, 2, {"http": "socks5h://[::1]:41080"})
+    assert seen["proxy_addr"] == "::1" and seen["proxy_port"] == 41080
+    assert seen["proxy_rdns"] is True
+    assert seen["dest"] == ("100.64.0.2", 8989)
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX permissions")
+def test_network_json_group_writable_rejected(api, tmp_path):
+    write_network_json(tmp_path, api.path)
+    os.chmod(tmp_path / "network.json", 0o620)
+    assert config.read_network_json(tmp_path) is None
+    os.chmod(tmp_path / "network.json", 0o600)
+    assert config.read_network_json(tmp_path) is not None
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX ownership")
+def test_network_json_foreign_owner_rejected(api, tmp_path, monkeypatch):
+    write_network_json(tmp_path, api.path)
+    me = os.getuid()
+    monkeypatch.setattr(config.os, "getuid", lambda: me + 4242)
+    assert config.read_network_json(tmp_path) is None
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX symlinks")
+def test_network_json_symlink_rejected(api, tmp_path):
+    real = tmp_path / "real"
+    real.mkdir()
+    write_network_json(real, api.path)
+    (tmp_path / "network.json").symlink_to(real / "network.json")
+    assert config.read_network_json(tmp_path) is None

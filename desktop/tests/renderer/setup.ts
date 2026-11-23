@@ -149,6 +149,7 @@ export function installMockApi(overrides: Partial<MockState> = {}): MockHandle {
     },
     network: {
       getStatus: vi.fn(async () => state.network),
+      retry: vi.fn(async () => state.network),
       onChange: vi.fn(sub(listeners.network))
     },
     app: { version: '0.2.0', platform: 'darwin' }

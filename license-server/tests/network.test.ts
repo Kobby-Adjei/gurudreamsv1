@@ -6,7 +6,8 @@ import { createClerkVerifier } from '../src/clerkAuth.js';
 import { loadConfig } from '../src/config.js';
 import { createHeadscaleClient, HeadscaleError } from '../src/headscale.js';
 import { createLicenseSigner } from '../src/licenseToken.js';
-import { headscaleUserName, revokeUserNodes } from '../src/network.js';
+import { EXPECTED_POLICY, headscaleUserName, hujsonToJson, isExpectedPolicy, revokeUserNodes } from '../src/network.js';
+import { readFileSync } from 'node:fs';
 import { InMemorySubscriptionStore } from '../src/store.js';
 import { AUDIENCE, clerkKeys, ed25519Pair, FAKE_STRIPE_KEY, FakeBilling, ISSUER, KID, PRICE_ID, USER, WEBHOOK_SECRET } from './helpers.js';
 
@@ -28,20 +29,26 @@ class FakeHeadscale {
   users: Array<{ id: string; name: string }> = [];
   nodes: Array<{ id: string; givenName: string; user: { id: string; name: string } }> = [];
   calls: Call[] = [];
+  policyCalls: Call[] = [];
   issued: string[] = [];
   nextId = 1;
   down = false;
   /** Simulate a concurrent create: POST /user inserts the user but answers 500 (unique violation). */
   raceOnCreate = false;
   failStatus: Record<string, number> = {};
+  policy: string = JSON.stringify(EXPECTED_POLICY);
+  policyDown = false;
 
   fetch = async (input: string | URL | Request, init: RequestInit = {}): Promise<Response> => {
     const url = new URL(String(input));
     const method = init.method ?? 'GET';
     const headers = new Headers(init.headers);
     const body = typeof init.body === 'string' ? JSON.parse(init.body) : undefined;
-    this.calls.push({ method, path: url.pathname + url.search, auth: headers.get('authorization'), body });
-    if (this.down) throw new TypeError('fetch failed');
+    const call = { method, path: url.pathname + url.search, auth: headers.get('authorization'), body };
+    // Policy checks are tracked separately so per-request call sequences stay readable.
+    if (url.pathname === '/api/v1/policy') this.policyCalls.push(call);
+    else this.calls.push(call);
+    if (this.down || (this.policyDown && url.pathname === '/api/v1/policy')) throw new TypeError('fetch failed');
     expect(init.redirect).toBe('error');
     expect(init.signal).toBeInstanceOf(AbortSignal);
     if (url.origin !== HS_URL) return new Response('wrong host', { status: 599 });
@@ -50,6 +57,9 @@ class FakeHeadscale {
     if (forced) return new Response('upstream secret detail: db path /var/lib/headscale', { status: forced });
     const json = (o: unknown, status = 200) => new Response(JSON.stringify(o), { status, headers: { 'content-type': 'application/json' } });
 
+    if (url.pathname === '/api/v1/policy' && method === 'GET') {
+      return json({ policy: this.policy, updatedAt: null });
+    }
     if (url.pathname === '/api/v1/user' && method === 'GET') {
       const name = url.searchParams.get('name');
       return json({ users: this.users.filter((u) => !name || u.name === name) });
@@ -120,8 +130,11 @@ function captureLogger() {
   return { lines, logger };
 }
 
-async function harness(opts: { network?: boolean; perUser?: number; global?: number; now?: () => number } = {}) {
+async function harness(
+  opts: { network?: boolean; perUser?: number; global?: number; now?: () => number; setup?: (hs: FakeHeadscale) => void } = {},
+) {
   const hs = new FakeHeadscale();
+  opts.setup?.(hs); // before createApp: the policy guard checks at boot
   const store = new InMemorySubscriptionStore();
   const billing = new FakeBilling();
   const clerk = await clerkKeys();
@@ -221,6 +234,11 @@ describe('POST /v1/network/preauth-key', () => {
     expect(h.hs.calls[1]!.body).toEqual({ name });
     const pak = h.hs.calls[2]!.body;
     expect(pak).toEqual({ user: '1', reusable: false, ephemeral: false, expiration: new Date((1_800_000_000 + 600) * 1000).toISOString() });
+    // F-1: tagged nodes escape autogroup:self — never request ACL tags.
+    expect(pak).not.toHaveProperty('aclTags');
+    expect(pak).not.toHaveProperty('acl_tags');
+    expect(h.hs.policyCalls.length).toBeGreaterThanOrEqual(1);
+    expect(h.hs.policyCalls.every((c) => c.auth === `Bearer ${HS_API_KEY}`)).toBe(true);
     // Neither the key nor the API key nor the Clerk sub is logged.
     const logs = h.lines.join('\n');
     expect(logs).not.toContain(body.auth_key);
@@ -320,6 +338,81 @@ describe('POST /v1/network/preauth-key', () => {
   });
 });
 
+describe('Headscale policy guard (PHASE3_SECURITY F-1)', () => {
+  const POLICY_FILE = new URL('../headscale/policy.hujson', import.meta.url);
+
+  it('the shipped policy.hujson is exactly the expected policy', () => {
+    const raw = readFileSync(POLICY_FILE, 'utf8');
+    expect(JSON.parse(raw)).toEqual(EXPECTED_POLICY);
+    expect(isExpectedPolicy(raw)).toBe(true);
+  });
+
+  it('semantic comparison: ignores key order, whitespace, HuJSON comments and trailing commas; rejects anything else', () => {
+    const hu = `// AirBridge
+{ /* only rule */ "acls": [ { "dst": ["autogroup:self:8989"], "src": ["autogroup:member",], "proto": "tcp", "action": "accept", }, ], }`;
+    expect(JSON.parse(hujsonToJson(hu))).toBeTruthy();
+    expect(isExpectedPolicy(hu)).toBe(true);
+    const bad = [
+      '',
+      '{}',
+      '{"acls":[]}',
+      'not json',
+      JSON.stringify({ acls: [{ action: 'accept', src: ['autogroup:member'], dst: ['autogroup:self:8989'] }] }), // no proto
+      JSON.stringify({ acls: [{ action: 'accept', proto: 'tcp', src: ['autogroup:member'], dst: ['autogroup:self:*'] }] }),
+      JSON.stringify({ acls: [{ action: 'accept', proto: 'tcp', src: ['*'], dst: ['autogroup:self:8989'] }] }),
+      JSON.stringify({ ...EXPECTED_POLICY, groups: { 'group:x': ['a@'] } }),
+      JSON.stringify({ acls: [...EXPECTED_POLICY.acls, { action: 'accept', src: ['*'], dst: ['*:*'] }] }),
+      '{"acls":[{"action":"accept","proto":"tcp","src":["autogroup:member"],"dst":["autogroup:self:8989"]}]} // "x": ",]"',
+    ];
+    for (const b of bad.slice(0, -1)) expect(isExpectedPolicy(b), b).toBe(false);
+    expect(isExpectedPolicy(bad[bad.length - 1]!)).toBe(true); // trailing comment only
+  });
+
+  it('mismatching policy -> 503, no key minted, logged loudly', async () => {
+    const h = await harness({ setup: (hs) => (hs.policy = JSON.stringify({ acls: [{ action: 'accept', src: ['*'], dst: ['*:*'] }] })) });
+    await h.entitle();
+    const res = await h.preauth(await h.clerk.mint());
+    expect(res.status).toBe(503);
+    expect(await res.json()).toEqual({ error: 'network_unavailable' });
+    expect(h.hs.calls.some((c) => c.path.startsWith('/api/v1/preauthkey'))).toBe(false);
+    expect(h.lines.some((l) => l.includes('NETWORK_POLICY_MISMATCH') && l.includes('"level":"error"'))).toBe(true);
+  });
+
+  it('empty policy (Headscale allow-all) -> 503', async () => {
+    const h = await harness({ setup: (hs) => (hs.policy = '') });
+    await h.entitle();
+    expect((await h.preauth(await h.clerk.mint())).status).toBe(503);
+  });
+
+  it('unreachable policy endpoint -> 503; recovers after the retry window once the policy is correct', async () => {
+    let t = 1_800_000_000_000;
+    const h = await harness({ now: () => t, setup: (hs) => (hs.policyDown = true) });
+    await h.entitle();
+    const token = await h.clerk.mint();
+    // Let the boot check settle.
+    await new Promise((r) => setTimeout(r, 0));
+    expect((await h.preauth(token)).status).toBe(503);
+    expect(h.lines.some((l) => l.includes('NETWORK_POLICY_UNVERIFIABLE'))).toBe(true);
+    h.hs.policyDown = false;
+    expect((await h.preauth(token)).status).toBe(503); // still inside the 30 s retry window
+    t += 31_000;
+    expect((await h.preauth(token)).status).toBe(200);
+  });
+
+  it('policy changed after boot is caught by the periodic re-check (10 min max age)', async () => {
+    let t = 1_800_000_000_000;
+    const h = await harness({ now: () => t });
+    await h.entitle();
+    const token = await h.clerk.mint();
+    expect((await h.preauth(token)).status).toBe(200);
+    h.hs.policy = '{"acls":[{"action":"accept","src":["*"],"dst":["*:*"]}]}';
+    t += 5 * 60_000;
+    expect((await h.preauth(token)).status).toBe(200); // cached verdict still fresh
+    t += 6 * 60_000;
+    expect((await h.preauth(token)).status).toBe(503);
+  });
+});
+
 describe('POST /v1/network/devices/:id/remove', () => {
   it('deletes the caller’s own node', async () => {
     const h = await harness();
@@ -387,6 +480,31 @@ describe('Stripe webhook -> Headscale node revocation', () => {
     expect(res.status).toBe(200);
     expect((await h.store.get(USER))?.status).toBe('unpaid');
     expect(h.lines.some((l) => l.includes('network_revoke_failed'))).toBe(true);
+  });
+
+  it('past_due (dunning) and incomplete keep existing nodes; unpaid and incomplete_expired revoke them', async () => {
+    let t = 1_800_000_000_000;
+    const h = await harness({ now: () => (t += 1000) });
+    const ids = [h.hs.addNode(expectedName(USER)), h.hs.addNode(expectedName(USER))];
+    for (const status of ['past_due', 'incomplete']) {
+      h.billing.setSub('sub_1', status);
+      expect((await h.sendEvent('customer.subscription.updated', { id: 'sub_1', metadata: { clerk_user_id: USER } })).status).toBe(200);
+    }
+    expect(h.hs.nodes.map((n) => n.id)).toEqual(ids);
+    expect(h.hs.calls).toHaveLength(0);
+    // past_due still cannot mint NEW keys.
+    expect((await h.preauth(await h.clerk.mint())).status).toBe(402);
+
+    h.billing.setSub('sub_1', 'unpaid');
+    await h.sendEvent('customer.subscription.updated', { id: 'sub_1', metadata: { clerk_user_id: USER } });
+    expect(h.hs.nodes).toHaveLength(0);
+
+    const x = await harness({ now: () => (t += 1000) });
+    x.hs.addNode(expectedName(USER));
+    x.billing.setSub('sub_1', 'incomplete_expired');
+    await x.sendEvent('customer.subscription.updated', { id: 'sub_1', metadata: { clerk_user_id: USER } });
+    expect((await x.store.get(USER))?.status).toBe('canceled');
+    expect(x.hs.nodes).toHaveLength(0);
   });
 
   it('no Headscale user -> no node calls; network disabled -> no-op', async () => {
@@ -473,6 +591,10 @@ describe('config: HEADSCALE_*', () => {
     expect(() => loadConfig({ ...base(), HEADSCALE_URL: 'http://hs.example.com', HEADSCALE_API_KEY: HS_API_KEY, HEADSCALE_PUBLIC_URL: LOGIN_SERVER })).toThrow(/HEADSCALE_URL must be an https/);
     expect(() => loadConfig({ ...base(), HEADSCALE_URL: HS_URL, HEADSCALE_API_KEY: 'REPLACE_ME', HEADSCALE_PUBLIC_URL: LOGIN_SERVER })).toThrow(/placeholder/);
     expect(() => loadConfig({ ...base(), HEADSCALE_URL: HS_URL, HEADSCALE_API_KEY: HS_API_KEY, HEADSCALE_PUBLIC_URL: LOGIN_SERVER, PREAUTH_TTL_SECONDS: '5' })).toThrow(/PREAUTH_TTL_SECONDS/);
+    // internal compose service name over http is allowed (F-3); public hostnames are not
+    expect(loadConfig({ ...base(), HEADSCALE_URL: 'http://headscale:8080', HEADSCALE_API_KEY: HS_API_KEY, HEADSCALE_PUBLIC_URL: LOGIN_SERVER }).headscale?.url).toBe('http://headscale:8080');
+    expect(() => loadConfig({ ...base(), HEADSCALE_URL: 'http://hs.example.com:8080', HEADSCALE_API_KEY: HS_API_KEY, HEADSCALE_PUBLIC_URL: LOGIN_SERVER })).toThrow(/HEADSCALE_URL must be an https/);
+    expect(() => loadConfig({ ...base(), HEADSCALE_URL: HS_URL, HEADSCALE_API_KEY: HS_API_KEY, HEADSCALE_PUBLIC_URL: 'http://headscale:8080' })).toThrow(/HEADSCALE_PUBLIC_URL must be an https/);
     // localhost http is allowed for dev
     expect(loadConfig({ ...base(), HEADSCALE_URL: 'http://127.0.0.1:8080', HEADSCALE_API_KEY: HS_API_KEY, HEADSCALE_PUBLIC_URL: 'http://localhost:8080' }).headscale?.url).toBe('http://127.0.0.1:8080');
   });

@@ -90,13 +90,28 @@ def read_network_json(data_dir: Path | None = None) -> dict | None:
     file, oversized, or not a v1 object. Values are validated by the caller."""
     path = network_json_path(data_dir)
     try:
-        st = os.stat(path)
+        flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+        fd = os.open(path, flags)
+    except OSError:
+        return None
+    try:
+        st = os.fstat(fd)
         if not stat.S_ISREG(st.st_mode) or st.st_size > _NETWORK_JSON_MAX_BYTES:
             return None
-        with open(path, "rb") as fh:
+        # F-8: on POSIX the file must be ours and not group/other-writable,
+        # or another local user could point us at a fake LocalAPI / SOCKS.
+        if os.name != "nt":
+            if st.st_uid != os.getuid() or st.st_mode & 0o022:
+                _logger.warning("ignoring %s: wrong owner or group/other-writable", path)
+                return None
+        with os.fdopen(fd, "rb") as fh:
+            fd = -1
             data = json.loads(fh.read(_NETWORK_JSON_MAX_BYTES + 1))
     except (OSError, ValueError):
         return None
+    finally:
+        if fd >= 0:
+            os.close(fd)
     if not isinstance(data, dict) or data.get("v") != 1:
         return None
     return data

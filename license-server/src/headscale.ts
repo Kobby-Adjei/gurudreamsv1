@@ -13,6 +13,7 @@
  *  - GET    /api/v1/node/{node_id}             -> { node: Node }               (unknown id -> 404)
  *  - DELETE /api/v1/node/{node_id}             -> {}
  *  - GET    /api/v1/node?user=<name>           -> { nodes: Node[] }            (unknown user -> 500, so look the user up first)
+ *  - GET    /api/v1/policy                     -> { policy: string, updatedAt }  (file mode: the policy file's raw HuJSON)
  *
  * Upstream response bodies are never surfaced: errors carry only method, route template and status.
  */
@@ -56,6 +57,8 @@ export interface HeadscaleApi {
   getNode(id: string): Promise<HeadscaleNode | null>;
   deleteNode(id: string): Promise<void>;
   listNodesByUser(userName: string): Promise<HeadscaleNode[]>;
+  /** Raw policy document (HuJSON) as Headscale reports it. */
+  getPolicy(): Promise<string>;
 }
 
 export interface HeadscaleClientOptions {
@@ -203,6 +206,11 @@ export function createHeadscaleClient(opts: HeadscaleClientOptions): HeadscaleAp
       } | null;
       const nodes = Array.isArray(r?.nodes) ? r!.nodes : [];
       return nodes.map(parseNode).filter((n): n is HeadscaleNode => n !== null);
+    },
+
+    async getPolicy() {
+      const r = (await call('GET', '/api/v1/policy', '/api/v1/policy')) as { policy?: unknown } | null;
+      return typeof r?.policy === 'string' ? r.policy : bad('GET /api/v1/policy');
     },
   };
   return api;

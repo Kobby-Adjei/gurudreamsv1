@@ -2,6 +2,7 @@
   "acls": [
     {
       "action": "accept",
+      "proto": "tcp",
       "src": ["autogroup:member"],
       "dst": ["autogroup:self:8989"]
     }

@@ -451,12 +451,13 @@ def set_backend_override(backend: NetBackend | None) -> None:
 
 
 def _valid_socks5(value: Any) -> str | None:
+    """``[::1]:P`` (preferred, F-1) or ``127.0.0.1:P`` (no-IPv6 fallback); anything else -> None."""
     if not isinstance(value, str):
         return None
     host, sep, port = value.strip().rpartition(":")
-    if not sep or host != "127.0.0.1" or not port.isdigit() or not (0 < int(port) < 65536):
+    if not sep or host not in ("[::1]", "127.0.0.1") or not port.isdigit() or not (0 < int(port) < 65536):
         return None
-    return f"127.0.0.1:{int(port)}"
+    return f"{host}:{int(port)}"
 
 
 def _valid_socket(value: Any) -> str | None:

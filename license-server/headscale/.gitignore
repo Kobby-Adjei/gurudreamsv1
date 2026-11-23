@@ -1,0 +1,6 @@
+# Local deployment state and secrets: never commit.
+.env
+license-server.env
+config/
+data/
+backup/

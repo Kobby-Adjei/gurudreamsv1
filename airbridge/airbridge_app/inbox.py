@@ -21,10 +21,12 @@ limit is keyed on the verified sender node instead of the shared loopback IP).
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import os
 import tempfile
 import threading
+import time
 from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
@@ -144,34 +146,47 @@ def _client_port(request: Request) -> int:
     return int(request.client.port) if request.client and request.client.port else 0
 
 
-def _embedded_identity(backend: Any, host: str, port: int) -> tuple[dict[str, Any] | None, str]:
-    """Embedded-mode step 1 (blocking: LocalAPI calls), via
-    ``security.verify_embedded_peer``. Returns ``(peer, "")`` with
-    ``peer = {node, ip, node_id}`` on success, or ``(None, reason)``."""
-    seen: dict[str, Any] = {}
+# F-5 (PHASE3_SECURITY.md): every whois miss takes tailscaled's backend lock, so
+# a local flood on :8989 must be throttled BEFORE LocalAPI is asked anything.
+EMBEDDED_MAX_CONCURRENT_LOOKUPS = 8
+EMBEDDED_LOOKUPS_PER_SECOND = 20.0
+EMBEDDED_LOOKUP_BURST = 40
 
-    def whois(addr: str) -> dict[str, Any] | None:
-        result = backend.whois(addr)
-        if isinstance(result, dict):
-            seen.update(result)
-        return result
 
+class _TokenBucket:
+    """Global (not per-IP: every embedded caller is 127.0.0.1) token bucket."""
+
+    def __init__(self, rate: float, burst: int, clock: Callable[[], float] = time.monotonic) -> None:
+        self.rate = rate
+        self.burst = float(burst)
+        self.tokens = float(burst)
+        self.clock = clock
+        self.stamp = clock()
+        self.lock = threading.Lock()
+
+    def take(self) -> bool:
+        with self.lock:
+            now = self.clock()
+            self.tokens = min(self.burst, self.tokens + (now - self.stamp) * self.rate)
+            self.stamp = now
+            if self.tokens >= 1.0:
+                self.tokens -= 1.0
+                return True
+            return False
+
+
+def _embedded_identity(backend: Any, host: str, port: int) -> tuple[Any, str]:
+    """Embedded-mode step 1 (blocking: LocalAPI calls) via
+    ``security.verify_embedded_peer`` -> ``(VerifiedPeer, "")`` or ``(None, reason)``.
+    Own user id is fetched lazily (only after whois resolved someone)."""
     try:
-        self_uid = backend.self_user_id()
-    except Exception:
-        logger.warning("could not read own network identity; rejecting %s:%s", host, port)
-        return None, "forbidden: network identity unavailable"
-    try:
-        node = security.verify_embedded_peer(host, port, whois, self_uid)
+        peer = security.verify_embedded_peer(host, port, backend.whois, backend.self_user_id)
     except security.SecurityError as exc:
-        reason = getattr(exc, "reason", "forbidden")
-        return None, f"forbidden: {reason}"
+        return None, f"forbidden: {getattr(exc, 'reason', 'unverified')}"
     except Exception:
         logger.exception("embedded peer verification failed")
         return None, "forbidden: could not verify sender"
-    ip = seen.get("tailnet_ip", seen.get("ip"))
-    return {"node": node, "ip": ip if isinstance(ip, str) else None,
-            "node_id": seen.get("node_id") if isinstance(seen.get("node_id"), str) else None}, ""
+    return peer, ""
 
 
 def create_app(
@@ -202,15 +217,25 @@ def create_app(
     app.state.settings = settings
     app.state.peers_provider = peers_provider
 
-    async def _verify_embedded(request: Request) -> tuple[dict[str, Any] | None, str]:
-        return await run_in_threadpool(_embedded_identity, backend, _client_ip(request), _client_port(request))
+    lookup_slots = asyncio.Semaphore(EMBEDDED_MAX_CONCURRENT_LOOKUPS)
+    lookup_bucket = _TokenBucket(EMBEDDED_LOOKUPS_PER_SECOND, EMBEDDED_LOOKUP_BURST)
+    app.state.lookup_bucket = lookup_bucket
+
+    async def _verify_embedded(request: Request) -> tuple[Any, int, str]:
+        """(peer, 0, "") or (None, status, detail). 429 = throttled before any LocalAPI call."""
+        if not lookup_bucket.take() or lookup_slots.locked():
+            return None, 429, "too many requests, slow down"
+        async with lookup_slots:
+            peer, reason = await run_in_threadpool(
+                _embedded_identity, backend, _client_ip(request), _client_port(request))
+        return (peer, 0, "") if peer is not None else (None, 403, reason)
 
     @app.get("/health")
     async def health(request: Request) -> JSONResponse:
         if embedded:
-            peer, reason = await _verify_embedded(request)
+            peer, status, detail = await _verify_embedded(request)
             if peer is None:
-                return _error(403, reason)
+                return _error(status, detail)
         elif not security.is_tailnet_ip(_client_ip(request)):
             return _error(403, "forbidden: not a tailnet address")
         return JSONResponse(status_code=200, content={"status": "ok"})
@@ -222,13 +247,13 @@ def create_app(
 
         # 1. Tailnet only (embedded: loopback + whois + same user).
         if embedded:
-            peer, reason = await _verify_embedded(request)
+            peer, status, detail = await _verify_embedded(request)
             if peer is None:
                 logger.warning("rejected task from unverified local connection %s:%s (%s)",
-                               source_ip, _client_port(request), reason)
-                return _error(403, reason)
-            source_ip = peer.get("ip") or source_ip
-            limit_key = "node:" + str(peer.get("node_id") or peer.get("node") or source_ip)
+                               source_ip, _client_port(request), detail)
+                return _error(status, detail)
+            source_ip = peer.tailnet_ip or source_ip
+            limit_key = "node:" + str(peer.node_id or peer.node)
         elif not security.is_tailnet_ip(source_ip):
             logger.warning("rejected task from non-tailnet address %s", source_ip)
             return _error(403, "forbidden: not a tailnet address")

@@ -5,14 +5,15 @@ Runs concurrently:
 * the inbox (tailnet HTTP on :8989) - started when Tailscale is up and the
   port is free; otherwise the daemon stays up in a *degraded* state and
   retries every ``RETRY_S`` seconds;
-* the control API on ``127.0.0.1:<AIRBRIDGE_CONTROL_PORT>`` (see control.py);
+* the control API on ``[::1]:<AIRBRIDGE_CONTROL_PORT>`` (IPv4 loopback only as a
+  fallback; see control.py);
 * a node watcher that diffs online peers every ``NODE_POLL_S`` seconds and
   emits ``node_online`` / ``node_offline``;
 * a parent watchdog: exits when ``AIRBRIDGE_PARENT_PID`` disappears.
 
 When the control API is listening, exactly one line is written to stderr::
 
-    AIRBRIDGE_READY {"control_port":N,"pid":P}
+    AIRBRIDGE_READY {"control_port":N,"pid":P,"control_host":"::1"|"127.0.0.1"}
 
 Nothing is ever written to stdout.
 """
@@ -305,12 +306,14 @@ async def run_daemon(
         _stderr(f"AirBridge: cannot bind control API on {control.CONTROL_HOST}:{control_port}: {exc}")
         return 1
     port = sock.getsockname()[1]
+    host = control.bound_host(sock)
     app = control.create_control_app(
         token=token,
         port_getter=lambda: port,
         state=state,
         settings=settings,
         nodes_provider=nodes_provider or control.nodes_snapshot,
+        host=host,
     )
     ctl_server = control.build_control_server(app)
     _disable_signal_capture(ctl_server)
@@ -330,8 +333,9 @@ async def run_daemon(
         await asyncio.sleep(0.02)
 
     events.emit("daemon_started", summary=f"AirBridge daemon started (v{state.status()['version']})")
-    logger.info("control API listening on %s:%s (pid %s)", control.CONTROL_HOST, port, os.getpid())
-    _stderr(f"{READY_PREFIX} " + json.dumps({"control_port": port, "pid": os.getpid()}, separators=(",", ":")))
+    logger.info("control API listening on [%s]:%s (pid %s)", host, port, os.getpid())
+    ready = {"control_port": port, "pid": os.getpid(), "control_host": host}
+    _stderr(f"{READY_PREFIX} " + json.dumps(ready, separators=(",", ":")))
 
     supervisor = _InboxSupervisor(settings, state, stop)
     tasks = [

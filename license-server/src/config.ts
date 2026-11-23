@@ -202,6 +202,30 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   };
 }
 
+/**
+ * HEADSCALE_URL: https anywhere, or plain http to localhost / a single-label private service name on the
+ * internal compose network (e.g. http://headscale:8080 — PHASE3_SECURITY.md F-3).
+ */
+function headscaleApiUrl(raw: string, problems: string[]): URL | null {
+  if (!raw) {
+    problems.push('HEADSCALE_URL is required');
+    return null;
+  }
+  let u: URL;
+  try {
+    u = new URL(raw);
+  } catch {
+    problems.push('HEADSCALE_URL is not a valid URL');
+    return null;
+  }
+  const internal = u.hostname === 'localhost' || u.hostname === '127.0.0.1' || /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/i.test(u.hostname);
+  if (u.protocol !== 'https:' && !(u.protocol === 'http:' && internal)) {
+    problems.push('HEADSCALE_URL must be an https:// URL (http only for localhost or an internal service name like http://headscale:8080)');
+    return null;
+  }
+  return u;
+}
+
 const DEFAULT_PREAUTH_TTL = 600;
 const MIN_PREAUTH_TTL = 60;
 const MAX_PREAUTH_TTL = 3600;
@@ -218,7 +242,7 @@ function loadHeadscaleConfig(env: NodeJS.ProcessEnv, problems: string[]): Headsc
   if (!rawUrl && !apiKey && !rawPublic) return null;
 
   const before = problems.length;
-  const url = httpsUrl('HEADSCALE_URL', rawUrl || undefined, problems);
+  const url = headscaleApiUrl(rawUrl, problems);
   const pub = httpsUrl('HEADSCALE_PUBLIC_URL', rawPublic || undefined, problems);
   if (!apiKey) problems.push('HEADSCALE_API_KEY is required when HEADSCALE_URL / HEADSCALE_PUBLIC_URL are set');
   else if (isPlaceholder(apiKey)) problems.push('HEADSCALE_API_KEY still contains a REPLACE_ME placeholder');

@@ -19,6 +19,7 @@ import socket
 from typing import Any
 
 import requests
+import requests.adapters
 from mcp.server.mcpserver import MCPServer
 
 from . import config, events, network, security
@@ -78,15 +79,31 @@ async def list_nodes() -> str:
     )
 
 
+class _SocksAdapter(requests.adapters.HTTPAdapter):
+    """urllib3's SOCKSProxyManager keeps the brackets of an IPv6 proxy host
+    (``socks5h://[::1]:P`` -> host ``"[::1]"``), which PySocks cannot resolve.
+    Strip them so tailscaled's ``[::1]`` SOCKS5 listener (F-1) works."""
+
+    def proxy_manager_for(self, proxy: str, **proxy_kwargs: Any) -> Any:
+        manager = super().proxy_manager_for(proxy, **proxy_kwargs)
+        opts = getattr(manager, "connection_pool_kw", {}).get("_socks_options")
+        if isinstance(opts, dict):
+            host = opts.get("proxy_host")
+            if isinstance(host, str) and host.startswith("[") and host.endswith("]"):
+                opts["proxy_host"] = host[1:-1]
+        return manager
+
+
 def _post(url: str, body: dict[str, Any], headers: dict[str, str], timeout: float,
           proxies: dict[str, str] | None = None) -> requests.Response:
     with requests.Session() as session:
         session.trust_env = False  # never route tailnet traffic through env proxies
         if proxies:
-            # Embedded network: tailscaled's SOCKS5 (socks5h://127.0.0.1:P).
+            # Embedded network: tailscaled's SOCKS5 (socks5h://[::1]:P).
             # Session-level so trust_env=False still applies to everything else.
             session.proxies.clear()
             session.proxies.update(proxies)
+            session.mount("http://", _SocksAdapter())
         return session.post(url, json=body, headers=headers, timeout=timeout, allow_redirects=False)
 
 

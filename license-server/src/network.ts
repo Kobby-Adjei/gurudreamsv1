@@ -22,6 +22,8 @@ export interface NetworkLogger {
 
 export interface NetworkConfig {
   client: HeadscaleApi;
+  /** How often the live Headscale policy is re-verified (default 10 min). */
+  policyCheckIntervalMs?: number;
   /** HEADSCALE_PUBLIC_URL — the `--login-server` clients use. */
   loginServer: string;
   /** PREAUTH_TTL_SECONDS (default 600). */
@@ -40,6 +42,135 @@ export interface NetworkRouteDeps {
 
 const NODE_ID = /^[1-9][0-9]{0,19}$/;
 const DAY_MS = 24 * 3600 * 1000;
+
+/**
+ * The only acceptable Headscale policy (PHASE3_SECURITY.md F-1). Headscale treats an empty/missing policy as
+ * allow-all, and userspace tailscaled forwards every port to the user's localhost — so no key is minted unless
+ * the live policy is exactly this.
+ */
+export const EXPECTED_POLICY = {
+  acls: [{ action: 'accept', proto: 'tcp', src: ['autogroup:member'], dst: ['autogroup:self:8989'] }],
+} as const;
+
+/** HuJSON -> JSON: strip // and /* *\/ comments and trailing commas (outside strings). */
+export function hujsonToJson(src: string): string {
+  let out = '';
+  let i = 0;
+  let inStr = false;
+  while (i < src.length) {
+    const ch = src[i]!;
+    if (inStr) {
+      out += ch;
+      if (ch === '\\') {
+        out += src[i + 1] ?? '';
+        i += 2;
+        continue;
+      }
+      if (ch === '"') inStr = false;
+      i += 1;
+      continue;
+    }
+    if (ch === '"') {
+      inStr = true;
+      out += ch;
+      i += 1;
+    } else if (ch === '/' && src[i + 1] === '/') {
+      while (i < src.length && src[i] !== '\n') i += 1;
+    } else if (ch === '/' && src[i + 1] === '*') {
+      const end = src.indexOf('*/', i + 2);
+      i = end < 0 ? src.length : end + 2;
+    } else {
+      out += ch;
+      i += 1;
+    }
+  }
+  // Trailing commas. This regex can also touch a string literal containing ",}" / ",]" — harmless here: the
+  // result is only ever compared for exact equality with EXPECTED_POLICY, whose strings contain no commas.
+  return out.replace(/,(\s*[}\]])/g, '$1');
+}
+
+function canonical(v: unknown): unknown {
+  if (Array.isArray(v)) return v.map(canonical);
+  if (v && typeof v === 'object') {
+    return Object.fromEntries(
+      Object.keys(v as object)
+        .sort()
+        .map((k) => [k, canonical((v as Record<string, unknown>)[k])]),
+    );
+  }
+  return v;
+}
+
+/** True only when `raw` (HuJSON) is semantically identical to EXPECTED_POLICY (key order/whitespace/comments ignored). */
+export function isExpectedPolicy(raw: string): boolean {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(hujsonToJson(raw));
+  } catch {
+    return false;
+  }
+  return JSON.stringify(canonical(parsed)) === JSON.stringify(canonical(EXPECTED_POLICY));
+}
+
+/**
+ * Tracks whether the live Headscale policy is the expected one. Checked at startup, every
+ * `intervalMs`, and lazily on requests when stale (serverless hosts have no timers). A failed or
+ * mismatching check closes the gate until a later check passes (retried at most every 30 s).
+ */
+export class PolicyGuard {
+  private ok = false;
+  private checkedAt = -Infinity;
+  private inflight: Promise<boolean> | null = null;
+  private timer: ReturnType<typeof setInterval> | null = null;
+
+  constructor(
+    private readonly client: HeadscaleApi,
+    private readonly log: NetworkLogger,
+    private readonly now: () => number,
+    private readonly intervalMs = 10 * 60_000,
+    private readonly retryMs = 30_000,
+  ) {}
+
+  start(): void {
+    void this.check();
+    if (!this.timer && this.intervalMs > 0) {
+      this.timer = setInterval(() => void this.check(), this.intervalMs);
+      this.timer.unref?.();
+    }
+  }
+
+  stop(): void {
+    if (this.timer) clearInterval(this.timer);
+    this.timer = null;
+  }
+
+  check(): Promise<boolean> {
+    if (this.inflight) return this.inflight;
+    this.inflight = (async () => {
+      let ok = false;
+      try {
+        ok = isExpectedPolicy(await this.client.getPolicy());
+        if (!ok) this.log.error('NETWORK_POLICY_MISMATCH', { action: 'refusing to issue pre-auth keys until the Headscale policy is exactly the AirBridge policy' });
+      } catch (e) {
+        this.log.error('NETWORK_POLICY_UNVERIFIABLE', { action: 'refusing to issue pre-auth keys', err: e instanceof HeadscaleError ? e.message : 'unexpected_error' });
+      }
+      if (ok && !this.ok) this.log.info('network_policy_verified');
+      this.ok = ok;
+      this.checkedAt = this.now();
+      return ok;
+    })().finally(() => {
+      this.inflight = null;
+    });
+    return this.inflight;
+  }
+
+  /** Current verdict, re-checking when stale (ok: older than interval; failed: older than retryMs). */
+  async allow(): Promise<boolean> {
+    const age = this.now() - this.checkedAt;
+    if ((this.ok && age < this.intervalMs) || (!this.ok && age < this.retryMs)) return this.ok;
+    return this.check();
+  }
+}
 
 /** Headscale user name for a Clerk subject: `u-` + first 20 hex chars of sha256(sub). */
 export function headscaleUserName(sub: string): string {
@@ -60,6 +191,10 @@ export function registerNetworkRoutes(app: Hono, deps: NetworkRouteDeps): void {
   const global = new RateLimiter(deps.limits?.globalPerDay ?? 1000, DAY_MS, deps.now);
 
   const unavailable = (c: Context) => c.json({ error: 'network_unavailable' }, 503);
+  const guard = deps.network
+    ? new PolicyGuard(deps.network.client, log, deps.now, deps.network.policyCheckIntervalMs ?? 10 * 60_000)
+    : null;
+  guard?.start();
   const unauthorized = (c: Context) => c.json({ error: 'unauthorized' }, 401, { 'WWW-Authenticate': 'Bearer' });
 
   app.post('/v1/network/preauth-key', async (c) => {
@@ -73,6 +208,8 @@ export function registerNetworkRoutes(app: Hono, deps: NetworkRouteDeps): void {
 
     const rec = await deps.store.get(user.sub);
     if (!rec || !isEntitled(rec.status)) return c.json({ error: 'subscription_required', status: rec?.status ?? 'none' }, 402);
+
+    if (!guard || !(await guard.allow())) return unavailable(c);
 
     if (!global.allow('global')) {
       log.warn('network_global_limit_reached');

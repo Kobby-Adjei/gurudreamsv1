@@ -1,5 +1,7 @@
-# AirBridge Headscale stack: headscale v0.29.7 + Caddy (automatic TLS). See README.md.
-# Required env (put them in ./.env next to this file): HEADSCALE_DOMAIN, ACME_EMAIL, LICENSE_SERVER_IPS.
+# AirBridge Headscale stack: headscale v0.29.7 + Caddy (automatic TLS) + the license server.
+# The Headscale REST API is reachable ONLY on the internal `control` network (license server -> headscale);
+# Caddy returns 404 for /api/* and /swagger* on the public site. See README.md.
+# Required env in ./.env: HEADSCALE_DOMAIN, ACME_EMAIL. License-server secrets in ./license-server.env.
 name: airbridge-headscale
 
 services:
@@ -17,10 +19,9 @@ services:
     ports:
       # STUN for the embedded DERP relay (the only port published by headscale itself).
       - "3478:3478/udp"
-      # Uncomment ONLY when the license server runs on this same host (HEADSCALE_URL=http://127.0.0.1:8080):
-      # - "127.0.0.1:8080:8080"
     networks:
       edge: {}
+      control: {}
     healthcheck:
       test: ["CMD", "headscale", "health"]
       interval: 30s
@@ -38,7 +39,6 @@ services:
     environment:
       HEADSCALE_DOMAIN: ${HEADSCALE_DOMAIN:?set HEADSCALE_DOMAIN}
       ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL}
-      LICENSE_SERVER_IPS: ${LICENSE_SERVER_IPS:?set LICENSE_SERVER_IPS (space-separated IPs/CIDRs)}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data
@@ -46,12 +46,36 @@ services:
     networks:
       edge: {}
 
+  # License server co-located with Headscale so the admin API never leaves the host.
+  # Expose it publicly via your own reverse proxy / a second Caddy site, or keep using a separate deployment
+  # that reaches headscale over a private network (WireGuard/VPC) — never over the public listener.
+  license-server:
+    build: ..
+    restart: unless-stopped
+    env_file: ./license-server.env
+    environment:
+      HEADSCALE_URL: http://headscale:8080
+      HEADSCALE_PUBLIC_URL: https://${HEADSCALE_DOMAIN:?set HEADSCALE_DOMAIN}
+    depends_on:
+      - headscale
+    ports:
+      # Loopback only. Put it behind TLS (e.g. a second Caddy site, see README) before exposing it.
+      - "127.0.0.1:8787:8787"
+    networks:
+      control: {}
+      # Outbound internet (Stripe, Clerk JWKS). `control` is internal and has no egress.
+      egress: {}
+
 networks:
   edge:
     ipam:
       config:
         # Must match trusted_proxies in config.yaml.tmpl.
         - subnet: 172.30.53.0/24
+  control:
+    # Internal-only: license server <-> headscale API. No external access, no egress.
+    internal: true
+  egress: {}
 
 volumes:
   caddy-data: {}

@@ -65,14 +65,17 @@ def api(settings, data_dir, fake_peers):
         "nodes": [{"hostname": "desktop", "ip": "100.64.0.5", "os": "windows", "online": True, "last_seen": None}],
         "error": None,
     }
+    host = control.bound_host(sock)
     app = control.create_control_app(
-        token=TOKEN, port_getter=lambda: port, state=state, settings=settings, nodes_provider=lambda: nodes
+        token=TOKEN, port_getter=lambda: port, state=state, settings=settings, nodes_provider=lambda: nodes,
+        host=host,
     )
     srv = _ServerThread(app, sock)
     srv.start()
-    base = f"http://127.0.0.1:{port}"
+    hostport = f"[{host}]:{port}" if ":" in host else f"{host}:{port}"
+    base = f"http://{hostport}"
     client = httpx.Client(base_url=base, headers={"Authorization": f"Bearer {TOKEN}"}, timeout=10, trust_env=False)
-    yield {"port": port, "base": base, "client": client, "state": state}
+    yield {"port": port, "base": base, "client": client, "state": state, "hostport": hostport}
     client.close()
     srv.stop()
 
@@ -81,10 +84,51 @@ def api(settings, data_dir, fake_peers):
 def test_binds_loopback_only():
     sock = control.bind_control_socket(0)
     try:
+        assert sock.getsockname()[0] in ("::1", "127.0.0.1")
+        assert control.bound_host(sock) == sock.getsockname()[0]
+    finally:
+        sock.close()
+    # F-1: IPv6 loopback preferred (tailscaled netstack only forwards to 127.0.0.1).
+    assert control.CONTROL_HOST == "::1" and control.CONTROL_HOST_V4 == "127.0.0.1"
+
+
+def test_ipv4_fallback_only_without_ipv6(monkeypatch):
+    import errno as _errno
+
+    real = control._bind_loopback
+
+    def no_v6(family, host, port):
+        if family == socket.AF_INET6:
+            raise OSError(_errno.EAFNOSUPPORT, "no ipv6")
+        return real(family, host, port)
+
+    monkeypatch.setattr(control, "_bind_loopback", no_v6)
+    sock = control.bind_control_socket(0)
+    try:
         assert sock.getsockname()[0] == "127.0.0.1"
     finally:
         sock.close()
-    assert control.CONTROL_HOST == "127.0.0.1"
+
+    def busy_v6(family, host, port):
+        if family == socket.AF_INET6:
+            raise OSError(_errno.EADDRINUSE, "busy")
+        return real(family, host, port)
+
+    monkeypatch.setattr(control, "_bind_loopback", busy_v6)
+    with pytest.raises(OSError):
+        control.bind_control_socket(0)
+
+
+def test_host_check_uses_bracketed_ipv6():
+    guard = control.ControlGuard(None, token="t" * 43, port_getter=lambda: 5000, host="::1")
+    scope = {"type": "http", "client": ("::1", 1234), "headers": [(b"host", b"[::1]:5000"),
+                                                                   (b"authorization", b"Bearer " + b"t" * 43)]}
+    assert guard._verdict(scope) is None
+    scope["headers"][0] = (b"host", b"127.0.0.1:5000")
+    assert guard._verdict(scope) == (403, "forbidden: bad host")
+    with pytest.raises(ValueError):
+        control.create_control_app(token="t" * 43, port_getter=lambda: 1, state=control.DaemonState(),
+                                   settings=None, host="0.0.0.0")
 
 
 def test_no_token_401(api):
@@ -147,7 +191,7 @@ def test_events_endpoint(api):
 
 
 def test_ws_stream_delivers_event_under_1s(api):
-    url = f"ws://127.0.0.1:{api['port']}/events/stream"
+    url = f"ws://{api['hostport']}/events/stream"
     with ws_connect(url, additional_headers={"Authorization": f"Bearer {TOKEN}"}, open_timeout=5) as ws:
         time.sleep(0.3)  # let the tail start
         t0 = time.monotonic()
@@ -159,7 +203,7 @@ def test_ws_stream_delivers_event_under_1s(api):
 
 
 def test_ws_bad_auth_closes_4401(api):
-    url = f"ws://127.0.0.1:{api['port']}/events/stream"
+    url = f"ws://{api['hostport']}/events/stream"
     with ws_connect(url, additional_headers={"Authorization": "Bearer nope"}, open_timeout=5) as ws:
         with pytest.raises(ConnectionClosed) as info:
             ws.recv(timeout=2)
@@ -167,7 +211,7 @@ def test_ws_bad_auth_closes_4401(api):
 
 
 def test_ws_origin_rejected(api):
-    url = f"ws://127.0.0.1:{api['port']}/events/stream"
+    url = f"ws://{api['hostport']}/events/stream"
     with ws_connect(url, origin="http://evil.example",
                     additional_headers={"Authorization": f"Bearer {TOKEN}"}, open_timeout=5) as ws:
         with pytest.raises(ConnectionClosed) as info:

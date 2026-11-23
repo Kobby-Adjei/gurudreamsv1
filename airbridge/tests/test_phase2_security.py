@@ -60,13 +60,15 @@ def _parse(path: Path) -> ast.Module:
 # --------------------------------------------------------------------------- #
 @needs_control
 def test_control_host_constant_is_loopback_v4() -> None:
-    assert control.CONTROL_HOST == "127.0.0.1"
+    # Phase 3 F-1 (PHASE3_SECURITY.md): IPv6 loopback preferred, IPv4 loopback only as fallback.
+    assert control.CONTROL_HOST == "::1"
+    assert control.CONTROL_HOST_V4 == "127.0.0.1"
 
 
 @needs_control
 def test_control_module_has_no_wildcard_or_name_hosts() -> None:
     """No '0.0.0.0', '::', '' or 'localhost' host literals in control/daemon code (DNS + dual-stack surprises)."""
-    bad = {"0.0.0.0", "::", "localhost", "::1"}
+    bad = {"0.0.0.0", "::", "localhost"}  # "::1" is the Phase-3 control host (F-1)
     offenders = []
     for name in ("control.py", "daemon.py"):
         path = APP_DIR / name
@@ -82,22 +84,31 @@ def test_control_module_has_no_wildcard_or_name_hosts() -> None:
 def test_bind_control_socket_binds_ipv4_loopback_only() -> None:
     src = _parse(APP_DIR / "control.py")
     fn = next(n for n in ast.walk(src) if isinstance(n, ast.FunctionDef) and n.name == "bind_control_socket")
-    binds = [
+    # Phase 3 (F-1): bind_control_socket -> _bind_loopback(family, CONTROL_HOST | CONTROL_HOST_V4, port).
+    calls = [
         c for c in ast.walk(fn)
+        if isinstance(c, ast.Call) and isinstance(c.func, ast.Name) and c.func.id == "_bind_loopback"
+    ]
+    assert calls, "bind_control_socket must bind via _bind_loopback"
+    for call in calls:
+        assert isinstance(call.args[1], ast.Name) and call.args[1].id in ("CONTROL_HOST", "CONTROL_HOST_V4")
+    helper = next(n for n in ast.walk(src) if isinstance(n, ast.FunctionDef) and n.name == "_bind_loopback")
+    binds = [
+        c for c in ast.walk(helper)
         if isinstance(c, ast.Call) and isinstance(c.func, ast.Attribute) and c.func.attr == "bind"
     ]
-    assert binds, "bind_control_socket must call sock.bind"
+    assert binds, "_bind_loopback must call sock.bind"
     for call in binds:
         target = call.args[0]
         assert isinstance(target, ast.Tuple)
-        assert isinstance(target.elts[0], ast.Name) and target.elts[0].id == "CONTROL_HOST"
+        assert isinstance(target.elts[0], ast.Name) and target.elts[0].id == "host"
 
     sock = control.bind_control_socket(0)
     try:
         host, port = sock.getsockname()[:2]
-        assert host == "127.0.0.1"
+        assert host in ("::1", "127.0.0.1")
         assert port > 0
-        assert sock.family == socket.AF_INET
+        assert sock.family in (socket.AF_INET, socket.AF_INET6)
     finally:
         sock.close()
 

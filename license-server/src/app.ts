@@ -5,7 +5,7 @@ import { AuthError, type ClerkVerifier } from './clerkAuth.js';
 import type { LicenseSigner } from './licenseToken.js';
 import { registerNetworkRoutes, revokeUserNodes, type NetworkConfig } from './network.js';
 import { RateLimiter } from './rateLimit.js';
-import { isEntitled, type SubscriptionStore } from './store.js';
+import { isEntitled, type SubscriptionStatus, type SubscriptionStore } from './store.js';
 
 export interface Logger {
   info(msg: string, fields?: Record<string, unknown>): void;
@@ -47,6 +47,8 @@ export interface AppDeps {
 }
 
 const MAX_WEBHOOK_BYTES = 1_000_000;
+/** Subscription statuses that remove the customer's Headscale nodes (tech-lead decision: not past_due/incomplete). */
+export const REVOKE_NETWORK_STATUSES: ReadonlySet<SubscriptionStatus> = new Set<SubscriptionStatus>(['canceled', 'unpaid']);
 const CLERK_USER_ID = /^user_[A-Za-z0-9]{1,64}$/;
 const SUBSCRIPTION_EVENTS = new Set([
   'customer.subscription.created',
@@ -130,8 +132,10 @@ export function createApp(deps: AppDeps): Hono {
       lastEventCreated: Math.floor(now() / 1000),
     });
     log.info('subscription_updated', { eventId, subscriptionId, status, applied });
-    if (applied && !isEntitled(status)) {
-      // Lapsed: take the customer's devices off the private network (best-effort, never throws).
+    if (applied && REVOKE_NETWORK_STATUSES.has(status)) {
+      // Ended (canceled / unpaid / incomplete_expired→canceled): take the customer's devices off the private
+      // network (best-effort, never throws). past_due is Stripe's dunning window: no NEW keys (402), but
+      // existing devices stay so a card hiccup doesn't wipe them.
       await revokeUserNodes(deps.network ?? null, userId, log);
     }
   }

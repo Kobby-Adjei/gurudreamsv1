@@ -1,10 +1,16 @@
 """Local control API for the AirBridge Pro desktop app (daemon mode only).
 
-Binds ``127.0.0.1`` only. Every HTTP request and WebSocket handshake must:
+Binds IPv6 loopback ``::1`` (fallback ``127.0.0.1`` only where the host has
+no IPv6 loopback). Phase 3 (PHASE3_SECURITY.md F-1): the embedded tailscaled's
+netstack forwards inbound tailnet connections for ANY port to
+``127.0.0.1:<port>`` - never to ``::1`` - so a ``::1`` listener is unreachable
+from the tailnet regardless of the ACL. Every HTTP request and WebSocket
+handshake must:
 
 1. carry no ``Origin`` header (browsers always send one; the Electron main
    process does not)                                   -> 403 / WS close 4403
-2. have ``Host`` exactly ``127.0.0.1:<port>`` (anti DNS-rebinding)
+2. have ``Host`` exactly ``[::1]:<port>`` (or ``127.0.0.1:<port>`` on the
+   IPv4 fallback; anti DNS-rebinding)
                                                        -> 403 / WS close 4403
 3. present ``Authorization: Bearer <token>`` matching the per-launch token
    (``hmac.compare_digest``)                           -> 401 / WS close 4401
@@ -17,6 +23,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import errno
 import hmac
 import ipaddress
 import json
@@ -37,10 +44,14 @@ from . import __version__, config, events, network, outbox, security
 
 logger = logging.getLogger("airbridge.control")
 
-CONTROL_HOST = "127.0.0.1"
+CONTROL_HOST = "::1"  # preferred: not reachable through tailscaled's netstack forwarding
+CONTROL_HOST_V4 = "127.0.0.1"  # fallback when the host has no IPv6 loopback
 WS_CLOSE_UNAUTHORIZED = 4401
 WS_CLOSE_FORBIDDEN = 4403
 MAX_SEND_BODY_BYTES = security.MAX_BODY_BYTES + 4096
+# EAFNOSUPPORT / EADDRNOTAVAIL (POSIX + WinSock): no IPv6 loopback on this host.
+_NO_IPV6_ERRNOS = {errno.EAFNOSUPPORT, errno.EADDRNOTAVAIL, errno.EPROTONOSUPPORT,
+                   10047, 10049, 10043}
 
 
 # --------------------------------------------------------------------------- #
@@ -121,17 +132,18 @@ def _is_loopback(scope: dict[str, Any]) -> bool:
 class ControlGuard:
     """Rejects requests with an Origin, a wrong Host, or a bad bearer token."""
 
-    def __init__(self, app: Any, *, token: str, port_getter: Callable[[], int]) -> None:
+    def __init__(self, app: Any, *, token: str, port_getter: Callable[[], int], host: str = CONTROL_HOST_V4) -> None:
         self.app = app
         self._token = ("Bearer " + token).encode("utf-8")
         self._port_getter = port_getter
+        self._host = f"[{host}]" if ":" in host else host
 
     def _verdict(self, scope: dict[str, Any]) -> tuple[int, str] | None:
         if not _is_loopback(scope):
             return 403, "forbidden: loopback only"
         if _header(scope, b"origin") is not None:
             return 403, "forbidden: browser origins are not allowed"
-        expected_host = f"{CONTROL_HOST}:{self._port_getter()}".encode("ascii")
+        expected_host = f"{self._host}:{self._port_getter()}".encode("ascii")
         if _header(scope, b"host") != expected_host:
             return 403, "forbidden: bad host"
         provided = _header(scope, b"authorization") or b""
@@ -190,8 +202,12 @@ def create_control_app(
     state: DaemonState,
     settings: config.Settings,
     nodes_provider: Callable[[], dict[str, Any]] = nodes_snapshot,
+    host: str = CONTROL_HOST_V4,
 ) -> Any:
-    """Build the guarded control ASGI app."""
+    """Build the guarded control ASGI app. ``host`` is the bound loopback
+    address (:func:`bound_host`); the Host header must name it exactly."""
+    if host not in (CONTROL_HOST, CONTROL_HOST_V4):
+        raise ValueError("control host must be a loopback literal")
     if not isinstance(token, str) or len(token) < 32:
         raise ValueError("control token too short")
     app = FastAPI(
@@ -275,22 +291,42 @@ def create_control_app(
             code = 502
         return _json(code, {"ok": False, "error": result.get("error") or "send failed"})
 
-    return ControlGuard(app, token=token, port_getter=port_getter)
+    return ControlGuard(app, token=token, port_getter=port_getter, host=host)
 
 
-def bind_control_socket(port: int = 0) -> socket.socket:
-    """Bind a listening TCP socket on 127.0.0.1 (port 0 = ephemeral)."""
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+def _bind_loopback(family: socket.AddressFamily, host: str, port: int) -> socket.socket:
+    sock = socket.socket(family, socket.SOCK_STREAM)
     try:
         if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):  # Windows: no port hijacking
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
-        sock.bind((CONTROL_HOST, int(port)))
+        if family == socket.AF_INET6 and hasattr(socket, "IPV6_V6ONLY"):
+            sock.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 1)
+        sock.bind((host, int(port)))
         sock.listen(128)
         sock.setblocking(False)
     except BaseException:
         sock.close()
         raise
     return sock
+
+
+def bind_control_socket(port: int = 0) -> socket.socket:
+    """Bind a listening TCP socket on ``[::1]`` (port 0 = ephemeral), falling
+    back to ``127.0.0.1`` only when the host has no IPv6 loopback at all.
+    A busy *port* on ``::1`` is an error, never a reason to fall back."""
+    if socket.has_ipv6:
+        try:
+            return _bind_loopback(socket.AF_INET6, CONTROL_HOST, port)
+        except OSError as exc:
+            if exc.errno not in _NO_IPV6_ERRNOS:
+                raise
+    logger.warning("IPv6 loopback unavailable; control API falls back to %s", CONTROL_HOST_V4)
+    return _bind_loopback(socket.AF_INET, CONTROL_HOST_V4, port)
+
+
+def bound_host(sock: socket.socket) -> str:
+    """The loopback literal *sock* is bound to (``::1`` or ``127.0.0.1``)."""
+    return CONTROL_HOST if sock.family == socket.AF_INET6 else CONTROL_HOST_V4
 
 
 def build_control_server(app: Any) -> uvicorn.Server:
@@ -310,6 +346,8 @@ def build_control_server(app: Any) -> uvicorn.Server:
 
 __all__ = [
     "CONTROL_HOST",
+    "CONTROL_HOST_V4",
+    "bound_host",
     "ControlGuard",
     "DaemonState",
     "bind_control_socket",

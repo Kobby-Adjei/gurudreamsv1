@@ -216,3 +216,56 @@ def test_daemon_end_to_end_embedded_whois_over_real_socket(settings, api, backen
     assert direct == 403  # a local process hitting 127.0.0.1:port directly
     assert ip == "100.64.0.1"
     assert len(list(inbox_dir.glob("*.md"))) == 1
+
+
+# --------------------------------------------------------------------------- #
+# F-5: throttle before any LocalAPI whois
+# --------------------------------------------------------------------------- #
+def test_flood_is_429_without_calling_localapi(settings, backend, api, monkeypatch):
+    monkeypatch.setattr(inbox, "EMBEDDED_LOOKUP_BURST", 3)
+    monkeypatch.setattr(inbox, "EMBEDDED_LOOKUPS_PER_SECOND", 0.001)
+    with _client(settings, backend) as c:
+        codes = [c.post(URL, json=PAYLOAD).status_code for _ in range(6)]
+    assert codes == [403, 403, 403, 429, 429, 429]
+    assert len([r for r in api.requests if r["path"] == "/localapi/v0/whois"]) == 3
+
+
+def test_concurrency_cap_rejects_when_all_slots_busy(settings, monkeypatch):
+    import threading
+
+    gate = threading.Event()
+    calls = []
+
+    class SlowBackend:
+        kind = "embedded"
+
+        def whois(self, addr):
+            calls.append(addr)
+            gate.wait(5)
+            return None
+
+        def self_user_id(self):
+            return SELF_UID
+
+    monkeypatch.setattr(inbox, "EMBEDDED_MAX_CONCURRENT_LOOKUPS", 2)
+    app = inbox.create_app(settings, backend=SlowBackend())
+
+    async def scenario():
+        import httpx
+
+        transport = httpx.ASGITransport(app=app, client=("127.0.0.1", 50123))
+        async with httpx.AsyncClient(transport=transport, base_url="http://t") as c:
+            tasks = [asyncio.create_task(c.post(URL, json=PAYLOAD)) for _ in range(2)]
+            for _ in range(200):
+                if len(calls) == 2:
+                    break
+                await asyncio.sleep(0.01)
+            third = await c.post(URL, json=PAYLOAD)
+            gate.set()
+            first = await asyncio.gather(*tasks)
+        return third.status_code, [r.status_code for r in first]
+
+    third, first = asyncio.run(scenario())
+    assert third == 429
+    assert first == [403, 403]
+    assert len(calls) == 2

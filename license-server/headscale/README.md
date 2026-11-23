@@ -8,10 +8,10 @@ its own `tailscaled` in userspace mode and enrolls with single-use pre-auth keys
 
 | File | Purpose |
 |---|---|
-| `docker-compose.yml` | `headscale/headscale:v0.29.7` + Caddy 2 (automatic Let's Encrypt TLS) |
+| `docker-compose.yml` | `headscale/headscale:v0.29.7` + Caddy 2 (automatic Let's Encrypt TLS) + the license server on an internal network |
 | `config.yaml.tmpl` | Headscale config: embedded DERP + STUN, **no Tailscale public DERP**, no MagicDNS, nodes never expire, SQLite |
-| `policy.hujson` | ACL: `autogroup:member` → `autogroup:self:8989` only |
-| `Caddyfile` | TLS, HTTP→HTTPS, and `/api/*` limited to the license server's IPs |
+| `policy.hujson` | ACL: `autogroup:member` → `autogroup:self:8989`, TCP only |
+| `Caddyfile` | TLS and HTTP→HTTPS. `/api/*` and `/swagger*` always return **404** on the public site |
 
 Verified against v0.29.7: the rendered config passes `headscale configtest`; `headscale policy check` accepts the
 policy (and rejects a malformed port, so the check is real). The REST calls the license server makes were run
@@ -20,7 +20,7 @@ against a live v0.29.7 server, including a full enroll with the bundled `tailsca
 ## Why the policy looks like this
 
 ```hujson
-{"acls":[{"action":"accept","src":["autogroup:member"],"dst":["autogroup:self:8989"]}]}
+{"acls":[{"action":"accept","proto":"tcp","src":["autogroup:member"],"dst":["autogroup:self:8989"]}]}
 ```
 
 * `autogroup:self` limits each user to their own devices, so customers are isolated from each other. In v0.29.7
@@ -28,7 +28,13 @@ against a live v0.29.7 server, including a full enroll with the bundled `tailsca
 * **The `:8989` port restriction is security-critical.** In userspace mode, `tailscaled` forwards inbound tailnet
   connections to `127.0.0.1:<port>`. Without the port restriction, any localhost service on a customer's
   machine (databases, dev servers) would be reachable from their other devices. Do not widen it.
-* Anything not explicitly allowed is denied.
+* `"proto": "tcp"`: the inbox is HTTP, so no UDP or ICMP.
+* Anything not explicitly allowed is denied. **Headscale treats an empty or missing policy as allow-all.**
+  Because of that, the license server checks the live policy (`GET /api/v1/policy`) at boot, every
+  10 minutes, and whenever its cached result is stale. It compares the policy semantically to the
+  policy above. If the policy differs or cannot be read, it **stops issuing pre-auth keys** (`503`) and logs
+  `NETWORK_POLICY_MISMATCH` / `NETWORK_POLICY_UNVERIFIABLE` at error level. Alert on those log lines.
+* Pre-auth keys never carry ACL tags. A tagged node would fall outside `autogroup:self`.
 
 The policy is loaded from file (`policy.mode: file`). After you edit it, check it and restart Headscale:
 
@@ -44,8 +50,10 @@ optional), Docker with the compose plugin, and a DNS name such as `hs.example.co
 
 1. **DNS**: create an `A` record (and an `AAAA` record if you have IPv6) for `hs.example.com` pointing at the VM.
    Do not proxy it through Cloudflare's orange cloud: it breaks the Tailscale control protocol and DERP.
-2. **Firewall**: allow inbound **80/tcp** (ACME + redirect), **443/tcp** (control plane, DERP relay, REST API) and
-   **3478/udp** (STUN). Nothing else. Headscale's 8080, metrics (9090) and gRPC (50443) are never published.
+2. **Firewall**: allow inbound **80/tcp** (ACME + redirect), **443/tcp** (control plane and DERP relay) and
+   **3478/udp** (STUN). Nothing else. Headscale's 8080, metrics (9090) and gRPC (50443, bound to the
+   container's loopback) are never published. The admin REST API is **not** served publicly: Caddy returns 404
+   for `/api/*` and `/swagger*`.
 3. **Files**:
    ```bash
    git clone <this repo> && cd license-server/headscale
@@ -55,10 +63,9 @@ optional), Docker with the compose plugin, and a DNS name such as `hs.example.co
    cat > .env <<EOF
    HEADSCALE_DOMAIN=hs.example.com
    ACME_EMAIL=ops@example.com
-   # Space-separated egress IPs/CIDRs of the license server. Only these may call /api/*.
-   LICENSE_SERVER_IPS=198.51.100.7
    EOF
-   chmod 600 .env
+   cp ../.env.example license-server.env     # fill in Stripe/Clerk/license values; HEADSCALE_URL/PUBLIC_URL are set by compose
+   chmod 600 .env license-server.env
    ```
    (`envsubst` comes from the `gettext-base` package.)
 4. **Start**:
@@ -73,20 +80,25 @@ optional), Docker with the compose plugin, and a DNS name such as `hs.example.co
    ```bash
    docker compose exec headscale headscale apikeys create --expiration 90d
    ```
-   Put the printed `hskey-api-…` into the license server's secret store as `HEADSCALE_API_KEY`, and set
-   `HEADSCALE_URL=https://hs.example.com`, `HEADSCALE_PUBLIC_URL=https://hs.example.com`. It is shown once.
-   Never commit it.
-6. **Smoke test** from the license server host:
-   `curl -H "Authorization: Bearer $HEADSCALE_API_KEY" https://hs.example.com/api/v1/user` should return
-   `{"users":[...]}`. The same request from any other IP should return 404.
+   Put the printed `hskey-api-…` into `license-server.env` as `HEADSCALE_API_KEY` and run
+   `docker compose up -d license-server`. The key is shown only once. Never commit it.
+6. **Smoke test**: `curl https://hs.example.com/api/v1/user` must return **404** from anywhere.
+   `docker compose logs license-server | grep network_policy_verified` must show the policy check passing.
+   `curl -X POST http://127.0.0.1:8787/v1/network/preauth-key` on the VM should return `401` (not `503`).
 
-### License-server egress IPs
+### Network layout (why the license server runs next to Headscale)
 
-`/api/*` is only reachable from `LICENSE_SERVER_IPS`. Hosts with stable egress IPs (Railway static outbound IPs,
-Fly.io egress IPs, a VM) work as-is. Serverless hosts with rotating egress (Vercel) need a static-egress add-on,
-or run the license server on the Headscale VM: uncomment the `127.0.0.1:8080:8080` port in
-`docker-compose.yml` and set `HEADSCALE_URL=http://127.0.0.1:8080`. Plain HTTP is accepted for localhost only.
-The API key is still required either way.
+Headscale API keys are **full admin** credentials, and Headscale serves `/api/v1` on the same listener as the
+control protocol. So the API is reachable in only one place: the internal compose network `control`
+(`internal: true`, no egress). The license server uses `HEADSCALE_URL=http://headscale:8080` on that network
+and reaches Stripe and Clerk through a separate `egress` network. Caddy is only on `edge` and returns 404 for
+`/api/*`. The license server listens on `127.0.0.1:8787`. To expose it publicly, add a TLS site in front of it,
+for example a second Caddy site block `license.example.com { reverse_proxy license-server:8787 }` with the
+`license-server` service also attached to `edge`, and set `TRUST_PROXY=1`.
+
+If the license server must run elsewhere (Railway, Fly, Vercel), connect it to the Headscale VM over a private
+network such as WireGuard or a cloud VPC. Point `HEADSCALE_URL` at the private address, using https, or http
+with a single-label internal name. **Never re-open `/api/*` on the public site.**
 
 ## API key rotation
 
@@ -94,7 +106,7 @@ Keys created with `--expiration 90d` stop working after 90 days. Rotate every ~6
 
 ```bash
 docker compose exec headscale headscale apikeys create --expiration 90d   # 1. new key
-#   2. update HEADSCALE_API_KEY in the license server's secrets and redeploy it
+#   2. update HEADSCALE_API_KEY in license-server.env, then: docker compose up -d license-server
 #   3. confirm /v1/network/preauth-key works (or the smoke test above)
 docker compose exec headscale headscale apikeys list                       # 4. find the old key's prefix
 docker compose exec headscale headscale apikeys expire --prefix <old-prefix>
