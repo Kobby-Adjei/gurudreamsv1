@@ -12,16 +12,12 @@ export function Starting({
   return (
     <OnboardingFrame>
       <div role="status" aria-live="polite" className="flex flex-col items-center text-center">
-        <div className="relative mb-8">
-          <span aria-hidden="true" className="absolute -inset-6 rounded-full bg-accent/25 blur-2xl animate-breathe" />
-          <span aria-hidden="true" className="absolute -inset-3 rounded-[26px] border border-accent/30 animate-pulse-ring" />
-          <div className="relative">
-            <LogoMark size={72} />
-          </div>
+        <div className="mb-6 text-ink">
+          <LogoMark size={40} />
         </div>
         <h1 className="text-[22px] font-semibold tracking-tightish text-ink">{title}</h1>
         <p className="mt-2 max-w-[340px] text-[14px] leading-6 text-ink-muted">{body}</p>
-        <div className="mt-7 text-accent-ink">
+        <div className="mt-7 text-ink-faint">
           <Spinner size={22} />
         </div>
       </div>

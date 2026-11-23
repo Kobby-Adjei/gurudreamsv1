@@ -11,7 +11,7 @@ import {
   PowerIcon,
   ReceiveIcon,
   SendIcon,
-  SwarmIcon
+  DesktopIcon
 } from '../components/Icons'
 import { PageHeader } from '../components/PageHeader'
 import { SkeletonRows } from '../components/Skeleton'
@@ -43,8 +43,8 @@ function matches(filter: FeedFilter, e: AirEvent): boolean {
 }
 
 const toneStyle: Record<EventTone, string> = {
-  received: 'bg-accent/15 text-accent-ink ring-accent/25',
-  sent: 'bg-ok/10 text-ok ring-ok/20',
+  received: 'bg-line/[0.06] text-ink ring-line/10',
+  sent: 'bg-line/[0.06] text-ink ring-line/10',
   problem: 'bg-danger/10 text-danger ring-danger/25',
   info: 'bg-line/[0.06] text-ink-muted ring-line/10'
 }
@@ -60,7 +60,7 @@ function iconFor(e: AirEvent): ReactNode {
       return <AlertIcon size={17} />
     case 'node_online':
     case 'node_offline':
-      return <SwarmIcon size={17} />
+      return <DesktopIcon size={17} />
     case 'daemon_started':
     case 'daemon_stopping':
       return <PowerIcon size={17} />
@@ -99,7 +99,7 @@ export function ActivityFeed({
 
   return (
     <>
-      <PageHeader title="Activity" subtitle="Everything your swarm has been up to, as it happens." />
+      <PageHeader title="Activity" subtitle="What your computers have sent and received." />
 
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div role="group" aria-label="Filter activity" className="flex flex-wrap gap-2">
@@ -117,9 +117,6 @@ export function ActivityFeed({
                     : 'border-line/10 bg-surface-1 text-ink-muted hover:border-line/20 hover:text-ink'
                 }`}
               >
-                {f.id === 'problems' && counts.problems > 0 && !active ? (
-                  <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-danger" />
-                ) : null}
                 {f.label}
                 <span className={`tabular-nums ${active ? 'opacity-70' : 'text-ink-faint'}`}>{counts[f.id]}</span>
               </button>
@@ -163,7 +160,7 @@ export function ActivityFeed({
                   <li
                     key={e.id}
                     className={`flex gap-4 px-5 py-4 ${detail ? 'items-start' : 'items-center'} transition-colors hover:bg-line/[0.025] ${
-                      freshIds.has(e.id) ? 'animate-enter bg-accent/[0.04]' : ''
+                      freshIds.has(e.id) ? 'animate-enter' : ''
                     }`}
                   >
                     <span className={`${detail ? 'mt-0.5' : ''} grid h-9 w-9 shrink-0 place-items-center rounded-full ring-1 ring-inset ${toneStyle[tone]}`}>
@@ -189,10 +186,10 @@ export function ActivityFeed({
 
         <aside aria-label="Where tasks go" className="space-y-4">
           <Card className="!p-5">
-            <div className="mb-3 grid h-9 w-9 place-items-center rounded-xl bg-accent/10 text-accent-ink ring-1 ring-inset ring-accent/20">
-              <FolderIcon size={18} />
-            </div>
-            <h2 className="text-[14px] font-semibold">Open inbox folder</h2>
+            <h2 className="flex items-center gap-2 text-[14px] font-semibold">
+              <FolderIcon size={16} className="text-ink-muted" />
+              Open inbox folder
+            </h2>
             <p className="mt-1 text-[13px] leading-5 text-ink-muted">
               Tasks you receive are saved as files in your inbox folder. Your AI app reads them from there.
             </p>

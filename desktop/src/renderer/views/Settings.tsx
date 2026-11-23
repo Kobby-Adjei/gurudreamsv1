@@ -1,6 +1,5 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import type { AuthUser, BackendLifecycle, BackendStatus, LicenseStatus, McpClient } from '../../shared/types'
-import { Badge } from '../components/Badge'
 import { Button } from '../components/Button'
 import { Card, CardHeader } from '../components/Card'
 import { CopyButton } from '../components/CopyButton'
@@ -141,7 +140,7 @@ function ConnectApps() {
               onClick={() => setClient(c.id)}
               onKeyDown={onTabKey}
               className={`h-8 rounded-[10px] px-4 text-[13px] font-medium transition duration-150 ease-calm ${
-                selected ? 'bg-surface-1 text-ink shadow-soft' : 'text-ink-muted hover:text-ink'
+                selected ? 'bg-surface-3 text-ink' : 'text-ink-muted hover:text-ink'
               }`}
             >
               {c.label}
@@ -199,7 +198,7 @@ function ConnectApps() {
         <ol id={stepsId} aria-label={`How to add AirBridge to ${current.label}`} className="space-y-4">
           {current.steps.map(([title, body], i) => (
             <li key={title} className="flex gap-3.5">
-              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-accent/15 text-[13px] font-semibold text-accent-ink ring-1 ring-inset ring-accent/25">
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-line/15 text-[12px] font-medium text-ink-muted">
                 {i + 1}
               </span>
               <div className="pt-0.5">
@@ -247,10 +246,8 @@ function AccountCard({ user, license }: { user?: AuthUser; license: LicenseStatu
       <dl className="divide-y divide-line/[0.06] border-y border-line/[0.06]">
         <Row label="Email">{user?.email ?? '—'}</Row>
         <Row label="Plan">
-          <span className="inline-flex items-center gap-2">
-            AirBridge {planLabel(license?.plan)}
-            <Badge tone={active ? 'ok' : 'warn'}>{active ? 'Active' : 'Inactive'}</Badge>
-          </span>
+          AirBridge {planLabel(license?.plan)}
+          <span className={`font-normal ${active ? 'text-ink-muted' : 'text-warn'}`}> · {active ? 'Active' : 'Inactive'}</span>
         </Row>
         {license?.state === 'grace' ? (
           <Row label="Offline mode">Works until {renews}</Row>

@@ -200,8 +200,9 @@ export function SendTaskSheet({
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-[14px] font-medium text-ink">{n.hostname}</span>
                           <span className="block text-[12px] text-ink-faint">
-                            {osLabel(n.os)}
-                            {!n.online ? ` · last seen ${relativeTime(n.last_seen)}` : ''}
+                            {[n.os ? osLabel(n.os) : null, !n.online && n.last_seen ? `last seen ${relativeTime(n.last_seen)}` : null, !n.online && !n.last_seen ? 'offline' : null]
+                              .filter(Boolean)
+                              .join(' · ')}
                           </span>
                         </span>
                         <StatusDot status={n.online ? 'online' : 'offline'} />

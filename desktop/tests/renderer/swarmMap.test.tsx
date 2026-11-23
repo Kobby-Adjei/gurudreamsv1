@@ -13,7 +13,7 @@ describe('Swarm Map', () => {
   it('shows a green Online indicator (with text) for each online node', () => {
     render(<SwarmMap data={fixtures.nodes()} loading={false} platform="darwin" onRetry={noop} onSendTask={noop} />)
 
-    const map = screen.getByRole('region', { name: 'Swarm map' })
+    const map = screen.getByRole('region', { name: 'Device map' })
     const peers = within(map).getByRole('list', { name: 'Other computers' })
     expect(within(peers).getAllByRole('listitem')).toHaveLength(3)
 
@@ -26,7 +26,7 @@ describe('Swarm Map', () => {
     // This computer sits in the middle.
     expect(screen.getByText('This Mac')).toBeInTheDocument()
     expect(screen.getByText('Studio-Air')).toBeInTheDocument()
-    expect(screen.getByText('2 of 3 other computers online')).toBeInTheDocument()
+    expect(screen.getByText('2 of 3 online')).toBeInTheDocument()
   })
 
   it('opens Send a task pre-targeted when an online device is clicked', async () => {
@@ -60,7 +60,7 @@ describe('Swarm Map', () => {
   it('falls back to a list layout', async () => {
     render(<SwarmMap data={fixtures.nodes()} loading={false} platform="win32" onRetry={noop} onSendTask={noop} />)
     await userEvent.click(screen.getByRole('button', { name: 'List' }))
-    expect(screen.getByRole('region', { name: 'Swarm list' })).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Device list' })).toBeInTheDocument()
     expect(screen.getByText('This PC')).toBeInTheDocument()
     expect(screen.getAllByText('Online')).toHaveLength(2)
   })

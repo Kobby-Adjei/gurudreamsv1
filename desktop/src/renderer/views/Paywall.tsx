@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import type { AuthUser } from '../../shared/types'
-import { Badge } from '../components/Badge'
 import { Button } from '../components/Button'
-import { ArrowRightIcon, CheckIcon, LogoMark, RefreshIcon } from '../components/Icons'
+import { CheckIcon, LogoMark } from '../components/Icons'
 import { api, errorText } from '../lib/api'
 import { OnboardingFrame } from './OnboardingFrame'
 
 const BENEFITS = [
-  'Connect all your computers into one AI swarm',
+  'Connect all your computers',
   'Send tasks and code between Claude, Cursor and Codex',
   'Live map of which computers are online',
   'Activity feed of everything sent and received',
@@ -59,16 +58,15 @@ export function Paywall({ user, onRecheck }: { user?: AuthUser; onRecheck: () =>
 
   return (
     <OnboardingFrame>
-      <div className="rounded-[28px] border border-line/[0.08] bg-surface-1/90 p-8 shadow-lift backdrop-blur-xl">
+      <div className="rounded-2xl border border-line/[0.08] bg-surface-1 p-8">
         <div className="flex items-center gap-3">
-          <LogoMark size={40} />
+          <span className="text-ink">
+            <LogoMark size={28} />
+          </span>
           <div>
             <h1 className="text-[20px] font-semibold tracking-tightish text-ink">AirBridge Pro</h1>
             <p className="text-[13px] text-ink-muted">One subscription, all your computers</p>
           </div>
-          <span className="ml-auto">
-            <Badge tone="accent">Pro</Badge>
-          </span>
         </div>
 
         <p className="mt-7 flex items-baseline gap-1.5">
@@ -80,9 +78,7 @@ export function Paywall({ user, onRecheck }: { user?: AuthUser; onRecheck: () =>
         <ul className="mt-7 space-y-3" aria-label="What’s included">
           {BENEFITS.map((b) => (
             <li key={b} className="flex items-start gap-3 text-[14px] leading-5 text-ink">
-              <span className="mt-px grid h-5 w-5 shrink-0 place-items-center rounded-full bg-ok/15 text-ok">
-                <CheckIcon size={13} strokeWidth={2.5} />
-              </span>
+              <CheckIcon size={16} strokeWidth={2} className="mt-0.5 shrink-0 text-ink-muted" />
               {b}
             </li>
           ))}
@@ -94,12 +90,11 @@ export function Paywall({ user, onRecheck }: { user?: AuthUser; onRecheck: () =>
             size="lg"
             block
             loading={busy === 'checkout'}
-            trailingIcon={<ArrowRightIcon size={18} />}
             onClick={subscribe}
           >
             Subscribe
           </Button>
-          <Button variant="secondary" size="lg" block loading={busy === 'check'} icon={<RefreshIcon size={16} />} onClick={check}>
+          <Button variant="secondary" size="lg" block loading={busy === 'check'} onClick={check}>
             I’ve subscribed — check again
           </Button>
         </div>
@@ -119,7 +114,7 @@ export function Paywall({ user, onRecheck }: { user?: AuthUser; onRecheck: () =>
           type="button"
           onClick={signOut}
           disabled={busy === 'signout'}
-          className="font-medium text-accent-ink underline-offset-2 hover:underline"
+          className="font-medium text-ink-muted underline underline-offset-2 hover:text-ink"
         >
           Use a different account
         </button>

@@ -4,7 +4,7 @@ import { Button } from '../components/Button'
 import { Card } from '../components/Card'
 import { DeviceGlyph } from '../components/DeviceGlyph'
 import { EmptyState } from '../components/EmptyState'
-import { PlusIcon, RefreshIcon, SendIcon, SwarmIcon, WifiOffIcon } from '../components/Icons'
+import { PlusIcon, RefreshIcon, SendIcon, WifiOffIcon } from '../components/Icons'
 import { PageHeader } from '../components/PageHeader'
 import { Skeleton } from '../components/Skeleton'
 import { StatusDot } from '../components/StatusDot'
@@ -55,15 +55,15 @@ export function SwarmMap({ data, loading, ipcError, platform, onRetry, onSendTas
   const radial = layout === 'map' && wide && peers.length <= MAX_RADIAL
 
   const subtitle = loading && !data
-    ? 'Looking for your computers…'
+    ? 'Looking for your devices…'
     : peers.length === 0
       ? 'Only this computer so far'
-      : `${online} of ${peers.length} other ${peers.length === 1 ? 'computer' : 'computers'} online`
+      : `${online} of ${peers.length} online`
 
   return (
     <>
       <PageHeader
-        title="Your swarm"
+        title="Your devices"
         subtitle={subtitle}
         actions={
           <>
@@ -76,7 +76,7 @@ export function SwarmMap({ data, loading, ipcError, platform, onRetry, onSendTas
                     aria-pressed={layout === l}
                     onClick={() => setLayout(l)}
                     className={`h-8 rounded-[10px] px-3 text-[13px] font-medium transition ${
-                      layout === l ? 'bg-surface-3 text-ink shadow-soft' : 'text-ink-muted hover:text-ink'
+                      layout === l ? 'bg-surface-3 text-ink' : 'text-ink-muted hover:text-ink'
                     }`}
                   >
                     {l === 'map' ? 'Map' : 'List'}
@@ -127,7 +127,7 @@ export function SwarmMap({ data, loading, ipcError, platform, onRetry, onSendTas
           </EmptyState>
         </Card>
       ) : peers.length === 0 ? (
-        <EmptySwarm self={data?.self} platform={platform} />
+        <EmptyDevices self={data?.self} platform={platform} />
       ) : radial ? (
         <RadialMap self={data?.self} platform={platform} peers={peers} onSendTask={onSendTask} activePeers={activePeers} />
       ) : (
@@ -140,25 +140,27 @@ export function SwarmMap({ data, loading, ipcError, platform, onRetry, onSendTas
 function SelfCard({ self, platform, compact = false }: { self?: NodesResponse['self']; platform: string; compact?: boolean }) {
   return (
     <div
-      className={`relative flex rounded-2xl border border-accent/30 bg-surface-1 shadow-glow ${
+      className={`relative flex rounded-2xl border border-line/15 bg-surface-2 ${
         compact ? 'w-full flex-row items-center gap-3 p-4 text-left' : 'w-[200px] shrink-0 flex-col items-center px-5 pb-5 pt-6 text-center'
       }`}
     >
-      <div className="relative">
-        {!compact ? <span aria-hidden="true" className="absolute -inset-3 rounded-full bg-accent/20 blur-xl animate-breathe" /> : null}
-        <DeviceGlyph os={self?.os ?? platform} hostname={self?.hostname} size={compact ? 20 : 26} tone="accent" className={compact ? 'h-10 w-10 rounded-xl' : 'relative h-14 w-14 rounded-2xl'} />
-      </div>
+      <DeviceGlyph
+        os={self?.os ?? platform}
+        hostname={self?.hostname}
+        size={compact ? 20 : 24}
+        className={compact ? 'h-10 w-10 rounded-xl' : 'h-12 w-12 rounded-2xl'}
+      />
       <div className={compact ? 'min-w-0 flex-1' : 'mt-3 min-w-0'}>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-accent-ink">{thisComputerLabel(platform)}</p>
+        <p className="text-[12px] font-medium text-ink-faint">{thisComputerLabel(platform)}</p>
         <p className="mt-0.5 truncate text-[15px] font-semibold text-ink selectable">{self?.hostname ?? '—'}</p>
-        <p className="mt-0.5 truncate font-mono text-[11.5px] text-ink-faint selectable">{self?.ip ?? ''}</p>
+        {self?.ip ? <p className="mt-0.5 truncate font-mono text-[11.5px] text-ink-faint selectable">{self.ip}</p> : null}
       </div>
-      {compact ? <StatusDot status="online" label="You" pulse={false} /> : null}
     </div>
   )
 }
 
 function PeerCard({ node, onSendTask, className = '' }: { node: Node; onSendTask: (t?: string) => void; className?: string }) {
+  const os = node.os ? osLabel(node.os) : null
   const body = (
     <>
       <DeviceGlyph os={node.os} hostname={node.hostname} size={20} tone={node.online ? 'neutral' : 'muted'} className="h-10 w-10 rounded-xl" />
@@ -166,26 +168,28 @@ function PeerCard({ node, onSendTask, className = '' }: { node: Node; onSendTask
         <span className={`block truncate text-[14px] font-semibold ${node.online ? 'text-ink' : 'text-ink-muted'}`}>
           {node.hostname}
         </span>
-        <span className="block truncate text-[12px] text-ink-faint">{osLabel(node.os)}</span>
+        {os ? <span className="block truncate text-[12px] text-ink-faint">{os}</span> : null}
         <span className="mt-1.5 block">
           {node.online ? (
             <StatusDot status="online" />
           ) : (
             <>
               <StatusDot status="offline" />
-              <span className="mt-0.5 block truncate text-[11.5px] text-ink-faint">
-                Last seen {relativeTime(node.last_seen)}
-              </span>
+              {node.last_seen ? (
+                <span className="mt-0.5 block truncate text-[11.5px] text-ink-faint">
+                  Last seen {relativeTime(node.last_seen)}
+                </span>
+              ) : null}
             </>
           )}
         </span>
       </span>
     </>
   )
-  const cls = `flex w-[208px] items-start gap-3 rounded-2xl border p-3.5 shadow-soft transition duration-200 ease-calm ${className}`
+  const cls = `flex w-[208px] items-start gap-3 rounded-2xl border p-3.5 transition-colors duration-150 ${className}`
   if (!node.online) {
     return (
-      <div className={`${cls} border-line/[0.06] bg-surface-1/80`} data-testid="peer-card">
+      <div className={`${cls} border-line/[0.06] bg-surface-1`} data-testid="peer-card">
         {body}
       </div>
     )
@@ -195,8 +199,8 @@ function PeerCard({ node, onSendTask, className = '' }: { node: Node; onSendTask
       type="button"
       data-testid="peer-card"
       onClick={() => onSendTask(node.hostname)}
-      aria-label={`${node.hostname}, ${osLabel(node.os)}, online. Send a task`}
-      className={`${cls} group border-line/10 bg-surface-1 hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-lift motion-reduce:hover:translate-y-0`}
+      aria-label={`${node.hostname}${os ? `, ${os}` : ''}, online. Send a task`}
+      className={`${cls} border-line/10 bg-surface-1 hover:border-line/25 hover:bg-surface-2`}
     >
       {body}
     </button>
@@ -219,11 +223,9 @@ function RadialMap({
   const pos = radialPositions(peers.length)
   return (
     <section
-      aria-label="Swarm map"
+      aria-label="Device map"
       className="map-backdrop relative h-[clamp(460px,calc(100vh-190px),680px)] overflow-hidden rounded-2xl border border-line/[0.06] bg-surface-1/40"
     >
-      {/* Soft vignette so cards float. */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgb(var(--accent)/0.08),transparent_60%)]" />
       <svg
         className="pointer-events-none absolute inset-0 h-full w-full"
         viewBox="0 0 100 100"
@@ -232,34 +234,20 @@ function RadialMap({
       >
         {peers.map((n, i) => {
           const { x, y } = pos[i]
-          const d = `M50 50 L${x.toFixed(2)} ${y.toFixed(2)}`
           const active = activePeers?.has(n.hostname)
-          return n.online ? (
-            <g key={n.hostname}>
-              <path d={d} stroke="rgb(var(--accent))" strokeOpacity={active ? 0.7 : 0.28} strokeWidth={active ? 2.5 : 1.5} vectorEffect="non-scaling-stroke" fill="none" className="transition-all duration-500" />
-              <path
-                d={d}
-                pathLength={100}
-                stroke="rgb(var(--accent-ink))"
-                strokeWidth={3}
-                strokeLinecap="round"
-                strokeDasharray="4 96"
-                vectorEffect="non-scaling-stroke"
-                fill="none"
-                className="animate-packet"
-                style={{ animationDelay: `${(i * 0.45) % 2.8}s` }}
-              />
-            </g>
-          ) : (
+          // 1px static hairlines in neutral grey; online a little brighter.
+          // A task briefly brightens the line (one short fade, never looping).
+          return (
             <path
               key={n.hostname}
-              d={d}
+              d={`M50 50 L${x.toFixed(2)} ${y.toFixed(2)}`}
               stroke="rgb(var(--line))"
-              strokeOpacity={0.14}
-              strokeWidth={1.25}
-              strokeDasharray="3 6"
+              strokeOpacity={active ? 0.45 : n.online ? 0.22 : 0.09}
+              strokeWidth={1}
               vectorEffect="non-scaling-stroke"
               fill="none"
+              data-link={n.online ? 'online' : 'offline'}
+              className="transition-[stroke-opacity] duration-500 ease-out"
             />
           )
         })}
@@ -273,7 +261,7 @@ function RadialMap({
         {peers.map((n, i) => (
           <li
             key={n.hostname}
-            className="pointer-events-auto absolute -translate-x-1/2 -translate-y-1/2 animate-fade-in"
+            className="pointer-events-auto absolute -translate-x-1/2 -translate-y-1/2"
             style={{ left: `${pos[i].x}%`, top: `${pos[i].y}%` }}
           >
             <PeerCard node={n} onSendTask={onSendTask} />
@@ -296,7 +284,7 @@ function GridMap({
   onSendTask: (t?: string) => void
 }) {
   return (
-    <section aria-label="Swarm list" className="space-y-4">
+    <section aria-label="Device list" className="space-y-4">
       <SelfCard self={self} platform={platform} compact />
       <ul aria-label="Other computers" className="grid grid-cols-[repeat(auto-fill,minmax(208px,1fr))] gap-3">
         {peers.map((n) => (
@@ -309,7 +297,7 @@ function GridMap({
   )
 }
 
-function EmptySwarm({ self, platform }: { self?: NodesResponse['self']; platform: string }) {
+function EmptyDevices({ self, platform }: { self?: NodesResponse['self']; platform: string }) {
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
       <div className="map-backdrop relative flex min-h-[320px] items-center justify-center gap-6 overflow-hidden rounded-2xl border border-line/[0.06] bg-surface-1/40 p-8">
@@ -326,9 +314,6 @@ function EmptySwarm({ self, platform }: { self?: NodesResponse['self']; platform
         </div>
       </div>
       <Card className="flex flex-col justify-center">
-        <div className="mb-4 grid h-11 w-11 place-items-center rounded-xl bg-accent/10 text-accent-ink ring-1 ring-inset ring-accent/20">
-          <SwarmIcon size={22} />
-        </div>
         <h2 className="text-[17px] font-semibold tracking-tightish">Just this computer so far</h2>
         <p className="mt-2 text-[14px] leading-6 text-ink-muted">
           AirBridge links your computers with <strong className="font-semibold text-ink">Tailscale</strong> — a free
@@ -340,7 +325,7 @@ function EmptySwarm({ self, platform }: { self?: NodesResponse['self']; platform
             ['Install AirBridge Pro there too', 'Sign in, and it will appear on this map by itself.']
           ].map(([title, body], i) => (
             <li key={title} className="flex gap-3">
-              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-accent text-[12px] font-semibold text-accent-fg">
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-line/15 text-[12px] font-medium text-ink-muted">
                 {i + 1}
               </span>
               <span>
@@ -358,7 +343,7 @@ function EmptySwarm({ self, platform }: { self?: NodesResponse['self']; platform
 function MapSkeleton() {
   return (
     <div role="status" className="map-backdrop relative h-[460px] rounded-2xl border border-line/[0.06] bg-surface-1/40">
-      <span className="sr-only">Looking for your computers…</span>
+      <span className="sr-only">Looking for your devices…</span>
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
         <Skeleton className="h-[148px] w-[200px] rounded-2xl" />
       </div>

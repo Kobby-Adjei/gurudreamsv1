@@ -122,7 +122,7 @@ export function MainShell({
         id="content"
         ref={mainRef}
         className="min-w-0 flex-1 overflow-y-auto [&_h1]:outline-none"
-        aria-label={view === 'swarm' ? 'Swarm' : view === 'activity' ? 'Activity' : 'Settings'}
+        aria-label={view === 'swarm' ? 'Devices' : view === 'activity' ? 'Activity' : 'Settings'}
       >
         <div className="mx-auto w-full max-w-[1160px] px-8 pb-10">
           {license?.state === 'grace' ? (

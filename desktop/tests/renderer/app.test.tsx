@@ -69,7 +69,7 @@ describe('App state machine', () => {
     render(<App />)
     expect(await screen.findByRole('heading', { name: 'Starting AirBridge' })).toBeInTheDocument()
     act(() => mock.emitLifecycle({ phase: 'running' }))
-    expect(await screen.findByRole('heading', { name: 'Your swarm' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Your devices' })).toBeInTheDocument()
     expect(screen.getByRole('navigation', { name: 'Main' })).toBeInTheDocument()
     expect(screen.getByRole('main')).toBeInTheDocument()
     expect(await screen.findByLabelText('2 online')).toBeInTheDocument()
@@ -83,18 +83,18 @@ describe('App state machine', () => {
     expect(screen.getByText('Open Tailscale and sign in')).toBeInTheDocument()
     mock.state.lifecycle = { phase: 'running' }
     await userEvent.click(screen.getByRole('button', { name: 'Retry' }))
-    expect(await screen.findByRole('heading', { name: 'Your swarm' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Your devices' })).toBeInTheDocument()
   })
 
   it('is fully keyboard navigable in the main app', async () => {
     installMockApi({ license: valid, lifecycle: { phase: 'running' } })
     render(<App />)
-    await screen.findByRole('heading', { name: 'Your swarm' })
+    await screen.findByRole('heading', { name: 'Your devices' })
     const user = userEvent.setup()
     await user.tab() // skip link
     expect(screen.getByRole('link', { name: 'Skip to content' })).toHaveFocus()
     await user.tab()
-    expect(screen.getByRole('button', { name: /Swarm/ })).toHaveFocus()
+    expect(screen.getByRole('button', { name: /^Devices/ })).toHaveFocus()
     await user.tab()
     expect(screen.getByRole('button', { name: /Activity/ })).toHaveFocus()
     await user.keyboard('{Enter}')
