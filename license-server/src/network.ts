@@ -122,8 +122,12 @@ export function isExpectedPolicy(raw: string): boolean {
  * `intervalMs`, and lazily on requests when stale (serverless hosts have no timers). A failed or
  * mismatching check closes the gate until a later check passes (retried at most every 30 s).
  */
+/** Non-secret readiness of the policy guard, reported on /healthz. */
+export type PolicyStatus = 'pending' | 'verified' | 'mismatch' | 'unverifiable';
+
 export class PolicyGuard {
   private ok = false;
+  private last: PolicyStatus = 'pending';
   private checkedAt = -Infinity;
   private inflight: Promise<boolean> | null = null;
   private timer: ReturnType<typeof setInterval> | null = null;
@@ -153,20 +157,28 @@ export class PolicyGuard {
     if (this.inflight) return this.inflight;
     this.inflight = (async () => {
       let ok = false;
+      let status: PolicyStatus = 'unverifiable';
       try {
         ok = isExpectedPolicy(await this.client.getPolicy());
+        status = ok ? 'verified' : 'mismatch';
         if (!ok) this.log.error('NETWORK_POLICY_MISMATCH', { action: 'refusing to issue pre-auth keys until the Headscale policy is exactly the AirBridge policy' });
       } catch (e) {
         this.log.error('NETWORK_POLICY_UNVERIFIABLE', { action: 'refusing to issue pre-auth keys', err: e instanceof HeadscaleError ? e.message : 'unexpected_error' });
       }
       if (ok && !this.ok) this.log.info('network_policy_verified');
       this.ok = ok;
+      this.last = status;
       this.checkedAt = this.now();
       return ok;
     })().finally(() => {
       this.inflight = null;
     });
     return this.inflight;
+  }
+
+  /** Outcome of the most recent check (never triggers one). */
+  status(): PolicyStatus {
+    return this.last;
   }
 
   /** Current verdict, re-checking when stale (ok: older than interval; failed: older than retryMs). */
@@ -188,7 +200,12 @@ function upstreamFailed(c: Context, log: NetworkLogger, what: string, e: unknown
   return c.json({ error: 'upstream_unavailable' }, 502);
 }
 
-export function registerNetworkRoutes(app: Hono, deps: NetworkRouteDeps): void {
+/** Returned by registerNetworkRoutes: the policy guard's last verdict, or 'not_configured' without Headscale. */
+export interface NetworkStatus {
+  policy(): PolicyStatus | 'not_configured';
+}
+
+export function registerNetworkRoutes(app: Hono, deps: NetworkRouteDeps): NetworkStatus {
   const { log } = deps;
   const perUser = new RateLimiter(deps.limits?.perUserPerMinute ?? 5, 60_000, deps.now);
   const removePerUser = new RateLimiter(deps.limits?.removePerUserPerMinute ?? 20, 60_000, deps.now);
@@ -269,6 +286,8 @@ export function registerNetworkRoutes(app: Hono, deps: NetworkRouteDeps): void {
       return upstreamFailed(c, log, 'network_device_remove_failed', e);
     }
   });
+
+  return { policy: () => (guard ? guard.status() : 'not_configured') };
 }
 
 /**

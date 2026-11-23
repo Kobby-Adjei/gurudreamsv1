@@ -1,4 +1,5 @@
-import { createPrivateKey, type KeyObject } from 'node:crypto';
+import { createPrivateKey, createPublicKey, type KeyObject } from 'node:crypto';
+import type { SmokeConfig } from './smoke.js';
 import { DEFAULT_WAITLIST_PATH } from './waitlist.js';
 
 export interface Config {
@@ -21,6 +22,8 @@ export interface Config {
   authConfigured: boolean;
   licenseSigningKeyPem: string;
   licenseSigningKey: KeyObject;
+  /** SPKI PEM of the signing key's public half (served at GET /v1/license/public-key). */
+  licensePublicKeyPem: string;
   licenseKeyId: string;
   licenseTtlSeconds: number;
   databaseUrl: string | null;
@@ -38,6 +41,11 @@ export interface Config {
   waitlistPath: string;
   /** WAITLIST_ADMIN_TOKEN (≥32 chars): bearer for /v1/waitlist/stats and /export. null -> those answer 404. */
   waitlistAdminToken: string | null;
+  /**
+   * SMOKE_TEST=1 (TEMPORARY, deploy smoke test only): enables /v1/admin/smoke/* (smoke.ts). Requires Headscale and
+   * WAITLIST_ADMIN_TOKEN. SMOKE_STATE_DIR (default /data/smoke), SMOKE_TEST_UNTIL (optional unix seconds).
+   */
+  smoke: SmokeConfig | null;
 }
 
 export interface HeadscaleConfig {
@@ -228,6 +236,24 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     problems.push('WAITLIST_ADMIN_TOKEN must be 32-256 URL/base64-safe characters (e.g. `openssl rand -hex 32`)');
   }
 
+  let smoke: SmokeConfig | null = null;
+  const smokeRaw = env.SMOKE_TEST?.trim() ?? '';
+  if (smokeRaw === '1' || smokeRaw.toLowerCase() === 'true') {
+    const stateDir = env.SMOKE_STATE_DIR?.trim() || '/data/smoke';
+    if (!stateDir.startsWith('/')) problems.push('SMOKE_STATE_DIR must be an absolute path');
+    let until: number | null = null;
+    if (env.SMOKE_TEST_UNTIL?.trim()) {
+      const n = Number(env.SMOKE_TEST_UNTIL.trim());
+      if (!Number.isInteger(n) || n <= 0) problems.push('SMOKE_TEST_UNTIL must be unix seconds');
+      else until = n;
+    }
+    if (!headscale) problems.push('SMOKE_TEST=1 requires HEADSCALE_URL, HEADSCALE_API_KEY and HEADSCALE_PUBLIC_URL');
+    if (!waitlistAdminToken) problems.push('SMOKE_TEST=1 requires WAITLIST_ADMIN_TOKEN');
+    smoke = { stateDir, until };
+  } else if (smokeRaw && smokeRaw !== '0' && smokeRaw.toLowerCase() !== 'false') {
+    problems.push('SMOKE_TEST must be 0 or 1');
+  }
+
   if (problems.length > 0 || !licenseSigningKey || (authConfigured && !clerkJwksUrl)) {
     throw new ConfigError(problems.length ? problems : ['configuration incomplete']);
   }
@@ -246,6 +272,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     authConfigured,
     licenseSigningKeyPem,
     licenseSigningKey,
+    licensePublicKeyPem: createPublicKey(licenseSigningKey).export({ type: 'spki', format: 'pem' }).toString(),
     licenseKeyId,
     licenseTtlSeconds,
     databaseUrl,
@@ -256,6 +283,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     enforceEntitlement,
     waitlistPath,
     waitlistAdminToken,
+    smoke,
   };
 }
 

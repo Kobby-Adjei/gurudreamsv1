@@ -3,7 +3,8 @@ import type Stripe from 'stripe';
 import { customerIdOf, mapStripeStatus, periodEndOf, type BillingApi, type WebhookVerifier } from './billing.js';
 import { AuthError, type ClerkVerifier } from './clerkAuth.js';
 import type { LicenseSigner } from './licenseToken.js';
-import { registerNetworkRoutes, revokeUserNodes, type NetworkConfig } from './network.js';
+import { registerNetworkRoutes, revokeUserNodes, type NetworkConfig, type NetworkStatus } from './network.js';
+import { registerSmokeRoutes, type SmokeConfig } from './smoke.js';
 import { RateLimiter } from './rateLimit.js';
 import { isEntitled, type SubscriptionStatus, type SubscriptionStore } from './store.js';
 import { registerWaitlistRoutes, type WaitlistRouteDeps, type WaitlistStore } from './waitlist.js';
@@ -53,6 +54,10 @@ export interface AppDeps {
   authConfigured?: boolean;
   /** Landing-page waitlist (/v1/waitlist*). null/undefined -> those routes are not registered (404). */
   waitlist?: { store: WaitlistStore; adminToken: string | null; limits?: WaitlistRouteDeps['limits'] } | null;
+  /** Public half of the license signing key, served at GET /v1/license/public-key (null -> 404). */
+  licensePublicKey?: { kid: string; pem: string } | null;
+  /** TEMPORARY smoke-test routes (SMOKE_TEST=1). Needs `network` and the waitlist admin token; see smoke.ts. */
+  smoke?: SmokeConfig | null;
 }
 
 const MAX_WEBHOOK_BYTES = 1_000_000;
@@ -107,7 +112,17 @@ export function createApp(deps: AppDeps): Hono {
 
   app.notFound((c) => c.json({ error: 'not_found' }, 404));
 
-  app.get('/healthz', (c) => c.json({ ok: true }));
+  // Non-secret readiness: `policy` is the Headscale policy guard's last verdict (PHASE3_SECURITY H-1/F-1):
+  // "verified" means pre-auth keys can be issued. Never triggers a Headscale call.
+  let networkStatus: NetworkStatus | null = null;
+  app.get('/healthz', (c) => c.json({ ok: true, policy: networkStatus ? networkStatus.policy() : 'not_configured' }));
+
+  // Public half of the license signing key, so a desktop build can embed it (LICENSE_PUBLIC_KEYS, kid -> SPKI PEM).
+  app.get('/v1/license/public-key', (c) => {
+    const k = deps.licensePublicKey;
+    if (!k) return c.json({ error: 'not_found' }, 404);
+    return c.json({ kid: k.kid, alg: 'EdDSA', pem: k.pem });
+  });
 
   // Preview mode (ENFORCE_ENTITLEMENT=false) may run without Stripe and/or Clerk configured (config.ts).
   const authOff = deps.authConfigured === false;
@@ -265,7 +280,7 @@ export function createApp(deps: AppDeps): Hono {
   });
 
   // ---------------------------------------------------------------- Private network (Phase 3)
-  registerNetworkRoutes(app, {
+  networkStatus = registerNetworkRoutes(app, {
     network: deps.network ?? null,
     store: deps.store,
     authenticate,
@@ -279,6 +294,13 @@ export function createApp(deps: AppDeps): Hono {
       perIpPerMinute: deps.rateLimit?.networkPerIpPerMinute,
     },
   });
+
+  // ---------------------------------------------------------------- TEMPORARY deployment smoke test
+  const smokeAdminToken = deps.waitlist?.adminToken?.trim() || null;
+  if (deps.smoke && deps.network && smokeAdminToken) {
+    log.warn('SMOKE_TEST_ENABLED', { hint: 'temporary: POST /v1/admin/smoke/cleanup when done (turns it off for good)' });
+    registerSmokeRoutes(app, { smoke: deps.smoke, network: deps.network, adminToken: smokeAdminToken, clientIp, now, log });
+  }
 
   // ---------------------------------------------------------------- Landing-page waitlist (demand test)
   if (deps.waitlist) {

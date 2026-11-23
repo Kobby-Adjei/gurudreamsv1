@@ -79,6 +79,8 @@ export function buildFromEnv(env: NodeJS.ProcessEnv = process.env): { app: Retur
     billingConfigured: config.billingConfigured,
     authConfigured: config.authConfigured,
     waitlist: { store: waitlistStore, adminToken: config.waitlistAdminToken },
+    licensePublicKey: { kid: config.licenseKeyId, pem: config.licensePublicKeyPem },
+    smoke: config.smoke,
   });
   return { app, config, store };
 }

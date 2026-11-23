@@ -65,7 +65,7 @@ Frames are written to `landing/blender/frames/` (gitignored).
 | What | Settings | Time |
 | --- | --- | --- |
 | Preview still 960×540 | preview: 32 spp adaptive, 4 volume bounces, step rate 1.5, 0.45/1.4 voxels, OIDN | ~5–6 min/frame (about 40 s of that is building the grids) |
-| Production still 1920×1080 | prod: 160 spp adaptive 0.015, 4 volume bounces, step rate 1.0, 0.30/0.9 voxels, OIDN | see the phase-1 report |
+| Production still 1920×1080 | prod: 160 spp adaptive 0.015, 4 volume bounces, step rate 1.0, 0.30/0.9 voxels, OIDN | grids take 1:53 to build, then about 40 s per sample before adaptive sampling stops converged pixels. Blender's ETA was about 1 h 50 min/frame on CPU, so the full sequence needs a GPU (see `modal_render.py`). |
 
 ## Encode (after frames exist)
 

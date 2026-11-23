@@ -59,6 +59,10 @@ export interface HeadscaleApi {
   listNodesByUser(userName: string): Promise<HeadscaleNode[]>;
   /** Raw policy document (HuJSON) as Headscale reports it. */
   getPolicy(): Promise<string>;
+  /** Every user (used only by the temporary smoke-test cleanup). */
+  listUsers(): Promise<HeadscaleUser[]>;
+  /** Delete a user (its nodes must be deleted first). Used only by the temporary smoke-test cleanup. */
+  deleteUser(id: string): Promise<void>;
 }
 
 export interface HeadscaleClientOptions {
@@ -211,6 +215,17 @@ export function createHeadscaleClient(opts: HeadscaleClientOptions): HeadscaleAp
     async getPolicy() {
       const r = (await call('GET', '/api/v1/policy', '/api/v1/policy')) as { policy?: unknown } | null;
       return typeof r?.policy === 'string' ? r.policy : bad('GET /api/v1/policy');
+    },
+
+    async listUsers() {
+      const r = (await call('GET', '/api/v1/user', '/api/v1/user')) as { users?: unknown } | null;
+      const users = Array.isArray(r?.users) ? r!.users : [];
+      return users.map(parseUser).filter((u): u is HeadscaleUser => u !== null);
+    },
+
+    async deleteUser(id) {
+      if (!UINT64.test(id)) throw new HeadscaleError('bad_response', 'DELETE /api/v1/user/{id}');
+      await call('DELETE', '/api/v1/user/{id}', `/api/v1/user/${id}`);
     },
   };
   return api;
