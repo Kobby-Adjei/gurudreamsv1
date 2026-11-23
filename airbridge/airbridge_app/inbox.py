@@ -17,6 +17,16 @@ bundled tailscaled forwards tailnet connections to it, so step 1 is replaced by
 ``whois`` of its ``host:port`` must resolve to a tailnet node, and that node
 must belong to this node's user - else 403. Steps 2-5 are unchanged (the rate
 limit is keyed on the verified sender node instead of the shared loopback IP).
+
+Sender identity (embedded): the payload's ``sender_node`` is self-asserted, so
+after validation it is compared with the whois-verified node name
+(``security.embedded_peer_node_name``: control-assigned ``Node.Name``,
+``airbridge-`` prefix stripped), and the payload value is REPLACED by the verified name - that is
+what gets stored, logged and notified. A mismatch is logged; with
+``REJECT_SENDER_MISMATCH`` it is a 400 ``sender_mismatch`` (off until the outbox
+sends its verified name). Matching is on a canonical form (NFKD, lowercase, ``airbridge-``
+stripped, ASCII alphanumerics only) and tolerates Headscale's global
+collision bump (``macbook-pro`` vs verified ``macbook-pro-3``).
 """
 
 from __future__ import annotations
@@ -24,9 +34,11 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
+import re
 import tempfile
 import threading
 import time
+import unicodedata
 from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
@@ -175,6 +187,38 @@ class _TokenBucket:
             return False
 
 
+#: F-13. The stored/notified sender is ALWAYS the whois-verified node name. Rejecting a
+#: mismatching self-asserted ``sender_node`` (400 sender_mismatch) is the target behaviour but
+#: stays off until outbox sends its own verified node name in embedded mode: today it sends
+#: ``socket.gethostname()``, which need not equal the enrolled ``--hostname`` (non-ASCII names,
+#: custom device names; the real-tailnet test's a1/a2 nodes), so rejecting would drop
+#: legitimate tasks. See docs/PHASE3_SECURITY.md section 8.
+REJECT_SENDER_MISMATCH = False
+
+_CANON_DROP_RE = re.compile(r"[^a-z0-9]")
+
+
+def _canonical_sender(name: str) -> str:
+    n = unicodedata.normalize("NFKD", name)
+    n = "".join(c for c in n if not unicodedata.combining(c)).lower()
+    if n.startswith("airbridge-"):
+        n = n[len("airbridge-"):]
+    return _CANON_DROP_RE.sub("", n)
+
+
+def sender_matches_verified(claimed: str, verified: str) -> bool:
+    """True iff the self-asserted *claimed* sender names the whois-*verified* node.
+
+    Equal canonical forms, or *verified* = *claimed* + a decimal suffix
+    (Headscale bumps GivenName ``base``, ``base-1``, ``base-2``... globally on
+    collision, headscale hscontrol/state/node_store.go resolveGivenName).
+    """
+    c, v = _canonical_sender(claimed), _canonical_sender(verified)
+    if not c or not v:
+        return False
+    return v == c or (v.startswith(c) and v[len(c):].isdigit())
+
+
 def _embedded_identity(backend: Any, host: str, port: int) -> tuple[Any, str]:
     """Embedded-mode step 1 (blocking: LocalAPI calls) via
     ``security.verify_embedded_peer`` -> ``(VerifiedPeer, "")`` or ``(None, reason)``.
@@ -298,6 +342,18 @@ def create_app(
             detail = _summarize_validation_error(exc)
             logger.warning("rejected invalid task from %s: %s", source_ip, detail)
             return _error(400, detail)
+
+        # 5b. Embedded: the sender identity comes from whois, never from the payload.
+        if embedded:
+            verified = str(peer)
+            if not sender_matches_verified(payload.sender_node, verified):
+                if REJECT_SENDER_MISMATCH:
+                    logger.warning("rejected task: sender_node %r does not match verified node %s (%s)",
+                                   security.truncate_for_log(payload.sender_node, 64), verified, source_ip)
+                    return _error(400, "sender_mismatch: sender_node does not match the verified sending device")
+                logger.warning("sender_node %r does not match verified node %s (%s); using the verified name",
+                               security.truncate_for_log(payload.sender_node, 64), verified, source_ip)
+            payload = payload.model_copy(update={"sender_node": verified})
 
         received_at = datetime.now().astimezone()
         try:

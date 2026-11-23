@@ -431,6 +431,82 @@ def test_embedded_rejects_non_loopback_source_even_if_tailnet(embedded_client) -
     assert backend.whois_calls == []
 
 
+def _payload_from(sender: str) -> dict[str, Any]:
+    return {**_payload(), "sender_node": sender}
+
+
+def test_embedded_sender_mismatch_is_overwritten_with_verified(embedded_client, inbox_dir) -> None:  # noqa: ANN001
+    r = embedded_client(FakeEmbeddedBackend(SAME)).post("/incoming_task", json=_payload_from("desktop"))
+    assert r.status_code == 201
+    text = _md(inbox_dir)[0].read_text(encoding="utf-8")
+    assert "laptop" in text and "desktop" not in text  # self-asserted name never recorded
+
+
+def test_embedded_sender_mismatch_400_when_reject_enabled(embedded_client, inbox_dir, monkeypatch) -> None:  # noqa: ANN001
+    from airbridge_app import inbox
+
+    monkeypatch.setattr(inbox, "REJECT_SENDER_MISMATCH", True)
+    r = embedded_client(FakeEmbeddedBackend(SAME)).post("/incoming_task", json=_payload_from("desktop"))
+    assert r.status_code == 400
+    assert "sender_mismatch" in r.json()["detail"]
+    assert _md(inbox_dir) == []
+
+
+@pytest.mark.parametrize(
+    ("claimed", "verified_name", "stored"),
+    [
+        ("laptop", "airbridge-laptop", "laptop"),
+        ("Laptop", "airbridge-laptop.u-abc.example.com.", "laptop"),
+        ("airbridge-laptop", "airbridge-laptop", "laptop"),
+        ("MacBook-Pro", "airbridge-macbook-pro-3", "macbook-pro-3"),  # Headscale global collision bump
+        ("Jane-s-MacBook-Pro", "airbridge-janes-macbook-pro", "janes-macbook-pro"),  # outbox vs enroll sanitizers
+    ],
+)
+def test_embedded_sender_replaced_by_verified_name(embedded_client, inbox_dir, claimed, verified_name, stored) -> None:  # noqa: ANN001
+    backend = FakeEmbeddedBackend({"node": verified_name, "user_id": SELF_UID, "tailnet_ip": "100.64.0.9"})
+    r = embedded_client(backend).post("/incoming_task", json=_payload_from(claimed))
+    assert r.status_code == 201, r.text
+    files = _md(inbox_dir)
+    assert len(files) == 1
+    text = files[0].read_text(encoding="utf-8")
+    assert stored in text
+    if claimed != stored and claimed.lower() != stored:
+        assert claimed not in text  # the self-asserted name is never what gets recorded
+
+
+@pytest.mark.parametrize(
+    ("claimed", "verified", "ok"),
+    [
+        ("laptop", "laptop", True),
+        ("LAPTOP", "laptop", True),
+        ("airbridge-laptop", "laptop", True),
+        ("pc", "pc2", True),
+        ("macbook-pro", "macbook-pro-12", True),
+        ("laptop2", "laptop", False),
+        ("desktop", "laptop", False),
+        ("lap", "laptop", False),
+        ("", "laptop", False),
+        ("---", "laptop", False),
+        ("laptop", "", False),
+    ],
+)
+def test_sender_matches_verified(claimed: str, verified: str, ok: bool) -> None:
+    from airbridge_app import inbox
+
+    assert inbox.sender_matches_verified(claimed, verified) is ok
+
+
+def test_system_mode_keeps_payload_sender(settings, inbox_dir) -> None:  # noqa: ANN001
+    from fastapi.testclient import TestClient
+
+    from airbridge_app import inbox
+
+    app = inbox.create_app(settings, peers_provider=lambda: {})
+    r = TestClient(app, client=("100.64.0.9", 41234)).post("/incoming_task", json=_payload_from("anything-goes"))
+    assert r.status_code == 201
+    assert "anything-goes" in _md(inbox_dir)[0].read_text(encoding="utf-8")
+
+
 def test_system_mode_still_rejects_loopback(settings) -> None:  # noqa: ANN001
     """Phase-1 path is unchanged: without an embedded backend 127.0.0.1 is not a tailnet address."""
     from fastapi.testclient import TestClient
@@ -654,7 +730,10 @@ def test_ts_tailscaled_argv_contract(network_ts: dict[str, str]) -> None:
         pytest.skip("PENDING (Systems): TailscaleManager.ts not present yet")
     assert "--tun=userspace-networking" in mgr
     assert "--no-logs-no-support" in mgr
-    assert re.search(r"--socks5-server=127\.0\.0\.1:", mgr), "SOCKS5 must bind 127.0.0.1 only"
+    # F-1: SOCKS on [::1] (unreachable via netstack forwarding), 127.0.0.1 only as the no-IPv6 fallback.
+    assert "--socks5-server=[::1]:" in mgr, "SOCKS5 should prefer [::1]"
+    for m in re.finditer(r"--socks5-server=([^$`'\"]*)", mgr):
+        assert m.group(1) in ("[::1]:", "127.0.0.1:", "[::1]:<P>", "127.0.0.1:<P>"), m.group(0)
     for forbidden in ("--socks5-server=0.0.0.0", "--socks5-server=localhost", "--socks5-server=:",
                       "--outbound-http-proxy-listen", "--debug=", "--tun=tailscale0", "--port=41641"):
         assert forbidden not in mgr, forbidden

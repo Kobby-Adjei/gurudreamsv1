@@ -361,22 +361,106 @@ Gaps:
   - `.env.example` placeholder enforcement extended to `*AUTH_KEY` / `PREAUTH_KEY`.
   - The renderer must not reference key material or `HEADSCALE_API_KEY`.
 
-## 8. Sign-off checklist
+## 8. F-13: sender identity in embedded mode (fixed in final pass)
+
+`sender_node` in the payload is asserted by the sender. In embedded mode the inbox
+(`airbridge_app/inbox.py`, step 5b) now **always** records the whois-verified name:
+`security.embedded_peer_node_name(Node.Name)`, with the `airbridge-` prefix stripped. The payload value is
+replaced before storage, logging, notification and event emission. The self-asserted name is never recorded.
+System (Phase-1) mode is unchanged.
+
+**Mismatch policy: reject-if-mismatch is implemented but disabled (`inbox.REJECT_SENDER_MISMATCH = False`).**
+Today a mismatch is logged and overwritten. Enabling the flag was tested: it **broke the real-tailnet test
+A1→A2**.
+- The outbox sends `socket.gethostname()` (the container's name), but the node was enrolled as
+  `--hostname=airbridge-a1`.
+- In the product, the same divergence hits non-ASCII hostnames: `outbox._local_sender_name` turns `José-PC`
+  into `Jos--PC`, while `enroll.sanitizeHostname` produces `jose-pc`. Custom device names diverge too.
+- Rejecting would drop legitimate tasks. Security gains nothing from it: the stored identity is the verified
+  one either way, and rejection only adds detection of mislabeled senders.
+
+Matching (`inbox.sender_matches_verified`, used for the warning and for the flag) compares canonical forms:
+NFKD, lowercase, `airbridge-` stripped, ASCII alphanumerics only. It accepts the verified name being the
+claimed name plus a decimal suffix, because Headscale makes `GivenName` unique **across all users** (`base`,
+`base-1`, …, `hscontrol/state/node_store.go` `resolveGivenName`), so `macbook-pro` is often `macbook-pro-37`.
+
+To enable rejection (Systems, `outbox.py`, about 5 lines):
+1. In embedded mode, `sender_node` = this node's own enrolled name, i.e.
+   `netbackend.strip_prefix(<Self.HostName>)` from `peer_details()["self"]["hostname"]`.
+2. Then set `REJECT_SENDER_MISMATCH = True`.
+
+`test_embedded_sender_mismatch_400_when_reject_enabled` already covers the flag.
+
+## 9. IPv4 fallback assessment (Control API and SOCKS on 127.0.0.1 when `::1` is unavailable)
+
+**Acceptable for v1.** Three independent controls remain in the fallback:
+
+1. The packet filter admits only `tcp/8989` from same-user devices. This was verified in the real
+   integration test ("other ports blocked by ACL"), and the license server's policy guard checks the policy
+   every 10 minutes.
+2. The Control API's per-launch bearer token, compared in constant time. The Host check adds nothing against
+   a forwarded peer.
+3. The only peers that can reach this machine at all are the user's own devices.
+
+The guard stops new keys only; Headscale keeps pushing whatever the policy file says to enrolled nodes. Treat
+policy-file integrity as an ops control: the file is read-only in the container, changes are reviewed, and
+`NETWORK_POLICY_MISMATCH` alerts.
+
+Optional, cheap hardening (not blocking): on Linux and Windows, where all of `127.0.0.0/8` is loopback, fall
+back to **`127.0.0.2`** instead of `127.0.0.1`. netstack only ever dials `127.0.0.1` (`netstack.go:1799`), so a
+`127.0.0.2` listener stays unreachable from the tailnet even without IPv6. Verified that binding `127.0.0.2`
+works on Linux. macOS always has `::1`, so it never needs the fallback. The change is
+`control.CONTROL_HOST_V4`, the Host-check literal, and the SOCKS fallback in `TailscaleManager.ts`.
+
+## 10. Final status (re-review of commit 00a4c5b + this pass)
+
+| Fix | Status | Evidence |
+|---|---|---|
+| #1 policy `proto:tcp` + `autogroup:self:8989` | ✅ | `license-server/headscale/policy.hujson`; real integration: cross-user and other ports blocked |
+| #2 config (`policy.mode/path`, gRPC/metrics on loopback, default prefixes) | ✅ | `config.yaml.tmpl:9-23,77-79` |
+| #3 Caddy 404 `/api*` `/swagger*` | ✅ (not run against a real Caddy) | `Caddyfile:19-20` |
+| #4 internal network for license server → Headscale | ✅ | `docker-compose.yml` (`control` network `internal: true`; only 3478/udp published by headscale) |
+| #5 policy self-check, 503 on mismatch, no `acl_tags` | ✅ | `license-server/src/network.ts`, `headscale.ts:212` |
+| #6 enroll key file (`wx`, 0600, finally unlink, stale sweep) | ✅ | `enroll.ts:157-165,220,271-272`; TS static checks pass |
+| #7 Windows `--windows-mode=dev` + random pipe suffix | ✅ (untested on Windows) | `TailscaleManager.ts:111,138`. Suffix is 32 bits: enough against pre-creation (the name is unknown before spawn); 64 bits preferred |
+| #8 0700 dirs with lstat/owner check | ✅ | `TailscaleManager.ts:170-185` (`ensurePrivateDir`) |
+| #9 publish `network.json` only when healthy | ✅ per Systems | — |
+| #10 SOCKS on `[::1]` | ✅ (fallback `127.0.0.1`, §9) | `TailscaleManager.ts:127`; static test |
+| #11 Control API on `::1` | ✅ (fallback `127.0.0.1`, §9) | `control.py:47-48,314-324` |
+| #12 inbox throttling before whois | ✅ | `inbox.py` semaphore 8 + bucket 20/s (burst 40) → 429 |
+| #13 `network.json` owner and mode check | ✅ | `config.py:104` |
+| #14 Python pipe-owner check (Windows) | ❌ not done | Residual risk, mitigated by the random pipe name |
+| F-13 sender identity from whois | ✅ overwrite (this pass); reject flag off pending outbox change | `inbox.py` step 5b; unit tests + real-tailnet 5/5 re-run |
+
+## 11. Sign-off checklist
 
 - [x] `verify_embedded_peer` implemented and unit-tested (fail closed on every branch).
-- [x] Netstack → 127.0.0.1 forwarding, ProxyMapper registration and unregistration, race behavior verified (F-6).
-- [x] LocalAPI whois path verified; `proto=tcp` pinned in netbackend (F-2).
-- [x] `--auth-key=file:` verified to keep the key out of argv and logs (F-11).
-- [x] Headscale single-use and expiry enforcement and `autogroup:self` semantics verified (F-12).
-- [x] Secrets scan extended for Tailscale and Headscale keys.
-- [ ] Policy file deployed with `proto: tcp` + `autogroup:self:8989`; license-server policy self-check (#1, #2, #5).
-- [ ] Headscale API not reachable publicly; gRPC on loopback; key rotation documented (#3, #4).
-- [ ] Windows `--windows-mode=dev` + random pipe name (#7). **Blocks Windows.**
-- [ ] Socket directory 0700 with owner check; `<D>` 0700; `network.json` owner check (#8, #13).
-- [ ] Inbox verification throttling (#12).
-- [ ] enroll.ts key-file handling verified by `test_phase3_security.py` TS checks once the file exists (#6).
-- [ ] Stretch real-tailnet test: A1→A2:8989 OK, B1→A2 blocked, local curl → 403, **and A1→A2:<control port> blocked**.
-- [ ] Follow-ups tracked: SOCKS credentials (F-9), subscription-lapse node expiry, `[::1]` binds (#10, #11).
+- [x] Netstack forwarding, ProxyMapper lifecycle, races verified (F-6); `proto=tcp` pinned (F-2).
+- [x] `--auth-key=file:`; key never in argv, env or logs (F-11); enroll key-file handling (#6).
+- [x] Headscale single-use, expiry and `autogroup:self` semantics verified (F-12); policy deployed + self-check (#1, #2, #5).
+- [x] Headscale API not public; gRPC and metrics on loopback (#3, #4). API-key rotation is in the README (ops).
+- [x] Windows `--windows-mode=dev` + per-launch pipe name (#7).
+- [x] 0700 socket dir with owner check; `network.json` owner and mode check (#8, #13).
+- [x] Inbox verification throttling (#12); Control API and SOCKS on `[::1]` (#10, #11).
+- [x] Sender identity bound to whois (F-13): the stored sender is always the verified node. Reject-on-mismatch waits on the outbox change.
+- [x] Real tailnet test (Linux): whois resolves the true peer; cross-user blocked; non-8989 ports blocked; direct local POST → 403.
+- [x] Secrets scan extended; all TS static checks active (no pending skips).
 
-Sign-off: **conditional**. Security approves once the unchecked items #1–#5, #7, #8, #12 and #13 are done.
-#10, #11 and #14 are recommended, not blocking.
+**Residual risks (accepted for v1):**
+- Windows and macOS paths are untested end to end: the pipe mode, `--windows-mode=dev`, peercreds without
+  CGO on macOS, and `::1` binding. Run the real-tailnet test on both before GA.
+- The Python pipe-owner check (#14) is not implemented. A local attacker who learns the per-launch pipe name
+  after spawn cannot squat it while tailscaled holds it. Squatting before spawn requires guessing 32 random
+  bits.
+- The SOCKS5 server is unauthenticated (F-9). Any local process can reach the user's own devices on :8989 as
+  this device.
+- Caddy rules were not checked against a real Caddy, and the compose stack was not brought up. Before
+  launch, smoke-test `curl https://<hs>/api/v1/user` → 404 and `/swagger` → 404.
+- IPv4 fallback on hosts without IPv6 (§9).
+- A mismatched self-asserted `sender_node` is overwritten and logged, not rejected, until the outbox sends its verified self name (F-13).
+- Subscription lapse leaves nodes enrolled (`node.expiry: 0`) until the revoke-on-cancel flow runs. Headscale
+  ops (backups, upgrades, single DERP region) are an availability risk, not a confidentiality one.
+
+**Sign-off: APPROVED for Linux and macOS beta, conditional for Windows GA.** Windows GA requires one real
+Windows run of the integration test, plus #14 or an explicit risk acceptance. The pre-launch production smoke
+test of Caddy `/api` and `/swagger` → 404 is required on every platform.
