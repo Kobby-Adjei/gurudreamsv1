@@ -607,7 +607,7 @@ def _net_manager(network_ts: dict[str, str]) -> str:
 def test_ts_sidecar_spawn_contract(network_ts: dict[str, str]) -> None:
     mgr = _net_manager(network_ts)
     assert "TailscaleManager.ts" not in network_ts, "bundled tailscaled manager must be gone (§9)"
-    assert "tailscaled" not in mgr
+    assert not re.search(r"tailscaled(?!\.state)", mgr), "no tailscaled anywhere (tsnet's own state file name is fine)"
     # fixed, empty argv; secrets on stdin which is then closed
     assert re.search(r"spawnFn\(\s*this\.binPath\s*,\s*\[\]\s*,", mgr), "sidecar argv must be fixed and empty"
     assert re.search(r"stdin\??\.end\(", mgr), "stdin must be closed after the config line"

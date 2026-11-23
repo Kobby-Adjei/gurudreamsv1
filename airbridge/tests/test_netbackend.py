@@ -60,7 +60,7 @@ def test_daemon_env_selects_sidecar(sc, monkeypatch):
 
 def test_sidecar_mode_without_endpoint_is_network_off(monkeypatch):
     monkeypatch.setenv(config.ENV_NETWORK, "sidecar")
-    with pytest.raises(netbackend.NetworkOff, match="AirBridge network is off"):
+    with pytest.raises(netbackend.NetworkOff, match="sign in to connect your devices"):
         netbackend.select_backend()
 
 

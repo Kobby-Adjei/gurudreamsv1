@@ -54,6 +54,7 @@ _TOKEN_RE = re.compile(r"^[A-Za-z0-9_-]{32,256}$")
 
 MSG_NETWORK_OFF = "AirBridge network is off \u2014 open the AirBridge app"
 MSG_NOT_CONNECTED = "AirBridge network is not connected yet"
+MSG_NO_SIDECAR = "Private network not connected \u2014 sign in to connect your devices"
 
 
 class NetworkOff(network.TailscaleNotRunning):
@@ -493,9 +494,9 @@ def select_backend() -> NetBackend:
     if mode == "system":
         return SystemTailscale()
     url, token, present = _sidecar_endpoint()
-    if mode == "sidecar":
+    if mode == "sidecar":  # the desktop app's daemon: no sidecar endpoint = not signed in / not enrolled
         if not url or not token:
-            raise NetworkOff(MSG_NETWORK_OFF)
+            raise NetworkOff(MSG_NO_SIDECAR)
         return SidecarBackend(url, token)
     # auto (MCP stdio process of the free CLI or of the app)
     if url and token:

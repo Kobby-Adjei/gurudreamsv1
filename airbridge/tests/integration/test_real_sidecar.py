@@ -340,7 +340,7 @@ def test_a1_to_a2_delivered_with_verified_sender(lab):
     text = files[0].read_text(encoding="utf-8")
     assert "hello A2 from A1" in text
     a1_ip = lab.sc["a1"].status()["self"]["ip"]
-    assert "a1" in text and a1_ip in text
+    assert 'sender: "a1"' in text and f'source_ip: "{a1_ip}"' in text
     assert a2_node["ip"] == lab.sc["a2"].status()["self"]["ip"]
 
 
@@ -389,7 +389,8 @@ def test_raw_same_user_node_recorded_under_verified_name(lab):
     assert res.get("status") == 201, res
     files = [f for f in _md(lab.dm["a2"].inbox) if f not in before]
     text = files[0].read_text(encoding="utf-8")
-    assert "meshprobe" in text  # the verified (control-assigned) name, never the claimed "a1"
+    # the verified (control-assigned) name - Headscale may bump it to meshprobe-N - never the claimed "a1"
+    assert 'sender: "meshprobe' in text and 'sender: "a1"' not in text
 
 
 def test_direct_local_post_to_python_inbox_without_token_403(lab):

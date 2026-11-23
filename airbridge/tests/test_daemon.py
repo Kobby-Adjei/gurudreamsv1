@@ -241,9 +241,16 @@ def test_subprocess_daemon_ready_and_parent_watchdog(tmp_path):
         info = json.loads(line.split(" ", 1)[1])
         assert info["pid"] == proc.pid
         h = "[::1]" if info.get("control_host") == "::1" else "127.0.0.1"
-        r = httpx.get(f"http://{h}:{info['control_port']}/status",
-                      headers={"Authorization": f"Bearer {TOKEN}"}, trust_env=False, timeout=5)
-        assert r.status_code == 200
+        # READY is printed when the control API listens; the inbox supervisor resolves the tailnet IP
+        # concurrently, so poll briefly instead of racing it.
+        deadline = time.monotonic() + 10
+        while True:
+            r = httpx.get(f"http://{h}:{info['control_port']}/status",
+                          headers={"Authorization": f"Bearer {TOKEN}"}, trust_env=False, timeout=5)
+            assert r.status_code == 200
+            if r.json()["tailnet_ip"] or time.monotonic() > deadline:
+                break
+            time.sleep(0.1)
         assert r.json()["tailnet_ip"] == "100.101.102.103"
         parent.kill()
         parent.wait()

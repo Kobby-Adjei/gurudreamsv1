@@ -72,12 +72,12 @@ If `icon.png` changes, re-render it from the SVG at 1024×1024 with a transparen
 └──────────────────────────┘                                                    │ network manager + enrol  │
                                                                                 │ processManager           │
                                                                                 └──────┬────────────┬──────┘
-                                                      local socket / pipe, never argv  │            │ HTTP + WS on 127.0.0.1,
+                                                 secrets on stdin, never argv/env      │            │ HTTP + WS on [::1],
                                                                                        ▼            ▼ bearer token (main only)
                                                    ┌─────────────────────────────┐  ┌──────────────────────────┐
-                                                   │ bundled private-network     │  │ airbridge-core --daemon  │
-                                                   │ daemon (userspace, no admin)│◀─│ control API · events     │
-                                                   │ local SOCKS5 + LocalAPI     │  │ inbox :8989 on 127.0.0.1 │
+                                                   │ airbridge-net sidecar       │  │ airbridge-core --daemon  │
+                                                   │ (embedded tsnet, no admin)  │◀─│ control API · events     │
+                                                   │ local control API · :8989   │─▶│ inbox on 127.0.0.1:<eph> │
                                                    └──────────────┬──────────────┘  └──────────────────────────┘
                                                                   │ encrypted (WireGuard), same account only
                                                                   ▼
@@ -87,10 +87,12 @@ If `icon.png` changes, re-render it from the SVG at 1024×1024 with a transparen
                                                    └─────────────────────────────┘
 ```
 
-In short: renderer ⇄ preload ⇄ main ⇄ (bundled private-network daemon + `airbridge-core`).
-The network daemon is built from the open-source Tailscale client (BSD-3; licence notices ship
-in `resources/licenses/`) and talks only to AirBridge's own coordination server. See
-`../airbridge/docs/PHASE3_PLAN.md`. The app UI never names it; it is just "your private network".
+In short: renderer ⇄ preload ⇄ main ⇄ (`airbridge-net` sidecar + `airbridge-core`).
+`airbridge-net` (`sidecar/airbridge-net`, Go) embeds the open-source Tailscale `tsnet` library
+(BSD-3; licence notices ship in `resources/licenses/`), joins AirBridge's own Headscale server with a
+single-use key, exposes only port 8989 on the private network (WhoIs-verified, same account only) and
+never needs or uses a system Tailscale. Log upload is disabled. See `../airbridge/docs/PHASE3_PLAN.md`
+§9. The app UI never names it; it is just "your private network".
 
 The renderer only ever talks to `window.airbridge` (see `src/shared/types.ts`). It never
 sees the control token or any Clerk token.
@@ -150,36 +152,51 @@ They were rendered with Playwright (system Chrome) from a production Vite build 
 
 <!-- Section owned by Systems (main process / backend). UI/UX sections are above. -->
 
-## Test the real app today (preview: no servers needed)
+## Test the real app today (needs Headscale + license server)
 
-Preview builds (the default until the app is approved, PHASE3_PLAN.md §8) need no Clerk, no license
-server and no Headscale. Without sign-in the engine runs on **this computer's own Tailscale**
-(`AIRBRIDGE_NETWORK=system`); the bundled `tailscaled` is never started.
+The app no longer uses a system Tailscale at all (PHASE3_PLAN.md §9): its only network is the bundled
+`airbridge-net` sidecar, which joins **your** Headscale server with a pre-auth key from **your** license
+server. Signed out, the app runs but shows "Sign in to connect your devices" and the engine has no network
+(the activity feed and the MCP config still work); see `docs/screenshots/extra/preview-real.png`, a capture
+of the real app (real engine, no servers configured). So testing two real computers now needs:
 
-1. Install Tailscale on each computer you want to test with and sign them into the same tailnet
-   (`tailscale status` should list them). Without it the app opens on the "Couldn't connect your devices"
-   screen (`docs/screenshots/extra/preview-real.png`); Retry once Tailscale is up.
-2. Get the code and the desktop dependencies:
+1. **Headscale v0.29.7 + license server, reachable over HTTPS from both computers.** Use the kit in
+   `../license-server/headscale/` (docker-compose: Headscale + Caddy TLS, `policy.hujson` =
+   `autogroup:self:8989`) and `../license-server/README.md`. Both can be deployed to Railway or Fly.io
+   (see "Deploy" there; Headscale needs a persistent volume for its SQLite DB and UDP 3478 for STUN,
+   which Fly supports and Railway does not, so prefer Fly for Headscale). Set `HEADSCALE_URL`,
+   `HEADSCALE_API_KEY`, `HEADSCALE_PUBLIC_URL` and `ENFORCE_ENTITLEMENT=false` (preview: any signed-in
+   user gets keys). Nothing is deployed by this repo.
+2. **Clerk** OAuth app (`CLERK_OAUTH_ISSUER`, `CLERK_OAUTH_CLIENT_ID`) and `AIRBRIDGE_LICENSE_URL` pointing at
+   the license server, exported before `npm run dev` (or `MAIN_VITE_*` in `desktop/.env` for a build).
+3. Get the code, the dependencies and the two binaries:
    ```bash
    git clone https://github.com/Kobby-Adjei/gurudreamsv1.git
    cd gurudreamsv1/desktop
    npm install
+   npm run build:backend     # airbridge-core (PyInstaller) + airbridge-net (Go; GOTOOLCHAIN=auto fetches Go 1.27)
    ```
-3. Give the app a backend, either:
-   - build it once: `npm run build:backend` (PyInstaller -> `resources/bin/<os>-<arch>/airbridge-core`;
-     used automatically when present), or
-   - run it from source: `python3 -m venv ~/abvenv && ~/abvenv/bin/pip install -r ../airbridge/requirements.txt`,
-     then export `AIRBRIDGE_PYTHON=~/abvenv/bin/python` (only used when no built binary exists).
+   `npm run build:net` builds only the sidecar; `bash scripts/build-net.sh all` cross-compiles
+   darwin/arm64, darwin/amd64, windows/amd64 and linux/amd64 into `resources/net/<platform>-<arch>/`
+   (with `manifest.json` sha256s). Windows: `npm run build:backend:win`. Instead of the PyInstaller
+   binary you can run the engine from source: create a venv with `../airbridge/requirements.txt` and export
+   `AIRBRIDGE_PYTHON=<venv>/bin/python`.
 4. Start it **without** `AIRBRIDGE_DEV_MOCKS` (and don't copy `.env.example`, which turns mocks on):
    ```bash
    npm run dev
    ```
-   The main-process log shows `license enforcement: off (preview …)` and the engine starts straight away.
-   Settings -> Account still offers sign-in; with `CLERK_OAUTH_*` + `AIRBRIDGE_LICENSE_URL` configured and a
-   license server running with `ENFORCE_ENTITLEMENT=false`, signing in moves the engine onto the embedded
-   private network (it restarts once); signing out moves it back to the system Tailscale.
+   Sign in (Settings -> Account). The main-process log shows `enroll: joining private network as
+   airbridge-<name>`, then the private network connects and the engine restarts once with it. Do the same on
+   the second computer with the **same** account; each lists the other under Devices. A different account
+   never sees your devices (Headscale `autogroup:self`, plus a WhoIs same-user check in every sidecar).
+   Sidecar logs (keys/URLs redacted): `<data dir>/logs/airbridge-net.log`.
 
-`AIRBRIDGE_DEV_MOCKS=1 npm run dev` still gives the fully mocked demo (no engine, no network).
+Without any servers, `AIRBRIDGE_DEV_MOCKS=1 npm run dev` still gives the fully mocked demo (no engine, no
+network). The real private network can also be exercised on one Linux/macOS machine with no servers or
+accounts: `../airbridge/tests/integration/run_real_sidecar.sh` (local Headscale + three sidecars + three
+real engines).
+
+The free CLI (`../airbridge`, no app) still uses a system Tailscale; that path is unchanged.
 
 ## Launch checklist (turn licensing on)
 
@@ -193,9 +210,11 @@ Do these together, only after the product owner approves the app:
 3. **Desktop config baked in:** `MAIN_VITE_AIRBRIDGE_LICENSE_URL`, `MAIN_VITE_CLERK_OAUTH_ISSUER`,
    `MAIN_VITE_CLERK_OAUTH_CLIENT_ID` and the production license public keys (`publicKeys.ts`). An
    enforced build without them keeps the engine **blocked** ("Sign-in is not configured in this build").
-4. **Embedded network:** bundled `tailscaled`/`tailscale` present (`npm run build:tailscale`) and Headscale
-   reachable at the license server's `HEADSCALE_PUBLIC_URL`; enforced builds always use the embedded
-   network, never the user's own Tailscale.
+4. **Private network:** `airbridge-net` built for every shipped platform (`npm run build:backend` per CI
+   runner, or `scripts/build-net.sh all`), signed + notarized on macOS (`mac.binaries` in
+   `electron-builder.yml`), and Headscale reachable over TLS at the license server's `HEADSCALE_PUBLIC_URL`
+   (its DERP relay too: clients only speak TLS to DERP). Run `../airbridge/tests/integration/run_real_sidecar.sh`
+   on macOS and do one manual two-computer run on Windows before GA.
 5. **Smoke test the enforced build:** signed out -> sign-in wall and no `airbridge-core` process;
    inactive subscription -> Paywall, engine blocked; active -> private network connects, then the engine.
    `npx vitest run tests/previewMode.test.ts` covers both modes.
