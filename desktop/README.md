@@ -42,6 +42,44 @@ npm run build           # electron-vite: out/main, out/preload, out/renderer
 npm run dist            # electron-builder installers (signing/notarisation required for release)
 ```
 
+## Download and install (unsigned test builds)
+
+GitHub Actions (`.github/workflows/desktop-build.yml`) builds test installers on every push to
+this branch that touches `desktop/` or `airbridge/` (or on demand: *Actions → desktop-build → Run
+workflow*). Each runner builds its own `airbridge-core` and `airbridge-net` and packages the app
+with `electron-builder.unsigned.yml`, using the public config in `.env.production`.
+
+1. Open the repository on GitHub → **Actions** → **desktop-build** → the latest green run.
+2. Scroll to **Artifacts** at the bottom of the run page and download the one for your computer
+   (kept for 14 days; you must be signed in to GitHub):
+   - `airbridge-mac-arm64` — Macs with Apple silicon (M1 or later): `.dmg` and `.zip`
+   - `airbridge-mac-x64` — Intel Macs: `.dmg` and `.zip`
+   - `airbridge-win-x64` — Windows 10/11 (64-bit): `AirBridge Pro Setup <version>.exe`
+3. Unzip the downloaded artifact to get the installer.
+
+These builds are **not signed or notarised**, so the OS warns the first time you open them.
+
+**macOS.** Open the `.dmg` and drag *AirBridge Pro* to *Applications*. The app is ad-hoc signed
+only, so Gatekeeper blocks the first launch:
+
+- Right-click (Control-click) *AirBridge Pro* in Applications → **Open** → **Open**. On macOS 15
+  (Sequoia) and later this shortcut is gone: try to open the app once, then go to **System
+  Settings → Privacy & Security**, scroll down to the message about *AirBridge Pro* and click
+  **Open Anyway** (enter your password), then **Open**.
+- If macOS says the app "is damaged and can't be opened", remove the download quarantine flag in
+  Terminal and open it again:
+
+  ```bash
+  xattr -dr com.apple.quarantine "/Applications/AirBridge Pro.app"
+  ```
+
+**Windows.** Run `AirBridge Pro Setup <version>.exe`. SmartScreen shows "Windows protected your
+PC": click **More info** → **Run anyway**, then follow the installer. Some antivirus tools may
+also flag an unsigned app; allow it if you trust the build.
+
+You only have to do this once per installed version. Install on both computers and sign in to
+the same account on each.
+
 ### App icon
 
 electron-builder reads `build/icon.png` (1024×1024, committed, rendered from `build/icon.svg`

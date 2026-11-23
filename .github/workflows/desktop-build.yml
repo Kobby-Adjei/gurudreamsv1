@@ -29,7 +29,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-14
+          - os: macos-15
             artifact: airbridge-mac-arm64
             platform: darwin
             arch: arm64

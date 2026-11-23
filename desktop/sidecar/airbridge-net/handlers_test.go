@@ -11,6 +11,7 @@ import (
 	"net/http/httptest"
 	"net/netip"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -543,18 +544,23 @@ func TestMeshRateLimitPerPeer(t *testing.T) {
 // ---------------------------------------------------------------- config + logging
 
 func TestConfigValidation(t *testing.T) {
-	good := `{"control_url":"https://hs.example.com","hostname":"airbridge-a1","control_token":"` + testToken + `","state_dir":"/tmp/x"}`
+	// state_dir must be absolute for the host OS: "/tmp/x" is not absolute on Windows.
+	absDir := "/tmp/x"
+	if runtime.GOOS == "windows" {
+		absDir = `C:\\tmp\\x` // JSON-escaped C:\tmp\x
+	}
+	good := `{"control_url":"https://hs.example.com","hostname":"airbridge-a1","control_token":"` + testToken + `","state_dir":"` + absDir + `"}`
 	if _, err := readConfig(strings.NewReader(good + "\n")); err != nil {
 		t.Fatal(err)
 	}
 	bad := []string{
 		``,
-		`{"control_url":"http://hs.example.com","hostname":"airbridge-a1","control_token":"` + testToken + `","state_dir":"/tmp/x"}`,
-		`{"control_url":"https://hs.example.com","hostname":"a1","control_token":"` + testToken + `","state_dir":"/tmp/x"}`,
-		`{"control_url":"https://hs.example.com","hostname":"airbridge-a1","control_token":"short","state_dir":"/tmp/x"}`,
+		`{"control_url":"http://hs.example.com","hostname":"airbridge-a1","control_token":"` + testToken + `","state_dir":"` + absDir + `"}`,
+		`{"control_url":"https://hs.example.com","hostname":"a1","control_token":"` + testToken + `","state_dir":"` + absDir + `"}`,
+		`{"control_url":"https://hs.example.com","hostname":"airbridge-a1","control_token":"short","state_dir":"` + absDir + `"}`,
 		`{"control_url":"https://hs.example.com","hostname":"airbridge-a1","control_token":"` + testToken + `","state_dir":"rel"}`,
-		`{"control_url":"https://hs.example.com","hostname":"airbridge-a1","control_token":"` + testToken + `","state_dir":"/tmp/x","client_secret":"x"}`,
-		`{"control_url":"https://hs.example.com","hostname":"airbridge-a1","control_token":"` + testToken + `","state_dir":"/tmp/x","inbox_url":"http://10.0.0.1:80","inbox_token":"` + inboxTok + `"}`,
+		`{"control_url":"https://hs.example.com","hostname":"airbridge-a1","control_token":"` + testToken + `","state_dir":"` + absDir + `","client_secret":"x"}`,
+		`{"control_url":"https://hs.example.com","hostname":"airbridge-a1","control_token":"` + testToken + `","state_dir":"` + absDir + `","inbox_url":"http://10.0.0.1:80","inbox_token":"` + inboxTok + `"}`,
 		strings.Repeat("x", maxConfigBytes+10),
 	}
 	for _, b := range bad {
