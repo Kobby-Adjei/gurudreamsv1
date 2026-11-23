@@ -28,6 +28,8 @@ export interface AppDeps {
   priceId: string;
   publicBaseUrl?: string | null;
   trustProxy?: boolean;
+  /** Number of trusted proxies appending to X-Forwarded-For (default 1). */
+  trustProxyHops?: number;
   /** Override client-IP extraction (default: X-Forwarded-For when trustProxy, else socket address). */
   getClientIp?: (c: Context) => string;
   now?: () => number;
@@ -53,24 +55,23 @@ export function createApp(deps: AppDeps): Hono {
   const clientIp = (c: Context): string => {
     if (deps.getClientIp) return deps.getClientIp(c);
     if (deps.trustProxy) {
+      // Use the entry appended by our own trusted proxy (counted from the RIGHT); everything to
+      // its left is client-controlled and must never key the rate limiter.
       const xff = c.req.header('x-forwarded-for');
-      if (xff) return xff.split(',')[0]!.trim();
+      if (xff) {
+        const parts = xff.split(',').map((p) => p.trim()).filter(Boolean);
+        const hops = Math.max(1, deps.trustProxyHops ?? 1);
+        const ip = parts[parts.length - hops];
+        if (ip) return ip;
+      }
     }
     const incoming = (c.env as { incoming?: { socket?: { remoteAddress?: string } } } | undefined)?.incoming;
     return incoming?.socket?.remoteAddress ?? 'unknown';
   };
 
-  const baseUrl = (c: Context): string => {
-    if (deps.publicBaseUrl) return deps.publicBaseUrl;
-    const u = new URL(c.req.url);
-    if (deps.trustProxy) {
-      const proto = c.req.header('x-forwarded-proto');
-      const host = c.req.header('x-forwarded-host');
-      if (proto === 'https' || proto === 'http') u.protocol = `${proto}:`;
-      if (host && /^[A-Za-z0-9.-]+(:\d+)?$/.test(host)) u.host = host;
-    }
-    return u.origin;
-  };
+  // Checkout redirect base. Production requires PUBLIC_BASE_URL (enforced in loadConfig); the
+  // request-URL fallback is for local dev only and never consults X-Forwarded-* headers.
+  const baseUrl = (c: Context): string => deps.publicBaseUrl ?? new URL(c.req.url).origin;
 
   app.use('*', async (c, next) => {
     await next();

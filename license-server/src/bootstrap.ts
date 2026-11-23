@@ -27,6 +27,7 @@ export function buildFromEnv(env: NodeJS.ProcessEnv = process.env): { app: Retur
     priceId: config.stripePriceIdPro,
     publicBaseUrl: config.publicBaseUrl,
     trustProxy: config.trustProxy,
+    trustProxyHops: config.trustProxyHops,
   });
   return { app, config, store };
 }

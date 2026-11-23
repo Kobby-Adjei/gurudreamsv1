@@ -20,7 +20,7 @@ describe('Swarm Map', () => {
     expect(within(peers).getAllByTestId('status-dot-online')).toHaveLength(2)
     expect(within(peers).getAllByText('Online')).toHaveLength(2)
     expect(within(peers).getAllByTestId('status-dot-offline')).toHaveLength(1)
-    expect(within(peers).getByText(/Offline · 2 hours ago/)).toBeInTheDocument()
+    expect(within(peers).getByText("Last seen 2 hours ago")).toBeInTheDocument()
 
     // This computer sits in the middle.
     expect(screen.getByText('This Mac')).toBeInTheDocument()

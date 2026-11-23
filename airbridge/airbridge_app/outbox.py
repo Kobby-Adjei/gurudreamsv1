@@ -178,7 +178,8 @@ async def send_task_result(
     except Exception as exc:  # last-resort guard: tools never raise
         logger.exception("unexpected error sending task")
         result = _fail(f"unexpected error while sending the task: {type(exc).__name__}", 500)
-    _emit_send_event(result, target_hostname, code_payload, origin)
+    # Sync file I/O + cross-process lock: keep it off the event loop.
+    await asyncio.to_thread(_emit_send_event, result, target_hostname, code_payload, origin)
     return result
 
 

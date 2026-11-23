@@ -226,7 +226,9 @@ def create_app(
             security.truncate_for_log(payload.task_description, 200),
         )
         what = "code" if payload.code_payload else "task"
-        events.emit(
+        # Sync file I/O + cross-process lock: run after the response, in the threadpool.
+        background_tasks.add_task(
+            events.emit,
             "task_received",
             peer=payload.sender_node,
             summary=f"Received {what} from {payload.sender_node}",

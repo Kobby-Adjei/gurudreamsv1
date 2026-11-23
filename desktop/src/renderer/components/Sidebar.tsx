@@ -95,12 +95,12 @@ export function Sidebar({
             </p>
             <p className="truncate text-[12px] text-ink-faint">{user?.email ?? 'Signed in'}</p>
           </div>
+        </div>
+        <div className="mt-3 flex items-center justify-between gap-2 border-t border-line/[0.06] pt-2.5">
+          <StatusDot status={service.status} label={service.label} className="min-w-0 truncate" />
           <Badge tone={license?.state === 'valid' || license?.state === 'grace' ? 'accent' : 'neutral'}>
             {planLabel(license?.plan)}
           </Badge>
-        </div>
-        <div className="mt-3 border-t border-line/[0.06] pt-2.5">
-          <StatusDot status={service.status} label={service.label} />
         </div>
       </div>
     </aside>

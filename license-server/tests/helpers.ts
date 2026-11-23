@@ -77,7 +77,9 @@ export class FakeBilling implements BillingApi {
   }
 }
 
-export async function makeHarness(opts: { verifyPerMinute?: number; now?: () => number } = {}) {
+export async function makeHarness(
+  opts: { verifyPerMinute?: number; now?: () => number; trustProxy?: boolean; trustProxyHops?: number; publicBaseUrl?: string | null } = {},
+) {
   const stripe = new Stripe(FAKE_STRIPE_KEY); // offline: only used for webhook signature helpers
   const store = new InMemorySubscriptionStore();
   const billing = new FakeBilling();
@@ -91,7 +93,9 @@ export async function makeHarness(opts: { verifyPerMinute?: number; now?: () => 
     clerk: createClerkVerifier({ issuer: ISSUER, audience: AUDIENCE, jwks: clerk.jwks }),
     signer: createLicenseSigner({ privateKey: license.privateKey, kid: KID, ttlSeconds: 259200 }),
     priceId: PRICE_ID,
-    publicBaseUrl: 'https://license.test.example',
+    publicBaseUrl: opts.publicBaseUrl === undefined ? 'https://license.test.example' : opts.publicBaseUrl,
+    trustProxy: opts.trustProxy,
+    trustProxyHops: opts.trustProxyHops,
     logger: silentLogger,
     now: opts.now,
     rateLimit: { verifyPerMinute: opts.verifyPerMinute ?? 1000, checkoutPerMinute: 1000 },
@@ -116,10 +120,10 @@ export async function makeHarness(opts: { verifyPerMinute?: number; now?: () => 
     });
   };
 
-  const verify = async (token?: string) =>
+  const verify = async (token?: string, extraHeaders: Record<string, string> = {}) =>
     app.request('/v1/license/verify', {
       method: 'POST',
-      headers: token ? { authorization: `Bearer ${token}` } : {},
+      headers: { ...(token ? { authorization: `Bearer ${token}` } : {}), ...extraHeaders },
     });
 
   return { app, store, billing, license, clerk, sendEvent, verify, stripe };

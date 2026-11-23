@@ -58,8 +58,9 @@ Without `DATABASE_URL` the server uses an in-memory store (refused when `NODE_EN
 | `LICENSE_KEY_ID` | `kid` placed in the token header; must match the desktop's `LICENSE_PUBLIC_KEYS` key. |
 | `LICENSE_TTL_SECONDS` | Default `259200` (72 h). 300 … 2 592 000. |
 | `DATABASE_URL` | Postgres connection string. Required in production. |
-| `PUBLIC_BASE_URL` | Public `https://` origin of this server (Checkout success/cancel URLs). Optional but recommended. |
-| `TRUST_PROXY` | `1` behind Railway/Fly/Vercel so rate limiting uses `X-Forwarded-For`. |
+| `PUBLIC_BASE_URL` | Public `https://` origin of this server (Checkout success/cancel URLs). **Required in production**; `X-Forwarded-Host` is never trusted. |
+| `TRUST_PROXY` | `1` behind Railway/Fly/Vercel so rate limiting uses `X-Forwarded-For` (rightmost entry appended by the proxy — client-supplied entries are ignored). |
+| `TRUST_PROXY_HOPS` | Number of trusted proxies in front of the app (default `1`). |
 | `PORT` | Default `8787`. |
 
 Config is validated at boot; the process exits with code 2 and lists every problem.
@@ -107,7 +108,7 @@ psql "$DATABASE_URL" -f migrations/001.sql        # or: npm run migrate
 All hosts must serve HTTPS (Stripe and Clerk require it). Set the env vars above in the host's secret store.
 
 **Railway** — New Project → Deploy from repo, root directory `license-server` (the Dockerfile is detected).
-Add the Postgres plugin (it injects `DATABASE_URL`), set env vars incl. `TRUST_PROXY=1`, `NODE_ENV=production`,
+Add the Postgres plugin (it injects `DATABASE_URL`), set env vars incl. `TRUST_PROXY=1`, `NODE_ENV=production`, `PUBLIC_BASE_URL`,
 run the migration once (`railway run psql "$DATABASE_URL" -f migrations/001.sql`), generate a domain, and
 point the Stripe webhook at it. Health check path: `/healthz`.
 
@@ -118,7 +119,8 @@ fly launch --no-deploy            # uses the Dockerfile; internal_port 8787
 fly postgres create && fly postgres attach <db-app>
 fly secrets set STRIPE_SECRET_KEY=... STRIPE_WEBHOOK_SECRET=... STRIPE_PRICE_ID_PRO=... \
   CLERK_ISSUER=... CLERK_JWKS_URL=... CLERK_AUDIENCE=... LICENSE_KEY_ID=... \
-  LICENSE_SIGNING_KEY_PEM="$(cat license-private.pem)" TRUST_PROXY=1 NODE_ENV=production
+  LICENSE_SIGNING_KEY_PEM="$(cat license-private.pem)" TRUST_PROXY=1 NODE_ENV=production \
+  PUBLIC_BASE_URL=https://<app>.fly.dev
 fly deploy
 fly ssh console -C "sh -c 'apt-get update && apt-get install -y postgresql-client && psql \"$DATABASE_URL\" -f migrations/001.sql'"
 ```

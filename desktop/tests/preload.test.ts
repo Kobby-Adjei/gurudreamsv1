@@ -28,7 +28,7 @@ vi.mock('electron', () => ({
 /** Frozen contract (PHASE2_PLAN.md §2 "Preload window.airbridge"). */
 const CONTRACT: Record<string, string[]> = {
   auth: ['getState', 'signIn', 'signOut', 'onChange'],
-  license: ['getStatus', 'refresh', 'openCheckout'],
+  license: ['getStatus', 'refresh', 'openCheckout', 'onChange'],
   backend: ['getStatus', 'getLifecycle', 'getNodes', 'getEvents', 'sendTask', 'onEvent', 'onStatus', 'onLifecycle'],
   settings: ['getMcpConfig', 'copyMcpConfig'],
   app: ['version', 'platform'],
@@ -99,6 +99,7 @@ describe('preload window.airbridge', () => {
     const api = await load() as any;
     const subs: Array<[string, (cb: (p: unknown) => void) => () => void]> = [
       ['ab:auth:changed', api.auth.onChange],
+      ['ab:license:changed', api.license.onChange],
       ['ab:backend:event', api.backend.onEvent],
       ['ab:backend:status', api.backend.onStatus],
       ['ab:backend:lifecycle', api.backend.onLifecycle],

@@ -99,6 +99,32 @@ describe('POST /v1/license/verify', () => {
     expect((await h.verify(t)).status).toBe(429);
   });
 
+  it('rate limit keys on the proxy-appended (rightmost) X-Forwarded-For entry; spoofed left entries do not bypass it', async () => {
+    const h = await makeHarness({ verifyPerMinute: 2, trustProxy: true });
+    const t = await h.clerk.mint();
+    const xff = (spoof: string) => ({ 'x-forwarded-for': `${spoof}, 203.0.113.7` });
+    expect((await h.verify(t, xff('1.1.1.1'))).status).toBe(402);
+    expect((await h.verify(t, xff('2.2.2.2'))).status).toBe(402);
+    expect((await h.verify(t, xff('3.3.3.3'))).status).toBe(429); // rotating the spoofed entry doesn't help
+    expect((await h.verify(t, { 'x-forwarded-for': '198.51.100.9' })).status).toBe(402); // a genuinely different client
+  });
+
+  it('TRUST_PROXY_HOPS=2 takes the second entry from the right', async () => {
+    const h = await makeHarness({ verifyPerMinute: 1, trustProxy: true, trustProxyHops: 2 });
+    const t = await h.clerk.mint();
+    expect((await h.verify(t, { 'x-forwarded-for': 'spoof1, 203.0.113.7, 10.0.0.1' })).status).toBe(402);
+    expect((await h.verify(t, { 'x-forwarded-for': 'spoof2, 203.0.113.7, 10.0.0.2' })).status).toBe(429);
+  });
+
+  it('checkout redirect URLs never come from X-Forwarded-Host', async () => {
+    const h = await makeHarness({ trustProxy: true });
+    await h.verify(await h.clerk.mint(), { 'x-forwarded-host': 'evil.example', 'x-forwarded-proto': 'https' });
+    expect(h.billing.checkoutCalls[0]!.successUrl).toBe('https://license.test.example/checkout/success');
+    const dev = await makeHarness({ trustProxy: true, publicBaseUrl: null });
+    await dev.verify(await dev.clerk.mint(), { 'x-forwarded-host': 'evil.example' });
+    expect(dev.billing.checkoutCalls[0]!.successUrl).not.toMatch(/evil/);
+  });
+
   const verifyTs = join(dirname(fileURLToPath(import.meta.url)), '../../desktop/src/main/license/verify.ts');
   it.skipIf(!existsSync(verifyTs))("token is accepted by the desktop's verifyLicenseToken (Security's verify.ts)", async () => {
     const h = await makeHarness();

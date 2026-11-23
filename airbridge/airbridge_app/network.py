@@ -47,10 +47,32 @@ class TailscaleNotRunning(TailscaleError):
 # --------------------------------------------------------------------------- #
 # Binary + subprocess
 # --------------------------------------------------------------------------- #
+def _on_path(found: str) -> bool:
+    """On Windows, shutil.which() also searches the current directory first, so a
+    planted ``tailscale.exe`` in the cwd could be executed. Accept a hit only if
+    its directory is an explicit PATH entry. Other platforms: always True."""
+    if os.name != "nt":
+        return True
+    try:
+        found_dir = os.path.normcase(os.path.realpath(os.path.dirname(os.path.abspath(found))))
+    except (OSError, ValueError):
+        return False
+    for entry in os.environ.get("PATH", "").split(os.pathsep):
+        entry = entry.strip().strip('"')
+        if not entry or not os.path.isabs(entry):
+            continue  # relative PATH entries resolve against the cwd too
+        try:
+            if os.path.normcase(os.path.realpath(entry)) == found_dir:
+                return True
+        except (OSError, ValueError):
+            continue
+    return False
+
+
 def tailscale_binary() -> str:
     """Return the path of the tailscale CLI or raise TailscaleNotInstalled."""
     found = shutil.which("tailscale")
-    if found:
+    if found and _on_path(found):
         return found
     for candidate in FALLBACK_BINARIES:
         if os.path.isfile(candidate):

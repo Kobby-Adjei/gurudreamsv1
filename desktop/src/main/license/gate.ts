@@ -14,6 +14,7 @@
 import { promises as fs } from 'node:fs';
 import { dirname } from 'node:path';
 import type { LicenseStatus } from '../../shared/types';
+import { getLicensePublicKeys } from './publicKeys';
 import { verifyLicenseToken, type VerifyResult } from './verify';
 
 export const REFRESH_INTERVAL_MS = 6 * 60 * 60 * 1000;
@@ -70,8 +71,10 @@ export interface LicenseGateOptions {
   getAuthToken: () => Promise<string | null>;
   /** Signed-in Clerk user id; tokens for another `sub` are rejected. */
   getUserId: () => string | null;
-  /** kid -> SPKI PEM (Security's getLicensePublicKeys()). */
-  publicKeys: Readonly<Record<string, string>>;
+  /** app.isPackaged — selects trusted keys via Security's getLicensePublicKeys() (env override only in dev). */
+  isPackaged: boolean;
+  /** Test-only override of the trusted kid -> SPKI PEM map. Production leaves this unset. */
+  publicKeys?: Readonly<Record<string, string>>;
   onValid: () => void | Promise<void>;
   onInvalid: (reason: InvalidReason) => void | Promise<void>;
   cache?: LicenseCache;
@@ -117,6 +120,7 @@ export class LicenseGate {
   private readonly fetchFn: typeof fetch;
   private readonly now: () => number;
   private readonly verify: NonNullable<LicenseGateOptions['verify']>;
+  private readonly publicKeys: Readonly<Record<string, string>>;
 
   constructor(private readonly opts: LicenseGateOptions) {
     const u = new URL(opts.licenseUrl);
@@ -129,6 +133,7 @@ export class LicenseGate {
     this.fetchFn = opts.fetch ?? fetch;
     this.now = opts.now ?? Date.now;
     this.verify = opts.verify ?? verifyLicenseToken;
+    this.publicKeys = opts.publicKeys ?? getLicensePublicKeys({ isPackaged: opts.isPackaged });
   }
 
   getStatus(): LicenseStatus {
@@ -170,11 +175,13 @@ export class LicenseGate {
     return this.inflight;
   }
 
+  /** Always bound to the signed-in Clerk user: a token for anyone else (or no user) never verifies. */
   private verifyToken(token: string): VerifyResult {
     const sub = this.opts.getUserId();
+    if (!sub) return { ok: false, reason: 'wrong_sub' };
     return this.verify(token, {
-      publicKeys: this.opts.publicKeys as Record<string, string>,
-      ...(sub ? { expectedSub: sub } : {}),
+      publicKeys: this.publicKeys as Record<string, string>,
+      expectedSub: sub,
       now: Math.floor(this.now() / 1000),
     });
   }

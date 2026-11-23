@@ -256,3 +256,51 @@ def test_subprocess_daemon_ready_and_parent_watchdog(tmp_path):
                 p.wait()
         proc.stdout.close()
         proc.stderr.close()
+
+
+# ------------------------------------------------------------------ security review fixes
+def test_daemon_env_pops_token_from_environment(monkeypatch):
+    """The control token must not leak to child processes (tailscale, osascript...)."""
+    import importlib.util
+
+    from airbridge_app import config
+
+    spec = importlib.util.spec_from_file_location("ab_main_env", MAIN_PY)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    monkeypatch.setenv("AIRBRIDGE_CONTROL_TOKEN", TOKEN)
+    monkeypatch.setenv("AIRBRIDGE_CONTROL_PORT", "0")
+    token, port, ppid = mod._daemon_env(config)
+    assert token == TOKEN and port == 0
+    assert "AIRBRIDGE_CONTROL_TOKEN" not in os.environ
+    # and a child process spawned afterwards does not see it
+    out = subprocess.run([sys.executable, "-c", "import os;print(os.environ.get('AIRBRIDGE_CONTROL_TOKEN',''))"],
+                         capture_output=True, text=True, timeout=30)
+    assert out.stdout.strip() == ""
+
+
+def test_windows_tailscale_lookup_ignores_cwd(monkeypatch, tmp_path):
+    """On Windows shutil.which() searches the cwd first; such hits must be rejected."""
+    good = tmp_path / "Program Files" / "Tailscale"
+    good.mkdir(parents=True)
+    planted = tmp_path / "cwd"
+    planted.mkdir()
+    (good / "tailscale.exe").write_text("")
+    good_exe, planted_exe = str(good / "tailscale.exe"), str(planted / "tailscale.exe")
+    rel_exe = str(Path("relative-dir").resolve() / "tailscale.exe")
+    # compute all Path objects before pretending to be Windows (pathlib checks os.name)
+    monkeypatch.setattr(network.shutil, "which", lambda name: planted_exe)
+    monkeypatch.setattr(network, "FALLBACK_BINARIES", (good_exe,))
+    monkeypatch.setenv("PATH", str(good))
+    monkeypatch.setattr(network.os, "name", "nt")
+    assert network._on_path(good_exe)
+    assert not network._on_path(planted_exe)
+    # tailscale_binary() falls through to the fixed install locations instead
+    assert network.tailscale_binary() == good_exe
+    monkeypatch.setenv("PATH", "relative-dir" + os.pathsep + str(good))
+    assert not network._on_path(rel_exe)
+
+
+def test_on_path_is_noop_on_posix(monkeypatch):
+    monkeypatch.setattr(network.os, "name", "posix")
+    assert network._on_path("/anywhere/tailscale")

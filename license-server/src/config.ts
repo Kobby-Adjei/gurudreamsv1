@@ -15,6 +15,7 @@ export interface Config {
   licenseTtlSeconds: number;
   databaseUrl: string | null;
   trustProxy: boolean;
+  trustProxyHops: number;
   production: boolean;
 }
 
@@ -150,6 +151,17 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     if (u) publicBaseUrl = u.origin;
   }
 
+  if (!publicBaseUrl && production) {
+    problems.push('PUBLIC_BASE_URL is required when NODE_ENV=production (used for Checkout redirect URLs)');
+  }
+
+  let trustProxyHops = 1;
+  if (env.TRUST_PROXY_HOPS?.trim()) {
+    const n = Number(env.TRUST_PROXY_HOPS.trim());
+    if (!Number.isInteger(n) || n < 1 || n > 5) problems.push('TRUST_PROXY_HOPS must be an integer 1-5');
+    else trustProxyHops = n;
+  }
+
   if (problems.length > 0 || !licenseSigningKey || !clerkJwksUrl) {
     throw new ConfigError(problems.length ? problems : ['configuration incomplete']);
   }
@@ -169,6 +181,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     licenseTtlSeconds,
     databaseUrl,
     trustProxy: env.TRUST_PROXY === '1' || env.TRUST_PROXY === 'true',
+    trustProxyHops,
     production,
   };
 }

@@ -166,6 +166,8 @@ be hostile.
 - **Inert content.** Tasks are written as data with a visible untrusted-input warning. AirBridge
   never runs received code, and your assistant is asked to check with you before it does.
 - **No shell.** There is no `shell=True`, `eval` or `exec` anywhere.
+- **Lock it down with Tailscale ACLs.** Restrict who can reach port 8989 with Tailscale ACLs: see
+  [docs/SECURITY.md §6.1](docs/SECURITY.md#61-tailscale-acls-are-the-primary-authorisation).
 
 The full threat model is in [docs/SECURITY.md](docs/SECURITY.md).
 

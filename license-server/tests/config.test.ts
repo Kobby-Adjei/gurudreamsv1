@@ -53,7 +53,11 @@ describe('loadConfig', () => {
     expect(() => loadConfig(env({ CLERK_ISSUER: 'http://x.example' }))).toThrow(/https/);
     expect(() => loadConfig(env({ LICENSE_TTL_SECONDS: '10' }))).toThrow(/LICENSE_TTL_SECONDS/);
     expect(() => loadConfig(env({ NODE_ENV: 'production' }))).toThrow(/DATABASE_URL/);
-    expect(loadConfig(env({ NODE_ENV: 'production', DATABASE_URL: 'postgres://u:p@db/x' })).databaseUrl).toBe('postgres://u:p@db/x');
+    expect(() => loadConfig(env({ NODE_ENV: 'production', DATABASE_URL: 'postgres://u:p@db/x' }))).toThrow(/PUBLIC_BASE_URL/);
+    expect(() => loadConfig(env({ TRUST_PROXY_HOPS: '0' }))).toThrow(/TRUST_PROXY_HOPS/);
+    const prod = loadConfig(env({ NODE_ENV: 'production', DATABASE_URL: 'postgres://u:p@db/x', PUBLIC_BASE_URL: 'https://license.example.com/' }));
+    expect(prod.databaseUrl).toBe('postgres://u:p@db/x');
+    expect(prod.publicBaseUrl).toBe('https://license.example.com');
   });
 });
 

@@ -48,6 +48,7 @@ export const api: AirbridgeApi = {
     getStatus: () => ipcRenderer.invoke(INVOKE.licenseGet) as Promise<LicenseStatus>,
     refresh: () => ipcRenderer.invoke(INVOKE.licenseRefresh) as Promise<LicenseStatus>,
     openCheckout: () => ipcRenderer.invoke(INVOKE.licenseCheckout) as Promise<void>,
+    onChange: (cb) => subscribe<LicenseStatus>(PUSH.licenseChanged, cb),
   },
   backend: {
     getStatus: () => ipcRenderer.invoke(INVOKE.backendStatus) as Promise<BackendStatus | null>,

@@ -179,7 +179,7 @@ function ConnectApps() {
               <pre
                 tabIndex={0}
                 aria-label={`Setup code for ${current.label}`}
-                className="max-h-[260px] overflow-auto px-4 py-3.5 font-mono text-[12.5px] leading-5 text-ink"
+                className="max-h-[260px] overflow-auto whitespace-pre-wrap px-4 py-3.5 font-mono text-[12.5px] leading-5 text-ink [overflow-wrap:anywhere]"
               >
                 <code>{code}</code>
               </pre>

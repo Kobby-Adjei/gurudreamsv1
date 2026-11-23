@@ -212,7 +212,9 @@ def _token_ok(token: str) -> bool:
 
 def _daemon_env(config) -> tuple[str, int, int | None] | None:
     """Read and validate daemon env vars; on error write to stderr and return None."""
-    token = os.environ.get(config.ENV_CONTROL_TOKEN, "").strip()
+    # Pop (not get): the token must not be inherited by child processes we
+    # spawn later (tailscale CLI, osascript, powershell, notify-send).
+    token = os.environ.pop(config.ENV_CONTROL_TOKEN, "").strip()
     if not _token_ok(token):
         _err(
             f"--daemon requires {config.ENV_CONTROL_TOKEN} (at least {MIN_TOKEN_BYTES} random "

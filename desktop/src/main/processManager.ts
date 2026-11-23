@@ -15,6 +15,8 @@ import { spawn as nodeSpawn } from 'node:child_process';
 import type { ChildProcess, SpawnOptions } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import { EventEmitter } from 'node:events';
+import { homedir } from 'node:os';
+import { dirname, isAbsolute } from 'node:path';
 import type { BackendLifecycle } from '../shared/types';
 
 export const READY_PREFIX = 'AIRBRIDGE_READY ';
@@ -46,6 +48,12 @@ export interface ProcessManagerOptions {
   env?: NodeJS.ProcessEnv;
   /** AIRBRIDGE_DATA_DIR for the daemon (activity.jsonl, logs). */
   dataDir?: string;
+  /**
+   * Working directory for the daemon. Default: the binary's own directory (or main.py's in dev),
+   * never the app's inherited cwd: on Windows the tailscale lookup would otherwise consider a
+   * planted tailscale.exe in the cwd.
+   */
+  cwd?: string;
   /** Control port (default 0 = ephemeral). */
   controlPort?: number;
   maxRestarts?: number;
@@ -64,6 +72,14 @@ export interface ProcessManagerOptions {
 
 export function generateControlToken(): string {
   return randomBytes(32).toString('base64url');
+}
+
+/** Trusted cwd for the daemon (see ProcessManagerOptions.cwd). */
+export function daemonCwd(core: CoreCommand, fallback?: string): string {
+  if (isAbsolute(core.command)) return dirname(core.command);
+  const script = core.args[0];
+  if (script && isAbsolute(script)) return dirname(script);
+  return fallback ?? homedir();
 }
 
 export function defaultBackoffMs(attempt: number): number {
@@ -199,6 +215,7 @@ export class ProcessManager extends EventEmitter<ProcessManagerEvents> {
     try {
       child = this.spawnFn(command, [...args, '--daemon'], {
         env,
+        cwd: this.opts.cwd ?? daemonCwd({ command, args }, this.opts.dataDir),
         stdio: ['ignore', 'ignore', 'pipe'],
         windowsHide: true,
         detached: false,
@@ -400,4 +417,22 @@ function shortError(e: unknown): string {
   const code = (e as { code?: unknown })?.code;
   if (typeof code === 'string') return code;
   return e instanceof Error ? e.message.slice(0, 120) : 'unknown error';
+}
+
+/**
+ * LicenseGate callbacks: the ONLY path that starts the daemon. onValid -> start();
+ * onInvalid -> block() (stop the daemon, lifecycle "blocked").
+ */
+export function licenseGateCallbacks(pm: Pick<ProcessManager, 'start' | 'block'>): {
+  onValid: () => Promise<void>;
+  onInvalid: (reason: string) => Promise<void>;
+} {
+  return {
+    onValid: async () => {
+      await pm.start();
+    },
+    onInvalid: async (reason: string) => {
+      await pm.block(`License check: ${reason}`);
+    },
+  };
 }

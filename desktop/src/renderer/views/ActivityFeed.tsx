@@ -162,11 +162,11 @@ export function ActivityFeed({
                 return (
                   <li
                     key={e.id}
-                    className={`flex items-start gap-4 px-5 py-4 transition-colors hover:bg-line/[0.025] ${
+                    className={`flex gap-4 px-5 py-4 ${detail ? 'items-start' : 'items-center'} transition-colors hover:bg-line/[0.025] ${
                       freshIds.has(e.id) ? 'animate-enter bg-accent/[0.04]' : ''
                     }`}
                   >
-                    <span className={`mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-full ring-1 ring-inset ${toneStyle[tone]}`}>
+                    <span className={`${detail ? 'mt-0.5' : ''} grid h-9 w-9 shrink-0 place-items-center rounded-full ring-1 ring-inset ${toneStyle[tone]}`}>
                       {iconFor(e)}
                     </span>
                     <div className="min-w-0 flex-1">
@@ -176,7 +176,7 @@ export function ActivityFeed({
                     <time
                       dateTime={e.ts}
                       title={absoluteTime(e.ts)}
-                      className="shrink-0 pt-0.5 text-[12px] tabular-nums text-ink-faint"
+                      className={`shrink-0 text-[12px] ${detail ? 'pt-0.5' : ''} tabular-nums text-ink-faint`}
                     >
                       {relativeTime(e.ts, now)}
                     </time>

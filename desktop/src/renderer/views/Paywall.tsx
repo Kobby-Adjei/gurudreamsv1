@@ -104,7 +104,7 @@ export function Paywall({ user, onRecheck }: { user?: AuthUser; onRecheck: () =>
           </Button>
         </div>
 
-        <div className="mt-4 min-h-[20px] text-center text-[13px] leading-5" aria-live="polite">
+        <div className="text-center text-[13px] leading-5 empty:hidden [&:not(:empty)]:mt-4" aria-live="polite">
           {note ? (
             <span role={note.tone === 'error' ? 'alert' : undefined} className={note.tone === 'error' ? 'text-danger' : 'text-ink-muted'}>
               {note.text}

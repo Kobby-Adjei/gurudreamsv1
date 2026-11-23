@@ -170,6 +170,32 @@ def test_apply_never_overwrites_backups(install, tmp_path):
     assert first.read_text() == "older backup"
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="symlinks need privileges on Windows")
+def test_apply_backup_never_follows_dangling_symlink(install, tmp_path):
+    path = tmp_path / "mcp.json"
+    path.write_text("{}")
+    outside = tmp_path / "elsewhere" / "victim.txt"
+    outside.parent.mkdir()
+    planted = path.with_name("mcp.json.bak-20261123-094100")
+    planted.symlink_to(outside)  # dangling: exists() is False
+    assert not planted.exists() and planted.is_symlink()
+
+    _, backup = install.apply_client_config(path, ENTRY, NOW)
+
+    assert not outside.exists(), "backup was written through the symlink"
+    assert planted.is_symlink()
+    assert backup.name == "mcp.json.bak-20261123-094100-1"
+    assert not backup.is_symlink()
+    assert backup.read_text() == "{}"
+
+
+def test_backup_path_skips_symlinked_candidates(install, tmp_path):
+    path = tmp_path / "mcp.json"
+    path.write_text("{}")
+    install.backup_path_for(path, NOW).symlink_to(tmp_path / "missing")
+    assert install.backup_path_for(path, NOW).name == "mcp.json.bak-20261123-094100-1"
+
+
 def test_apply_leaves_invalid_json_untouched(install, tmp_path):
     path = tmp_path / "claude_desktop_config.json"
     broken = '{"mcpServers": {"other": {"command": "x"},}'  # trailing comma

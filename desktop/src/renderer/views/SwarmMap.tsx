@@ -67,7 +67,7 @@ export function SwarmMap({ data, loading, ipcError, platform, onRetry, onSendTas
         subtitle={subtitle}
         actions={
           <>
-            {peers.length > 0 ? (
+            {peers.length > 0 && wide && peers.length <= MAX_RADIAL ? (
               <div role="group" aria-label="Layout" className="flex rounded-xl border border-line/[0.08] bg-surface-1 p-0.5">
                 {(['map', 'list'] as const).map((l) => (
                   <button
@@ -84,9 +84,11 @@ export function SwarmMap({ data, loading, ipcError, platform, onRetry, onSendTas
                 ))}
               </div>
             ) : null}
-            <Button variant="primary" icon={<SendIcon size={16} />} onClick={() => onSendTask()} disabled={online === 0}>
-              Send a task
-            </Button>
+            {peers.length > 0 ? (
+              <Button variant="primary" icon={<SendIcon size={16} />} onClick={() => onSendTask()} disabled={online === 0}>
+                Send a task
+              </Button>
+            ) : null}
           </>
         }
       />
@@ -138,8 +140,8 @@ export function SwarmMap({ data, loading, ipcError, platform, onRetry, onSendTas
 function SelfCard({ self, platform, compact = false }: { self?: NodesResponse['self']; platform: string; compact?: boolean }) {
   return (
     <div
-      className={`relative flex flex-col items-center rounded-2xl border border-accent/30 bg-surface-1 text-center shadow-glow ${
-        compact ? 'w-full flex-row gap-3 p-4 text-left' : 'w-[200px] px-5 pb-5 pt-6'
+      className={`relative flex rounded-2xl border border-accent/30 bg-surface-1 shadow-glow ${
+        compact ? 'w-full flex-row items-center gap-3 p-4 text-left' : 'w-[200px] shrink-0 flex-col items-center px-5 pb-5 pt-6 text-center'
       }`}
     >
       <div className="relative">
@@ -169,7 +171,12 @@ function PeerCard({ node, onSendTask, className = '' }: { node: Node; onSendTask
           {node.online ? (
             <StatusDot status="online" />
           ) : (
-            <StatusDot status="offline" label={`Offline · ${relativeTime(node.last_seen)}`} />
+            <>
+              <StatusDot status="offline" />
+              <span className="mt-0.5 block truncate text-[11.5px] text-ink-faint">
+                Last seen {relativeTime(node.last_seen)}
+              </span>
+            </>
           )}
         </span>
       </span>

@@ -118,6 +118,7 @@ export interface AirbridgeApi {
     getStatus(): Promise<LicenseStatus>;
     refresh(): Promise<LicenseStatus>;
     openCheckout(): Promise<void>;
+    onChange(cb: (status: LicenseStatus) => void): Unsubscribe;
   };
   backend: {
     getStatus(): Promise<BackendStatus | null>;
