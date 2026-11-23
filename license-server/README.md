@@ -16,7 +16,8 @@ Stack: Node 22, TypeScript, [Hono](https://hono.dev), `stripe`, `jose`, `pg`. Se
 
 | Method & path | Auth | Response |
 |---|---|---|
-| `GET /healthz` | – | `{ok:true}` |
+| `GET /healthz` | – | `{ok:true, policy}` — `policy` is the Headscale policy guard's last verdict: `verified` (pre-auth keys can be issued), `mismatch`, `unverifiable`, `pending`, or `not_configured` (no Headscale). Never triggers a Headscale call. |
+| `GET /v1/license/public-key` | – | `{kid, alg:"EdDSA", pem}`: SPKI PEM of the signing key's public half, for the desktop build's `LICENSE_PUBLIC_KEYS` |
 | `POST /v1/stripe/webhook` | `Stripe-Signature` | `200 {received:true}` · `400` bad/missing signature · `500` processing failed (Stripe retries) |
 | `POST /v1/license/verify` | `Authorization: Bearer <Clerk JWT>` | `200 {token, status, exp}` · `401` · `402 {status, checkout_url}` · `429` |
 | `POST /v1/billing/checkout` | `Authorization: Bearer <Clerk JWT>` | `200 {url}` — Checkout for non-subscribers, Billing Portal for active subscribers |
@@ -27,6 +28,7 @@ Stack: Node 22, TypeScript, [Hono](https://hono.dev), `stripe`, `jose`, `pg`. Se
 | `POST /v1/waitlist/view` | same-origin browser (no auth) | JSON (or `text/plain` JSON, for `sendBeacon`) `{variant, price}` → `200 {ok:true}` · `400` · `403` · `429` |
 | `GET /v1/waitlist/stats` | `Authorization: Bearer <WAITLIST_ADMIN_TOKEN>` | `200 {totals, by_variant_price:[{variant, price, views, signups, conversion}], by_utm_source}` — no emails · `401` · `404` if the token is unset · `429` |
 | `GET /v1/waitlist/export` | `Authorization: Bearer <WAITLIST_ADMIN_TOKEN>` | `200 text/csv` `ts,email,variant,price,referrer,utm_source,utm_medium,utm_campaign,repeats` · `401` · `404` · `429` |
+| `POST /v1/admin/smoke/keys`, `POST /v1/admin/smoke/cleanup` | `Authorization: Bearer <WAITLIST_ADMIN_TOKEN>` | **Temporary deploy smoke test only** (`SMOKE_TEST=1`, needs Headscale; 404 otherwise, after `SMOKE_TEST_UNTIL`, and for good once cleanup has run). Keys: throwaway `smoke-<hex>` user + 2 single-use 10-min keys. Cleanup: deletes `smoke-*` users and their nodes. See `src/smoke.ts`, `deploy/digitalocean/README.md`. |
 
 ### Waitlist (landing-page demand test)
 
