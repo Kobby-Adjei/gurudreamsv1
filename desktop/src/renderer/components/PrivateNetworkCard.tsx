@@ -65,6 +65,33 @@ export function PrivateNetworkCard({ network }: { network: NetworkState }) {
   )
 }
 
+/**
+ * Preview on the computer's existing network (PHASE3_PLAN.md §8): there is no
+ * network of ours to manage, so this only says whether other devices can be
+ * seen and, if not, the one thing to check.
+ */
+export function ExistingNetworkCard({ problem, hint }: { problem: boolean; hint: string }) {
+  const headingId = useId()
+  return (
+    <Card as="section" aria-labelledby={headingId}>
+      <CardHeader
+        id={headingId}
+        title="Private network"
+        description="During the preview, AirBridge connects through the network already set up on this computer."
+      />
+      <dl className="divide-y divide-line/[0.06] border-y border-line/[0.06]">
+        <div className="flex min-h-[48px] items-center justify-between gap-4 py-2">
+          <dt className="text-[13px] text-ink-muted">Status</dt>
+          <dd className="flex items-center gap-3">
+            <StatusDot status={problem ? 'error' : 'online'} label={problem ? 'Can’t see other devices' : 'Connected'} />
+          </dd>
+        </div>
+      </dl>
+      {problem ? <p className="mt-4 text-[13px] font-medium text-ink">{hint}</p> : null}
+    </Card>
+  )
+}
+
 // Same palette as StatusDot; here only the state word is tinted so the line stays quiet.
 const DOT_BG: Record<DotStatus, string> = {
   online: 'bg-ok-dot',

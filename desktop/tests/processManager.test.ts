@@ -313,6 +313,7 @@ describe('license gate -> process manager', () => {
     const fetchFn = vi.fn(async () => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } }));
     const cb = licenseGateCallbacks(pm);
     return new LicenseGate({
+      enforce: true,
       licenseUrl: 'https://license.example.com',
       getAuthToken: async () => 'clerk-jwt',
       getUserId: () => 'user_1',
@@ -341,6 +342,7 @@ describe('license gate -> process manager', () => {
     const { pm, spawn } = makePm();
     const cb = licenseGateCallbacks(pm);
     const gate = new LicenseGate({
+      enforce: true,
       licenseUrl: 'https://license.example.com',
       getAuthToken: async () => null,
       getUserId: () => null,

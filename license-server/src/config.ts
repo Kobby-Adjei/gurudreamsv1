@@ -19,6 +19,11 @@ export interface Config {
   production: boolean;
   /** Phase 3 Headscale integration; null when HEADSCALE_* are all unset (network endpoints answer 503). */
   headscale: HeadscaleConfig | null;
+  /**
+   * ENFORCE_ENTITLEMENT (default true). false = preview mode (PHASE3_PLAN.md §8): /v1/network/preauth-key
+   * skips the 402 subscription check (still Clerk-authenticated and rate-limited). /v1/license/verify is unaffected.
+   */
+  enforceEntitlement: boolean;
 }
 
 export interface HeadscaleConfig {
@@ -177,6 +182,13 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
 
   const headscale = loadHeadscaleConfig(env, problems);
 
+  let enforceEntitlement = true;
+  const enforceRaw = env.ENFORCE_ENTITLEMENT?.trim().toLowerCase();
+  if (enforceRaw) {
+    if (enforceRaw === 'false' || enforceRaw === '0') enforceEntitlement = false;
+    else if (enforceRaw !== 'true' && enforceRaw !== '1') problems.push('ENFORCE_ENTITLEMENT must be true or false');
+  }
+
   if (problems.length > 0 || !licenseSigningKey || !clerkJwksUrl) {
     throw new ConfigError(problems.length ? problems : ['configuration incomplete']);
   }
@@ -199,6 +211,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     trustProxyHops,
     production,
     headscale,
+    enforceEntitlement,
   };
 }
 

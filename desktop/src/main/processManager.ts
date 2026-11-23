@@ -17,7 +17,8 @@ import { randomBytes } from 'node:crypto';
 import { EventEmitter } from 'node:events';
 import { homedir } from 'node:os';
 import { dirname, isAbsolute } from 'node:path';
-import type { BackendLifecycle } from '../shared/types';
+import type { BackendLifecycle, BackendStatus, NetStatus } from '../shared/types';
+import { systemNetStatus } from './network/TailscaleManager';
 
 export const READY_PREFIX = 'AIRBRIDGE_READY ';
 export const MAX_RESTARTS = 5;
@@ -454,4 +455,228 @@ export function licenseGateCallbacks(pm: Pick<ProcessManager, 'start' | 'block'>
       await pm.block(`License check: ${reason}`);
     },
   };
+}
+
+// ------------------------------------------------------------------ network selection (PHASE3_PLAN.md §8)
+
+/** Which network the daemon is told to use: the bundled tailscaled, or the user's own Tailscale. */
+export type DaemonNetwork = 'embedded' | 'system';
+
+/** The slice of TailscaleManager the supervisor needs. */
+export interface NetworkSupervisorTm {
+  start(): Promise<void>;
+  stop(): Promise<void>;
+  logout(): Promise<void>;
+  status(): Promise<NetStatus>;
+  lastStatus(): NetStatus;
+  daemonEnv(): Record<string, string> | null;
+  on(event: 'status', cb: (s: NetStatus) => void): unknown;
+}
+
+export interface NetworkSupervisorOptions {
+  tm: NetworkSupervisorTm;
+  /** licenseEnforced(): true = exact Phase-3 behaviour (gate-driven, embedded only). */
+  enforced: boolean;
+  /** Preview: signed in AND a license server is configured (embedded enrollment can be attempted). */
+  canEmbed: () => boolean;
+  /** ensureEnrolled wrapper; resolves true when this device is on the private network. Never throws. */
+  enroll: () => Promise<boolean>;
+  onNetwork: (s: NetStatus) => void;
+  log?: (msg: string) => void;
+}
+
+/**
+ * Decides which network the daemon runs with and starts/stops it accordingly.
+ *
+ * Enforced (licenseEnforced() === true): unchanged Phase-3 wiring. Nothing starts until the LicenseGate
+ * calls licenseValid() -> tailscaled -> enrollment -> daemon (embedded env); licenseInvalid() blocks.
+ *
+ * Preview (not enforced): start() always starts the daemon. Signed in + license server configured +
+ * enrollment succeeds -> embedded; anything else -> AIRBRIDGE_NETWORK=system and tailscaled is never
+ * spawned. Sign-in later re-attempts embedded (daemon restarted with the new env); sign-out falls back
+ * to system. Gate verdicts are logged only (shadow mode) and never stop the daemon.
+ */
+export class NetworkSupervisor {
+  private network: DaemonNetwork;
+  private pm: ProcessManager | null = null;
+  private daemonNetEnv = '';
+  private lastBackendStatus: BackendStatus | null = null;
+  private lastPushed = '';
+  private chain: Promise<void> = Promise.resolve();
+  private readonly log: (msg: string) => void;
+
+  constructor(private readonly opts: NetworkSupervisorOptions) {
+    this.network = opts.enforced ? 'embedded' : 'system';
+    this.log = opts.log ?? (() => undefined);
+    opts.tm.on('status', (s) => {
+      if (this.network === 'embedded') this.opts.onNetwork(s);
+    });
+  }
+
+  /** Wire the ProcessManager (constructed with `extraEnv: () => supervisor.daemonEnv()`). */
+  attach(pm: ProcessManager): void {
+    this.pm = pm;
+    pm.on('lifecycle', () => this.pushSystem());
+    pm.on('exit', () => {
+      this.lastBackendStatus = null;
+      this.pushSystem();
+    });
+  }
+
+  currentNetwork(): DaemonNetwork {
+    return this.network;
+  }
+
+  /** ProcessManager.extraEnv. */
+  daemonEnv(): Record<string, string> | null {
+    if (this.network === 'system') return { AIRBRIDGE_NETWORK: 'system' };
+    return this.opts.tm.daemonEnv();
+  }
+
+  /** ControlClient 'status' (GET /status poll). Drives NetStatus while on the system network. */
+  onBackendStatus(s: BackendStatus | null): void {
+    const reason = s && !s.tailnet_ip ? s.inbox?.degraded_reason ?? null : null;
+    if (this.network === 'system' && reason && reason !== this.lastBackendStatus?.inbox?.degraded_reason) {
+      this.log(`system network unavailable: ${reason.replace(/[\x00-\x1f\x7f]/g, ' ').slice(0, 300)}`);
+    }
+    this.lastBackendStatus = s;
+    this.pushSystem();
+  }
+
+  /** NetStatus for IPC (network.getStatus). */
+  async status(fetchBackendStatus?: () => Promise<BackendStatus | null>): Promise<NetStatus> {
+    if (this.network === 'embedded') return this.opts.tm.status();
+    if (fetchBackendStatus) {
+      try {
+        this.lastBackendStatus = await fetchBackendStatus();
+      } catch {
+        /* keep the last poll */
+      }
+    }
+    return systemNetStatus(this.lastBackendStatus, this.pmRef().getLifecycle());
+  }
+
+  /** App start (after the window loaded). Enforced: the gate drives everything. */
+  async start(): Promise<void> {
+    if (this.opts.enforced) return;
+    await this.serial(() => this.bringUpPreview());
+  }
+
+  /** LicenseGate.onValid. */
+  async licenseValid(): Promise<void> {
+    if (!this.opts.enforced) {
+      this.log('license valid (preview: not enforced)');
+      return;
+    }
+    await this.opts.tm.start();
+    await this.opts.enroll();
+    // The daemon runs even if enrollment failed (feed, MCP config); its inbox reports degraded.
+    await this.startDaemon();
+  }
+
+  /** LicenseGate.onInvalid. */
+  async licenseInvalid(reason: string): Promise<void> {
+    if (!this.opts.enforced) {
+      this.log(`license would block (${reason}) - preview: not enforced, backend keeps running`);
+      return;
+    }
+    await this.pmRef().block(`License check: ${reason}`);
+    await this.opts.tm.stop();
+  }
+
+  /** Auth became signed_in. Preview: try to move onto the embedded network. */
+  async signedIn(): Promise<void> {
+    if (this.opts.enforced) return; // gate.check() -> licenseValid()
+    await this.serial(() => this.bringUpPreview());
+  }
+
+  /** Sign-out: leave the private network. Preview: keep the backend on the system network. */
+  async signedOut(): Promise<void> {
+    await this.serial(async () => {
+      await this.pmRef().stop();
+      await this.opts.tm.logout().catch(() => undefined);
+      await this.opts.tm.stop();
+      if (this.opts.enforced) return;
+      this.setNetwork('system');
+      await this.startDaemon();
+    });
+  }
+
+  /** network.retry (IPC). */
+  async retry(isEntitled: () => boolean): Promise<NetStatus> {
+    if (this.opts.enforced) {
+      const st = this.opts.tm.lastStatus();
+      if (st.state === 'stopped' || st.state === 'error') await this.opts.tm.start();
+      await this.opts.enroll();
+      if (isEntitled()) await this.startDaemon();
+      return this.opts.tm.status();
+    }
+    await this.serial(() => this.bringUpPreview());
+    return this.status();
+  }
+
+  /** App quit. */
+  async stop(): Promise<void> {
+    await this.pmRef().stop(); // daemon first, then tailscaled
+    await this.opts.tm.stop();
+  }
+
+  // ------------------------------------------------------------------ internals
+
+  private pmRef(): ProcessManager {
+    if (!this.pm) throw new Error('NetworkSupervisor: attach(pm) first');
+    return this.pm;
+  }
+
+  private serial(fn: () => Promise<void>): Promise<void> {
+    const run = this.chain.then(fn, fn);
+    this.chain = run.catch((e: unknown) => this.log(`network: ${e instanceof Error ? e.message : String(e)}`));
+    return this.chain;
+  }
+
+  private async bringUpPreview(): Promise<void> {
+    let target: DaemonNetwork = 'system';
+    if (this.opts.canEmbed()) {
+      await this.opts.tm.start();
+      if (await this.opts.enroll()) target = 'embedded';
+      else {
+        this.log('private network unavailable; using this computer\'s Tailscale');
+        await this.opts.tm.stop();
+      }
+    } else if (this.network === 'embedded') {
+      await this.opts.tm.stop();
+    }
+    this.setNetwork(target);
+    await this.startDaemon();
+  }
+
+  private setNetwork(n: DaemonNetwork): void {
+    const changed = n !== this.network;
+    this.network = n;
+    if (!changed) return;
+    this.log(`daemon network: ${n}`);
+    this.lastPushed = '';
+    if (n === 'embedded') this.opts.onNetwork(this.opts.tm.lastStatus());
+    else this.pushSystem();
+  }
+
+  /** Start the daemon, respawning it when its network env changed. */
+  private async startDaemon(): Promise<void> {
+    const pm = this.pmRef();
+    const want = JSON.stringify(this.daemonEnv());
+    const phase = pm.getLifecycle().phase;
+    const active = phase === 'running' || phase === 'starting' || phase === 'crashed';
+    if (active && want !== this.daemonNetEnv) await pm.stop(); // network moved: respawn with the new env
+    this.daemonNetEnv = want;
+    await pm.start();
+  }
+
+  private pushSystem(): void {
+    if (this.network !== 'system' || !this.pm) return;
+    const s = systemNetStatus(this.lastBackendStatus, this.pm.getLifecycle());
+    const json = JSON.stringify(s);
+    if (json === this.lastPushed) return;
+    this.lastPushed = json;
+    this.opts.onNetwork(s);
+  }
 }

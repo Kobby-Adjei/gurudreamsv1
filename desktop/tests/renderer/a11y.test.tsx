@@ -28,7 +28,7 @@ describe('Accessibility (axe-core)', () => {
   })
 
   it('Paywall', async () => {
-    installMockApi({ license: { state: 'inactive', plan: null, exp: null } })
+    installMockApi({ license: { state: 'inactive', plan: null, exp: null, enforced: true } })
     const { container } = render(<App />)
     await screen.findByRole('button', { name: 'Subscribe' })
     await expectNoViolations(container)

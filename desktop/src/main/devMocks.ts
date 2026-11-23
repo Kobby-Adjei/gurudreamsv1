@@ -66,6 +66,8 @@ export function createDevMocks(opts: DevMocksOptions) {
     state: 'valid',
     plan: 'airbridge_pro',
     exp: Math.floor(startedAt / 1000) + 72 * 3600,
+    // Mirrors the default build (PHASE3_PLAN.md §8): licensing wired but not enforced.
+    enforced: false,
   };
 
   const network: NetStatus = { state: 'connected', ip: SELF.ip };

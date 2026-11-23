@@ -92,9 +92,15 @@ export interface AuthState {
 }
 
 export interface LicenseStatus {
+  /** The license verdict. When `enforced` is false this is informational only (shadow mode). */
   state: 'valid' | 'grace' | 'inactive' | 'unknown';
   plan: string | null;
   exp: number | null; // unix seconds
+  /**
+   * false = preview build (PHASE3_PLAN.md §8): the verdict never blocks the backend, no sign-in wall/paywall.
+   * Compile-time (MAIN_VITE_AIRBRIDGE_ENFORCE_LICENSE=1 turns enforcement on).
+   */
+  enforced: boolean;
 }
 
 export interface BackendLifecycle {

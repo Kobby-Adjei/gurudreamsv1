@@ -131,7 +131,14 @@ function captureLogger() {
 }
 
 async function harness(
-  opts: { network?: boolean; perUser?: number; global?: number; now?: () => number; setup?: (hs: FakeHeadscale) => void } = {},
+  opts: {
+    network?: boolean;
+    perUser?: number;
+    global?: number;
+    now?: () => number;
+    setup?: (hs: FakeHeadscale) => void;
+    enforceEntitlement?: boolean;
+  } = {},
 ) {
   const hs = new FakeHeadscale();
   opts.setup?.(hs); // before createApp: the policy guard checks at boot
@@ -165,6 +172,7 @@ async function harness(
       networkPerIpPerMinute: 1000,
     },
     network,
+    ...(opts.enforceEntitlement === undefined ? {} : { enforceEntitlement: opts.enforceEntitlement }),
   });
   const entitle = (sub = USER, status: 'active' | 'trialing' | 'past_due' | 'canceled' = 'active') =>
     store.upsert({ clerkUserId: sub, stripeCustomerId: 'cus_1', stripeSubscriptionId: 'sub_1', status, currentPeriodEnd: null, lastEventCreated: 1 });
@@ -213,6 +221,68 @@ describe('POST /v1/network/preauth-key', () => {
       expect(res.status).toBe(402);
     }
     expect(h.hs.calls).toHaveLength(0);
+  });
+
+  it('enforceEntitlement: true (explicit) behaves exactly like the default: 402', async () => {
+    const h = await harness({ enforceEntitlement: true });
+    const res = await h.preauth(await h.clerk.mint());
+    expect(res.status).toBe(402);
+    expect(h.lines.some((l) => l.includes('ENTITLEMENT_NOT_ENFORCED'))).toBe(false);
+    expect(h.hs.calls).toHaveLength(0);
+  });
+
+  describe('ENFORCE_ENTITLEMENT=false (preview mode)', () => {
+    it('issues a key to an unsubscribed signed-in user and logs the would-be 402 (no key in logs)', async () => {
+      const h = await harness({ enforceEntitlement: false });
+      const res = await h.preauth(await h.clerk.mint());
+      expect(res.status).toBe(200);
+      expect(res.headers.get('cache-control')).toBe('no-store');
+      const body = (await res.json()) as { auth_key: string };
+      expect(body.auth_key).toBe(h.hs.issued[0]);
+      const line = h.lines.find((l) => l.includes('ENTITLEMENT_NOT_ENFORCED'));
+      expect(line).toBeDefined();
+      expect(JSON.parse(line!)).toMatchObject({ level: 'warn', status: 'none', wouldBe: 402, hsUser: expectedName(USER) });
+      expect(h.lines.join('\n')).not.toContain(body.auth_key);
+      expect(h.lines.join('\n')).not.toContain(USER);
+    });
+
+    it('logs the lapsed status (past_due / canceled) and still issues', async () => {
+      const h = await harness({ enforceEntitlement: false });
+      await h.entitle(USER, 'canceled');
+      expect((await h.preauth(await h.clerk.mint())).status).toBe(200);
+      expect(h.lines.some((l) => l.includes('ENTITLEMENT_NOT_ENFORCED') && l.includes('"status":"canceled"'))).toBe(true);
+    });
+
+    it('does not log ENTITLEMENT_NOT_ENFORCED for an entitled user', async () => {
+      const h = await harness({ enforceEntitlement: false });
+      await h.entitle();
+      expect((await h.preauth(await h.clerk.mint())).status).toBe(200);
+      expect(h.lines.some((l) => l.includes('ENTITLEMENT_NOT_ENFORCED'))).toBe(false);
+    });
+
+    it('still requires Clerk auth, still rate limits, still honors the policy guard and 503 without Headscale', async () => {
+      const h = await harness({ enforceEntitlement: false, perUser: 2 });
+      expect((await h.preauth()).status).toBe(401);
+      expect((await h.preauth('a.b.c')).status).toBe(401);
+      expect(h.hs.calls).toHaveLength(0);
+      const token = await h.clerk.mint();
+      expect((await h.preauth(token)).status).toBe(200);
+      expect((await h.preauth(token)).status).toBe(200);
+      expect((await h.preauth(token)).status).toBe(429);
+
+      const bad = await harness({ enforceEntitlement: false, setup: (hs) => (hs.policy = '{}') });
+      expect((await bad.preauth(await bad.clerk.mint())).status).toBe(503);
+      expect(bad.hs.issued).toHaveLength(0);
+
+      const none = await harness({ enforceEntitlement: false, network: false });
+      expect((await none.preauth(await none.clerk.mint())).status).toBe(503);
+    });
+
+    it('leaves /v1/license/verify unchanged (still 402 without a subscription)', async () => {
+      const h = await harness({ enforceEntitlement: false });
+      const res = await h.app.request('/v1/license/verify', { method: 'POST', headers: { authorization: `Bearer ${await h.clerk.mint()}` } });
+      expect(res.status).toBe(402);
+    });
   });
 
   it('issues a single-use, non-ephemeral 600 s key for the hashed user (no-store, no key in logs)', async () => {

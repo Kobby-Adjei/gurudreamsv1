@@ -44,6 +44,8 @@ export interface AppDeps {
   };
   /** Headscale integration (Phase 3). null/undefined -> /v1/network/* answer 503. */
   network?: NetworkConfig | null;
+  /** ENFORCE_ENTITLEMENT (default true). false: /v1/network/preauth-key skips the 402 check (preview mode). */
+  enforceEntitlement?: boolean;
 }
 
 const MAX_WEBHOOK_BYTES = 1_000_000;
@@ -251,6 +253,7 @@ export function createApp(deps: AppDeps): Hono {
     clientIp,
     now,
     log,
+    enforceEntitlement: deps.enforceEntitlement !== false,
     limits: {
       perUserPerMinute: deps.rateLimit?.networkPerUserPerMinute,
       globalPerDay: deps.rateLimit?.networkGlobalPerDay,

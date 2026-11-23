@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { AirEvent, AuthUser, BackendLifecycle, LicenseStatus } from '../../shared/types'
+import type { AirEvent, AuthState, AuthUser, BackendLifecycle } from '../../shared/types'
 import { InfoIcon } from '../components/Icons'
 import { SendTaskSheet } from '../components/SendTaskSheet'
 import { Sidebar, type ViewId } from '../components/Sidebar'
@@ -9,24 +9,42 @@ import { api } from '../lib/api'
 import { eventSentence } from '../lib/format'
 import { useBackendStatus, useEvents, useNodes } from '../lib/hooks'
 import { useNetworkStatus } from '../lib/network'
+import { SYSTEM_NETWORK_HINT, type LicenseView, type NetMode } from '../lib/preview'
 import { ActivityFeed } from './ActivityFeed'
+import { PlansPage } from './Paywall'
 import { Settings } from './Settings'
 import { SwarmMap } from './SwarmMap'
 
 const ACTIVE_LINK_MS = 4000
 
+/** Present only in preview (license not enforced, PHASE3_PLAN.md §8). */
+export interface PreviewInfo {
+  auth: AuthState
+  netMode: NetMode
+  onRecheck: () => Promise<boolean>
+}
+
 export function MainShell({
   user,
   license,
   lifecycle,
-  initialView = 'swarm'
+  initialView = 'swarm',
+  preview
 }: {
   user?: AuthUser
-  license: LicenseStatus | null
+  license: LicenseView | null
   lifecycle: BackendLifecycle | null
   initialView?: ViewId
+  preview?: PreviewInfo
 }) {
-  const [view, setView] = useState<ViewId>(initialView)
+  const [view, setViewRaw] = useState<ViewId>(initialView)
+  // Preview only: Settings → Account → Plans, shown in place of Settings.
+  const [plans, setPlans] = useState(false)
+  const setView = useCallback((v: ViewId) => {
+    setPlans(false)
+    setViewRaw(v)
+  }, [])
+  const systemNet = preview?.netMode === 'system'
   const [sheet, setSheet] = useState<{ open: boolean; target?: string | null }>({ open: false })
   const [unseen, setUnseen] = useState(0)
   const [activePeers, setActivePeers] = useState<ReadonlySet<string>>(new Set())
@@ -82,7 +100,7 @@ export function MainShell({
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [])
+  }, [setView])
 
   // Move focus to the new page heading for screen-reader + keyboard users.
   const mainRef = useRef<HTMLElement>(null)
@@ -93,7 +111,7 @@ export function MainShell({
       return
     }
     mainRef.current?.querySelector<HTMLElement>('h1')?.focus()
-  }, [view])
+  }, [view, plans])
 
   const online = nodes.data ? nodes.data.nodes.filter((n) => n.online).length : null
   // The footer always shows the private network; the background service only
@@ -101,7 +119,7 @@ export function MainShell({
   const service: { status: DotStatus; label: string } | null =
     status && !status.inbox.listening
       ? { status: 'warning', label: 'Can’t receive tasks' }
-      : network.available
+      : network.available && !systemNet
         ? null
         : { status: 'online', label: 'AirBridge is running' }
 
@@ -121,16 +139,18 @@ export function MainShell({
         onlineCount={online}
         unseenActivity={unseen}
         service={service}
-        network={network.available ? network : undefined}
+        // On the computer's existing network there's no network of ours to report.
+        network={network.available && !systemNet ? network : undefined}
+        preview={preview ? { auth: preview.auth } : undefined}
       />
       <main
         id="content"
         ref={mainRef}
         className="min-w-0 flex-1 overflow-y-auto [&_h1]:outline-none"
-        aria-label={view === 'swarm' ? 'Devices' : view === 'activity' ? 'Activity' : 'Settings'}
+        aria-label={plans ? 'Plans' : view === 'swarm' ? 'Devices' : view === 'activity' ? 'Activity' : 'Settings'}
       >
         <div className="mx-auto w-full max-w-[1160px] px-8 pb-10">
-          {license?.state === 'grace' ? (
+          {license?.state === 'grace' && !preview ? (
             <div role="status" className="mt-6 flex items-center gap-3 rounded-xl border border-warn/25 bg-warn/10 px-4 py-2.5 text-[13px] text-ink">
               <InfoIcon size={16} className="shrink-0 text-warn" />
               You’re offline. AirBridge keeps working
@@ -138,7 +158,9 @@ export function MainShell({
               subscription when you’re back online.
             </div>
           ) : null}
-          {view === 'swarm' ? (
+          {plans && preview ? (
+            <PlansPage onBack={() => setPlans(false)} onRecheck={preview.onRecheck} />
+          ) : view === 'swarm' ? (
             <SwarmMap
               data={nodes.data}
               loading={nodes.loading}
@@ -147,11 +169,28 @@ export function MainShell({
               onRetry={() => void nodes.refresh()}
               onSendTask={(target) => setSheet({ open: true, target })}
               activePeers={activePeers}
+              networkHint={systemNet ? SYSTEM_NETWORK_HINT : undefined}
             />
           ) : view === 'activity' ? (
             <ActivityFeed events={feed.events} loading={feed.loading} freshIds={feed.freshIds} />
           ) : (
-            <Settings user={user} license={license} lifecycle={lifecycle} status={status} network={network} />
+            <Settings
+              user={user}
+              license={license}
+              lifecycle={lifecycle}
+              status={status}
+              network={network}
+              preview={
+                preview
+                  ? {
+                      auth: preview.auth,
+                      netMode: preview.netMode,
+                      devicesProblem: !!nodes.data?.error,
+                      onOpenPlans: () => setPlans(true)
+                    }
+                  : undefined
+              }
+            />
           )}
         </div>
       </main>

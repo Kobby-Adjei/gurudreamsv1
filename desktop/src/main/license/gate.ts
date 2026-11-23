@@ -10,6 +10,11 @@
  *                                     otherwise "unknown" (never reached server) / "inactive" (expired) -> onInvalid()
  *  Re-checks every 6 h (15 min while in grace) and re-evaluates exactly at the token's exp.
  *  onValid / onInvalid fire on entitlement transitions only (start/stop are not spammed).
+ *
+ *  enforce:false — shadow mode (PHASE3_PLAN.md §8 "Preview"): everything above still runs (verify, cache,
+ *  refresh, timers) and the status carries the real verdict with `enforced:false`, but the verdict never
+ *  gates the backend: onValid fires once on the first verdict after start() (and again after reset()),
+ *  onInvalid never fires, and every verdict change is logged ("would ..."). Signed out -> state "unknown".
  */
 import { promises as fs } from 'node:fs';
 import { dirname } from 'node:path';
@@ -65,6 +70,12 @@ export function createMemoryLicenseCache(initial: string | null = null): License
 export type InvalidReason = 'signed_out' | 'inactive' | 'expired' | 'unreachable' | 'rejected';
 
 export interface LicenseGateOptions {
+  /**
+   * true = the verdict gates the backend (onValid/onInvalid on transitions). false = shadow mode: verdict is
+   * computed and reported (status.enforced=false) but onValid fires regardless and onInvalid never does.
+   * Production passes licenseEnforced() from ./enforcement.
+   */
+  enforce: boolean;
   /** Base URL of the license server (AIRBRIDGE_LICENSE_URL), e.g. https://license.example.com */
   licenseUrl: string;
   /** Clerk bearer token for the license server, or null when signed out. May throw on network errors. */
@@ -107,8 +118,11 @@ export function isCheckoutUrl(url: unknown): url is string {
 }
 
 export class LicenseGate {
-  private status: LicenseStatus = { state: 'unknown', plan: null, exp: null };
+  private status: LicenseStatus;
   private entitled: boolean | null = null;
+  /** Shadow mode: onValid already fired for this start()/reset() cycle. */
+  private shadowReleased = false;
+  private readonly enforce: boolean;
   private listeners = new Set<(s: LicenseStatus) => void>();
   private refreshTimer: ReturnType<typeof setTimeout> | null = null;
   private expiryTimer: ReturnType<typeof setTimeout> | null = null;
@@ -134,6 +148,13 @@ export class LicenseGate {
     this.now = opts.now ?? Date.now;
     this.verify = opts.verify ?? verifyLicenseToken;
     this.publicKeys = opts.publicKeys ?? getLicensePublicKeys({ isPackaged: opts.isPackaged });
+    this.enforce = opts.enforce === true;
+    this.status = { state: 'unknown', plan: null, exp: null, enforced: this.enforce };
+  }
+
+  /** Whether this gate blocks the backend on an invalid license (false = shadow/preview mode). */
+  get enforced(): boolean {
+    return this.enforce;
   }
 
   getStatus(): LicenseStatus {
@@ -148,6 +169,7 @@ export class LicenseGate {
   /** Begin gating: immediate check + periodic re-checks. */
   async start(): Promise<LicenseStatus> {
     this.started = true;
+    this.shadowReleased = false;
     return this.check();
   }
 
@@ -157,12 +179,21 @@ export class LicenseGate {
     this.clearTimers();
   }
 
-  /** Sign-out: forget the cached license and stop the backend. */
+  /**
+   * Sign-out: forget the cached license. Enforced: stop the backend (onInvalid('signed_out')).
+   * Shadow mode: state -> "unknown" and onValid fires again (backend keeps/gets running, e.g. on system network).
+   */
   async reset(): Promise<void> {
     this.lastCheckoutUrl = null;
     await this.cache.save(null).catch(() => undefined);
     this.clearTimers();
-    await this.apply({ state: 'inactive', plan: null, exp: null }, false, 'signed_out');
+    this.shadowReleased = false;
+    await this.signedOut();
+  }
+
+  /** No Clerk session. Enforced: "inactive" (blocks). Shadow: "unknown" (preview never walls sign-in). */
+  private signedOut(): Promise<LicenseStatus> {
+    return this.apply({ state: this.enforce ? 'inactive' : 'unknown', plan: null, exp: null }, false, 'signed_out');
   }
 
   /** Run a check now (deduplicated if one is in flight). */
@@ -193,9 +224,7 @@ export class LicenseGate {
     } catch {
       return this.fallbackToCache('unreachable');
     }
-    if (!bearer || !this.opts.getUserId()) {
-      return this.apply({ state: 'inactive', plan: null, exp: null }, false, 'signed_out');
-    }
+    if (!bearer || !this.opts.getUserId()) return this.signedOut();
 
     let res: Response;
     try {
@@ -258,7 +287,12 @@ export class LicenseGate {
     return this.apply({ state: 'unknown', plan: null, exp: null }, false, why);
   }
 
-  private async apply(next: LicenseStatus, entitled: boolean, reason: InvalidReason = 'inactive'): Promise<LicenseStatus> {
+  private async apply(
+    verdict: Omit<LicenseStatus, 'enforced'>,
+    entitled: boolean,
+    reason: InvalidReason = 'inactive',
+  ): Promise<LicenseStatus> {
+    const next: LicenseStatus = { ...verdict, enforced: this.enforce };
     const changed =
       next.state !== this.status.state || next.plan !== this.status.plan || next.exp !== this.status.exp;
     this.status = next;
@@ -275,8 +309,21 @@ export class LicenseGate {
     this.entitled = entitled;
     this.schedule();
     try {
-      if (entitled && was !== true) await this.opts.onValid();
-      else if (!entitled && was !== false) await this.opts.onInvalid(reason);
+      if (this.enforce) {
+        if (entitled && was !== true) await this.opts.onValid();
+        else if (!entitled && was !== false) await this.opts.onInvalid(reason);
+      } else {
+        if (entitled !== was) {
+          this.opts.log?.(
+            `license: not enforced (preview) — verdict ${next.state}` +
+              (entitled ? '; would allow the backend' : `; would block the backend (${reason})`),
+          );
+        }
+        if (!this.shadowReleased) {
+          this.shadowReleased = true;
+          await this.opts.onValid();
+        }
+      }
     } catch (e) {
       this.opts.log?.(`license: transition handler failed: ${(e as Error).message}`);
     }
@@ -298,7 +345,8 @@ export class LicenseGate {
         ? GRACE_RETRY_MS
         : (this.opts.refreshIntervalMs ?? REFRESH_INTERVAL_MS);
     // While signed out there's nothing to poll; sign-in triggers check() explicitly.
-    if (!(this.status.state === 'inactive' && !this.opts.getUserId())) {
+    const signedOut = !this.opts.getUserId() && (this.status.state === 'inactive' || !this.enforce);
+    if (!signedOut) {
       this.refreshTimer = setTimeout(() => void this.check(), interval);
       this.refreshTimer.unref?.();
     }

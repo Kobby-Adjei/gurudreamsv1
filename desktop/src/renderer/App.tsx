@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { AuthState, BackendLifecycle, LicenseStatus, Unsubscribe } from '../shared/types'
+import type { AuthState, BackendLifecycle, Unsubscribe } from '../shared/types'
 import { WifiOffIcon } from './components/Icons'
 import { ToastProvider } from './components/Toast'
 import { api, errorText } from './lib/api'
 import { useNetworkStatus, type NetStatus } from './lib/network'
+import { isEnforced, networkMode, SYSTEM_NETWORK_HINT, type LicenseView } from './lib/preview'
 import { ErrorScreen } from './views/ErrorScreen'
 import { MainShell } from './views/MainShell'
 import { Paywall } from './views/Paywall'
@@ -19,6 +20,12 @@ import { Starting, type StartStep } from './views/Starting'
  *                                          └───▶ network | crashed
  *
  * While starting, two quiet steps follow the network and then the backend.
+ *
+ * Preview (license.enforced === false, PHASE3_PLAN.md §8) never shows the
+ * sign-in wall or the Paywall:
+ *
+ *   loading ─▶ starting ─▶ ready
+ *                    └───▶ network | crashed
  */
 export type Screen =
   | { kind: 'loading' }
@@ -32,11 +39,20 @@ export type Screen =
 
 export const START_STEPS = ['Connecting your private network', 'Starting AirBridge'] as const
 
-/** Two steps: the network comes up first, then the background service. */
-export function startSteps(network: NetStatus | null | undefined, lifecycle: BackendLifecycle | null): StartStep[] {
+/**
+ * Two steps: the network comes up first, then the background service.
+ * With `ownNetwork: false` (preview on the computer's existing network) there
+ * is no network of ours to wait for, so only the service step is shown.
+ */
+export function startSteps(
+  network: NetStatus | null | undefined,
+  lifecycle: BackendLifecycle | null,
+  ownNetwork = true
+): StartStep[] {
   // Without a network bridge (older preload) there is nothing to wait for.
   const netDone = network === undefined || network?.state === 'connected'
   const backendDone = lifecycle?.phase === 'running'
+  if (!ownNetwork) return [{ label: START_STEPS[1], state: backendDone ? 'done' : 'active' }]
   return [
     { label: START_STEPS[0], state: netDone || backendDone ? 'done' : 'active' },
     { label: START_STEPS[1], state: backendDone ? 'done' : netDone ? 'active' : 'pending' }
@@ -49,11 +65,14 @@ export function startSteps(network: NetStatus | null | undefined, lifecycle: Bac
  */
 export function deriveScreen(
   auth: AuthState | null,
-  license: LicenseStatus | null,
+  license: LicenseView | null,
   lifecycle: BackendLifecycle | null,
   network?: NetStatus | null
 ): Screen {
   if (!auth) return { kind: 'loading' }
+  if (!isEnforced(license)) return derivePreview(auth, license, lifecycle, network)
+  // Until the licence answers we don't know whether sign-in is required.
+  if (!license && auth.state !== 'signed_in') return { kind: 'loading' }
   if (auth.state !== 'signed_in') return { kind: 'signin', signingIn: auth.state === 'signing_in' }
   if (!license || license.state === 'unknown') return { kind: 'checking' }
   if (license.state === 'inactive') return { kind: 'paywall' }
@@ -71,7 +90,27 @@ export function deriveScreen(
   }
 }
 
-const isActive = (l: LicenseStatus | null) => l?.state === 'valid' || l?.state === 'grace'
+/** Preview: nothing is gated. Straight to Starting, then the app. */
+function derivePreview(
+  auth: AuthState,
+  license: LicenseView | null,
+  lifecycle: BackendLifecycle | null,
+  network?: NetStatus | null
+): Screen {
+  const own = networkMode(license, auth, network) === 'embedded'
+  if (network?.state === 'error') return { kind: 'network', detail: network.detail }
+  switch (lifecycle?.phase) {
+    case 'running':
+      return { kind: 'ready' }
+    case 'crashed':
+      return { kind: 'crashed', detail: lifecycle.detail }
+    default:
+      // 'blocked' shouldn't happen in preview; never show a wall for it.
+      return { kind: 'starting', steps: startSteps(network, lifecycle, own) }
+  }
+}
+
+const isActive = (l: LicenseView | null) => l?.state === 'valid' || l?.state === 'grace'
 
 export default function App() {
   return (
@@ -83,7 +122,7 @@ export default function App() {
 
 function AppStates() {
   const [auth, setAuth] = useState<AuthState | null>(null)
-  const [license, setLicense] = useState<LicenseStatus | null>(null)
+  const [license, setLicense] = useState<LicenseView | null>(null)
   const [lifecycle, setLifecycle] = useState<BackendLifecycle | null>(null)
   const [busy, setBusy] = useState(false)
   const [signInError, setSignInError] = useState<string | null>(null)
@@ -92,7 +131,7 @@ function AppStates() {
 
   const loadLicense = useCallback(async (refresh = false) => {
     try {
-      const l = refresh ? await api().license.refresh() : await api().license.getStatus()
+      const l: LicenseView = refresh ? await api().license.refresh() : await api().license.getStatus()
       if (alive.current) setLicense(l)
       return l
     } catch {
@@ -127,7 +166,7 @@ function AppStates() {
     })
     // license.onChange pushes ab:license:changed, so the Paywall → Starting
     // transition is instant after subscribing ("check again" stays as fallback).
-    const offLicense: Unsubscribe | undefined = a.license.onChange?.((l) => {
+    const offLicense: Unsubscribe | undefined = a.license.onChange?.((l: LicenseView) => {
       if (alive.current) setLicense(l)
     })
     return () => {
@@ -138,7 +177,12 @@ function AppStates() {
     }
   }, [loadLicense])
 
-  const screen = deriveScreen(auth, license, lifecycle, network.available ? network.status : undefined)
+  const netStatus = network.available ? network.status : undefined
+  const screen = deriveScreen(auth, license, lifecycle, netStatus)
+  const enforced = isEnforced(license)
+  // Preview on the computer's existing network: the one case where trouble
+  // gets the vendor hint instead of the invisible-network copy.
+  const systemNet = networkMode(license, auth, netStatus) === 'system'
 
   // Coming back from the browser checkout? Re-check automatically.
   useEffect(() => {
@@ -197,8 +241,12 @@ function AppStates() {
         <ErrorScreen
           icon={<WifiOffIcon size={28} />}
           title="Couldn’t connect your devices"
-          body="AirBridge links your computers through its own private network, and it couldn’t start just now."
-          step="Check that this computer is online, then press Retry."
+          body={
+            systemNet
+              ? 'AirBridge couldn’t reach your other computers just now.'
+              : 'AirBridge links your computers through its own private network, and it couldn’t start just now.'
+          }
+          step={systemNet ? SYSTEM_NETWORK_HINT : 'Check that this computer is online, then press Retry.'}
           onAction={retryBackend}
           busy={busy || network.retrying}
           detail={screen.detail}
@@ -209,12 +257,28 @@ function AppStates() {
         <ErrorScreen
           title="AirBridge stopped unexpectedly"
           body="It usually recovers on its own. If it doesn’t, try again — or quit and reopen the app."
+          step={systemNet ? SYSTEM_NETWORK_HINT : undefined}
           onAction={retryBackend}
           busy={busy}
           detail={screen.detail}
         />
       )
     case 'ready':
-      return <MainShell user={auth?.user} license={license} lifecycle={lifecycle} />
+      return (
+        <MainShell
+          user={auth?.user}
+          license={license}
+          lifecycle={lifecycle}
+          preview={
+            enforced
+              ? undefined
+              : {
+                  auth: auth ?? { state: 'signed_out' },
+                  netMode: systemNet ? 'system' : 'embedded',
+                  onRecheck: async () => isActive(await loadLicense(true))
+                }
+          }
+        />
+      )
   }
 }

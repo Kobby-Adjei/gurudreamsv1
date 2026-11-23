@@ -24,6 +24,8 @@ export interface SwarmMapProps {
   onSendTask: (target?: string) => void
   /** Peers with traffic in the last few seconds – their link glows. */
   activePeers?: ReadonlySet<string>
+  /** Preview on the computer's existing network: the one next step to show when devices can't be seen. */
+  networkHint?: string
 }
 
 /** Evenly spread peers around an ellipse; a pleasing start angle per count. */
@@ -44,7 +46,7 @@ function sortPeers(nodes: Node[]): Node[] {
   )
 }
 
-export function SwarmMap({ data, loading, ipcError, platform, onRetry, onSendTask, activePeers }: SwarmMapProps) {
+export function SwarmMap({ data, loading, ipcError, platform, onRetry, onSendTask, activePeers, networkHint }: SwarmMapProps) {
   const wide = useMediaQuery('(min-width: 900px)', true)
   const [layout, setLayout] = useState<Layout>('map')
   useNow(30_000)
@@ -122,8 +124,8 @@ export function SwarmMap({ data, loading, ipcError, platform, onRetry, onSendTas
               </Button>
             }
           >
-            <p>Your private network is still connecting.</p>
-            <p className="mt-1 font-medium text-ink">Check that this computer is online, then press Retry.</p>
+            <p>{networkHint ? 'AirBridge can’t reach your other computers.' : 'Your private network is still connecting.'}</p>
+            <p className="mt-1 font-medium text-ink">{networkHint ?? 'Check that this computer is online, then press Retry.'}</p>
           </EmptyState>
         </Card>
       ) : peers.length === 0 ? (
@@ -218,6 +220,8 @@ function RadialMap({
   peers: Node[]
   onSendTask: (t?: string) => void
   activePeers?: ReadonlySet<string>
+  /** Preview on the computer's existing network: the one next step to show when devices can't be seen. */
+  networkHint?: string
 }) {
   const pos = radialPositions(peers.length)
   return (

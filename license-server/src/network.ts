@@ -1,7 +1,7 @@
 /**
  * Phase 3 "Invisible Network" endpoints (PHASE3_PLAN.md §2 "License server").
  *
- *  POST /v1/network/preauth-key          Clerk JWT + entitlement -> single-use, non-ephemeral Headscale key
+ *  POST /v1/network/preauth-key          Clerk JWT + entitlement (skipped if ENFORCE_ENTITLEMENT=false) -> single-use, non-ephemeral Headscale key
  *  POST /v1/network/devices/:id/remove   delete one of the caller's own nodes (other users' nodes -> 404)
  *
  * One Headscale user per customer, named `u-<sha256(clerk sub)[:20]>` (no PII leaves this server).
@@ -37,6 +37,11 @@ export interface NetworkRouteDeps {
   clientIp: (c: Context) => string;
   now: () => number;
   log: NetworkLogger;
+  /**
+   * ENFORCE_ENTITLEMENT (default true). false: any authenticated user gets a pre-auth key; the would-be
+   * verdict is logged as ENTITLEMENT_NOT_ENFORCED. Auth, rate limits and the policy guard still apply.
+   */
+  enforceEntitlement?: boolean;
   limits?: { perUserPerMinute?: number; globalPerDay?: number; perIpPerMinute?: number; removePerUserPerMinute?: number };
 }
 
@@ -207,7 +212,12 @@ export function registerNetworkRoutes(app: Hono, deps: NetworkRouteDeps): void {
     if (!perUser.allow(user.sub)) return c.json({ error: 'rate_limited' }, 429);
 
     const rec = await deps.store.get(user.sub);
-    if (!rec || !isEntitled(rec.status)) return c.json({ error: 'subscription_required', status: rec?.status ?? 'none' }, 402);
+    if (!rec || !isEntitled(rec.status)) {
+      const status = rec?.status ?? 'none';
+      if (deps.enforceEntitlement !== false) return c.json({ error: 'subscription_required', status }, 402);
+      // Preview mode (PHASE3_PLAN.md §8): record what enforcement would have done, then continue.
+      log.warn('ENTITLEMENT_NOT_ENFORCED', { hsUser: headscaleUserName(user.sub), status, wouldBe: 402 });
+    }
 
     if (!guard || !(await guard.allow())) return unavailable(c);
 

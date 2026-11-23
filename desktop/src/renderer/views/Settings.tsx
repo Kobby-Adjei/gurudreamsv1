@@ -1,17 +1,18 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
-import type { AuthUser, BackendLifecycle, BackendStatus, LicenseStatus, McpClient } from '../../shared/types'
+import type { AuthState, AuthUser, BackendLifecycle, BackendStatus, McpClient } from '../../shared/types'
 import { Button } from '../components/Button'
 import { Card, CardHeader } from '../components/Card'
 import { CopyButton } from '../components/CopyButton'
 import { ArrowRightIcon } from '../components/Icons'
 import { PageHeader } from '../components/PageHeader'
-import { PrivateNetworkCard } from '../components/PrivateNetworkCard'
+import { ExistingNetworkCard, PrivateNetworkCard } from '../components/PrivateNetworkCard'
 import { Skeleton } from '../components/Skeleton'
 import { StatusDot, type DotStatus } from '../components/StatusDot'
 import { useToast } from '../components/Toast'
 import { api, errorText } from '../lib/api'
 import { formatUptime, planLabel, platformLabel } from '../lib/format'
 import type { NetworkState } from '../lib/network'
+import { PREVIEW_NOTE, SYSTEM_NETWORK_HINT, type LicenseView, type NetMode } from '../lib/preview'
 
 const CLIENTS: { id: McpClient; label: string; steps: [string, ReactNode][] }[] = [
   {
@@ -58,13 +59,22 @@ export function Settings({
   license,
   lifecycle,
   status,
-  network
+  network,
+  preview
 }: {
   user?: AuthUser
-  license: LicenseStatus | null
+  license: LicenseView | null
   lifecycle: BackendLifecycle | null
   status: BackendStatus | null
   network: NetworkState
+  /** Preview mode only (license not enforced). */
+  preview?: {
+    auth: AuthState
+    netMode: NetMode
+    /** The service can't see other devices right now. */
+    devicesProblem: boolean
+    onOpenPlans: () => void
+  }
 }) {
   return (
     <>
@@ -72,10 +82,18 @@ export function Settings({
       <div className="space-y-5 pb-10">
         <ConnectApps />
         <div className="grid gap-5 lg:grid-cols-2">
-          <PrivateNetworkCard network={network} />
+          {preview?.netMode === 'system' ? (
+            <ExistingNetworkCard problem={preview.devicesProblem} hint={SYSTEM_NETWORK_HINT} />
+          ) : (
+            <PrivateNetworkCard network={network} />
+          )}
           <ServiceCard lifecycle={lifecycle} status={status} />
         </div>
-        <AccountCard user={user} license={license} />
+        {preview ? (
+          <PreviewAccountCard user={user} auth={preview.auth} onOpenPlans={preview.onOpenPlans} />
+        ) : (
+          <AccountCard user={user} license={license} />
+        )}
         <AboutCard />
       </div>
     </>
@@ -227,7 +245,7 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
   )
 }
 
-function AccountCard({ user, license }: { user?: AuthUser; license: LicenseStatus | null }) {
+function AccountCard({ user, license }: { user?: AuthUser; license: LicenseView | null }) {
   const toast = useToast()
   const [busy, setBusy] = useState<'checkout' | 'signout' | null>(null)
   const active = license?.state === 'valid' || license?.state === 'grace'
@@ -272,6 +290,62 @@ function AccountCard({ user, license }: { user?: AuthUser; license: LicenseStatu
         <Button variant="ghost" loading={busy === 'signout'} onClick={() => run('signout')}>
           Sign out
         </Button>
+      </div>
+    </Card>
+  )
+}
+
+/** Preview: nothing to buy or manage yet. Sign-in is optional; plans are a look, not a gate. */
+function PreviewAccountCard({ user, auth, onOpenPlans }: { user?: AuthUser; auth: AuthState; onOpenPlans: () => void }) {
+  const toast = useToast()
+  const [busy, setBusy] = useState<'signin' | 'signout' | null>(null)
+  const signedIn = auth.state === 'signed_in'
+
+  async function run(kind: 'signin' | 'signout') {
+    setBusy(kind)
+    try {
+      if (kind === 'signin') await api().auth.signIn()
+      else await api().auth.signOut()
+    } catch (err) {
+      toast.show({ tone: 'error', title: 'That didn’t work', body: errorText(err) })
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  return (
+    <Card as="section" aria-labelledby="account-h">
+      <CardHeader id="account-h" title="Account" description={PREVIEW_NOTE} />
+      {signedIn ? (
+        <dl className="divide-y divide-line/[0.06] border-y border-line/[0.06]">
+          <Row label="Email">{user?.email ?? '—'}</Row>
+        </dl>
+      ) : null}
+      <div className={`flex flex-wrap items-center gap-3 ${signedIn ? 'mt-5' : ''}`}>
+        {signedIn ? (
+          <Button variant="ghost" loading={busy === 'signout'} onClick={() => run('signout')}>
+            Sign out
+          </Button>
+        ) : auth.state === 'signing_in' ? (
+          <span role="status" className="text-[13px] text-ink-muted">
+            Finish signing in in the browser…
+          </span>
+        ) : (
+          <>
+            <Button variant="secondary" loading={busy === 'signin'} onClick={() => run('signin')}>
+              Sign in
+            </Button>
+            <span className="text-[13px] text-ink-faint">Optional</span>
+          </>
+        )}
+        <button
+          type="button"
+          onClick={onOpenPlans}
+          className="ml-auto inline-flex items-center gap-1.5 rounded-md text-[13px] font-medium text-ink-muted hover:text-ink"
+        >
+          Plans
+          <ArrowRightIcon size={14} />
+        </button>
       </div>
     </Card>
   )

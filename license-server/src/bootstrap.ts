@@ -28,6 +28,9 @@ export function buildFromEnv(env: NodeJS.ProcessEnv = process.env): { app: Retur
   if (!network) {
     consoleLogger.warn('network_disabled', { hint: 'set HEADSCALE_URL, HEADSCALE_API_KEY, HEADSCALE_PUBLIC_URL; /v1/network/* answer 503' });
   }
+  if (!config.enforceEntitlement) {
+    consoleLogger.warn('entitlement_not_enforced', { hint: 'preview mode: any signed-in user can get a network key; set ENFORCE_ENTITLEMENT=true before launch' });
+  }
   const app = createApp({
     store,
     billing: createStripeBillingApi(stripe),
@@ -40,6 +43,7 @@ export function buildFromEnv(env: NodeJS.ProcessEnv = process.env): { app: Retur
     trustProxy: config.trustProxy,
     trustProxyHops: config.trustProxyHops,
     network,
+    enforceEntitlement: config.enforceEntitlement,
   });
   return { app, config, store };
 }

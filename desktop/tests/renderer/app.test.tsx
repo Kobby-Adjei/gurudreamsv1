@@ -4,16 +4,19 @@ import { describe, expect, it } from 'vitest'
 import App, { deriveScreen, startSteps } from '../../src/renderer/App'
 import { installMockApi } from './setup'
 
-const valid = { state: 'valid' as const, plan: 'airbridge_pro', exp: 2_000_000_000 }
-const inactive = { state: 'inactive' as const, plan: null, exp: null }
+const valid = { state: 'valid' as const, plan: 'airbridge_pro', exp: 2_000_000_000, enforced: true }
+const inactive = { state: 'inactive' as const, plan: null, exp: null, enforced: true }
 
 describe('App state machine', () => {
   it('derives each screen from auth / licence / lifecycle', () => {
     const signedIn = { state: 'signed_in' as const }
     expect(deriveScreen(null, null, null).kind).toBe('loading')
-    expect(deriveScreen({ state: 'signed_out' }, null, null)).toEqual({ kind: 'signin', signingIn: false })
-    expect(deriveScreen({ state: 'signing_in' }, null, null)).toEqual({ kind: 'signin', signingIn: true })
-    expect(deriveScreen(signedIn, { state: 'unknown', plan: null, exp: null }, null).kind).toBe('checking')
+    // Until the licence answers we can't tell preview from enforced, so no wall yet.
+    expect(deriveScreen({ state: 'signed_out' }, null, null).kind).toBe('loading')
+    expect(deriveScreen({ state: 'signed_out' }, inactive, null)).toEqual({ kind: 'signin', signingIn: false })
+    expect(deriveScreen({ state: 'signing_in' }, inactive, null)).toEqual({ kind: 'signin', signingIn: true })
+    expect(deriveScreen({ state: 'signed_out' }, { ...valid, state: 'unknown' }, null)).toEqual({ kind: 'signin', signingIn: false })
+    expect(deriveScreen(signedIn, { state: 'unknown', plan: null, exp: null, enforced: true }, null).kind).toBe('checking')
     expect(deriveScreen(signedIn, inactive, { phase: 'stopped' }).kind).toBe('paywall')
     expect(deriveScreen(signedIn, valid, { phase: 'starting' }).kind).toBe('starting')
     expect(deriveScreen(signedIn, valid, { phase: 'stopped' }).kind).toBe('starting')

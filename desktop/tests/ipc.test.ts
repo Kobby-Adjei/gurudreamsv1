@@ -36,8 +36,8 @@ function setup(allowedOrigin: string | string[] = DEV_ORIGIN) {
       signOut: vi.fn(async () => {}),
     },
     license: {
-      getStatus: vi.fn(() => ({ state: 'valid' as const, plan: 'airbridge_pro', exp: 1 })),
-      refresh: vi.fn(async () => ({ state: 'valid' as const, plan: 'airbridge_pro', exp: 2 })),
+      getStatus: vi.fn(() => ({ state: 'valid' as const, plan: 'airbridge_pro', exp: 1, enforced: true })),
+      refresh: vi.fn(async () => ({ state: 'valid' as const, plan: 'airbridge_pro', exp: 2, enforced: true })),
       openCheckout: vi.fn(async () => {}),
     },
     backend: {
@@ -224,7 +224,7 @@ describe('registerIpc', () => {
   it('push helpers send on the frozen channels, and never to a foreign page', () => {
     s.handle.push.backendEvent({ id: 'e1' } as never);
     s.handle.push.authChanged({ state: 'signed_out' });
-    s.handle.push.licenseChanged({ state: 'inactive', plan: null, exp: null });
+    s.handle.push.licenseChanged({ state: 'inactive', plan: null, exp: null, enforced: true });
     s.handle.push.backendStatus({} as never);
     s.handle.push.backendLifecycle({ phase: 'blocked' });
     s.handle.push.networkChanged({ state: 'connected', ip: '100.64.0.9', socket: '/secret/path' } as never);

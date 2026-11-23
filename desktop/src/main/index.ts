@@ -3,8 +3,12 @@
  *
  * Wiring:
  *   single-instance lock + airbridge:// deep links -> OidcClient (Clerk, PKCE)
- *   OidcClient -> LicenseGate -> (only on a valid license)
+ *   Enforced (licenseEnforced(), build flag MAIN_VITE_AIRBRIDGE_ENFORCE_LICENSE=1):
+ *     OidcClient -> LicenseGate -> (only on a valid license)
  *       TailscaleManager.start() -> ensureEnrolled() -> ProcessManager.start() (with AIRBRIDGE_TS_* env)
+ *   Preview (default, PHASE3_PLAN.md §8): no sign-in required, gate runs in shadow mode;
+ *     NetworkSupervisor starts the daemon right away: signed in + license server + enrolled -> embedded,
+ *     otherwise AIRBRIDGE_NETWORK=system (the user's own Tailscale; no tailscaled spawned).
  *   ProcessManager READY -> ControlClient (HTTP + WS to [::1]) -> IPC push to the renderer
  *   sign-out / license lost -> stop daemon, `tailscale logout` (sign-out only), stop tailscaled
  *   before-quit -> ProcessManager.stop() then TailscaleManager.stop() (SIGTERM -> 3 s -> kill)
@@ -20,6 +24,7 @@ import { createSafeStorageTokenStore } from './auth/tokenStore';
 import { ControlClient } from './controlClient';
 import { createDevMocks, devMocksEnabled } from './devMocks';
 import { registerIpc, type IpcDeps, type IpcHandle } from './ipc';
+import { licenseEnforced } from './license/enforcement';
 import { createFileLicenseCache, LicenseGate } from './license/gate';
 import { getLicensePublicKeys } from './license/publicKeys';
 import { getMcpConfigJson } from './mcpConfig';
@@ -27,7 +32,7 @@ import { resolveCoreCommand } from './mcpConfig';
 import { defaultDataDir } from './network/dataDir';
 import { EnrollError, ensureEnrolled } from './network/enroll';
 import { TailscaleManager } from './network/TailscaleManager';
-import { ProcessManager } from './processManager';
+import { NetworkSupervisor, ProcessManager } from './processManager';
 import { appOriginFor, applySecurityPolicies, enableGlobalSandbox, secureWebPreferences } from './security';
 
 const PROTOCOL = 'airbridge';
@@ -252,24 +257,73 @@ function tailscaleBinDir(o: Parameters<typeof resolveCoreCommand>[0]): string {
 function createRealServices(o: RealServicesOptions) {
   const userData = app.getPath('userData');
   const openExternal = (url: string) => shell.openExternal(url);
+  const enforced = licenseEnforced();
+  log(enforced ? 'license enforcement: on' : 'license enforcement: off (preview; PHASE3_PLAN.md §8)');
 
-  // --- backend (daemon) -------------------------------------------------------------------
-  // AIRBRIDGE_DATA_DIR is deliberately NOT set: the daemon and the MCP stdio process launched by
-  // Claude/Cursor must share the same default data dir so the feed shows both origins.
   // --- private network (bundled userspace tailscaled) ----------------------------------------
+  // AIRBRIDGE_DATA_DIR is deliberately NOT set on the daemon: it and the MCP stdio process launched by
+  // Claude/Cursor must share the same default data dir so the feed shows both origins.
   const dataDir = defaultDataDir();
   const tm = new TailscaleManager({
     binDir: tailscaleBinDir(o.coreOptions),
     dataDir,
     log: (m) => log(`network: ${m}`),
   });
-  tm.on('status', o.push.network);
 
+  // --- auth (optional in preview) ----------------------------------------------------------
+  const issuer = config('CLERK_OAUTH_ISSUER');
+  const clientId = config('CLERK_OAUTH_CLIENT_ID');
+  const authConfigured = !!issuer && !!clientId;
+  const oidc = authConfigured
+    ? new OidcClient({
+        config: { issuer: issuer!, clientId: clientId! },
+        tokenStore: createSafeStorageTokenStore({ filePath: join(userData, 'session.bin'), safeStorage }),
+        openExternal,
+        log: (m) => log(`auth: ${m}`),
+      })
+    : null;
+
+  // ensureEnrolled has no lock of its own: serialize startup vs. retry. Resolves true when enrolled.
+  let enrolling: Promise<boolean> | null = null;
+  const enroll = (): Promise<boolean> => {
+    if (!oidc || !o.licenseUrl) return Promise.resolve(false);
+    const licenseUrl = o.licenseUrl;
+    enrolling ??= ensureEnrolled({
+      tm,
+      getAuthToken: () => oidc.getApiToken(),
+      getUserSub: () => oidc.getUserId(),
+      licenseUrl,
+      dataDir,
+      log: (m) => log(`network: ${m}`),
+    })
+      .then((outcome) => outcome !== 'signed_out')
+      .catch((e: unknown) => {
+        // Only the fixed code: never the message of anything that touched the key.
+        log(`network: enrollment failed: ${e instanceof EnrollError ? e.code : 'unexpected'}`);
+        return false;
+      })
+      .finally(() => {
+        enrolling = null;
+      });
+    return enrolling;
+  };
+
+  const net = new NetworkSupervisor({
+    tm,
+    enforced,
+    canEmbed: () => !!oidc && !!o.licenseUrl && oidc.getState().state === 'signed_in',
+    enroll,
+    onNetwork: o.push.network,
+    log: (m) => log(m),
+  });
+
+  // --- backend (daemon) -------------------------------------------------------------------
   const pm = new ProcessManager({
     core: () => resolveCoreCommand(o.coreOptions),
-    extraEnv: () => tm.daemonEnv(),
+    extraEnv: () => net.daemonEnv(),
     log: (m) => log(`backend: ${m}`),
   });
+  net.attach(pm);
   const control = new ControlClient({ log: (m) => log(`control: ${m}`) });
   pm.on('lifecycle', o.push.lifecycle);
   pm.on('ready', (conn) =>
@@ -277,7 +331,10 @@ function createRealServices(o: RealServicesOptions) {
   );
   pm.on('exit', () => control.disconnect());
   control.on('event', o.push.event);
-  control.on('status', o.push.status);
+  control.on('status', (s) => {
+    o.push.status(s);
+    net.onBackendStatus(s);
+  });
 
   const backend: IpcDeps['backend'] = {
     getStatus: async () => (control.isConnected() ? control.getStatus() : null),
@@ -287,125 +344,72 @@ function createRealServices(o: RealServicesOptions) {
     sendTask: async (req) =>
       control.isConnected() ? control.sendTask(req) : { ok: false, error: 'The AirBridge engine is not running.' },
   };
+  const fetchBackendStatus = async () => (control.isConnected() ? control.getStatus() : null);
+  const stopAll = async () => {
+    control.disconnect();
+    await net.stop();
+  };
 
-  // --- auth + license ---------------------------------------------------------------------
-  const issuer = config('CLERK_OAUTH_ISSUER');
-  const clientId = config('CLERK_OAUTH_CLIENT_ID');
-  if (!issuer || !clientId || !o.licenseUrl) {
+  const missing = !authConfigured || !o.licenseUrl;
+  if (missing && enforced) {
     log('auth/license not configured (CLERK_OAUTH_ISSUER, CLERK_OAUTH_CLIENT_ID, AIRBRIDGE_LICENSE_URL); backend stays blocked');
     const blocked: BackendLifecycle = { phase: 'blocked', detail: 'Sign-in is not configured in this build.' };
     return {
       deps: {
-        auth: {
-          getState: (): AuthState => ({ state: 'signed_out' }),
-          signIn: async () => {
-            throw new Error('not_configured');
-          },
-          signOut: async () => undefined,
-        },
-        license: {
-          getStatus: (): LicenseStatus => ({ state: 'unknown', plan: null, exp: null }),
-          refresh: async (): Promise<LicenseStatus> => ({ state: 'unknown', plan: null, exp: null }),
-          openCheckout: async () => undefined,
-        },
+        auth: notConfiguredAuth(),
+        license: notConfiguredLicense(enforced),
         backend: { ...backend, getLifecycle: () => blocked },
       },
       handleDeepLink: (_url: string) => undefined,
       start: async () => o.push.lifecycle(blocked),
-      stop: async () => {
-        await pm.stop();
-        await tm.stop();
-      },
+      stop: stopAll,
     };
   }
 
-  const oidc = new OidcClient({
-    config: { issuer, clientId },
-    tokenStore: createSafeStorageTokenStore({ filePath: join(userData, 'session.bin'), safeStorage }),
-    openExternal,
-    log: (m) => log(`auth: ${m}`),
-  });
+  let entitled = (): boolean => false; // enforced retry: restart the daemon only while licensed
+  const network: IpcDeps['network'] = {
+    getStatus: () => net.status(fetchBackendStatus),
+    retry: () => net.retry(() => entitled()),
+  };
+
+  if (!oidc || !o.licenseUrl) {
+    // Preview without sign-in configured: the backend runs on this computer's Tailscale.
+    log('auth/license not configured: preview runs on this computer\'s Tailscale (AIRBRIDGE_NETWORK=system)');
+    return {
+      deps: { auth: notConfiguredAuth(), license: notConfiguredLicense(enforced), backend, network },
+      handleDeepLink: (_url: string) => undefined,
+      start: () => net.start(),
+      stop: stopAll,
+    };
+  }
+
   const gate = new LicenseGate({
     licenseUrl: o.licenseUrl,
     getAuthToken: () => oidc.getApiToken(),
     getUserId: () => oidc.getUserId(),
     publicKeys: getLicensePublicKeys({ isPackaged: o.isPackaged }),
     isPackaged: o.isPackaged,
-    // Startup order (PHASE3_PLAN.md §2): license valid -> tailscaled -> enrollment -> daemon.
-    onValid: async () => {
-      await bringUp();
-    },
-    onInvalid: async (reason: string) => {
-      await pm.block(`License check: ${reason}`);
-      await tm.stop();
-    },
+    enforce: enforced,
+    // Enforced startup order (PHASE3_PLAN.md §2): license valid -> tailscaled -> enrollment -> daemon.
+    // Preview: verdicts are logged only; the supervisor ignores them.
+    onValid: () => net.licenseValid(),
+    onInvalid: (reason: string) => net.licenseInvalid(reason),
     cache: createFileLicenseCache(join(userData, 'license.jwt')),
     openExternal,
     log: (m) => log(`license: ${m}`),
   });
   gate.onChange(o.push.license);
-
-  // ensureEnrolled has no lock of its own: serialize startup vs. retry.
-  let enrolling: Promise<void> | null = null;
-  const enroll = (): Promise<void> => {
-    enrolling ??= ensureEnrolled({
-      tm,
-      getAuthToken: () => oidc.getApiToken(),
-      getUserSub: () => oidc.getUserId(),
-      licenseUrl: o.licenseUrl!,
-      dataDir,
-      log: (m) => log(`network: ${m}`),
-    })
-      .then(() => undefined)
-      .catch((e: unknown) => {
-        // Only the fixed code: never the message of anything that touched the key.
-        log(`network: enrollment failed: ${e instanceof EnrollError ? e.code : 'unexpected'}`);
-      })
-      .finally(() => {
-        enrolling = null;
-      });
-    return enrolling;
-  };
-
-  const startDaemon = async (): Promise<void> => {
-    const want = JSON.stringify(tm.daemonEnv());
-    if (pm.isRunning() && want !== daemonNetEnv) await pm.stop(); // SOCKS endpoint moved: respawn
-    daemonNetEnv = want;
-    await pm.start();
-  };
-  let daemonNetEnv = '';
-
-  const bringUp = async (): Promise<void> => {
-    await tm.start();
-    await enroll();
-    // The daemon runs even if enrollment failed (feed, MCP config); its inbox reports degraded.
-    await startDaemon();
-  };
-
-  const network: IpcDeps['network'] = {
-    getStatus: () => tm.status(),
-    retry: async () => {
-      const st = tm.lastStatus();
-      if (st.state === 'stopped' || st.state === 'error') await tm.start();
-      await enroll();
-      if (gate.getStatus().state === 'valid' || gate.getStatus().state === 'grace') await startDaemon();
-      return tm.status();
-    },
-  };
-
-  const signOutNetwork = async (): Promise<void> => {
-    await pm.stop();
-    await tm.logout().catch(() => undefined);
-    await tm.stop();
-  };
+  entitled = () => gate.getStatus().state === 'valid' || gate.getStatus().state === 'grace';
 
   let lastAuth = oidc.getState().state;
   oidc.onChange((s) => {
     o.push.auth(s);
     if (s.state === lastAuth) return;
     lastAuth = s.state;
-    if (s.state === 'signed_in') void gate.check();
-    else if (s.state === 'signed_out') void signOutNetwork().finally(() => void gate.reset());
+    if (s.state === 'signed_in') {
+      void gate.check();
+      void net.signedIn();
+    } else if (s.state === 'signed_out') void net.signedOut().finally(() => void gate.reset());
   });
 
   return {
@@ -414,7 +418,7 @@ function createRealServices(o: RealServicesOptions) {
         getState: () => oidc.getState(),
         signIn: () => oidc.signIn(),
         signOut: async () => {
-          await signOutNetwork();
+          await net.signedOut();
           await oidc.signOut();
           await gate.reset();
         },
@@ -433,14 +437,34 @@ function createRealServices(o: RealServicesOptions) {
     },
     start: async () => {
       await oidc.restore().catch(() => undefined);
-      // gate.start() runs the first check; onValid -> pm.start() is the only spawn path.
+      // Preview: the backend starts right away (embedded if signed in + enrolled, else system Tailscale).
+      const preview = net.start();
+      // Enforced: gate.start() runs the first check; onValid -> pm.start() is the only spawn path.
       await gate.start();
+      await preview;
     },
     stop: async () => {
       gate.dispose();
-      control.disconnect();
-      await pm.stop(); // daemon first, then tailscaled
-      await tm.stop();
+      await stopAll();
     },
+  };
+}
+
+function notConfiguredAuth(): IpcDeps['auth'] {
+  return {
+    getState: (): AuthState => ({ state: 'signed_out' }),
+    signIn: async () => {
+      throw new Error('not_configured');
+    },
+    signOut: async () => undefined,
+  };
+}
+
+function notConfiguredLicense(enforced: boolean): IpcDeps['license'] {
+  const unknown = (): LicenseStatus => ({ state: 'unknown', plan: null, exp: null, enforced });
+  return {
+    getStatus: unknown,
+    refresh: async () => unknown(),
+    openCheckout: async () => undefined,
   };
 }

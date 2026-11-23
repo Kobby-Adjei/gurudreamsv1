@@ -61,6 +61,19 @@ describe('loadConfig', () => {
   });
 });
 
+describe('ENFORCE_ENTITLEMENT', () => {
+  it('defaults to true, accepts true/false/1/0 (case-insensitive), rejects anything else', () => {
+    expect(loadConfig(env()).enforceEntitlement).toBe(true);
+    expect(loadConfig(env({ ENFORCE_ENTITLEMENT: '' })).enforceEntitlement).toBe(true);
+    expect(loadConfig(env({ ENFORCE_ENTITLEMENT: 'true' })).enforceEntitlement).toBe(true);
+    expect(loadConfig(env({ ENFORCE_ENTITLEMENT: '1' })).enforceEntitlement).toBe(true);
+    expect(loadConfig(env({ ENFORCE_ENTITLEMENT: 'false' })).enforceEntitlement).toBe(false);
+    expect(loadConfig(env({ ENFORCE_ENTITLEMENT: ' FALSE ' })).enforceEntitlement).toBe(false);
+    expect(loadConfig(env({ ENFORCE_ENTITLEMENT: '0' })).enforceEntitlement).toBe(false);
+    expect(() => loadConfig(env({ ENFORCE_ENTITLEMENT: 'no' }))).toThrow(/ENFORCE_ENTITLEMENT/);
+  });
+});
+
 describe('stores', () => {
   const rec = (status: 'active' | 'canceled', t: number) => ({
     clerkUserId: 'user_1',

@@ -33,6 +33,12 @@ Rate limits (per process): 5/min per user, 1000/day globally, 60/min per IP. Key
 Headscale errors become `502 {error:"upstream_unavailable"}`; upstream bodies are never forwarded or logged.
 Keys are never created with ACL tags.
 
+**Preview mode (`ENFORCE_ENTITLEMENT=false`, PHASE3_PLAN.md §8).** Until the product owner approves the app,
+the subscription check on `preauth-key` can be switched off: any Clerk-authenticated user gets a key, and the
+would-be refusal is logged as `ENTITLEMENT_NOT_ENFORCED` (`{hsUser, status, wouldBe: 402}`; no Clerk id, no key).
+Authentication, rate limits and the policy guard still apply. `/v1/license/verify` is unaffected (still 402
+without a subscription). Default is `true`; remove the variable (or set `true`) at launch.
+
 **Policy guard (PHASE3_SECURITY F-1).** Headscale treats an empty or missing policy as allow-all, and the app's
 userspace `tailscaled` forwards inbound connections to localhost. So the server reads `GET /api/v1/policy` at
 boot, every 10 minutes, and whenever its cached result is stale (serverless hosts have no timers). It
@@ -96,6 +102,7 @@ Without `DATABASE_URL` the server uses an in-memory store (refused when `NODE_EN
 | `HEADSCALE_API_KEY` | **Secret.** `headscale apikeys create --expiration 90d` (see `headscale/README.md` for rotation). |
 | `HEADSCALE_PUBLIC_URL` | Public login server URL clients enroll with (Headscale `server_url`), e.g. `https://hs.example.com`. |
 | `PREAUTH_TTL_SECONDS` | Pre-auth key lifetime, default `600` (60 … 3600). |
+| `ENFORCE_ENTITLEMENT` | `true` (default) or `false`. `false` = preview mode: `/v1/network/preauth-key` skips the subscription (402) check and logs `ENTITLEMENT_NOT_ENFORCED`; auth and rate limits unchanged. `/v1/license/verify` is never affected. Must be `true` at launch. |
 
 Config is validated at boot; the process exits with code 2 and lists every problem.
 

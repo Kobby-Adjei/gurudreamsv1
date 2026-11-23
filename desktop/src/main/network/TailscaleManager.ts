@@ -820,3 +820,31 @@ async function killPid(pid: number, platform: NodeJS.Platform, spawnFn: SpawnFn)
     /* gone */
   }
 }
+
+// ------------------------------------------------------------------ system Tailscale (preview mode)
+
+/** Fixed, vendor-neutral copy: the renderer adds its own preview hint (src/renderer/lib/preview.ts). */
+export const SYSTEM_NET_ERROR_DETAIL = "AirBridge can't reach the network on this computer.";
+
+/**
+ * NetStatus for a daemon running with AIRBRIDGE_NETWORK=system (the user's own Tailscale; PHASE3_PLAN.md §8).
+ * No tailscaled is supervised here: the state is derived from the daemon's GET /status.
+ *   no daemon            -> lifecycle starting: 'starting'; running (no /status yet): 'connecting'; else 'stopped'
+ *   tailnet_ip present   -> 'connected' (+ ip)
+ *   degraded, no ip      -> 'error' (Tailscale missing / logged out / not running). The daemon's reason is
+ *                           NOT forwarded (it can carry paths/CLI output); callers log it main-side.
+ *   neither yet          -> 'connecting'
+ */
+export function systemNetStatus(
+  status: { tailnet_ip: string | null; inbox: { degraded_reason: string | null } } | null,
+  lifecycle: { phase: string },
+): NetStatus {
+  if (!status) {
+    if (lifecycle.phase === 'starting') return { state: 'starting' };
+    if (lifecycle.phase === 'running') return { state: 'connecting' };
+    return { state: 'stopped' };
+  }
+  if (status.tailnet_ip) return { state: 'connected', ip: status.tailnet_ip };
+  if (status.inbox?.degraded_reason) return { state: 'error', detail: SYSTEM_NET_ERROR_DETAIL };
+  return { state: 'connecting' };
+}

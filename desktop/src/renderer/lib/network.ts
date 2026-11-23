@@ -14,6 +14,8 @@ export interface NetStatus {
   state: NetState
   detail?: string
   ip?: string
+  /** Preview only (PHASE3_PLAN.md §8): which network the service is on, when main says. */
+  mode?: 'embedded' | 'system'
 }
 
 export interface NetworkBridge {

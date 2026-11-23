@@ -90,7 +90,7 @@ export interface MockHandle {
 export function defaultState(): MockState {
   return {
     auth: { state: 'signed_in', user: fixtures.user },
-    license: { state: 'valid', plan: 'airbridge_pro', exp: Math.floor(Date.now() / 1000) + 72 * 3600 },
+    license: { state: 'valid', plan: 'airbridge_pro', exp: Math.floor(Date.now() / 1000) + 72 * 3600, enforced: true },
     lifecycle: { phase: 'running' },
     nodes: fixtures.nodes(),
     status: fixtures.status(),

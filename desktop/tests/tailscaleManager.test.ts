@@ -10,6 +10,8 @@ import {
   parseStatus,
   processExePath,
   socketPathFor,
+  SYSTEM_NET_ERROR_DETAIL,
+  systemNetStatus,
   tailscaledArgv,
   TailscaleManager,
   type TailscaleManagerOptions,
@@ -132,6 +134,20 @@ describe('pure helpers', () => {
     expect(s('NoState').state).toBe('needs_login');
     expect(s('Starting').state).toBe('connecting');
     expect(parseStatus('nope').state).toBe('error');
+  });
+
+  it('systemNetStatus maps the daemon /status (AIRBRIDGE_NETWORK=system, preview)', () => {
+    const st = (tailnet_ip: string | null, degraded_reason: string | null) => ({ tailnet_ip, inbox: { degraded_reason } });
+    expect(systemNetStatus(null, { phase: 'starting' })).toEqual({ state: 'starting' });
+    expect(systemNetStatus(null, { phase: 'running' })).toEqual({ state: 'connecting' });
+    expect(systemNetStatus(null, { phase: 'crashed' })).toEqual({ state: 'stopped' });
+    expect(systemNetStatus(st('100.64.0.9', null), { phase: 'running' })).toEqual({ state: 'connected', ip: '100.64.0.9' });
+    // inbox degraded for a non-network reason (port in use) while the tailnet is up: still connected
+    expect(systemNetStatus(st('100.64.0.9', 'port 8989 in use'), { phase: 'running' }).state).toBe('connected');
+    expect(systemNetStatus(st(null, null), { phase: 'running' })).toEqual({ state: 'connecting' });
+    const err = systemNetStatus(st(null, 'Could not run the Tailscale CLI (/opt/x/tailscale): ENOENT'), { phase: 'running' });
+    expect(err).toEqual({ state: 'error', detail: SYSTEM_NET_ERROR_DETAIL });
+    expect(err.detail).not.toMatch(/tailscale|\/opt/i); // raw daemon reason (paths, CLI output) never forwarded
   });
 
   it.skipIf(isWin)('ensurePrivateDir: 0700, refuses symlinks', () => {
