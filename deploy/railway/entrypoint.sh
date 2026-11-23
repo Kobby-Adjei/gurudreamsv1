@@ -94,7 +94,7 @@ if [ -n "${SMOKE_TEST_USER:-}" ]; then
   uid=$(hs users list | json "(v||[]).filter(u=>u.name===\"$SMOKE_TEST_USER\").map(u=>u.id)[0]")
   if [ "${SMOKE_CLEANUP:-}" = "1" ]; then
     if [ -n "$uid" ]; then
-      for nid in $(hs nodes list --user "$uid" | json "(v||[]).map(n=>n.id).join(\" \")"); do
+      for nid in $(hs nodes list | json "(v||[]).filter(n=>n.user&&String(n.user.id)===\"$uid\").map(n=>n.id).join(\" \")"); do
         hs nodes delete --identifier "$nid" >/dev/null && log info "smoke_node_deleted"
       done
       hs users destroy --identifier "$uid" >/dev/null && log info "smoke_user_deleted"

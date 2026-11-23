@@ -98,11 +98,12 @@ Without `DATABASE_URL` the server uses an in-memory store (refused when `NODE_EN
 | `TRUST_PROXY` | `1` behind Railway/Fly/Vercel so rate limiting uses `X-Forwarded-For` (rightmost entry appended by the proxy — client-supplied entries are ignored). |
 | `TRUST_PROXY_HOPS` | Number of trusted proxies in front of the app (default `1`). |
 | `PORT` | Default `8787`. |
+| `HOST` | Listen address, default `0.0.0.0` (`127.0.0.1` behind a co-located proxy, e.g. `deploy/railway`). |
 | `HEADSCALE_URL` | Where this server reaches the Headscale admin REST API over a **private** network, e.g. `http://headscale:8080` on the compose `control` network. Allowed forms: `https://`, or `http://` to localhost or a single-label internal service name. Never the public site: Caddy returns 404 for `/api/*`. If this and the next two are all unset, `/v1/network/*` answer 503. |
 | `HEADSCALE_API_KEY` | **Secret.** `headscale apikeys create --expiration 90d` (see `headscale/README.md` for rotation). |
 | `HEADSCALE_PUBLIC_URL` | Public login server URL clients enroll with (Headscale `server_url`), e.g. `https://hs.example.com`. |
 | `PREAUTH_TTL_SECONDS` | Pre-auth key lifetime, default `600` (60 … 3600). |
-| `ENFORCE_ENTITLEMENT` | `true` (default) or `false`. `false` = preview mode: `/v1/network/preauth-key` skips the subscription (402) check and logs `ENTITLEMENT_NOT_ENFORCED`; auth and rate limits unchanged. `/v1/license/verify` is never affected. Must be `true` at launch. |
+| `ENFORCE_ENTITLEMENT` | `true` (default) or `false`. `false` = preview mode: `/v1/network/preauth-key` skips the subscription (402) check and logs `ENTITLEMENT_NOT_ENFORCED`; auth and rate limits unchanged. `/v1/license/verify` is never affected. Must be `true` at launch. With `false`, the `STRIPE_*` and/or `CLERK_*` groups may be left entirely unset (preview without accounts): billing endpoints then answer `503 billing_not_configured`, authenticated endpoints `503 auth_not_configured`, and `DATABASE_URL` is optional without Stripe. |
 
 Config is validated at boot; the process exits with code 2 and lists every problem.
 
