@@ -41,6 +41,8 @@
 
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduce && !still) { usePoster('reduced-motion'); return; }
+  // Live shader disabled after field reports of glitches; poster only until the video hero ships.
+  if (!still) { usePoster('disabled'); return; }
 
   var gl = null;
   try {
