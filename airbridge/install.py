@@ -151,10 +151,36 @@ def backup_path_for(path: Path, now: datetime | None = None) -> Path:
     stamp = (now or datetime.now()).strftime("%Y%m%d-%H%M%S")
     candidate = path.with_name(f"{path.name}.bak-{stamp}")
     counter = 1
-    while candidate.exists():
+    # is_symlink() also catches dangling links, for which exists() is False.
+    while candidate.exists() or candidate.is_symlink():
         candidate = path.with_name(f"{path.name}.bak-{stamp}-{counter}")
         counter += 1
     return candidate
+
+
+def _write_backup(path: Path, now: datetime | None = None) -> Path:
+    """Copy ``path`` to a fresh backup file without ever following a symlink.
+
+    The backup is created with O_CREAT|O_EXCL (plus O_NOFOLLOW where the OS has
+    it), so a pre-planted or dangling symlink at the backup name can never
+    redirect the write elsewhere.
+    """
+    data = path.read_bytes()
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_BINARY", 0)
+    for _ in range(100):
+        backup = backup_path_for(path, now)
+        try:
+            fd = os.open(str(backup), flags, 0o600)
+        except FileExistsError:
+            continue  # lost a race (or a link appeared); pick the next name
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(data)
+        try:
+            shutil.copystat(path, backup)
+        except OSError:
+            pass
+        return backup
+    raise ConfigMergeError("could not create a backup file next to the config")
 
 
 def apply_client_config(path: Path, entry: dict, now: datetime | None = None) -> tuple[str, Path | None]:
@@ -178,8 +204,7 @@ def apply_client_config(path: Path, entry: dict, now: datetime | None = None) ->
     path.parent.mkdir(parents=True, exist_ok=True)
     backup = None
     if existing is not None:
-        backup = backup_path_for(path, now)
-        shutil.copy2(path, backup)
+        backup = _write_backup(path, now)
 
     fd, tmp_name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=str(path.parent))
     try:

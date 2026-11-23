@@ -124,7 +124,7 @@ Neutralising markdown stops **structural** forgery, but it can't stop **semantic
 - **Sender identity**: `sender_node` is whatever the sender claims. The source IP is authenticated. Possible hardening: check that the source IP belongs to the claimed peer (`peers_provider`).
 - **Outbound misuse within the tailnet**: a prompt-injected local AI can still send local data to *any* peer on your tailnet. Treat the outbox tool as an exfiltration path, and keep tool approval enabled in the host AI.
 - **Disk usage**: 30 tasks/min × ~600 KB ≈ 1 GB/hour per sender in the worst case. There is no inbox quota, so watch disk space or add a quota later.
-- **Rate limiting happens after the body is read** (the frozen order in PLAN §3.2), so a flooding peer can still use bandwidth and CPU, up to 600 KB per request.
+- **Rate limiting now happens before the body is read** (after the declared-size check), so a flooding peer is turned away cheaply. A peer that stays under the limit can still send up to 600 KB per request.
 - **Clickable links** are left in task text for readability. A human who clicks them can still be phished.
 - **Logs** hold up to 200 chars of every task and sender/IP metadata. The log file uses default permissions.
 - **Tailscale trust**: if the local `tailscale` binary or daemon is compromised, peer resolution is compromised too.
@@ -132,19 +132,29 @@ Neutralising markdown stops **structural** forgery, but it can't stop **semantic
 
 ## 7. Security review checklist
 
-Tick after the final review (Security engineer sign-off).
+Final Phase-1 review: Security engineer, 2026-11-23, against the code as of Phase 2 start
+(`main.py`, `airbridge_app/*`, `install.py`, both launchers). `pytest -q`: 635 passed.
 
-- [ ] Bind host comes only from `tailscale ip -4` and goes through `validate_bind_host`. No `0.0.0.0` or `::` anywhere (AST test).
-- [ ] Inbound order is tailnet IP 403 → size 413 (declared and actual bytes) → rate 429 → secret 401 → validation 400.
-- [ ] `/health` is tailnet-only, and OpenAPI/docs are disabled.
-- [ ] Inbox filenames come only from `safe_inbox_path`. The write is atomic, with file 0600 and dir 0700.
-- [ ] All untrusted text goes through `validate_task_text` and `validate_sender` (pydantic validators).
-- [ ] The markdown has the fixed untrusted warning. Task text goes through `neutralize_markdown`, code through `fence_for`. Sender and IP are rendered safely.
-- [ ] Outbound sends go only to peers resolved via Tailscale, with `is_tailnet_ip` checked. `allow_redirects=False`, `trust_env=False`, timeout set. The tools never raise.
-- [ ] The secret header is sent only when configured. The secret is never logged, and payloads are truncated to 200 chars in logs.
-- [ ] No `print` or `sys.stdout` writes in runtime code. Logging goes to a file only, uvicorn uses `log_config=None` and `access_log=False` (AST test plus a stdio handshake test).
-- [ ] No `shell=True`, `os.system`, `os.popen`, `eval` or `exec` (AST test). Every subprocess call uses list argv and has a timeout.
-- [ ] Notifications: osascript gets argv only, PowerShell uses `-EncodedCommand`, `notify-send` gets argv. Content in notifications is truncated or sanitised.
-- [ ] Tailscale down → stderr message and exit 2, nothing on stdout.
-- [ ] Tests pass: `pytest -q`.
-- [ ] README links to this document and to the ACL and `AIRBRIDGE_SECRET` guidance.
+- [x] Bind host comes only from `tailscale ip -4` and goes through `validate_bind_host`. No `0.0.0.0` or `::` anywhere (AST test). *`main.py` and the Phase-2 daemon (`daemon._InboxSupervisor._resolve_host`) both validate; `tests/test_no_stdout.py::test_no_wildcard_bind`, `tests/test_phase2_security.py`.*
+- [x] Inbound order is tailnet IP 403 → size 413 (declared and actual bytes) → rate 429 → secret 401 → validation 400. *Annotated: the implemented order is 403 → declared-size 413 → rate 429 → streamed-size 413 → 401 → 400. Rate limiting before reading the body is stricter than the original plan, so this is accepted.*
+- [x] `/health` is tailnet-only, and OpenAPI/docs are disabled.
+- [x] Inbox filenames come only from `safe_inbox_path`. The write is atomic, with file 0600 and dir 0700. *(`mkstemp` → fsync → chmod 0600 → `os.replace` under a lock.)*
+- [x] All untrusted text goes through `validate_task_text` and `validate_sender` (pydantic validators).
+- [x] The markdown has the fixed untrusted warning. Task text goes through `neutralize_markdown`, code through `fence_for`. Sender and IP are rendered safely.
+- [x] Outbound sends go only to peers resolved via Tailscale, with `is_tailnet_ip` checked. `allow_redirects=False`, `trust_env=False`, timeout set. The tools never raise. *(`send_task_result` adds a last-resort `except Exception`.)*
+- [x] The secret header is sent only when configured. The secret is never logged, and payloads are truncated to 200 chars in logs. *(`Settings.__repr__` redacts the secret; `main.py` logs the redacted repr.)*
+- [x] No `print` or `sys.stdout` writes in runtime code. Logging goes to a file only, uvicorn uses `log_config=None` and `access_log=False` (AST test plus a stdio handshake test). *`--daemon` additionally points `sys.stdout` at stderr.*
+- [x] No `shell=True`, `os.system`, `os.popen`, `eval` or `exec` (AST test). Every subprocess call uses list argv and has a timeout. *`install.py` is exempt from the AST test by design; its `_run` uses list argv and `shell=False`, but the venv/pip calls have no timeout (installer only, acceptable).*
+- [x] Notifications: osascript gets argv only, PowerShell uses `-EncodedCommand`, `notify-send` gets argv. Content in notifications is truncated or sanitised. *(The only variable is the validated sender name.)*
+- [x] Tailscale down → stderr message and exit 2, nothing on stdout.
+- [x] Tests pass: `pytest -q`.
+- [~] README links to this document and to the ACL and `AIRBRIDGE_SECRET` guidance. *Partial: README links to this document and documents `AIRBRIDGE_SECRET`, but does not point at the ACL guidance (§6.1) directly. Suggested one-line README addition under "Security": "Restrict port 8989 with Tailscale ACLs: see docs/SECURITY.md §6.1."*
+
+### Installer review (`install.py`, launchers)
+
+- Config merge is safe: invalid JSON, non-object roots or a non-object `mcpServers` raise `ConfigMergeError` and leave the file untouched; other keys and servers are preserved; an identical entry is a no-op.
+- A timestamped backup is taken before every change; the new file is written to a `mkstemp` file (O_EXCL, 0600) in the same directory and moved into place with `os.replace`, keeping the old file's mode.
+- Symlinks: if the config file is a symlink, the target is read and backed up, and the link itself is then replaced by a regular file. The link target is never written through, which is the safe direction (it can surprise dotfile managers).
+- Low: `backup_path_for` checks `exists()`, which is False for a dangling symlink, and `shutil.copy2` then writes through that link. Exploiting it needs write access to the user's own config directory, so there is no privilege boundary. Hardening: skip candidates where `is_symlink()` is true, or create the backup with `O_CREAT|O_EXCL|O_NOFOLLOW`.
+- Low: `pip install -r requirements.txt` uses version ranges without hashes (see PHASE2_SECURITY.md §3.6 for release builds).
+- Launchers `cd` into their own folder and pick a Python ≥ 3.11. On Windows, `cmd` and Python's `shutil.which` search the current directory first, so a planted `python.exe`/`tailscale.exe` in the AirBridge folder would run, but whoever can write there can already replace `install.py`.

@@ -28,7 +28,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, ValidationError, field_validator
 from starlette.concurrency import run_in_threadpool
 
-from . import config, formatting, network, notify, security
+from . import config, events, formatting, network, notify, security
 
 logger = logging.getLogger("airbridge.inbox")
 
@@ -224,6 +224,14 @@ def create_app(
             source_ip,
             path.name,
             security.truncate_for_log(payload.task_description, 200),
+        )
+        what = "code" if payload.code_payload else "task"
+        events.emit(
+            "task_received",
+            peer=payload.sender_node,
+            summary=f"Received {what} from {payload.sender_node}",
+            bytes=len(body),
+            file=path.name,
         )
         background_tasks.add_task(_notify_new_task, payload.sender_node)
         return JSONResponse(status_code=201, content={"status": "ok", "file": path.name})

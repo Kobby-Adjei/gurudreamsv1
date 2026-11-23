@@ -21,7 +21,7 @@ from typing import Any
 import requests
 from mcp.server.mcpserver import MCPServer
 
-from . import config, network, security
+from . import config, events, network, security
 
 logger = logging.getLogger("airbridge.outbox")
 
@@ -96,7 +96,18 @@ def _response_detail(resp: requests.Response) -> str:
     return ""
 
 
-def _interpret_response(resp: requests.Response, host: str) -> str:
+def _ok(target: str, name: str, message: str, nbytes: int) -> dict[str, Any]:
+    return {"ok": True, "status": 200, "target": target, "file": name or None,
+            "error": None, "message": message, "bytes": nbytes}
+
+
+def _fail(error: str, status: int, target: str | None = None, nbytes: int | None = None) -> dict[str, Any]:
+    """Structured failure; ``message`` is the Phase-1 "FAILURE: ..." string."""
+    return {"ok": False, "status": status, "target": target, "file": None,
+            "error": error, "message": f"FAILURE: {error}", "bytes": nbytes}
+
+
+def _interpret_response(resp: requests.Response, host: str, nbytes: int) -> dict[str, Any]:
     status = resp.status_code
     if status in (200, 201):
         name = ""
@@ -107,31 +118,31 @@ def _interpret_response(resp: requests.Response, host: str) -> str:
         except ValueError:
             pass
         where = f" as {name}" if name else ""
-        return f"SUCCESS: task delivered to {host}{where}. It is waiting in {host}'s AirBridge inbox."
+        return _ok(host, name,
+                   f"SUCCESS: task delivered to {host}{where}. It is waiting in {host}'s AirBridge inbox.",
+                   nbytes)
     detail = _response_detail(resp)
     suffix = f" (server said: {detail})" if detail else ""
     if status == 400:
-        return f"FAILURE: {host} rejected the task as invalid{suffix}."
+        return _fail(f"{host} rejected the task as invalid{suffix}.", 502, host, nbytes)
     if status == 401:
-        return (
-            f"FAILURE: {host} refused the task because the shared secret did not match. "
-            "Set the same AIRBRIDGE_SECRET on both machines and restart AirBridge."
-        )
+        return _fail(
+            f"{host} refused the task because the shared secret did not match. "
+            "Set the same AIRBRIDGE_SECRET on both machines and restart AirBridge.", 502, host, nbytes)
     if status == 403:
-        return (
-            f"FAILURE: {host} refused the connection because it did not come from a "
-            "Tailscale address. Check that both machines are on the same tailnet."
-        )
+        return _fail(
+            f"{host} refused the connection because it did not come from a "
+            "Tailscale address. Check that both machines are on the same tailnet.", 502, host, nbytes)
     if status == 413:
-        return (
-            f"FAILURE: the task is too large for {host} (limit {security.MAX_BODY_BYTES} bytes). "
-            "Shorten the description or send less code."
-        )
+        return _fail(
+            f"the task is too large for {host} (limit {security.MAX_BODY_BYTES} bytes). "
+            "Shorten the description or send less code.", 413, host, nbytes)
     if status == 429:
-        return f"FAILURE: {host} is rate-limiting requests. Wait a minute and try again."
+        return _fail(f"{host} is rate-limiting requests. Wait a minute and try again.", 429, host, nbytes)
     if 300 <= status < 400:
-        return f"FAILURE: {host} answered with a redirect (HTTP {status}); AirBridge does not follow redirects."
-    return f"FAILURE: {host} returned an unexpected HTTP {status}{suffix}."
+        return _fail(f"{host} answered with a redirect (HTTP {status}); AirBridge does not follow redirects.",
+                     502, host, nbytes)
+    return _fail(f"{host} returned an unexpected HTTP {status}{suffix}.", 502, host, nbytes)
 
 
 async def send_task(
@@ -140,12 +151,51 @@ async def send_task(
     task_description: str,
     code_payload: str | None = None,
 ) -> str:
-    """Implementation of the ``send_task_to_node`` tool."""
+    """Implementation of the ``send_task_to_node`` tool (Phase-1 string result)."""
+    result = await send_task_result(settings, target_hostname, task_description, code_payload)
+    return result["message"]
+
+
+async def send_task_result(
+    settings: config.Settings,
+    target_hostname: str,
+    task_description: str,
+    code_payload: str | None = None,
+    *,
+    origin: str | None = None,
+) -> dict[str, Any]:
+    """Send a task and return a structured result. Never raises.
+
+    Returns ``{ok, status, target, file, error, message, bytes}`` where
+    ``status`` is the HTTP status the control API should answer with (200 on
+    success; 400/404/413/429/502 on failure) and ``message`` is the Phase-1
+    ``SUCCESS: ...``/``FAILURE: ...`` text. Emits ``task_sent`` or
+    ``send_failed`` (origin defaults to the process origin: "mcp" in stdio
+    mode, "daemon" in the desktop daemon).
+    """
     try:
-        return await _send_task(settings, target_hostname, task_description, code_payload)
+        result = await _send_task(settings, target_hostname, task_description, code_payload)
     except Exception as exc:  # last-resort guard: tools never raise
         logger.exception("unexpected error sending task")
-        return f"FAILURE: unexpected error while sending the task: {type(exc).__name__}"
+        result = _fail(f"unexpected error while sending the task: {type(exc).__name__}", 500)
+    _emit_send_event(result, target_hostname, code_payload, origin)
+    return result
+
+
+def _emit_send_event(result: dict[str, Any], raw_target: object, code_payload: str | None, origin: str | None) -> None:
+    try:
+        peer = result.get("target") or (raw_target if isinstance(raw_target, str) else None)
+        peer = (peer or "").strip()[:64] or None
+        if result.get("ok"):
+            what = "code" if code_payload else "task"
+            events.emit("task_sent", peer=peer, summary=f"Sent {what} to {peer}", origin=origin,
+                        bytes=result.get("bytes"), file=result.get("file"))
+        else:
+            where = f" to {peer}" if peer else ""
+            events.emit("send_failed", peer=peer, summary=f"Send failed{where}", origin=origin,
+                        bytes=result.get("bytes"), error=result.get("error"))
+    except Exception:  # events must never break sending
+        logger.exception("could not record send event")
 
 
 async def _send_task(
@@ -153,27 +203,26 @@ async def _send_task(
     target_hostname: str,
     task_description: str,
     code_payload: str | None,
-) -> str:
+) -> dict[str, Any]:
     # --- local validation (same rules the receiver enforces) ---
     try:
         target = security.validate_sender((target_hostname or "").strip())
     except security.SecurityError:
-        return (
-            "FAILURE: invalid target hostname. Use a node name exactly as shown by "
-            "list_airbridge_nodes (letters, digits, '.', '_' or '-', max 64 characters)."
-        )
+        return _fail(
+            "invalid target hostname. Use a node name exactly as shown by "
+            "list_airbridge_nodes (letters, digits, '.', '_' or '-', max 64 characters).", 400)
     try:
         task = security.validate_task_text(task_description or "", security.MAX_TASK_BYTES)
     except security.SecurityError as exc:
-        return f"FAILURE: task_description is not acceptable: {exc}"
+        return _fail(f"task_description is not acceptable: {exc}", 400, target)
     if not task.strip():
-        return "FAILURE: task_description must not be empty."
+        return _fail("task_description must not be empty.", 400, target)
     code: str | None = None
     if code_payload is not None and code_payload != "":
         try:
             code = security.validate_task_text(code_payload, security.MAX_CODE_BYTES)
         except security.SecurityError as exc:
-            return f"FAILURE: code_payload is not acceptable: {exc}"
+            return _fail(f"code_payload is not acceptable: {exc}", 400, target)
 
     body: dict[str, Any] = {
         "sender_node": _local_sender_name(),
@@ -182,22 +231,22 @@ async def _send_task(
     }
     encoded_len = len(json.dumps(body).encode("utf-8"))
     if encoded_len > security.MAX_BODY_BYTES:
-        return (
-            f"FAILURE: the task is too large to send ({encoded_len} bytes encoded, limit "
-            f"{security.MAX_BODY_BYTES}). Shorten the description or send less code."
-        )
+        return _fail(
+            f"the task is too large to send ({encoded_len} bytes encoded, limit "
+            f"{security.MAX_BODY_BYTES}). Shorten the description or send less code.", 413, target, encoded_len)
 
     # --- resolve the target on the tailnet ---
     try:
         ip = await asyncio.to_thread(network.resolve_peer, target)
     except network.TailscaleError as exc:
-        return f"FAILURE: could not query Tailscale: {exc}"
+        return _fail(f"could not query Tailscale: {exc}", 502, target, encoded_len)
     if not ip:
         hint = await _available_hosts_hint()
-        return f"FAILURE: no online node named '{target}' was found on your tailnet. {hint}"
+        return _fail(f"no online node named '{target}' was found on your tailnet. {hint}", 404, target, encoded_len)
     if not security.is_tailnet_ip(ip):
         logger.warning("refusing to send to non-tailnet address %s for %s", security.truncate_for_log(ip, 64), target)
-        return f"FAILURE: '{target}' resolved to {ip}, which is not a Tailscale address; refusing to send."
+        return _fail(f"'{target}' resolved to {ip}, which is not a Tailscale address; refusing to send.",
+                     400, target, encoded_len)
 
     host_part = f"[{ip}]" if ":" in ip else ip
     url = f"http://{host_part}:{settings.port}/incoming_task"
@@ -209,19 +258,17 @@ async def _send_task(
     try:
         resp = await asyncio.to_thread(_post, url, body, headers, settings.http_timeout_s)
     except requests.exceptions.Timeout:
-        return (
-            f"FAILURE: timed out after {settings.http_timeout_s}s waiting for {target} ({ip}). "
-            "The machine may be asleep or AirBridge may be busy."
-        )
+        return _fail(
+            f"timed out after {settings.http_timeout_s}s waiting for {target} ({ip}). "
+            "The machine may be asleep or AirBridge may be busy.", 502, target, encoded_len)
     except requests.exceptions.ConnectionError:
-        return (
-            f"FAILURE: could not connect to {target} ({ip}) on port {settings.port}. "
-            f"Is AirBridge running on {target}?"
-        )
+        return _fail(
+            f"could not connect to {target} ({ip}) on port {settings.port}. "
+            f"Is AirBridge running on {target}?", 502, target, encoded_len)
     except requests.exceptions.RequestException as exc:
-        return f"FAILURE: request to {target} failed: {type(exc).__name__}"
+        return _fail(f"request to {target} failed: {type(exc).__name__}", 502, target, encoded_len)
 
-    result = _interpret_response(resp, target)
+    result = _interpret_response(resp, target, encoded_len)
     logger.info("send to %s finished with HTTP %s", target, resp.status_code)
     return result
 
@@ -278,4 +325,4 @@ def build_mcp_server(settings: config.Settings | None = None) -> MCPServer:
     return server
 
 
-__all__ = ["build_mcp_server", "list_nodes", "send_task"]
+__all__ = ["build_mcp_server", "list_nodes", "send_task", "send_task_result"]

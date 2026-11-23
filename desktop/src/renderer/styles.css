@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Colour tokens (RGB triplets so Tailwind can apply alpha).
+ * Dark is the default; light follows the OS via prefers-color-scheme.
+ * All text/background pairs below meet WCAG AA (4.5:1) for body text.
+ */
+@layer base {
+  :root {
+    color-scheme: dark;
+    --canvas: 11 11 14;        /* #0B0B0E */
+    --surface-1: 20 20 24;     /* #141418 cards */
+    --surface-2: 27 27 33;     /* #1B1B21 raised / inputs */
+    --surface-3: 36 36 44;     /* #24242C hover / pressed */
+    --line: 255 255 255;       /* used at 6–12% alpha */
+    --ink: 245 245 247;        /* #F5F5F7 */
+    --ink-muted: 161 161 170;  /* #A1A1AA */
+    --ink-faint: 139 139 149;  /* #8B8B95 */
+    --accent: 61 99 245;       /* #3D63F5 (white text 4.9:1) */
+    --accent-hover: 82 118 255;
+    --accent-ink: 143 162 255; /* accent used as text on dark */
+    --accent-fg: 255 255 255;
+    --ok: 50 215 75;           /* #32D74B */
+    --ok-dot: 50 215 75;
+    --warn: 255 179 64;
+    --danger: 255 107 107;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      color-scheme: light;
+      --canvas: 245 245 247;
+      --surface-1: 255 255 255;
+      --surface-2: 240 240 243;
+      --surface-3: 230 230 235;
+      --line: 0 0 0;
+      --ink: 29 29 31;
+      --ink-muted: 85 85 92;
+      --ink-faint: 102 102 110;
+      --accent: 46 98 240;     /* #2E62F0 (white text 5.1:1) */
+      --accent-hover: 36 84 214;
+      --accent-ink: 40 82 210;
+      --accent-fg: 255 255 255;
+      --ok: 30 127 55;         /* text-safe green */
+      --ok-dot: 40 180 70;
+      --warn: 154 91 0;
+      --danger: 198 40 40;
+    }
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-canvas font-sans text-[14px] leading-5 text-ink antialiased;
+    font-feature-settings: 'ss01', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Text people may want to copy stays selectable. */
+  pre,
+  code,
+  input,
+  textarea,
+  .selectable {
+    user-select: text;
+    -webkit-user-select: text;
+  }
+
+  ::selection {
+    background: rgb(var(--accent) / 0.35);
+  }
+
+  /* One consistent, highly visible focus ring for keyboard users only. */
+  :focus {
+    outline: none;
+  }
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent-ink));
+    outline-offset: 2px;
+    border-radius: 10px;
+  }
+
+  /* Quiet scrollbars. */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--line) / 0.12);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(var(--line) / 0.2);
+  }
+}
+
+@layer components {
+  .app-drag {
+    -webkit-app-region: drag;
+  }
+  .app-no-drag {
+    -webkit-app-region: no-drag;
+  }
+
+  /* Faint dotted grid behind the swarm map. */
+  .map-backdrop {
+    background-image: radial-gradient(rgb(var(--line) / 0.07) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+}
+
+/* Respect the OS "reduce motion" setting everywhere. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

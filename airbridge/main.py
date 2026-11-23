@@ -6,6 +6,13 @@ to stderr (which Claude Desktop captures into its MCP log) or to the log file.
 Usage:
     python /abs/path/to/airbridge/main.py           # run inbox (HTTP) + outbox (MCP stdio)
     python /abs/path/to/airbridge/main.py --check   # diagnose Tailscale/config, then exit
+    python /abs/path/to/airbridge/main.py --daemon  # desktop-app daemon (inbox + local control API)
+
+Daemon mode (Phase 2) is launched by the AirBridge Pro desktop app with
+AIRBRIDGE_CONTROL_TOKEN (>= 32 random bytes, base64url; required),
+AIRBRIDGE_CONTROL_PORT (0 = ephemeral), AIRBRIDGE_PARENT_PID and optionally
+AIRBRIDGE_DATA_DIR in its environment. It writes one stderr line
+``AIRBRIDGE_READY {"control_port":N,"pid":P}`` once the control API listens.
 
 Exit codes: 0 ok, 1 unexpected error / missing dependency, 2 Tailscale or
 configuration problem (or bad CLI usage), 130 interrupted.
@@ -19,6 +26,8 @@ make Claude Desktop show the whole server as failed, which is worse UX.
 from __future__ import annotations
 
 import asyncio
+import base64
+import binascii
 import contextlib
 import importlib
 import logging
@@ -35,10 +44,13 @@ logger = logging.getLogger("airbridge.main")
 SHUTDOWN_GRACE_S = 5.0
 
 USAGE = (
-    "usage: main.py [--check] [--help]\n"
+    "usage: main.py [--check | --daemon] [--help]\n"
     "  (no args)  run AirBridge as an MCP stdio server (launched by Claude Desktop)\n"
     "  --check    print a Tailscale/configuration diagnostic to stderr and exit\n"
+    "  --daemon   run the desktop-app daemon (needs AIRBRIDGE_CONTROL_TOKEN)\n"
 )
+
+MIN_TOKEN_BYTES = 32
 
 
 def _err(message: str) -> None:
@@ -182,12 +194,84 @@ async def _run(settings, host: str) -> int:
     return 0
 
 
+# --------------------------------------------------------------------------- #
+# --daemon (Phase 2)
+# --------------------------------------------------------------------------- #
+def _token_ok(token: str) -> bool:
+    """True if *token* is base64url (no padding needed) decoding to >= 32 bytes."""
+    if not token or len(token) > 512:
+        return False
+    if any(c not in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_=" for c in token):
+        return False
+    try:
+        raw = base64.urlsafe_b64decode(token + "=" * (-len(token) % 4))
+    except (binascii.Error, ValueError):
+        return False
+    return len(raw) >= MIN_TOKEN_BYTES
+
+
+def _daemon_env(config) -> tuple[str, int, int | None] | None:
+    """Read and validate daemon env vars; on error write to stderr and return None."""
+    token = os.environ.get(config.ENV_CONTROL_TOKEN, "").strip()
+    if not _token_ok(token):
+        _err(
+            f"--daemon requires {config.ENV_CONTROL_TOKEN} (at least {MIN_TOKEN_BYTES} random "
+            "bytes, base64url). It is set by the AirBridge Pro app; refusing to start."
+        )
+        return None
+    raw_port = os.environ.get(config.ENV_CONTROL_PORT, "0").strip() or "0"
+    try:
+        port = int(raw_port)
+        if not 0 <= port <= 65535:
+            raise ValueError
+    except ValueError:
+        _err(f"invalid {config.ENV_CONTROL_PORT}={raw_port!r} (expected 0-65535)")
+        return None
+    raw_ppid = os.environ.get(config.ENV_PARENT_PID, "").strip()
+    parent_pid: int | None = None
+    if raw_ppid:
+        try:
+            parent_pid = int(raw_ppid)
+            if parent_pid <= 0:
+                raise ValueError
+        except ValueError:
+            _err(f"invalid {config.ENV_PARENT_PID}={raw_ppid!r}")
+            return None
+    return token, port, parent_pid
+
+
+def _run_daemon(config, settings) -> int:
+    env = _daemon_env(config)
+    if env is None:
+        return 2
+    token, port, parent_pid = env
+    # Nothing in daemon mode may reach stdout (the desktop app ignores it, but
+    # keep the invariant): route any stray writes to stderr.
+    sys.stdout = sys.stderr
+    try:
+        daemon = _mod("daemon")
+        return asyncio.run(daemon.run_daemon(settings, token=token, control_port=port, parent_pid=parent_pid))
+    except ImportError as exc:
+        logger.exception("dependency import failed")
+        _err(f"missing dependency: {exc}")
+        return 1
+    except KeyboardInterrupt:
+        return 130
+    except Exception as exc:
+        logger.exception("daemon crashed")
+        _err(f"fatal error: {type(exc).__name__}: {exc}. See {settings.log_file}")
+        return 1
+
+
 def main(argv: list[str] | None = None) -> int:
     args = list(sys.argv[1:] if argv is None else argv)
     check = False
+    daemon_mode = False
     for arg in args:
         if arg == "--check":
             check = True
+        elif arg == "--daemon":
+            daemon_mode = True
         elif arg in ("-h", "--help"):
             sys.stderr.write(USAGE)
             return 0
@@ -195,6 +279,10 @@ def main(argv: list[str] | None = None) -> int:
             _err(f"unknown argument {arg!r}")
             sys.stderr.write(USAGE)
             return 2
+    if check and daemon_mode:
+        _err("--check and --daemon cannot be combined")
+        sys.stderr.write(USAGE)
+        return 2
 
     try:
         config = _mod("config")
@@ -210,6 +298,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if check:
         return _run_check(settings)
+
+    if daemon_mode:
+        return _run_daemon(config, settings)
 
     try:
         ip = network.get_local_tailscale_ip()

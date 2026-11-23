@@ -1,0 +1,3 @@
+# Build-only dependencies for the airbridge-core binary (see build_backend.sh / .ps1).
+pyinstaller>=6.10,<7
+pyinstaller-hooks-contrib>=2024.8

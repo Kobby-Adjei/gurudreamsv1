@@ -28,6 +28,14 @@ def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line("markers", "real_notify: do not stub notify.send_notification")
 
 
+@pytest.fixture(autouse=True)
+def _isolated_data_dir(tmp_path_factory: pytest.TempPathFactory, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Phase 2: keep activity.jsonl (events.emit) out of the real user data dir."""
+    data = tmp_path_factory.mktemp("airbridge-data")
+    monkeypatch.setenv("AIRBRIDGE_DATA_DIR", str(data))
+    return data
+
+
 @pytest.fixture
 def inbox_dir(tmp_path: Path) -> Path:
     return tmp_path / "AirBridge_Inbox"

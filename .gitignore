@@ -27,3 +27,11 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+
+# AirBridge Phase 2 build outputs (never commit binaries)
+desktop/resources/bin/
+desktop/out/
+desktop/release/
+airbridge/.build-venv/
+airbridge/build/
+airbridge/dist/
