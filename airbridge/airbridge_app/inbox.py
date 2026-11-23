@@ -179,6 +179,11 @@ def create_app(
             if declared_len > security.MAX_BODY_BYTES:
                 logger.warning("rejected oversized task (%s bytes declared) from %s", declared_len, source_ip)
                 return _error(413, f"payload too large (max {security.MAX_BODY_BYTES} bytes)")
+        # 3. Rate limit per source IP (before reading the body, so floods stay cheap).
+        if not limiter.allow(source_ip):
+            logger.warning("rate limit exceeded for %s", source_ip)
+            return _error(429, "too many requests, slow down")
+
         chunks: list[bytes] = []
         total = 0
         async for chunk in request.stream():
@@ -188,11 +193,6 @@ def create_app(
                 return _error(413, f"payload too large (max {security.MAX_BODY_BYTES} bytes)")
             chunks.append(chunk)
         body = b"".join(chunks)
-
-        # 3. Rate limit per source IP.
-        if not limiter.allow(source_ip):
-            logger.warning("rate limit exceeded for %s", source_ip)
-            return _error(429, "too many requests, slow down")
 
         # 4. Shared secret (only when configured).
         expected = settings.shared_secret
