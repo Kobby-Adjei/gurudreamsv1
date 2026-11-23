@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AirBridge</title>
+<meta name="description" content="Your AI agents on every computer, working together. Privately. Join the early access list.">
+<meta name="theme-color" content="#0D0C0B">
+<meta name="color-scheme" content="dark">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<!-- Replace /assets/og.png with the absolute URL once the domain is live (crawlers want absolute URLs). -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AirBridge">
+<meta property="og:title" content="AirBridge">
+<meta property="og:description" content="Your AI agents on every computer, working together. Privately.">
+<meta property="og:image" content="/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="AirBridge. Your AI agents on every computer, working together. Privately.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="bar wrap">
+  <a class="brand" href="./" aria-label="AirBridge home">
+    <svg class="mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10.875 1.5h2.25v2.3l6.825 18.7h-2.4L12 7.3 6.45 22.5h-2.4l6.825-18.7V1.5Z"/><rect x="0" y="15" width="24" height="2.25" rx="0.75"/></svg>
+    <span>AirBridge</span>
+  </a>
+</header>
+
+<main>
+  <section class="hero wrap" aria-labelledby="headline">
+    <h1 id="headline">Your AI agents on every computer, working together. Privately.</h1>
+
+    <figure class="viz" role="img" aria-label="A task card moves from Claude on a MacBook to Codex on a desktop PC.">
+      <svg viewBox="0 0 640 236" aria-hidden="true" focusable="false">
+        <!-- the bridge: faint rail, then the orange span that draws in behind the card -->
+        <line class="rail" x1="130" y1="104" x2="510" y2="104"/>
+        <line class="span" x1="130" y1="104" x2="510" y2="104" pathLength="1"/>
+
+        <!-- laptop -->
+        <g class="device">
+          <rect class="screen" x="30" y="38" width="200" height="132" rx="9"/>
+          <path class="base" d="M10 170h240v4a6 6 0 0 1-6 6H16a6 6 0 0 1-6-6Z"/>
+          <path class="notch" d="M108 170h44"/>
+        </g>
+
+        <!-- desktop -->
+        <g class="device">
+          <rect class="screen" x="400" y="30" width="220" height="148" rx="9"/>
+          <path class="stand" d="M498 178v22M482 204h44"/>
+        </g>
+
+        <!-- the task: rests on the desktop; the animation brings it over from the laptop -->
+        <g class="card">
+          <rect class="card-bg" x="446" y="86" width="128" height="36" rx="7"/>
+          <rect class="card-tick" x="456" y="98" width="3" height="12" rx="1.5"/>
+          <text class="card-text" x="467" y="108.5">Fix failing tests</text>
+          <g class="card-skel"><rect x="467" y="97" width="64" height="5" rx="2.5"/><rect x="467" y="107" width="42" height="5" rx="2.5"/></g>
+        </g>
+      </svg>
+      <figcaption class="labels" aria-hidden="true">
+        <span class="lbl lbl-a"><b>Claude</b>MacBook</span>
+        <span class="lbl lbl-b"><b>Codex</b>Desktop PC</span>
+      </figcaption>
+    </figure>
+
+    <div class="cta" id="cta">
+      <form id="waitlist" novalidate>
+        <label class="sr" for="email">Email address</label>
+        <div class="row">
+          <input id="email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="you@example.com" required aria-describedby="form-msg">
+          <button type="submit" id="submit">Get early access</button>
+        </div>
+        <div class="hp" aria-hidden="true">
+          <label for="company">Company</label>
+          <input id="company" name="company" type="text" tabindex="-1" autocomplete="off">
+        </div>
+        <p id="form-msg" class="msg" role="alert" aria-live="assertive"></p>
+        <p class="price" id="price">Early access price: $8/month</p>
+        <noscript><p class="price">Sign-up needs JavaScript.</p></noscript>
+      </form>
+      <div class="done" id="done" tabindex="-1" hidden>
+        <p class="done-title">You&rsquo;re on the list.</p>
+        <p class="done-sub">We&rsquo;ll email you when your invite is ready.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="facts wrap" aria-label="In short">
+    <ul>
+      <li>Any agent. Any computer.</li>
+      <li>Private. Your work never touches our servers.</li>
+      <li>Nothing to install but AirBridge.</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="foot wrap">
+  <p>&copy; 2026 AirBridge. Claude, Codex and Cursor are trademarks of their owners. AirBridge is independent and not affiliated with them.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

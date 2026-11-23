@@ -6,6 +6,7 @@ import { loadConfig, type Config } from './config.js';
 import { createHeadscaleClient } from './headscale.js';
 import { createLicenseSigner } from './licenseToken.js';
 import { InMemorySubscriptionStore, PostgresSubscriptionStore, type SubscriptionStore } from './store.js';
+import { JsonlWaitlistStore } from './waitlist.js';
 
 /** Build the production app from environment variables (throws ConfigError with every problem listed). */
 export function buildFromEnv(env: NodeJS.ProcessEnv = process.env): { app: ReturnType<typeof createApp>; config: Config; store: SubscriptionStore } {
@@ -52,6 +53,16 @@ export function buildFromEnv(env: NodeJS.ProcessEnv = process.env): { app: Retur
   if (!config.enforceEntitlement) {
     consoleLogger.warn('entitlement_not_enforced', { hint: 'preview mode: any signed-in user can get a network key; set ENFORCE_ENTITLEMENT=true before launch' });
   }
+  const waitlistStore = new JsonlWaitlistStore(config.waitlistPath);
+  try {
+    waitlistStore.open();
+  } catch (e) {
+    // Non-fatal: the license endpoints keep working; /v1/waitlist answers 503 and retries the open per request.
+    consoleLogger.error('waitlist_storage_unavailable', { err: (e as Error).message });
+  }
+  if (!config.waitlistAdminToken) {
+    consoleLogger.warn('waitlist_admin_disabled', { hint: 'set WAITLIST_ADMIN_TOKEN to enable /v1/waitlist/stats and /export' });
+  }
   const app = createApp({
     store,
     billing,
@@ -67,6 +78,7 @@ export function buildFromEnv(env: NodeJS.ProcessEnv = process.env): { app: Retur
     enforceEntitlement: config.enforceEntitlement,
     billingConfigured: config.billingConfigured,
     authConfigured: config.authConfigured,
+    waitlist: { store: waitlistStore, adminToken: config.waitlistAdminToken },
   });
   return { app, config, store };
 }

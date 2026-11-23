@@ -6,6 +6,7 @@ import type { LicenseSigner } from './licenseToken.js';
 import { registerNetworkRoutes, revokeUserNodes, type NetworkConfig } from './network.js';
 import { RateLimiter } from './rateLimit.js';
 import { isEntitled, type SubscriptionStatus, type SubscriptionStore } from './store.js';
+import { registerWaitlistRoutes, type WaitlistRouteDeps, type WaitlistStore } from './waitlist.js';
 
 export interface Logger {
   info(msg: string, fields?: Record<string, unknown>): void;
@@ -50,6 +51,8 @@ export interface AppDeps {
   billingConfigured?: boolean;
   /** Preview mode without Clerk (default true): false -> authenticated endpoints answer 503 auth_not_configured. */
   authConfigured?: boolean;
+  /** Landing-page waitlist (/v1/waitlist*). null/undefined -> those routes are not registered (404). */
+  waitlist?: { store: WaitlistStore; adminToken: string | null; limits?: WaitlistRouteDeps['limits'] } | null;
 }
 
 const MAX_WEBHOOK_BYTES = 1_000_000;
@@ -276,6 +279,19 @@ export function createApp(deps: AppDeps): Hono {
       perIpPerMinute: deps.rateLimit?.networkPerIpPerMinute,
     },
   });
+
+  // ---------------------------------------------------------------- Landing-page waitlist (demand test)
+  if (deps.waitlist) {
+    registerWaitlistRoutes(app, {
+      store: deps.waitlist.store,
+      adminToken: deps.waitlist.adminToken,
+      limits: deps.waitlist.limits,
+      expectedOrigin: baseUrl,
+      clientIp,
+      now,
+      log,
+    });
+  }
 
   // ---------------------------------------------------------------- Checkout landing pages
   const page = (title: string, body: string) =>

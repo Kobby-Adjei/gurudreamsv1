@@ -1,3 +1,6 @@
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { buildFromEnv } from '../src/bootstrap.js';
 import { ed25519Pair } from './helpers.js';
@@ -10,6 +13,7 @@ function previewApp(extra: Record<string, string> = {}) {
     PUBLIC_BASE_URL: 'https://airbridge.example.com',
     LICENSE_SIGNING_KEY_PEM: ed25519Pair().privatePem,
     LICENSE_KEY_ID: 'ab-preview',
+    WAITLIST_PATH: join(mkdtempSync(join(tmpdir(), 'ab-wl-')), 'w', 'waitlist.jsonl'),
     ...extra,
   }).app;
 }

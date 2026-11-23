@@ -1,4 +1,5 @@
 import { createPrivateKey, type KeyObject } from 'node:crypto';
+import { DEFAULT_WAITLIST_PATH } from './waitlist.js';
 
 export interface Config {
   port: number;
@@ -33,6 +34,10 @@ export interface Config {
    * skips the 402 subscription check (still Clerk-authenticated and rate-limited). /v1/license/verify is unaffected.
    */
   enforceEntitlement: boolean;
+  /** WAITLIST_PATH (default /data/waitlist/waitlist.jsonl): append-only JSONL of landing-page sign-ups and views. */
+  waitlistPath: string;
+  /** WAITLIST_ADMIN_TOKEN (≥32 chars): bearer for /v1/waitlist/stats and /export. null -> those answer 404. */
+  waitlistAdminToken: string | null;
 }
 
 export interface HeadscaleConfig {
@@ -216,6 +221,13 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
 
   const host = env.HOST?.trim() || '0.0.0.0';
 
+  const waitlistPath = env.WAITLIST_PATH?.trim() || DEFAULT_WAITLIST_PATH;
+  if (!waitlistPath.startsWith('/')) problems.push('WAITLIST_PATH must be an absolute path');
+  const waitlistAdminToken = env.WAITLIST_ADMIN_TOKEN?.trim() || null;
+  if (waitlistAdminToken && (isPlaceholder(waitlistAdminToken) || !/^[A-Za-z0-9._~+/=-]{32,256}$/.test(waitlistAdminToken))) {
+    problems.push('WAITLIST_ADMIN_TOKEN must be 32-256 URL/base64-safe characters (e.g. `openssl rand -hex 32`)');
+  }
+
   if (problems.length > 0 || !licenseSigningKey || (authConfigured && !clerkJwksUrl)) {
     throw new ConfigError(problems.length ? problems : ['configuration incomplete']);
   }
@@ -242,6 +254,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     production,
     headscale,
     enforceEntitlement,
+    waitlistPath,
+    waitlistAdminToken,
   };
 }
 

@@ -1,7 +1,7 @@
 import { generateKeyPairSync } from 'node:crypto';
 import { createLocalJWKSet, exportJWK, generateKeyPair, SignJWT, type JWTPayload } from 'jose';
 import Stripe from 'stripe';
-import { createApp, type Logger } from '../src/app.js';
+import { createApp, type AppDeps, type Logger } from '../src/app.js';
 import type { BillingApi, StripeSubscriptionLike } from '../src/billing.js';
 import { createClerkVerifier } from '../src/clerkAuth.js';
 import { createLicenseSigner } from '../src/licenseToken.js';
@@ -78,7 +78,15 @@ export class FakeBilling implements BillingApi {
 }
 
 export async function makeHarness(
-  opts: { verifyPerMinute?: number; now?: () => number; trustProxy?: boolean; trustProxyHops?: number; publicBaseUrl?: string | null } = {},
+  opts: {
+    verifyPerMinute?: number;
+    now?: () => number;
+    trustProxy?: boolean;
+    trustProxyHops?: number;
+    publicBaseUrl?: string | null;
+    waitlist?: AppDeps['waitlist'];
+    logger?: Logger;
+  } = {},
 ) {
   const stripe = new Stripe(FAKE_STRIPE_KEY); // offline: only used for webhook signature helpers
   const store = new InMemorySubscriptionStore();
@@ -96,8 +104,9 @@ export async function makeHarness(
     publicBaseUrl: opts.publicBaseUrl === undefined ? 'https://license.test.example' : opts.publicBaseUrl,
     trustProxy: opts.trustProxy,
     trustProxyHops: opts.trustProxyHops,
-    logger: silentLogger,
+    logger: opts.logger ?? silentLogger,
     now: opts.now,
+    waitlist: opts.waitlist,
     rateLimit: { verifyPerMinute: opts.verifyPerMinute ?? 1000, checkoutPerMinute: 1000 },
   });
 
