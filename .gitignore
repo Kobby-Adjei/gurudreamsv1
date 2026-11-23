@@ -35,8 +35,6 @@ desktop/release/
 airbridge/.build-venv/
 airbridge/build/
 airbridge/dist/
-# AirBridge Phase 3: bundled tailscaled/tailscale built by desktop/scripts/build-tailscale.sh
-# (binaries never committed; manifest.json + licenses are small text and may be)
-desktop/resources/tailscale/*/tailscale
-desktop/resources/tailscale/*/tailscaled
-desktop/resources/tailscale/*/*.exe
+# AirBridge Phase 3 §9: airbridge-net sidecar built by desktop/scripts/build-net.sh / .ps1
+# (binaries and their per-build manifests are never committed; the license notice is)
+desktop/resources/net/

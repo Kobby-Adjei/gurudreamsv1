@@ -110,7 +110,7 @@ export interface BackendLifecycle {
 
 export type McpClient = 'claude' | 'cursor';
 
-/** Embedded private network (PHASE3_PLAN.md §2, TailscaleManager.status()). */
+/** The app's private network (PHASE3_PLAN.md §9, the airbridge-net sidecar via NetManager). */
 export type NetState = 'stopped' | 'starting' | 'needs_login' | 'connecting' | 'connected' | 'error';
 
 export const NET_STATES: readonly NetState[] = ['stopped', 'starting', 'needs_login', 'connecting', 'connected', 'error'] as const;
@@ -119,8 +119,8 @@ export interface NetStatus {
   state: NetState;
   detail?: string;
   ip?: string;
-  /** Which network the backend uses: the bundled private network or the user's own system Tailscale (preview). */
-  mode?: 'embedded' | 'system';
+  /** Always the app's own private network (the app never uses a system Tailscale, §9). */
+  mode?: 'embedded';
 }
 
 export type Unsubscribe = () => void;
@@ -151,7 +151,7 @@ export interface AirbridgeApi {
   };
   network: {
     getStatus(): Promise<NetStatus>;
-    /** Restart tailscaled if stopped/error, then re-run enrollment; resolves to the resulting status. */
+    /** Re-run enrollment (restarts the private network if needed); resolves to the resulting status. */
     retry(): Promise<NetStatus>;
     onChange(cb: (status: NetStatus) => void): Unsubscribe;
   };

@@ -11,33 +11,34 @@ Inbound checks run in a fixed order (see docs/PLAN.md section 3.2):
 4. shared secret, if one is configured              -> 401
 5. payload validation                               -> 400
 
-Embedded network (desktop app, Phase 3): the inbox binds 127.0.0.1 and the
-bundled tailscaled forwards tailnet connections to it, so step 1 is replaced by
-``security.verify_embedded_peer`` - the client must be loopback, LocalAPI
-``whois`` of its ``host:port`` must resolve to a tailnet node, and that node
-must belong to this node's user - else 403. Steps 2-5 are unchanged (the rate
-limit is keyed on the verified sender node instead of the shared loopback IP).
+Sidecar network (desktop app, PHASE3_PLAN.md §9): the ``airbridge-net``
+sidecar (embedded tsnet) owns the private network. It identifies every mesh
+connection with WhoIs, requires the same Headscale user, rate-limits per peer
+and forwards to this inbox on ``127.0.0.1:<ephemeral>`` with
+``X-AirBridge-Sidecar-Token`` (a per-daemon random token registered with the
+sidecar) plus ``X-AirBridge-Peer-Node`` / ``X-AirBridge-Peer-IP``. Step 1 is
+then: the client must be loopback and present that token (constant-time
+compare), else 403 - only then are the peer headers trusted. Steps 2-5 are
+unchanged (the rate limit is keyed on the verified sender node).
 
-Sender identity (embedded): the payload's ``sender_node`` is self-asserted, so
-after validation it is compared with the whois-verified node name
-(``security.embedded_peer_node_name``: control-assigned ``Node.Name``,
-``airbridge-`` prefix stripped), and the payload value is REPLACED by the verified name - that is
-what gets stored, logged and notified. A mismatch is logged; with
-``REJECT_SENDER_MISMATCH`` it is a 400 ``sender_mismatch`` (off until the outbox
-sends its verified name). Matching is on a canonical form (NFKD, lowercase, ``airbridge-``
-stripped, ASCII alphanumerics only) and tolerates Headscale's global
-collision bump (``macbook-pro`` vs verified ``macbook-pro-3``).
+Sender identity (sidecar): the payload's ``sender_node`` is self-asserted, so
+after validation it is compared with the verified node name (control-assigned
+name, ``airbridge-`` prefix stripped) and the payload value is REPLACED by the
+verified name - that is what gets stored, logged and notified. A mismatch is
+logged; with ``REJECT_SENDER_MISMATCH`` it is a 400 ``sender_mismatch``.
+Matching is on a canonical form (NFKD, lowercase, ``airbridge-`` stripped,
+ASCII alphanumerics only) and tolerates Headscale's global collision bump
+(``macbook-pro`` vs verified ``macbook-pro-3``).
 """
 
 from __future__ import annotations
 
-import asyncio
+import hmac
 import logging
 import os
 import re
 import tempfile
 import threading
-import time
 import unicodedata
 from collections.abc import Callable
 from datetime import datetime
@@ -158,41 +159,11 @@ def _client_port(request: Request) -> int:
     return int(request.client.port) if request.client and request.client.port else 0
 
 
-# F-5 (PHASE3_SECURITY.md): every whois miss takes tailscaled's backend lock, so
-# a local flood on :8989 must be throttled BEFORE LocalAPI is asked anything.
-EMBEDDED_MAX_CONCURRENT_LOOKUPS = 8
-EMBEDDED_LOOKUPS_PER_SECOND = 20.0
-EMBEDDED_LOOKUP_BURST = 40
-
-
-class _TokenBucket:
-    """Global (not per-IP: every embedded caller is 127.0.0.1) token bucket."""
-
-    def __init__(self, rate: float, burst: int, clock: Callable[[], float] = time.monotonic) -> None:
-        self.rate = rate
-        self.burst = float(burst)
-        self.tokens = float(burst)
-        self.clock = clock
-        self.stamp = clock()
-        self.lock = threading.Lock()
-
-    def take(self) -> bool:
-        with self.lock:
-            now = self.clock()
-            self.tokens = min(self.burst, self.tokens + (now - self.stamp) * self.rate)
-            self.stamp = now
-            if self.tokens >= 1.0:
-                self.tokens -= 1.0
-                return True
-            return False
-
-
-#: F-13. The stored/notified sender is ALWAYS the whois-verified node name. Rejecting a
-#: mismatching self-asserted ``sender_node`` (400 sender_mismatch) is the target behaviour but
-#: stays off until outbox sends its own verified node name in embedded mode: today it sends
-#: ``socket.gethostname()``, which need not equal the enrolled ``--hostname`` (non-ASCII names,
-#: custom device names; the real-tailnet test's a1/a2 nodes), so rejecting would drop
-#: legitimate tasks. See docs/PHASE3_SECURITY.md section 8.
+#: F-13. The stored/notified sender is ALWAYS the verified node name. Since the sidecar
+#: (§9) the outbox sends its own control-assigned name (sidecar ``/status`` self.hostname),
+#: which is exactly what receivers verify, so rejection (400 sender_mismatch) no longer drops
+#: legitimate app-to-app tasks; turning it on stays a Security decision.
+#: See docs/PHASE3_SECURITY.md section 8.
 REJECT_SENDER_MISMATCH = False
 
 _CANON_DROP_RE = re.compile(r"[^a-z0-9]")
@@ -219,35 +190,47 @@ def sender_matches_verified(claimed: str, verified: str) -> bool:
     return v == c or (v.startswith(c) and v[len(c):].isdigit())
 
 
-def _embedded_identity(backend: Any, host: str, port: int) -> tuple[Any, str]:
-    """Embedded-mode step 1 (blocking: LocalAPI calls) via
-    ``security.verify_embedded_peer`` -> ``(VerifiedPeer, "")`` or ``(None, reason)``.
-    Own user id is fetched lazily (only after whois resolved someone)."""
+_LOOPBACK_HOSTS = ("127.0.0.1", "::1")
+
+
+def sidecar_identity(headers: Any, client_host: str, expected_token: str) -> tuple[Any, str]:
+    """Sidecar-mode step 1 -> ``(security.VerifiedPeer, "")`` or ``(None, reason)``.
+
+    The client must be loopback and present the per-daemon sidecar token
+    (``hmac.compare_digest``); only then are the sidecar's verified peer
+    headers read. A local process that connects directly has no token -> 403.
+    """
+    if client_host not in _LOOPBACK_HOSTS:
+        return None, "forbidden: not_loopback"
+    provided = headers.get(config.SIDECAR_TOKEN_HEADER) or ""
+    if not expected_token or not hmac.compare_digest(provided.encode("utf-8"), expected_token.encode("utf-8")):
+        return None, "forbidden: missing or wrong sidecar token"
     try:
-        peer = security.verify_embedded_peer(host, port, backend.whois, backend.self_user_id)
-    except security.SecurityError as exc:
-        return None, f"forbidden: {getattr(exc, 'reason', 'unverified')}"
-    except Exception:
-        logger.exception("embedded peer verification failed")
-        return None, "forbidden: could not verify sender"
-    return peer, ""
+        node = security.embedded_peer_node_name(headers.get(config.PEER_NODE_HEADER) or "")
+    except security.SecurityError:
+        return None, "forbidden: bad_peer"
+    ip = (headers.get(config.PEER_IP_HEADER) or "").strip() or None
+    if ip is not None and not security.is_tailnet_ip(ip):
+        return None, "forbidden: bad_peer"
+    user = (headers.get("X-AirBridge-Peer-User") or "").strip()
+    user_id = user if user.isdigit() and len(user) <= 20 else ""
+    return security.VerifiedPeer(node, user_id, ip, None), ""
 
 
 def create_app(
     settings: config.Settings,
     peers_provider: Callable[[], dict[str, str]] = network.get_airbridge_peers,
     *,
-    backend: Any = None,
+    sidecar_token: str | None = None,
 ) -> FastAPI:
     """Build the inbox FastAPI application.
 
     ``peers_provider`` is kept for API compatibility and future use (verifying
     that the sender is a known peer); the required check is the tailnet range.
-    ``backend``: an embedded :mod:`netbackend` backend switches step 1 to the
-    loopback + whois + same-user check; None (default) keeps the Phase-1
-    tailnet-source-IP check.
+    ``sidecar_token``: set -> sidecar mode (loopback + sidecar token + verified
+    peer headers); None (default) keeps the Phase-1 tailnet-source-IP check.
     """
-    embedded = getattr(backend, "kind", None) == "embedded"
+    sidecar = sidecar_token is not None
     app = FastAPI(
         title="AirBridge Inbox",
         docs_url=None,
@@ -261,25 +244,12 @@ def create_app(
     app.state.settings = settings
     app.state.peers_provider = peers_provider
 
-    lookup_slots = asyncio.Semaphore(EMBEDDED_MAX_CONCURRENT_LOOKUPS)
-    lookup_bucket = _TokenBucket(EMBEDDED_LOOKUPS_PER_SECOND, EMBEDDED_LOOKUP_BURST)
-    app.state.lookup_bucket = lookup_bucket
-
-    async def _verify_embedded(request: Request) -> tuple[Any, int, str]:
-        """(peer, 0, "") or (None, status, detail). 429 = throttled before any LocalAPI call."""
-        if not lookup_bucket.take() or lookup_slots.locked():
-            return None, 429, "too many requests, slow down"
-        async with lookup_slots:
-            peer, reason = await run_in_threadpool(
-                _embedded_identity, backend, _client_ip(request), _client_port(request))
-        return (peer, 0, "") if peer is not None else (None, 403, reason)
-
     @app.get("/health")
     async def health(request: Request) -> JSONResponse:
-        if embedded:
-            peer, status, detail = await _verify_embedded(request)
+        if sidecar:
+            peer, reason = sidecar_identity(request.headers, _client_ip(request), sidecar_token or "")
             if peer is None:
-                return _error(status, detail)
+                return _error(403, reason)
         elif not security.is_tailnet_ip(_client_ip(request)):
             return _error(403, "forbidden: not a tailnet address")
         return JSONResponse(status_code=200, content={"status": "ok"})
@@ -289,15 +259,15 @@ def create_app(
         source_ip = _client_ip(request)
         limit_key = source_ip
 
-        # 1. Tailnet only (embedded: loopback + whois + same user).
-        if embedded:
-            peer, status, detail = await _verify_embedded(request)
+        # 1. Tailnet only (sidecar: loopback + sidecar token, then the verified peer headers).
+        if sidecar:
+            peer, detail = sidecar_identity(request.headers, source_ip, sidecar_token or "")
             if peer is None:
                 logger.warning("rejected task from unverified local connection %s:%s (%s)",
                                source_ip, _client_port(request), detail)
-                return _error(status, detail)
+                return _error(403, detail)
             source_ip = peer.tailnet_ip or source_ip
-            limit_key = "node:" + str(peer.node_id or peer.node)
+            limit_key = "node:" + str(peer.node)
         elif not security.is_tailnet_ip(source_ip):
             logger.warning("rejected task from non-tailnet address %s", source_ip)
             return _error(403, "forbidden: not a tailnet address")
@@ -343,8 +313,8 @@ def create_app(
             logger.warning("rejected invalid task from %s: %s", source_ip, detail)
             return _error(400, detail)
 
-        # 5b. Embedded: the sender identity comes from whois, never from the payload.
-        if embedded:
+        # 5b. Sidecar: the sender identity comes from the sidecar's WhoIs, never from the payload.
+        if sidecar:
             verified = str(peer)
             if not sender_matches_verified(payload.sender_node, verified):
                 if REJECT_SENDER_MISMATCH:

@@ -33,11 +33,15 @@ ENV_CONTROL_PORT = "AIRBRIDGE_CONTROL_PORT"
 ENV_PARENT_PID = "AIRBRIDGE_PARENT_PID"
 APP_DIRNAME = "AirBridge"
 
-# Phase 3 (embedded private network).
-ENV_NETWORK = "AIRBRIDGE_NETWORK"  # auto | embedded | system
-ENV_TS_SOCKET = "AIRBRIDGE_TS_SOCKET"
-ENV_TS_SOCKS5 = "AIRBRIDGE_TS_SOCKS5"
-NETWORK_MODES = ("auto", "embedded", "system")
+# Phase 3 (private network). PHASE3_PLAN.md §9: the desktop app's network is the
+# airbridge-net sidecar (embedded tsnet); "system" is the Phase-1 free CLI's own Tailscale.
+ENV_NETWORK = "AIRBRIDGE_NETWORK"  # auto | sidecar | system
+ENV_NET_URL = "AIRBRIDGE_NET_URL"  # sidecar control API, http://[::1]:<port> (daemon env)
+ENV_NET_TOKEN = "AIRBRIDGE_NET_TOKEN"  # sidecar control token (daemon env; never logged)
+NETWORK_MODES = ("auto", "sidecar", "system")
+SIDECAR_TOKEN_HEADER = "X-AirBridge-Sidecar-Token"
+PEER_NODE_HEADER = "X-AirBridge-Peer-Node"
+PEER_IP_HEADER = "X-AirBridge-Peer-IP"
 NETWORK_JSON = "network.json"
 _NETWORK_JSON_MAX_BYTES = 64 * 1024
 
@@ -71,7 +75,7 @@ def default_data_dir() -> Path:
 
 
 def network_mode() -> str:
-    """``AIRBRIDGE_NETWORK`` (auto|embedded|system); anything else means auto."""
+    """``AIRBRIDGE_NETWORK`` (auto|sidecar|system); anything else means auto."""
     raw = os.environ.get(ENV_NETWORK, "").strip().lower()
     if raw in NETWORK_MODES:
         return raw
@@ -85,9 +89,11 @@ def network_json_path(data_dir: Path | None = None) -> Path:
 
 
 def read_network_json(data_dir: Path | None = None) -> dict | None:
-    """Parse ``<data dir>/network.json`` (written by the desktop app's
-    TailscaleManager). Returns None when absent, unreadable, not a regular
-    file, oversized, or not a v1 object. Values are validated by the caller."""
+    """Parse ``<data dir>/network.json`` (v2, written by the desktop app's
+    NetManager: ``{v:2, mode:"sidecar", control_url_local, control_token, pid,
+    bin, ...}``). Returns None when absent, unreadable, not a regular file,
+    oversized, not ours / group-other-writable (POSIX), or not a v2 sidecar
+    object. Values are validated by the caller."""
     path = network_json_path(data_dir)
     try:
         flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
@@ -99,7 +105,7 @@ def read_network_json(data_dir: Path | None = None) -> dict | None:
         if not stat.S_ISREG(st.st_mode) or st.st_size > _NETWORK_JSON_MAX_BYTES:
             return None
         # F-8: on POSIX the file must be ours and not group/other-writable,
-        # or another local user could point us at a fake LocalAPI / SOCKS.
+        # or another local user could point us at a fake sidecar.
         if os.name != "nt":
             if st.st_uid != os.getuid() or st.st_mode & 0o022:
                 _logger.warning("ignoring %s: wrong owner or group/other-writable", path)
@@ -112,7 +118,7 @@ def read_network_json(data_dir: Path | None = None) -> dict | None:
     finally:
         if fd >= 0:
             os.close(fd)
-    if not isinstance(data, dict) or data.get("v") != 1:
+    if not isinstance(data, dict) or data.get("v") != 2 or data.get("mode") != "sidecar":
         return None
     return data
 

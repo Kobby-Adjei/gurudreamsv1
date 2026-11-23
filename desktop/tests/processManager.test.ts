@@ -374,14 +374,22 @@ describe('license gate -> process manager', () => {
 // ------------------------------------------------------------------ Phase 3
 
 describe('Phase 3: network env + IPv6 control host', () => {
-  it('passes the embedded-network env from extraEnv at every spawn, never inherited', async () => {
+  it('passes the sidecar env from extraEnv at every spawn, never inherited', async () => {
+    const tok = 'sidecar-control-token-0123456789abcdefghijk';
     let net: Record<string, string> | null = {
-      AIRBRIDGE_NETWORK: 'embedded',
-      AIRBRIDGE_TS_SOCKET: '/data/tailscaled.sock',
-      AIRBRIDGE_TS_SOCKS5: '[::1]:41234',
+      AIRBRIDGE_NETWORK: 'sidecar',
+      AIRBRIDGE_NET_URL: 'http://[::1]:41234',
+      AIRBRIDGE_NET_TOKEN: tok,
+      AIRBRIDGE_TS_SOCKET: '/must/not/pass',
     };
     const { pm, calls } = makePm({
-      env: { PATH: '/usr/bin', AIRBRIDGE_NETWORK: 'system', AIRBRIDGE_TS_SOCKS5: '127.0.0.1:1' },
+      env: {
+        PATH: '/usr/bin',
+        AIRBRIDGE_NETWORK: 'system',
+        AIRBRIDGE_NET_URL: 'http://127.0.0.1:1',
+        AIRBRIDGE_NET_TOKEN: 'stale',
+        AIRBRIDGE_TS_SOCKS5: '127.0.0.1:1',
+      },
       extraEnv: () => net,
     });
     const started = pm.start();
@@ -389,10 +397,12 @@ describe('Phase 3: network env + IPv6 control host', () => {
     calls[0]!.child.ready();
     await started;
     const env = calls[0]!.options.env as Record<string, string>;
-    expect(env.AIRBRIDGE_NETWORK).toBe('embedded');
-    expect(env.AIRBRIDGE_TS_SOCKET).toBe('/data/tailscaled.sock');
-    expect(env.AIRBRIDGE_TS_SOCKS5).toBe('[::1]:41234');
-    expect(calls[0]!.args.join(' ')).not.toContain('41234');
+    expect(env.AIRBRIDGE_NETWORK).toBe('sidecar');
+    expect(env.AIRBRIDGE_NET_URL).toBe('http://[::1]:41234');
+    expect(env.AIRBRIDGE_NET_TOKEN).toBe(tok);
+    expect(env.AIRBRIDGE_TS_SOCKET).toBeUndefined(); // only the allow-listed network keys
+    expect(env.AIRBRIDGE_TS_SOCKS5).toBeUndefined();
+    expect(calls[0]!.args.join(' ')).not.toContain(tok); // never on argv
     await pm.stop();
 
     net = null; // network unavailable -> no stale inherited values
@@ -402,7 +412,8 @@ describe('Phase 3: network env + IPv6 control host', () => {
     await again;
     const env2 = calls[1]!.options.env as Record<string, string>;
     expect(env2.AIRBRIDGE_NETWORK).toBeUndefined();
-    expect(env2.AIRBRIDGE_TS_SOCKS5).toBeUndefined();
+    expect(env2.AIRBRIDGE_NET_URL).toBeUndefined();
+    expect(env2.AIRBRIDGE_NET_TOKEN).toBeUndefined();
     await pm.stop();
   });
 

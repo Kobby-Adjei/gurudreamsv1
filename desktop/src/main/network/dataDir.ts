@@ -1,7 +1,7 @@
 /**
  * The shared per-user data dir `D` (PHASE3_PLAN.md "Spec deviation"): byte-for-byte the same rule as
- * Python `airbridge_app.config.default_data_dir()`, so the desktop app (TailscaleManager writes
- * `<D>/network.json`, tailscaled state, logs), the daemon and the MCP stdio process all agree.
+ * Python `airbridge_app.config.default_data_dir()`, so the desktop app (NetManager writes
+ * `<D>/network.json`, the sidecar's tsnet state, logs), the daemon and the MCP stdio process all agree.
  *
  *   AIRBRIDGE_DATA_DIR (stripped, `~` expanded)   overrides everything
  *   macOS    ~/Library/Application Support/AirBridge

@@ -1,17 +1,16 @@
 """Phase 3 ("Invisible Network") security tests - Security-owned.
 
 * ``security.verify_embedded_peer`` table tests (pure; fake whois callables).
-* Inbox integration in embedded mode with a fake backend: direct loopback with
-  unknown whois -> 403, foreign user -> 403, same user -> 201.
-* ``netbackend.EmbeddedTailscale.whois`` against a fake LocalAPI on a Unix
-  socket: the query must pin ``proto=tcp`` (a UDP ProxyMapper entry must never
-  vouch for a TCP connection - see docs/PHASE3_SECURITY.md F-2).
-* Outbox (AST): embedded mode uses ``socks5h://`` proxies and ``trust_env=False``.
-* Desktop TS (static): no auth key in tailscaled/tailscale argv or env, and the
-  fixed tailscaled argv contract.
-
-Integration tests skip (with an explicit reason) only while the owning module
-has not implemented embedded mode yet; once it has, they are hard requirements.
+* Inbox integration in sidecar mode (PHASE3_PLAN.md §9; the airbridge-net sidecar does the
+  WhoIs + same-user check and forwards with a per-daemon token): direct loopback without the
+  sidecar token -> 403 (whatever peer headers it forges), wrong token -> 403, non-loopback
+  -> 403, token + verified peer -> 201 with the verified sender recorded.
+  (The bundled-tailscaled LocalAPI whois path was removed with §9; the WhoIs/same-user
+  checks now live in the sidecar's Go tests: desktop/sidecar/airbridge-net/handlers_test.go.)
+* Sidecar client: bearer + exact Host on every control-API request, no proxies.
+* Outbox (AST): ``trust_env=False``; sidecar mode sends a hostname, never an IP.
+* Desktop TS (static): the pre-auth key travels only on the sidecar's stdin (never argv,
+  env, a file or a log line); fixed sidecar spawn contract.
 """
 
 from __future__ import annotations
@@ -315,45 +314,9 @@ def test_node_name_rejects(name: Any) -> None:
 
 
 # --------------------------------------------------------------------------- #
-# Inbox integration (embedded mode, fake backend)
+# Inbox integration (sidecar mode)
 # --------------------------------------------------------------------------- #
-def _inbox_supports_embedded() -> bool:
-    src = (APP / "inbox.py").read_text(encoding="utf-8")
-    return "verify_embedded_peer" in src
-
-
-class FakeEmbeddedBackend:
-    kind = "embedded"
-
-    def __init__(self, whois_result: Any, self_uid: Any = SELF_UID) -> None:
-        self.whois_result = whois_result
-        self.self_uid = self_uid
-        self.whois_calls: list[str] = []
-
-    def whois(self, remote_addr: str) -> Any:
-        self.whois_calls.append(remote_addr)
-        return self.whois_result
-
-    def self_user_id(self) -> Any:
-        return self.self_uid
-
-    def inbound_bind_host(self) -> str:
-        return "127.0.0.1"
-
-    def requests_proxies(self) -> dict[str, str]:
-        return {"http": "socks5h://127.0.0.1:1080"}
-
-    def local_ip(self) -> str:
-        return "100.64.0.1"
-
-    def peers(self) -> dict[str, str]:
-        return {}
-
-    def peer_details(self) -> dict[str, Any]:
-        return {"self": {}, "nodes": []}
-
-    def resolve(self, host: str) -> str | None:
-        return None
+SIDECAR_TOKEN = "sidecar-token-0123456789abcdefghijklmnopqrstuv"
 
 
 def _payload() -> dict[str, Any]:
@@ -364,16 +327,24 @@ def _payload() -> dict[str, Any]:
     }
 
 
+def _peer_headers(node: str = "airbridge-laptop", ip: str | None = "100.64.0.9",
+                  token: str | None = SIDECAR_TOKEN) -> dict[str, str]:
+    h = {"X-AirBridge-Peer-Node": node}
+    if ip is not None:
+        h["X-AirBridge-Peer-IP"] = ip
+    if token is not None:
+        h["X-AirBridge-Sidecar-Token"] = token
+    return h
+
+
 @pytest.fixture
-def embedded_client(settings):  # noqa: ANN001, ANN201
-    if not _inbox_supports_embedded():
-        pytest.skip("PENDING (Systems): inbox.py has no embedded mode yet (no verify_embedded_peer call)")
+def sidecar_client(settings):  # noqa: ANN001, ANN201
     from fastapi.testclient import TestClient
 
     from airbridge_app import inbox
 
-    def make(backend: FakeEmbeddedBackend, client: tuple[str, int] = ("127.0.0.1", 41234)) -> TestClient:
-        app = inbox.create_app(settings, peers_provider=lambda: {}, backend=backend)
+    def make(client: tuple[str, int] = ("127.0.0.1", 41234)) -> TestClient:
+        app = inbox.create_app(settings, peers_provider=lambda: {}, sidecar_token=SIDECAR_TOKEN)
         return TestClient(app, client=client)
 
     return make
@@ -383,70 +354,78 @@ def _md(inbox_dir: Path) -> list[Path]:
     return sorted(inbox_dir.glob("*.md")) if inbox_dir.exists() else []
 
 
-def test_embedded_direct_local_connection_unknown_whois_403(embedded_client, inbox_dir) -> None:  # noqa: ANN001
-    backend = FakeEmbeddedBackend(None)
-    r = embedded_client(backend).post("/incoming_task", json=_payload())
+def test_sidecar_direct_local_connection_without_token_403(sidecar_client, inbox_dir) -> None:  # noqa: ANN001
+    """A local process that forges the peer headers but has no sidecar token is refused."""
+    r = sidecar_client().post("/incoming_task", json=_payload(), headers=_peer_headers(token=None))
     assert r.status_code == 403
-    assert backend.whois_calls == ["127.0.0.1:41234"]
+    assert "sidecar token" in r.json()["detail"]
     assert _md(inbox_dir) == []
-    h = embedded_client(FakeEmbeddedBackend(None)).get("/health")
-    assert h.status_code == 403
+    assert sidecar_client().get("/health").status_code == 403
 
 
-def test_embedded_foreign_user_403(embedded_client, inbox_dir) -> None:  # noqa: ANN001
-    r = embedded_client(FakeEmbeddedBackend(FOREIGN)).post("/incoming_task", json=_payload())
-    assert r.status_code == 403
-    assert _md(inbox_dir) == []
-
-
-def test_embedded_bad_whois_403(embedded_client, inbox_dir) -> None:  # noqa: ANN001
-    r = embedded_client(FakeEmbeddedBackend({"node": "x y", "user_id": SELF_UID})).post(
-        "/incoming_task", json=_payload()
-    )
+@pytest.mark.parametrize("token", ["", "wrong", SIDECAR_TOKEN + "x", SIDECAR_TOKEN[:-1], SIDECAR_TOKEN.upper()])
+def test_sidecar_wrong_token_403(sidecar_client, inbox_dir, token) -> None:  # noqa: ANN001
+    r = sidecar_client().post("/incoming_task", json=_payload(), headers=_peer_headers(token=token))
     assert r.status_code == 403
     assert _md(inbox_dir) == []
 
 
-def test_embedded_unknown_own_identity_403(embedded_client, inbox_dir) -> None:  # noqa: ANN001
-    r = embedded_client(FakeEmbeddedBackend(SAME, self_uid=None)).post("/incoming_task", json=_payload())
+def test_sidecar_token_compared_in_constant_time() -> None:
+    src = (APP / "inbox.py").read_text(encoding="utf-8")
+    assert "hmac.compare_digest" in src
+
+
+def test_sidecar_rejects_non_loopback_source_even_with_token(sidecar_client, inbox_dir) -> None:  # noqa: ANN001
+    r = sidecar_client(client=("100.64.0.9", 41234)).post("/incoming_task", json=_payload(),
+                                                         headers=_peer_headers())
     assert r.status_code == 403
     assert _md(inbox_dir) == []
 
 
-def test_embedded_same_user_201(embedded_client, inbox_dir) -> None:  # noqa: ANN001
-    r = embedded_client(FakeEmbeddedBackend(SAME)).post("/incoming_task", json=_payload())
+@pytest.mark.parametrize("node,ip", [("", "100.64.0.9"), ("x y", "100.64.0.9"), ("a/b", None),
+                                     ("airbridge-laptop", "8.8.8.8"), ("airbridge-laptop", "127.0.0.1")])
+def test_sidecar_bad_peer_headers_403(sidecar_client, inbox_dir, node, ip) -> None:  # noqa: ANN001
+    r = sidecar_client().post("/incoming_task", json=_payload(), headers=_peer_headers(node=node, ip=ip))
+    assert r.status_code == 403
+    assert _md(inbox_dir) == []
+
+
+def test_sidecar_same_user_201(sidecar_client, inbox_dir) -> None:  # noqa: ANN001
+    r = sidecar_client().post("/incoming_task", json=_payload(), headers=_peer_headers())
     assert r.status_code == 201, r.text
-    assert len(_md(inbox_dir)) == 1
+    files = _md(inbox_dir)
+    assert len(files) == 1
+    assert "100.64.0.9" in files[0].read_text(encoding="utf-8")  # verified tailnet IP recorded
 
 
-def test_embedded_same_user_raw_shape_201(embedded_client, inbox_dir) -> None:  # noqa: ANN001
-    r = embedded_client(FakeEmbeddedBackend(RAW_SAME)).post("/incoming_task", json=_payload())
-    assert r.status_code == 201, r.text
+def test_sidecar_mode_is_off_without_a_token(settings) -> None:  # noqa: ANN001
+    """No sidecar token configured -> Phase-1 rules: loopback is not a tailnet address."""
+    from fastapi.testclient import TestClient
 
+    from airbridge_app import inbox
 
-def test_embedded_rejects_non_loopback_source_even_if_tailnet(embedded_client) -> None:  # noqa: ANN001
-    backend = FakeEmbeddedBackend(SAME)
-    r = embedded_client(backend, client=("100.64.0.9", 41234)).post("/incoming_task", json=_payload())
+    app = inbox.create_app(settings, peers_provider=lambda: {})
+    r = TestClient(app, client=("127.0.0.1", 41234)).post("/incoming_task", json=_payload(),
+                                                         headers=_peer_headers())
     assert r.status_code == 403
-    assert backend.whois_calls == []
 
 
 def _payload_from(sender: str) -> dict[str, Any]:
     return {**_payload(), "sender_node": sender}
 
 
-def test_embedded_sender_mismatch_is_overwritten_with_verified(embedded_client, inbox_dir) -> None:  # noqa: ANN001
-    r = embedded_client(FakeEmbeddedBackend(SAME)).post("/incoming_task", json=_payload_from("desktop"))
+def test_sidecar_sender_mismatch_is_overwritten_with_verified(sidecar_client, inbox_dir) -> None:  # noqa: ANN001
+    r = sidecar_client().post("/incoming_task", json=_payload_from("desktop"), headers=_peer_headers())
     assert r.status_code == 201
     text = _md(inbox_dir)[0].read_text(encoding="utf-8")
     assert "laptop" in text and "desktop" not in text  # self-asserted name never recorded
 
 
-def test_embedded_sender_mismatch_400_when_reject_enabled(embedded_client, inbox_dir, monkeypatch) -> None:  # noqa: ANN001
+def test_sidecar_sender_mismatch_400_when_reject_enabled(sidecar_client, inbox_dir, monkeypatch) -> None:  # noqa: ANN001
     from airbridge_app import inbox
 
     monkeypatch.setattr(inbox, "REJECT_SENDER_MISMATCH", True)
-    r = embedded_client(FakeEmbeddedBackend(SAME)).post("/incoming_task", json=_payload_from("desktop"))
+    r = sidecar_client().post("/incoming_task", json=_payload_from("desktop"), headers=_peer_headers())
     assert r.status_code == 400
     assert "sender_mismatch" in r.json()["detail"]
     assert _md(inbox_dir) == []
@@ -456,15 +435,14 @@ def test_embedded_sender_mismatch_400_when_reject_enabled(embedded_client, inbox
     ("claimed", "verified_name", "stored"),
     [
         ("laptop", "airbridge-laptop", "laptop"),
-        ("Laptop", "airbridge-laptop.u-abc.example.com.", "laptop"),
+        ("Laptop", "airbridge-laptop", "laptop"),
         ("airbridge-laptop", "airbridge-laptop", "laptop"),
         ("MacBook-Pro", "airbridge-macbook-pro-3", "macbook-pro-3"),  # Headscale global collision bump
-        ("Jane-s-MacBook-Pro", "airbridge-janes-macbook-pro", "janes-macbook-pro"),  # outbox vs enroll sanitizers
+        ("Jane-s-MacBook-Pro", "airbridge-janes-macbook-pro", "janes-macbook-pro"),
     ],
 )
-def test_embedded_sender_replaced_by_verified_name(embedded_client, inbox_dir, claimed, verified_name, stored) -> None:  # noqa: ANN001
-    backend = FakeEmbeddedBackend({"node": verified_name, "user_id": SELF_UID, "tailnet_ip": "100.64.0.9"})
-    r = embedded_client(backend).post("/incoming_task", json=_payload_from(claimed))
+def test_sidecar_sender_replaced_by_verified_name(sidecar_client, inbox_dir, claimed, verified_name, stored) -> None:  # noqa: ANN001
+    r = sidecar_client().post("/incoming_task", json=_payload_from(claimed), headers=_peer_headers(node=verified_name))
     assert r.status_code == 201, r.text
     files = _md(inbox_dir)
     assert len(files) == 1
@@ -519,106 +497,31 @@ def test_system_mode_still_rejects_loopback(settings) -> None:  # noqa: ANN001
 
 
 # --------------------------------------------------------------------------- #
-# netbackend.EmbeddedTailscale.whois against a fake LocalAPI (Unix socket)
+# Sidecar control-API client
 # --------------------------------------------------------------------------- #
-class _UnixHTTPServer(socketserver.ThreadingMixIn, socketserver.UnixStreamServer):
-    daemon_threads = True
+def test_sidecar_client_sends_bearer_and_exact_host(tmp_path) -> None:  # noqa: ANN001
+    sys.path.insert(0, str(Path(__file__).parent))
+    from fake_sidecar import TOKEN, FakeSidecar
 
-
-@pytest.fixture
-def fake_localapi(tmp_path: Path):  # noqa: ANN201
-    if not hasattr(socket, "AF_UNIX") or sys.platform.startswith("win"):
-        pytest.skip("Unix sockets only")
-    if not (APP / "netbackend.py").exists():
-        pytest.skip("PENDING (Systems): netbackend.py not present yet")
-    seen: list[dict[str, Any]] = []
-    whois_body = json.dumps(RAW_SAME).encode()
-    status_body = json.dumps({"BackendState": "Running", "Self": {"UserID": SELF_UID, "HostName": "airbridge-me",
-                                                                  "TailscaleIPs": ["100.64.0.1"]}, "Peer": {}}).encode()
-
-    class Handler(BaseHTTPRequestHandler):
-        protocol_version = "HTTP/1.1"
-
-        def log_message(self, *a: Any) -> None:  # client_address is '' on AF_UNIX
-            pass
-
-        def do_GET(self) -> None:  # noqa: N802
-            u = urlsplit(self.path)
-            seen.append({"path": u.path, "query": parse_qs(u.query), "headers": dict(self.headers)})
-            body = whois_body if u.path == "/localapi/v0/whois" else status_body
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Content-Length", str(len(body)))
-            self.send_header("Connection", "close")
-            self.end_headers()
-            self.wfile.write(body)
-
-    sock_path = tmp_path / "ts.sock"
-    srv = _UnixHTTPServer(str(sock_path), Handler)
-    t = threading.Thread(target=srv.serve_forever, daemon=True)
-    t.start()
-    try:
-        yield str(sock_path), seen
-    finally:
-        srv.shutdown()
-        srv.server_close()
-
-
-def test_netbackend_whois_pins_proto_tcp(fake_localapi) -> None:  # noqa: ANN001
-    """F-2: tailscaled's WhoIs tries tcp *then udp* when proto is omitted
-    (ipn/ipnlocal/local.go:1775-1787). netstack registers UDP flows to
-    127.0.0.1:<peer-chosen src port> for 2 min (netstack.go:2133,2179), so a
-    local process that connects over TCP from that same port number would be
-    attributed to the peer. The LocalAPI query must carry proto=tcp."""
     from airbridge_app import netbackend
 
-    sock, seen = fake_localapi
-    be = netbackend.EmbeddedTailscale(sock, "127.0.0.1:1080")
-    res = be.whois("127.0.0.1:41234")
-    assert res is not None
-    whois_reqs = [s for s in seen if s["path"] == "/localapi/v0/whois"]
-    assert len(whois_reqs) == 1
-    q = whois_reqs[0]["query"]
-    assert q.get("addr") == ["127.0.0.1:41234"]
-    assert q.get("proto") == ["tcp"], f"whois must pin proto=tcp, got query {q}"
-    hdrs = {k.lower(): v for k, v in whois_reqs[0]["headers"].items()}
-    assert hdrs.get("sec-tailscale") == "localapi"
+    with FakeSidecar() as sc:
+        be = netbackend.SidecarBackend(sc.url, TOKEN)
+        be.status()
+        be.peer_details()
+        assert be.requests_proxies() is None
+        for req in sc.requests:
+            assert req["headers"]["Authorization"] == "Bearer " + TOKEN
+            assert req["headers"]["Host"] == f"127.0.0.1:{sc.port}"
+            assert "Origin" not in req["headers"]
 
 
-def test_netbackend_whois_output_verifies(fake_localapi) -> None:  # noqa: ANN001
-    """Shape compatibility: whatever netbackend.whois returns must pass verify_embedded_peer."""
+def test_sidecar_client_refuses_non_loopback_endpoints() -> None:
     from airbridge_app import netbackend
 
-    sock, _ = fake_localapi
-    be = netbackend.EmbeddedTailscale(sock, "127.0.0.1:1080")
-    peer = verify_embedded_peer("127.0.0.1", 41234, be.whois, be.self_user_id)
-    assert peer == "laptop"  # control-assigned Node.Name, not the peer-asserted Hostinfo.Hostname (F-7)
-    assert peer.user_id == str(SELF_UID)
-
-
-def test_netbackend_embedded_proxies_are_socks5h_loopback() -> None:
-    if not (APP / "netbackend.py").exists():
-        pytest.skip("PENDING (Systems): netbackend.py not present yet")
-    from airbridge_app import netbackend
-
-    proxies = netbackend.EmbeddedTailscale("/nonexistent.sock", "127.0.0.1:1080").requests_proxies()
-    assert proxies and "http" in proxies
-    for scheme, url in proxies.items():
-        # socks5h: hostname resolution happens inside tailscaled (no local DNS leak of peer names)
-        assert re.fullmatch(r"socks5h://127\.0\.0\.1:\d{1,5}", url), (scheme, url)
-
-
-def test_netbackend_rejects_non_loopback_socks5_endpoint() -> None:
-    if not (APP / "netbackend.py").exists():
-        pytest.skip("PENDING (Systems): netbackend.py not present yet")
-    from airbridge_app import netbackend
-
-    validate = getattr(netbackend, "_valid_socks5", None)
-    if validate is None:
-        pytest.skip("no socks5 validator exposed")
-    for bad in ["0.0.0.0:1080", "localhost:1080", "10.0.0.1:1080", "127.0.0.1:0", "127.0.0.1:99999", "127.0.0.1"]:
-        assert validate(bad) is None, bad
-    assert validate("127.0.0.1:1080") == "127.0.0.1:1080"
+    for bad in ["http://0.0.0.0:1080", "http://localhost:1080", "http://10.0.0.1:1080", "http://127.0.0.1:0",
+                "http://100.64.0.2:8989", "https://127.0.0.1:1"]:
+        assert netbackend.parse_sidecar_url(bad) is None, bad
 
 
 # --------------------------------------------------------------------------- #
@@ -648,32 +551,14 @@ def test_outbox_session_never_trusts_env() -> None:
                 )
 
 
-def test_outbox_passes_backend_proxies_in_embedded_mode() -> None:
-    src = (APP / "outbox.py").read_text(encoding="utf-8")
-    if "requests_proxies" not in src:
-        pytest.skip("PENDING (Systems): outbox.py does not use network.requests_proxies() yet")
+def test_outbox_sidecar_sends_hostname_never_ip() -> None:
+    """§9: /send takes target_hostname only; the outbox must not resolve or send an IP in sidecar mode."""
     tree = _outbox_tree()
-    calls_with_proxies = []
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
-            if node.func.attr in {"post", "get", "request", "send"}:
-                kws = {k.arg for k in node.keywords}
-                if "proxies" in kws:
-                    calls_with_proxies.append(node.lineno)
-    assignments = [
-        n for n in ast.walk(tree)
-        if isinstance(n, ast.Assign)
-        and any(isinstance(t, ast.Attribute) and t.attr == "proxies" for t in n.targets)
-    ]
-    session_updates = [
-        n.lineno for n in ast.walk(tree)
-        if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and n.func.attr == "update"
-        and isinstance(n.func.value, ast.Attribute) and n.func.value.attr == "proxies"
-    ]
-    assert calls_with_proxies or assignments or session_updates, (
-        "outbox must pass proxies=network.requests_proxies() to the session"
-    )
-    assert not re.search(r"socks5://", src), "use socks5h:// (remote DNS), never socks5://"
+    fn = next(n for n in ast.walk(tree) if isinstance(n, ast.AsyncFunctionDef) and n.name == "_send_via_sidecar")
+    src = ast.get_source_segment((APP / "outbox.py").read_text(encoding="utf-8"), fn) or ""
+    assert "backend.send" in src
+    assert "resolve_peer" not in src and ".resolve(" not in src and "target_ip" not in src and "http://" not in src
+    assert "socks" not in (APP / "outbox.py").read_text(encoding="utf-8").lower()
 
 
 # --------------------------------------------------------------------------- #
@@ -697,58 +582,43 @@ def network_ts() -> dict[str, str]:
     return {f.name: _strip_ts_comments(f.read_text(encoding="utf-8")) for f in files}
 
 
-def test_ts_auth_key_only_passed_as_file(network_ts: dict[str, str]) -> None:
+def test_ts_auth_key_never_in_argv_env_or_files(network_ts: dict[str, str]) -> None:
+    """§9: the pre-auth key reaches airbridge-net only on stdin (one JSON line, then stdin closes)."""
     problems = []
     for name, src in network_ts.items():
-        for m in re.finditer(r"--auth-?key\b", src, flags=re.I):
-            window = src[m.end(): m.end() + 40]
-            if not re.match(r"""\s*=?\s*['"`]?\s*(?:\$\{\s*)?['"`]?file:""", window) and "file:" not in window:
-                problems.append(f"{name}: --auth-key not followed by file: ({window!r})")
-        if re.search(r"""['"`]--auth-?key['"`]\s*,""", src):
-            problems.append(f"{name}: --auth-key passed as a separate argv element (value would be the key)")
+        if re.search(r"--auth-?key", src, flags=re.I):
+            problems.append(f"{name}: --auth-key on a command line")
         if re.search(r"TS_AUTH_?KEY", src):
             problems.append(f"{name}: auth key passed through the environment (TS_AUTHKEY)")
         if re.search(r"""['"`](?:tskey|hskey)-""", src):
             problems.append(f"{name}: literal key prefix in source")
+        if re.search(r"writeFile[^;]*auth_?key", src, flags=re.I):
+            problems.append(f"{name}: auth key written to a file")
     assert problems == []
 
 
-def test_ts_auth_key_variable_not_in_argv_arrays(network_ts: dict[str, str]) -> None:
-    """The fetched key (e.g. `auth_key`/`authKey`/`key`) must only be written to the key file."""
-    problems = []
-    for name, src in network_ts.items():
-        for m in re.finditer(r"\[[^\[\]]*['\"`]up['\"`][^\[\]]*\]", src, flags=re.S):
-            arr = m.group(0)
-            if re.search(r"\bauth_?key\b(?!\s*File|\s*Path|_file|_path)", arr, flags=re.I) and "file:" not in arr:
-                problems.append(f"{name}: auth key variable inside `up` argv: {arr[:120]!r}")
-    assert problems == []
-
-
-def test_ts_tailscaled_argv_contract(network_ts: dict[str, str]) -> None:
-    mgr = network_ts.get("TailscaleManager.ts")
+def _net_manager(network_ts: dict[str, str]) -> str:
+    mgr = network_ts.get("NetManager.ts")
     if mgr is None:
-        pytest.skip("PENDING (Systems): TailscaleManager.ts not present yet")
-    assert "--tun=userspace-networking" in mgr
-    assert "--no-logs-no-support" in mgr
-    # F-1: SOCKS on [::1] (unreachable via netstack forwarding), 127.0.0.1 only as the no-IPv6 fallback.
-    assert "--socks5-server=[::1]:" in mgr, "SOCKS5 should prefer [::1]"
-    for m in re.finditer(r"--socks5-server=([^$`'\"]*)", mgr):
-        assert m.group(1) in ("[::1]:", "127.0.0.1:", "[::1]:<P>", "127.0.0.1:<P>"), m.group(0)
-    for forbidden in ("--socks5-server=0.0.0.0", "--socks5-server=localhost", "--socks5-server=:",
-                      "--outbound-http-proxy-listen", "--debug=", "--tun=tailscale0", "--port=41641"):
-        assert forbidden not in mgr, forbidden
-    if re.search(r"pipe", mgr, flags=re.I):
-        # tailscaled v1.104.7 refuses a --socket outside \\.\pipe\ProtectedPrefix\Administrators\ unless
-        # --windows-mode=dev (cmd/tailscaled/tailscaled.go:363-385); dev mode also makes the pipe user-only.
-        assert "--windows-mode=dev" in mgr, "Windows custom pipe needs --windows-mode=dev (F-4)"
+        pytest.skip("PENDING (Systems): NetManager.ts not present yet")
+    return mgr
+
+
+def test_ts_sidecar_spawn_contract(network_ts: dict[str, str]) -> None:
+    mgr = _net_manager(network_ts)
+    assert "TailscaleManager.ts" not in network_ts, "bundled tailscaled manager must be gone (§9)"
+    assert "tailscaled" not in mgr
+    # fixed, empty argv; secrets on stdin which is then closed
+    assert re.search(r"spawnFn\(\s*this\.binPath\s*,\s*\[\]\s*,", mgr), "sidecar argv must be fixed and empty"
+    assert re.search(r"stdin\??\.end\(", mgr), "stdin must be closed after the config line"
+    assert "windowsHide: true" in mgr and "shell: false" in mgr
+    assert "AIRBRIDGE_NET_READY" in mgr
 
 
 def test_ts_spawn_env_is_scrubbed(network_ts: dict[str, str]) -> None:
-    mgr = network_ts.get("TailscaleManager.ts")
-    if mgr is None:
-        pytest.skip("PENDING (Systems): TailscaleManager.ts not present yet")
-    assert not re.search(r"env\s*:\s*process\.env\b", mgr), "do not pass the full parent env to tailscaled"
-    assert not re.search(r"\.\.\.\s*process\.env\b", mgr), "do not spread process.env into tailscaled's env"
+    mgr = _net_manager(network_ts)
+    assert not re.search(r"env\s*:\s*process\.env\b", mgr), "do not pass the full parent env to the sidecar"
+    assert not re.search(r"\.\.\.\s*process\.env\b", mgr), "do not spread process.env into the sidecar env"
 
 
 def test_ts_no_key_logging(network_ts: dict[str, str]) -> None:

@@ -4,8 +4,8 @@ The public functions (``get_local_tailscale_ip``, ``get_airbridge_peers``,
 ``resolve_peer`` and the Phase-3 additions ``get_backend``,
 ``inbound_bind_host``, ``requests_proxies``, ``peer_details``, ``whois``) keep
 their Phase-1 signatures and delegate to the selected backend
-(:mod:`netbackend`): the system ``tailscale`` CLI or the desktop app's embedded
-tailscaled. The CLI code below (``_cli_*``; list args, shell=False, short
+(:mod:`netbackend`): the system ``tailscale`` CLI or the desktop app's airbridge-net
+sidecar. The CLI code below (``_cli_*``; list args, shell=False, short
 timeout, defensive parsing) is the system backend. Never writes to stdout.
 """
 
@@ -256,7 +256,7 @@ def _cli_resolve(hostname: str) -> str | None:
 # Public API: delegate to the selected backend (netbackend.select_backend)
 # --------------------------------------------------------------------------- #
 def get_backend():
-    """The backend for this call (system CLI or embedded tailscaled).
+    """The backend for this call (system CLI or the airbridge-net sidecar).
 
     Raises :class:`TailscaleError` (``netbackend.NetworkOff``) when the
     desktop app's network is configured but off and no system Tailscale exists.
@@ -289,12 +289,12 @@ def peer_details() -> dict:
 
 
 def inbound_bind_host() -> str:
-    """Where the inbox listens: tailnet IP (system) or 127.0.0.1 (embedded)."""
+    """Where the inbox listens: tailnet IP (system) or 127.0.0.1 (sidecar)."""
     return get_backend().inbound_bind_host()
 
 
 def requests_proxies() -> dict | None:
-    """Proxies for outbound requests (embedded: tailscaled's SOCKS5)."""
+    """Proxies for outbound requests (always None since the sidecar; kept for API compatibility)."""
     return get_backend().requests_proxies()
 
 

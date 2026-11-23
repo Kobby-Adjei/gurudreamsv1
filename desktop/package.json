@@ -3,7 +3,7 @@
   "productName": "AirBridge Pro",
   "version": "0.2.0",
   "private": true,
-  "description": "AirBridge Pro desktop app: swarm map, activity feed and MCP bridge over Tailscale.",
+  "description": "AirBridge Pro desktop app: swarm map, activity feed and MCP bridge over its own private network.",
   "author": "AirBridge",
   "main": "./out/main/index.js",
   "scripts": {
@@ -13,9 +13,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit -p .",
-    "build:backend": "bash ../airbridge/build_backend.sh",
-    "dist": "electron-vite build && electron-builder --config electron-builder.yml",
-    "build:tailscale": "bash scripts/build-tailscale.sh"
+    "build:backend": "bash ../airbridge/build_backend.sh && bash scripts/build-net.sh",
+    "build:backend:win": "powershell -ExecutionPolicy Bypass -File ../airbridge/build_backend.ps1 && powershell -ExecutionPolicy Bypass -File scripts/build-net.ps1",
+    "build:net": "bash scripts/build-net.sh",
+    "dist": "electron-vite build && electron-builder --config electron-builder.yml"
   },
   "dependencies": {
     "react": "^18.3.1",

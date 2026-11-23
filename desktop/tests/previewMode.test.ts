@@ -1,5 +1,6 @@
 /**
- * Preview mode (PHASE3_PLAN.md §8): license wired but not enforced.
+ * Preview mode (PHASE3_PLAN.md §8) with the airbridge-net sidecar (§9): license wired but not enforced,
+ * and the app path NEVER uses a system Tailscale (signed out -> needs_login, no backend network).
  * Wiring mirrors src/main/index.ts createRealServices: LicenseGate -> NetworkSupervisor -> ProcessManager.
  */
 import { EventEmitter } from 'node:events';
@@ -7,8 +8,7 @@ import { PassThrough } from 'node:stream';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { NetStatus } from '../src/shared/types';
 import { createMemoryLicenseCache, LicenseGate } from '../src/main/license/gate';
-import { TailscaleManager } from '../src/main/network/TailscaleManager';
-import { NetworkSupervisor, ProcessManager, type NetworkSupervisorTm } from '../src/main/processManager';
+import { NetworkSupervisor, ProcessManager, type NetworkSupervisorNm } from '../src/main/processManager';
 
 class FakeChild extends EventEmitter {
   stderr = new PassThrough();
@@ -39,11 +39,14 @@ function daemonSpawn() {
   return { spawn, envs };
 }
 
-/** In-memory TailscaleManager double (embedded network). */
-function fakeTm() {
+const NET_TOKEN = 'sidecar-control-token-0123456789abcdefghijk';
+
+/** In-memory NetManager double (the airbridge-net sidecar). */
+function fakeNm() {
   let running = false;
+  let port = 41000;
   const em = new EventEmitter();
-  const tm = Object.assign(em, {
+  const nm = Object.assign(em, {
     start: vi.fn(async () => {
       running = true;
     }),
@@ -51,14 +54,19 @@ function fakeTm() {
       running = false;
     }),
     logout: vi.fn(async () => undefined),
-    status: vi.fn(async (): Promise<NetStatus> => ({ state: running ? 'connected' : 'stopped' })),
+    wipeState: vi.fn(async () => undefined),
+    isRunning: () => running,
+    status: vi.fn(async (): Promise<NetStatus> => ({ state: running ? 'connected' : 'stopped', ...(running ? { ip: '100.64.0.7' } : {}) })),
     lastStatus: (): NetStatus => ({ state: running ? 'connected' : 'stopped' }),
     daemonEnv: () =>
-      running
-        ? { AIRBRIDGE_NETWORK: 'embedded', AIRBRIDGE_TS_SOCKET: '/d/tailscaled.sock', AIRBRIDGE_TS_SOCKS5: '[::1]:41641' }
-        : null,
+      running ? { AIRBRIDGE_NETWORK: 'sidecar', AIRBRIDGE_NET_URL: `http://[::1]:${port}`, AIRBRIDGE_NET_TOKEN: NET_TOKEN } : null,
+    /** Simulate a crash-restart: new control port, status event. */
+    restartWithNewPort() {
+      port += 1;
+      em.emit('status', { state: 'connected', ip: '100.64.0.7' });
+    },
   });
-  return tm as typeof tm & NetworkSupervisorTm;
+  return nm as typeof nm & NetworkSupervisorNm;
 }
 
 const stopList: Array<() => Promise<void>> = [];
@@ -68,7 +76,7 @@ afterEach(async () => {
 
 interface WireOpts {
   enforced: boolean;
-  tm: NetworkSupervisorTm;
+  nm: ReturnType<typeof fakeNm>;
   signedIn?: () => boolean;
   licenseUrl?: string | null;
   enroll?: () => Promise<boolean>;
@@ -80,17 +88,23 @@ function wire(o: WireOpts) {
   const network: NetStatus[] = [];
   const signedIn = o.signedIn ?? (() => false);
   const licenseUrl = o.licenseUrl === undefined ? 'https://license.example.com' : o.licenseUrl;
+  // index.ts: enroll = ensureEnrolled, which spawns the sidecar (nm.start) when it succeeds.
+  const enroll = o.enroll ?? (async () => false);
   const net = new NetworkSupervisor({
-    tm: o.tm,
+    nm: o.nm,
     enforced: o.enforced,
-    canEmbed: () => !!licenseUrl && signedIn(),
-    enroll: o.enroll ?? (async () => false),
+    canEnroll: () => !!licenseUrl && signedIn(),
+    enroll: async () => {
+      const ok = await enroll();
+      if (ok) await o.nm.start({ controlUrl: 'https://hs.example.com', hostname: 'airbridge-a1' });
+      return ok;
+    },
     onNetwork: (s) => network.push(s),
     log: () => undefined,
   });
   const pm = new ProcessManager({
     core: { command: '/app/airbridge-core', args: [] },
-    env: { PATH: '/usr/bin', AIRBRIDGE_NETWORK: 'embedded', AIRBRIDGE_TS_SOCKET: '/stale' },
+    env: { PATH: '/usr/bin', AIRBRIDGE_NETWORK: 'system', AIRBRIDGE_NET_URL: 'http://127.0.0.1:1', AIRBRIDGE_TS_SOCKET: '/stale' },
     extraEnv: () => net.daemonEnv(),
     spawn: spawn as never,
     platform: 'linux',
@@ -126,41 +140,44 @@ function wire(o: WireOpts) {
   return { net, pm, gate, spawn, envs, network, start };
 }
 
+const SIGNED_OUT = { state: 'needs_login', mode: 'embedded' };
+
 describe('preview (licenseEnforced() === false)', () => {
-  it('signed out: backend starts with AIRBRIDGE_NETWORK=system and tailscaled is never spawned', async () => {
-    const tsSpawn = vi.fn();
-    const tm = new TailscaleManager({ binDir: '/nonexistent', dataDir: '/nonexistent-d', spawn: tsSpawn as never, log: () => undefined });
-    const tmStart = vi.spyOn(tm, 'start');
+  it('signed out: backend starts with NO network (never system Tailscale), status needs_login', async () => {
+    const nm = fakeNm();
     const enroll = vi.fn(async () => true);
-    const w = wire({ enforced: false, tm, enroll });
+    const w = wire({ enforced: false, nm, enroll });
 
     await w.start();
 
     expect(w.spawn).toHaveBeenCalledTimes(1);
     expect(w.pm.getLifecycle().phase).toBe('running');
-    expect(w.envs[0]!.AIRBRIDGE_NETWORK).toBe('system');
-    expect(w.envs[0]!.AIRBRIDGE_TS_SOCKET).toBeUndefined(); // stale app env scrubbed
-    expect(w.envs[0]!.AIRBRIDGE_TS_SOCKS5).toBeUndefined();
-    expect(tsSpawn).not.toHaveBeenCalled();
-    expect(tmStart).not.toHaveBeenCalled();
+    expect(w.envs[0]!.AIRBRIDGE_NETWORK).toBe('sidecar'); // no system fallback in the app path
+    expect(w.envs[0]!.AIRBRIDGE_NET_URL).toBeUndefined(); // stale app env scrubbed
+    expect(w.envs[0]!.AIRBRIDGE_NET_TOKEN).toBeUndefined();
+    expect(w.envs[0]!.AIRBRIDGE_TS_SOCKET).toBeUndefined();
+    expect(nm.start).not.toHaveBeenCalled();
     expect(enroll).not.toHaveBeenCalled();
-    expect(w.net.currentNetwork()).toBe('system');
+    expect(await w.net.status()).toEqual(SIGNED_OUT);
+    expect(w.network.at(-1)).toEqual(SIGNED_OUT);
+    expect(JSON.stringify(w.network)).not.toContain('system');
     // gate ran in shadow mode: verdict reported, nothing blocked
     expect(w.gate!.getStatus()).toMatchObject({ state: 'unknown', enforced: false });
   });
 
-  it('no sign-in / license server configured at all: backend still starts on the system network', async () => {
-    const tm = fakeTm();
-    const w = wire({ enforced: false, tm, licenseUrl: null });
+  it('no sign-in / license server configured at all: backend starts, network needs_login', async () => {
+    const nm = fakeNm();
+    const w = wire({ enforced: false, nm, licenseUrl: null });
     await w.start();
     expect(w.pm.getLifecycle().phase).toBe('running');
-    expect(w.envs[0]!.AIRBRIDGE_NETWORK).toBe('system');
-    expect(tm.start).not.toHaveBeenCalled();
+    expect(w.envs[0]!.AIRBRIDGE_NETWORK).toBe('sidecar');
+    expect(nm.start).not.toHaveBeenCalled();
+    expect(await w.net.status()).toEqual(SIGNED_OUT);
   });
 
   it('a would-block verdict (402 while signed in) never stops the backend', async () => {
-    const tm = fakeTm();
-    const w = wire({ enforced: false, tm, signedIn: () => true, enroll: async () => false });
+    const nm = fakeNm();
+    const w = wire({ enforced: false, nm, signedIn: () => true, enroll: async () => false });
     await w.start();
     await w.gate!.check();
     expect(w.gate!.getStatus()).toMatchObject({ state: 'inactive', enforced: false });
@@ -169,98 +186,86 @@ describe('preview (licenseEnforced() === false)', () => {
     expect(w.pm.getLifecycle().phase).toBe('running');
   });
 
-  it('signed in + enrollment succeeds: embedded network env', async () => {
-    const tm = fakeTm();
-    const w = wire({ enforced: false, tm, signedIn: () => true, enroll: async () => true });
+  it('signed in + enrollment succeeds: daemon gets the sidecar endpoint', async () => {
+    const nm = fakeNm();
+    const w = wire({ enforced: false, nm, signedIn: () => true, enroll: async () => true });
     await w.start();
-    expect(tm.start).toHaveBeenCalled();
+    expect(nm.start).toHaveBeenCalled();
     expect(w.spawn).toHaveBeenCalledTimes(1);
-    expect(w.envs[0]).toMatchObject({ AIRBRIDGE_NETWORK: 'embedded', AIRBRIDGE_TS_SOCKET: '/d/tailscaled.sock' });
-    expect(w.network.at(-1)).toMatchObject({ mode: 'embedded' });
-    expect(await w.net.status()).toMatchObject({ state: 'connected', mode: 'embedded' });
+    expect(w.envs[0]).toMatchObject({ AIRBRIDGE_NETWORK: 'sidecar', AIRBRIDGE_NET_URL: 'http://[::1]:41000', AIRBRIDGE_NET_TOKEN: NET_TOKEN });
+    expect(await w.net.status()).toEqual({ state: 'connected', ip: '100.64.0.7', mode: 'embedded' });
   });
 
-  it('signed in but enrollment fails: tailscaled stopped, system network', async () => {
-    const tm = fakeTm();
-    const w = wire({ enforced: false, tm, signedIn: () => true, enroll: async () => false });
+  it('signed in but enrollment fails: daemon runs without a network, status is the sidecar\'s (never system)', async () => {
+    const nm = fakeNm();
+    const w = wire({ enforced: false, nm, signedIn: () => true, enroll: async () => false });
     await w.start();
-    expect(tm.start).toHaveBeenCalled();
-    expect(tm.stop).toHaveBeenCalled();
-    expect(w.envs[0]!.AIRBRIDGE_NETWORK).toBe('system');
+    expect(w.envs[0]!.AIRBRIDGE_NETWORK).toBe('sidecar');
+    expect(w.envs[0]!.AIRBRIDGE_NET_URL).toBeUndefined();
+    expect((await w.net.status()).mode).toBe('embedded');
   });
 
-  it('later sign-in switches the running daemon to embedded; sign-out switches back to system', async () => {
-    const tm = fakeTm();
+  it('later sign-in respawns the daemon with the sidecar endpoint; sign-out logs out, wipes, and drops it', async () => {
+    const nm = fakeNm();
     let signed = false;
-    const w = wire({ enforced: false, tm, signedIn: () => signed, enroll: async () => true });
+    const w = wire({ enforced: false, nm, signedIn: () => signed, enroll: async () => true });
     await w.start();
-    expect(w.envs.map((e) => e.AIRBRIDGE_NETWORK)).toEqual(['system']);
+    expect(w.envs.map((e) => e.AIRBRIDGE_NET_URL)).toEqual([undefined]);
 
     signed = true;
     await w.net.signedIn();
     expect(w.pm.getLifecycle().phase).toBe('running');
-    expect(w.envs.map((e) => e.AIRBRIDGE_NETWORK)).toEqual(['system', 'embedded']);
-    expect(w.envs[1]!.AIRBRIDGE_TS_SOCKS5).toBe('[::1]:41641');
+    expect(w.envs.map((e) => e.AIRBRIDGE_NET_URL)).toEqual([undefined, 'http://[::1]:41000']);
 
     signed = false;
     await w.net.signedOut();
     await w.gate!.reset(); // index.ts order; shadow gate re-fires onValid -> supervisor ignores it (idempotent)
-    expect(tm.logout).toHaveBeenCalled();
+    expect(nm.logout).toHaveBeenCalled();
+    expect(nm.stop).toHaveBeenCalled();
+    expect(nm.wipeState).toHaveBeenCalled();
     expect(w.pm.getLifecycle().phase).toBe('running');
-    expect(w.envs.map((e) => e.AIRBRIDGE_NETWORK)).toEqual(['system', 'embedded', 'system']);
+    expect(w.envs.map((e) => e.AIRBRIDGE_NET_URL)).toEqual([undefined, 'http://[::1]:41000', undefined]);
+    expect(w.network.at(-1)).toEqual(SIGNED_OUT);
   });
 
-  it('system network status follows the daemon /status (connected / error)', async () => {
-    const tm = fakeTm();
-    const w = wire({ enforced: false, tm });
+  it('a sidecar restarted with a new endpoint respawns the daemon with it', async () => {
+    const nm = fakeNm();
+    const w = wire({ enforced: false, nm, signedIn: () => true, enroll: async () => true });
     await w.start();
-    w.net.onBackendStatus({
-      version: '1',
-      mode: 'daemon',
-      tailnet_ip: null,
-      inbox: { listening: false, port: 8989, degraded_reason: 'Could not run the Tailscale CLI (tailscale): ENOENT' },
-      uptime_s: 1,
-    });
-    expect(w.network.at(-1)).toMatchObject({ state: 'error', mode: 'system' });
-    expect(await w.net.status()).toMatchObject({ state: 'error', mode: 'system' });
-    w.net.onBackendStatus({
-      version: '1',
-      mode: 'daemon',
-      tailnet_ip: '100.64.0.7',
-      inbox: { listening: true, port: 8989, degraded_reason: null },
-      uptime_s: 2,
-    });
-    expect(w.network.at(-1)).toEqual({ state: 'connected', ip: '100.64.0.7', mode: 'system' });
+    nm.restartWithNewPort();
+    await vi.waitFor(() => expect(w.envs.length).toBe(2));
+    await vi.waitFor(() => expect(w.pm.getLifecycle().phase).toBe('running'));
+    expect(w.envs[1]!.AIRBRIDGE_NET_URL).toBe('http://[::1]:41001');
+    expect(w.network.at(-1)).toMatchObject({ mode: 'embedded' });
   });
 });
 
-describe('enforced (licenseEnforced() === true): unchanged Phase-3 behaviour', () => {
+describe('enforced (licenseEnforced() === true)', () => {
   it('signed out: backend is never started', async () => {
-    const tm = fakeTm();
-    const w = wire({ enforced: true, tm });
+    const nm = fakeNm();
+    const w = wire({ enforced: true, nm });
     await w.start();
     expect(w.spawn).not.toHaveBeenCalled();
-    expect(tm.start).not.toHaveBeenCalled();
+    expect(nm.start).not.toHaveBeenCalled();
     expect(w.pm.getLifecycle().phase).toBe('blocked');
     expect(w.gate!.getStatus()).toMatchObject({ state: 'inactive', enforced: true });
   });
 
   it('inactive license (402) while signed in: backend is never started', async () => {
-    const tm = fakeTm();
-    const w = wire({ enforced: true, tm, signedIn: () => true, enroll: async () => true });
+    const nm = fakeNm();
+    const w = wire({ enforced: true, nm, signedIn: () => true, enroll: async () => true });
     await w.start();
     await w.net.signedIn(); // no-op when enforced: the gate drives start
     expect(w.spawn).not.toHaveBeenCalled();
     expect(w.pm.getLifecycle().phase).toBe('blocked');
   });
 
-  it('valid license: tailscaled -> enrollment -> daemon on the embedded network', async () => {
-    const tm = fakeTm();
+  it('valid license: enrollment (sidecar) -> daemon with the sidecar endpoint', async () => {
+    const nm = fakeNm();
     const enroll = vi.fn(async () => true);
-    const w = wire({ enforced: true, tm, enroll });
+    const w = wire({ enforced: true, nm, signedIn: () => true, enroll });
     await w.net.licenseValid();
-    expect(tm.start).toHaveBeenCalled();
     expect(enroll).toHaveBeenCalled();
-    expect(w.envs[0]).toMatchObject({ AIRBRIDGE_NETWORK: 'embedded' });
+    expect(w.envs[0]).toMatchObject({ AIRBRIDGE_NETWORK: 'sidecar', AIRBRIDGE_NET_TOKEN: NET_TOKEN });
   });
 });

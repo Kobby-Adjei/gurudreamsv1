@@ -64,12 +64,12 @@ export interface IpcDeps {
     sendTask(req: SendTaskRequest): Promise<SendTaskResult>;
   };
   /**
-   * Embedded private network (Phase 3): TailscaleManager.status(). Optional so builds without the
+   * Private network (Phase 3 §9): NetworkSupervisor.status() (airbridge-net sidecar). Optional so builds without the
    * network still register the channel; absent -> `{state:'stopped'}`.
    */
   network?: {
     getStatus(): Promise<NetStatus> | NetStatus;
-    /** Restart tailscaled if stopped/error, then re-run ensureEnrolled (Systems' index.ts). */
+    /** Re-run ensureEnrolled (restarts the sidecar if needed; Systems' index.ts). */
     retry?(): Promise<NetStatus>;
   };
   /** Returns the JSON config text for the client (see mcpConfig.ts getMcpConfigJson). */
@@ -155,7 +155,7 @@ const MAX_NET_DETAIL = 200;
 
 /**
  * Whitelist NetStatus before it crosses into the renderer: known state, short single-line detail,
- * IP-shaped ip. Anything else from TailscaleManager (paths, argv, raw stderr) is dropped.
+ * IP-shaped ip. Anything else from NetManager (paths, argv, raw stderr) is dropped.
  */
 export function sanitizeNetStatus(s: unknown): NetStatus {
   if (!s || typeof s !== 'object') return { state: 'stopped' };
@@ -166,7 +166,7 @@ export function sanitizeNetStatus(s: unknown): NetStatus {
     out.detail = o.detail.replace(/[\r\n\t]+/g, ' ').trim().slice(0, MAX_NET_DETAIL);
   }
   if (typeof o.ip === 'string' && IP_RE.test(o.ip)) out.ip = o.ip;
-  if (o.mode === 'embedded' || o.mode === 'system') out.mode = o.mode;
+  if (o.mode === 'embedded') out.mode = o.mode;
   return out;
 }
 

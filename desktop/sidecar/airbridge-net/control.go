@@ -14,6 +14,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"tailscale.com/ipn/ipnstate"
 )
 
 const (
@@ -102,26 +104,21 @@ func (c *controlAPI) status(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 	startErr := c.startErr()
-	var st = (*statusAlias)(nil)
-	resp := map[string]any{}
-	if startErr == "" {
-		s, err := c.be().Status(ctx, false)
-		if err != nil {
-			resp["state"] = "connecting"
-			resp["self"] = selfInfo{}
-			writeJSON(w, http.StatusOK, resp)
-			return
-		}
-		st = (*statusAlias)(s)
-	}
-	state := netState(st.raw(), startErr)
-	resp["state"] = state
-	resp["self"] = selfOf(st.raw())
-	if startErr != "" {
-		resp["error"] = startErr
-	}
 	port, _ := c.inbox.get()
-	resp["inbox_registered"] = port != 0
+	resp := map[string]any{"inbox_registered": port != 0}
+	if startErr != "" {
+		resp["state"], resp["self"], resp["error"] = "error", selfInfo{}, startErr
+		writeJSON(w, http.StatusOK, resp)
+		return
+	}
+	st, err := c.be().Status(ctx, false)
+	if err != nil {
+		resp["state"], resp["self"] = "connecting", selfInfo{}
+		writeJSON(w, http.StatusOK, resp)
+		return
+	}
+	// Never relay st.AuthURL: AirBridge enrolls with pre-auth keys only.
+	resp["state"], resp["self"] = netState(st, ""), selfOf(st)
 	writeJSON(w, http.StatusOK, resp)
 }
 
@@ -230,7 +227,15 @@ func (c *controlAPI) send(w http.ResponseWriter, r *http.Request) {
 
 // resolvePeer: exact (case-insensitive) name match among ONLINE same-user peers, with or
 // without the airbridge- prefix. Returns the peer's tailnet IPv4 or "".
-func resolvePeer(st interface{ raw() any }, target string) string { return "" }
+func resolvePeer(st *ipnstate.Status, target string) string {
+	want := strings.ToLower(stripPrefix(target))
+	for _, n := range sameUserPeers(st) {
+		if n.Online && n.Hostname == want {
+			return n.IP
+		}
+	}
+	return ""
+}
 
 func (c *controlAPI) registerInbox(w http.ResponseWriter, r *http.Request) {
 	var req struct {

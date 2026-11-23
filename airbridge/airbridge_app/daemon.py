@@ -2,9 +2,12 @@
 
 Runs concurrently:
 
-* the inbox (tailnet HTTP on :8989) - started when Tailscale is up and the
-  port is free; otherwise the daemon stays up in a *degraded* state and
-  retries every ``RETRY_S`` seconds;
+* the inbox - started when the network is up; otherwise the daemon stays up in
+  a *degraded* state and retries every ``RETRY_S`` seconds. System Tailscale
+  (free CLI): tailnet IP :8989. Desktop app (``AIRBRIDGE_NETWORK=sidecar``,
+  PHASE3_PLAN.md §9): ``127.0.0.1:<ephemeral>`` with a fresh per-run sidecar
+  token, registered with the airbridge-net sidecar (``POST /inbox``), which
+  forwards only WhoIs-verified same-user mesh requests to it;
 * the control API on ``[::1]:<AIRBRIDGE_CONTROL_PORT>`` (IPv4 loopback only as a
   fallback; see control.py);
 * a node watcher that diffs online peers every ``NODE_POLL_S`` seconds and
@@ -25,7 +28,9 @@ import contextlib
 import json
 import logging
 import os
+import secrets
 import signal
+import socket
 import sys
 from typing import Any
 
@@ -39,7 +44,7 @@ RETRY_S = 10.0
 PARENT_POLL_S = 2.0
 SHUTDOWN_GRACE_S = 5.0
 STARTUP_TIMEOUT_S = 15.0
-EMBEDDED_BIND_HOST = "127.0.0.1"
+SIDECAR_BIND_HOST = "127.0.0.1"
 
 
 def _stderr(line: str) -> None:
@@ -172,9 +177,8 @@ class _InboxSupervisor:
         """Inbox bind host for the selected backend, or None (degraded).
 
         System Tailscale: this machine's tailnet IP (validate_bind_host).
-        Embedded tailscaled: loopback only - its netstack forwards inbound
-        tailnet connections for :8989 to 127.0.0.1:8989 and the inbox then
-        authenticates every caller with LocalAPI whois.
+        Sidecar: loopback only, once the sidecar reports connected; the
+        sidecar forwards verified mesh requests to it.
         """
         try:
             backend = await asyncio.to_thread(network.get_backend)
@@ -184,8 +188,8 @@ class _InboxSupervisor:
             self._degraded(str(exc))
             return None
         self.backend = backend
-        if getattr(backend, "kind", "system") == "embedded":
-            return await self._resolve_embedded_host(backend)
+        if getattr(backend, "kind", "system") == "sidecar":
+            return await self._resolve_sidecar_host(backend)
         try:
             ip = await asyncio.to_thread(network.get_local_tailscale_ip)
         except network.TailscaleError as exc:
@@ -201,7 +205,7 @@ class _InboxSupervisor:
         self.state.tailnet_ip = host
         return host
 
-    async def _resolve_embedded_host(self, backend: Any) -> str | None:
+    async def _resolve_sidecar_host(self, backend: Any) -> str | None:
         try:
             ip = await asyncio.to_thread(backend.local_ip)
         except network.TailscaleError as exc:
@@ -210,10 +214,10 @@ class _InboxSupervisor:
             return None
         self.state.tailnet_ip = ip
         bind = backend.inbound_bind_host()
-        if bind != EMBEDDED_BIND_HOST:  # never widen beyond loopback
-            self._degraded(f"refusing to bind the inbox to {bind!r} in embedded mode")
+        if bind != SIDECAR_BIND_HOST:  # never widen beyond loopback
+            self._degraded(f"refusing to bind the inbox to {bind!r} in sidecar mode")
             return None
-        return EMBEDDED_BIND_HOST
+        return SIDECAR_BIND_HOST
 
     async def run(self) -> None:
         while not self.stop.is_set():
@@ -225,18 +229,60 @@ class _InboxSupervisor:
             with contextlib.suppress(asyncio.TimeoutError, TimeoutError):
                 await asyncio.wait_for(self.stop.wait(), timeout=RETRY_S)
 
+    async def _register(self, backend: Any, port: int, token: str) -> bool:
+        try:
+            await asyncio.to_thread(backend.register_inbox, port, token)
+            return True
+        except network.TailscaleError as exc:
+            self._degraded(f"could not register the inbox with the AirBridge network: {exc}")
+            return False
+
     async def _serve_once(self, host: str) -> None:
-        port = self.settings.port
-        backend = self.backend if getattr(self.backend, "kind", "system") == "embedded" else None
-        app = inbox.create_app(self.settings, backend=backend)
+        backend = self.backend
+        sidecar = getattr(backend, "kind", "system") == "sidecar"
+        sock: socket.socket | None = None
+        token = ""
+        if sidecar:
+            # Ephemeral loopback port + a fresh token: nothing but the sidecar can talk to it.
+            token = secrets.token_urlsafe(32)
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            try:
+                sock.bind((SIDECAR_BIND_HOST, 0))
+                sock.listen(128)
+            except OSError as exc:
+                sock.close()
+                self._degraded(f"cannot bind the inbox on {SIDECAR_BIND_HOST}: {exc}")
+                return
+            port = sock.getsockname()[1]
+            app = inbox.create_app(self.settings, sidecar_token=token)
+        else:
+            port = self.settings.port
+            app = inbox.create_app(self.settings)
+        self.state.inbox_port = port
         server = inbox.build_server(app, host, port)
         _disable_signal_capture(server)
         self.server = server
-        serve_task = asyncio.create_task(_guarded_serve(server), name="airbridge-inbox")
+        serve_task = asyncio.create_task(
+            _guarded_serve(server, sockets=[sock]) if sock is not None else _guarded_serve(server),
+            name="airbridge-inbox")
         announced = False
+        next_register = 0.0
+        loop = asyncio.get_running_loop()
         try:
             while not serve_task.done():
-                if not announced and getattr(server, "started", False):
+                started = getattr(server, "started", False)
+                if sidecar and started and loop.time() >= next_register:
+                    # (Re-)register periodically: cheap, and survives a sidecar that lost it.
+                    ok = await self._register(backend, port, token)
+                    next_register = loop.time() + (RETRY_S if ok else 2.0)
+                    if not ok:
+                        self.state.inbox_listening = False
+                        announced = False
+                        await asyncio.wait({serve_task}, timeout=0.2)
+                        if self.stop.is_set():
+                            server.should_exit = True
+                        continue
+                if not announced and started:
                     announced = True
                     self.state.inbox_listening = True
                     self.state.degraded_reason = None
@@ -265,6 +311,9 @@ class _InboxSupervisor:
                         await serve_task
                 except BaseException:
                     serve_task.cancel()
+            if sock is not None:
+                with contextlib.suppress(Exception):
+                    sock.close()
             self.server = None
 
 

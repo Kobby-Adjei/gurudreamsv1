@@ -1,11 +1,10 @@
 """Local control API for the AirBridge Pro desktop app (daemon mode only).
 
 Binds IPv6 loopback ``::1`` (fallback ``127.0.0.1`` only where the host has
-no IPv6 loopback). Phase 3 (PHASE3_SECURITY.md F-1): the embedded tailscaled's
-netstack forwards inbound tailnet connections for ANY port to
-``127.0.0.1:<port>`` - never to ``::1`` - so a ``::1`` listener is unreachable
-from the tailnet regardless of the ACL. Every HTTP request and WebSocket
-handshake must:
+no IPv6 loopback). Since the airbridge-net sidecar (PHASE3_PLAN.md §9) nothing
+on the private network is forwarded to host loopback at all (tsnet listeners are
+in-process; the mesh exposes only :8989); ``::1`` stays the preferred bind as
+defence in depth. Every HTTP request and WebSocket handshake must:
 
 1. carry no ``Origin`` header (browsers always send one; the Electron main
    process does not)                                   -> 403 / WS close 4403

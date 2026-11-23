@@ -2,27 +2,28 @@
 
 Two implementations of one small protocol (:class:`NetBackend`):
 
-* :class:`SystemTailscale` - the Phase-1 path: a system-wide Tailscale install,
-  queried through the ``tailscale`` CLI (code lives in :mod:`network`,
-  behaviour unchanged). The inbox binds the machine's tailnet IP and outbound
-  requests go straight to peers' tailnet IPs.
-* :class:`EmbeddedTailscale` - the desktop app's bundled ``tailscaled`` running
-  in userspace-networking mode. There is no TUN device, so:
+* :class:`SystemTailscale` - the Phase-1 path of the free CLI: a system-wide
+  Tailscale install, queried through the ``tailscale`` CLI (code lives in
+  :mod:`network`, behaviour unchanged). The inbox binds the machine's tailnet
+  IP and outbound requests go straight to peers' tailnet IPs.
+* :class:`SidecarBackend` - the desktop app's ``airbridge-net`` sidecar
+  (embedded ``tsnet``, PHASE3_PLAN.md §9). The sidecar owns the private
+  network; this process only talks to its local control API
+  (``http://[::1]:<port>``, bearer token, no Origin):
 
-  - inbound tailnet connections to :8989 are forwarded by tailscaled's
-    netstack to ``127.0.0.1:8989`` (the inbox binds loopback), and the
-    real sender is recovered with LocalAPI ``whois`` on the proxied
-    ``127.0.0.1:<srcport>`` address;
-  - outbound requests go through tailscaled's SOCKS5 server
-    (``socks5h://127.0.0.1:<P>``).
+  - ``GET /status`` / ``GET /nodes`` for this node and its same-user peers;
+  - ``POST /send {target_hostname, payload}`` for outbound tasks (the sidecar
+    resolves the name to a peer itself; raw IPs are never sent);
+  - ``POST /inbox {port, token}`` to register the inbox, which binds
+    ``127.0.0.1:<ephemeral>`` and only accepts requests carrying that token
+    (``X-AirBridge-Sidecar-Token``); the sidecar forwards WhoIs-verified,
+    same-user mesh requests there with ``X-AirBridge-Peer-Node`` /
+    ``X-AirBridge-Peer-IP``.
 
-  It talks to tailscaled only through two read-only LocalAPI endpoints
-  (``/localapi/v0/status`` and ``/localapi/v0/whois``) over a Unix socket or,
-  on Windows, a named pipe.
-
-Selection (:func:`select_backend`): ``AIRBRIDGE_NETWORK`` override, else a
-live ``<data dir>/network.json`` (written by the desktop app) means embedded,
-else system. A ``network.json`` whose socket is dead with no system Tailscale
+Selection (:func:`select_backend`): ``AIRBRIDGE_NETWORK`` override, else the
+sidecar endpoint from ``AIRBRIDGE_NET_URL``/``AIRBRIDGE_NET_TOKEN`` (daemon) or
+``<data dir>/network.json`` v2 (MCP stdio process), else system. A
+``network.json`` whose sidecar does not answer with no system Tailscale
 installed is the "AirBridge network is off" error.
 
 Never writes to stdout.
@@ -35,34 +36,39 @@ import ipaddress
 import json
 import logging
 import os
-import socket
+import re
 import sys
 from typing import Any, Protocol
-from urllib.parse import quote
+from urllib.parse import urlsplit
 
 from . import config, network
 
 logger = logging.getLogger("airbridge.netbackend")
 
-LOCALAPI_HOST = "local-tailscaled.sock"
-LOCALAPI_TIMEOUT_S = 5.0
-LOCALAPI_MAX_BYTES = 8 * 1024 * 1024
+SIDECAR_TIMEOUT_S = 5.0
+SIDECAR_SEND_TIMEOUT_S = 15.0
+SIDECAR_MAX_BYTES = 4 * 1024 * 1024
 HOST_PREFIX = "airbridge-"
 _ZERO_TIME_PREFIX = "0001-01-01"
+_TOKEN_RE = re.compile(r"^[A-Za-z0-9_-]{32,256}$")
 
 MSG_NETWORK_OFF = "AirBridge network is off \u2014 open the AirBridge app"
 MSG_NOT_CONNECTED = "AirBridge network is not connected yet"
 
 
 class NetworkOff(network.TailscaleNotRunning):
-    """The embedded network is configured (network.json) but not reachable."""
+    """The app's network is configured (network.json / env) but not reachable."""
+
+
+class SidecarError(network.TailscaleError):
+    pass
 
 
 # --------------------------------------------------------------------------- #
 # Protocol
 # --------------------------------------------------------------------------- #
 class NetBackend(Protocol):
-    kind: str  # "system" | "embedded"
+    kind: str  # "system" | "sidecar"
 
     def local_ip(self) -> str: ...
     def peers(self) -> dict[str, str]: ...
@@ -225,98 +231,6 @@ class SystemTailscale:
         return _user_id(network._status_json().get("Self"))
 
 
-# --------------------------------------------------------------------------- #
-# LocalAPI transport (AF_UNIX / Windows named pipe)
-# --------------------------------------------------------------------------- #
-class LocalAPIError(network.TailscaleError):
-    pass
-
-
-class _PipeSock:  # pragma: no cover - Windows only
-    """Just enough of a socket for http.client.HTTPResponse over a named pipe."""
-
-    def __init__(self, path: str) -> None:
-        self._f = open(path, "r+b", buffering=0)  # noqa: SIM115 - closed in close()
-
-    def sendall(self, data: bytes) -> None:
-        self._f.write(data)
-
-    def makefile(self, mode: str = "rb", *a: Any, **k: Any) -> Any:
-        return self._f
-
-    def close(self) -> None:
-        try:
-            self._f.close()
-        except OSError:
-            pass
-
-
-def _is_pipe(path: str) -> bool:
-    return path.startswith("\\\\.\\pipe\\") or path.startswith("//./pipe/")
-
-
-def _open_transport(path: str, timeout: float) -> Any:
-    if _is_pipe(path):  # pragma: no cover - Windows only
-        if os.name != "nt":
-            raise LocalAPIError("named pipes are only supported on Windows")
-        return _PipeSock(path)
-    if not hasattr(socket, "AF_UNIX"):  # pragma: no cover
-        raise LocalAPIError("Unix sockets are not supported on this platform")
-    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    sock.settimeout(timeout)
-    try:
-        sock.connect(path)
-    except BaseException:
-        sock.close()
-        raise
-    return sock
-
-
-def localapi_get(path: str, url_path: str, timeout: float = LOCALAPI_TIMEOUT_S) -> tuple[int, bytes]:
-    """``GET url_path`` on tailscaled's LocalAPI at *path*. Returns (status, body)."""
-    try:
-        transport = _open_transport(path, timeout)
-    except OSError as exc:
-        raise NetworkOff(MSG_NETWORK_OFF) from exc
-    try:
-        req = (
-            f"GET {url_path} HTTP/1.1\r\n"
-            f"Host: {LOCALAPI_HOST}\r\n"
-            "Sec-Tailscale: localapi\r\n"
-            "Accept: application/json\r\n"
-            "Connection: close\r\n\r\n"
-        ).encode("ascii")
-        transport.sendall(req)
-        resp = http.client.HTTPResponse(transport)  # type: ignore[arg-type]
-        try:
-            resp.begin()
-            body = resp.read(LOCALAPI_MAX_BYTES + 1)
-        finally:
-            resp.close()
-        if len(body) > LOCALAPI_MAX_BYTES:
-            raise LocalAPIError("LocalAPI response too large")
-        return resp.status, body
-    except (OSError, http.client.HTTPException) as exc:
-        raise NetworkOff(MSG_NETWORK_OFF) from exc
-    finally:
-        try:
-            transport.close()
-        except OSError:
-            pass
-
-
-def socket_answers(path: str, timeout: float = 1.0) -> bool:
-    """Cheap liveness probe: can we connect to the LocalAPI endpoint?"""
-    try:
-        t = _open_transport(path, timeout)
-    except (OSError, LocalAPIError):
-        return False
-    try:
-        t.close()
-    except OSError:
-        pass
-    return True
-
 
 def parse_whois(data: Any) -> dict[str, Any] | None:
     """apitype.WhoIsResponse -> ``{node, user_id, ip, node_id}`` (or None if unusable).
@@ -349,54 +263,144 @@ def parse_whois(data: Any) -> dict[str, Any] | None:
     }
 
 
+
 # --------------------------------------------------------------------------- #
-# Embedded tailscaled (desktop app)
+# airbridge-net sidecar (desktop app)
 # --------------------------------------------------------------------------- #
-class EmbeddedTailscale:
-    kind = "embedded"
+def parse_sidecar_url(value: Any) -> tuple[str, int] | None:
+    """``http://[::1]:P`` (preferred) or ``http://127.0.0.1:P`` -> (host, port); else None."""
+    if not isinstance(value, str) or len(value) > 64:
+        return None
+    try:
+        parts = urlsplit(value.strip())
+        port = parts.port
+    except ValueError:
+        return None
+    if parts.scheme != "http" or parts.hostname not in ("::1", "127.0.0.1") or not port:
+        return None
+    if parts.username or parts.password or parts.path not in ("", "/") or parts.query or parts.fragment:
+        return None
+    return parts.hostname, port
 
-    def __init__(self, socket_path: str, socks5: str) -> None:
-        self.socket_path = socket_path
-        self.socks5 = socks5
 
-    def __repr__(self) -> str:
-        return f"EmbeddedTailscale(socket={self.socket_path!r}, socks5={self.socks5!r})"
+def valid_token(value: Any) -> str | None:
+    return value if isinstance(value, str) and _TOKEN_RE.match(value) else None
 
-    def _get_json(self, url_path: str) -> Any:
-        status, body = localapi_get(self.socket_path, url_path)
-        if status != 200:
-            raise LocalAPIError(f"AirBridge network error (HTTP {status})")
+
+class SidecarBackend:
+    kind = "sidecar"
+
+    def __init__(self, url: str, token: str) -> None:
+        parsed = parse_sidecar_url(url)
+        if parsed is None or valid_token(token) is None:
+            raise NetworkOff(MSG_NETWORK_OFF)
+        self.host, self.port = parsed
+        self._token = token
+
+    def __repr__(self) -> str:  # never the token
+        return f"SidecarBackend(host={self.host!r}, port={self.port!r})"
+
+    # -- transport -----------------------------------------------------------
+    def _host_header(self) -> str:
+        return f"[{self.host}]:{self.port}" if ":" in self.host else f"{self.host}:{self.port}"
+
+    def request(self, method: str, path: str, body: Any = None,
+                timeout: float = SIDECAR_TIMEOUT_S) -> tuple[int, Any]:
+        """One request to the control API -> (status, parsed JSON or None)."""
+        conn = http.client.HTTPConnection(self.host, self.port, timeout=timeout)
         try:
-            return json.loads(body)
-        except ValueError as exc:
-            raise LocalAPIError("AirBridge network returned invalid data") from exc
+            payload = None if body is None else json.dumps(body, separators=(",", ":")).encode("utf-8")
+            conn.putrequest(method, path, skip_host=True, skip_accept_encoding=True)
+            conn.putheader("Host", self._host_header())
+            conn.putheader("Authorization", "Bearer " + self._token)
+            conn.putheader("Accept", "application/json")
+            if payload is not None:
+                conn.putheader("Content-Type", "application/json")
+                conn.putheader("Content-Length", str(len(payload)))
+            conn.endheaders(payload)
+            resp = conn.getresponse()
+            raw = resp.read(SIDECAR_MAX_BYTES + 1)
+        except (OSError, http.client.HTTPException) as exc:
+            raise NetworkOff(MSG_NETWORK_OFF) from exc
+        finally:
+            conn.close()
+        if len(raw) > SIDECAR_MAX_BYTES:
+            raise SidecarError("AirBridge network returned too much data")
+        try:
+            data = json.loads(raw) if raw else None
+        except ValueError:
+            data = None
+        return resp.status, data
 
-    def status(self) -> dict[str, Any]:
-        data = self._get_json("/localapi/v0/status")
-        if not isinstance(data, dict):
-            raise LocalAPIError("AirBridge network returned invalid status")
+    def _get(self, path: str) -> dict[str, Any]:
+        status, data = self.request("GET", path)
+        if status == 401 or status == 403:
+            raise NetworkOff(MSG_NETWORK_OFF)
+        if status != 200 or not isinstance(data, dict):
+            raise SidecarError(f"AirBridge network error (HTTP {status})")
         return data
 
-    def _running_status(self) -> dict[str, Any]:
+    def alive(self) -> bool:
+        try:
+            self._get("/status")
+            return True
+        except network.TailscaleError:
+            return False
+
+    # -- NetBackend ----------------------------------------------------------
+    def status(self) -> dict[str, Any]:
+        return self._get("/status")
+
+    def _connected_status(self) -> dict[str, Any]:
         data = self.status()
-        state = data.get("BackendState")
-        if state != "Running":
+        state = data.get("state")
+        if state != "connected":
             raise network.TailscaleNotRunning(f"{MSG_NOT_CONNECTED} (state: {str(state)[:32]})")
         return data
 
     def local_ip(self) -> str:
-        data = self._running_status()
-        self_entry = data.get("Self") if isinstance(data.get("Self"), dict) else {}
-        ip = _first_tailnet_ipv4(self_entry.get("TailscaleIPs"))
-        if not ip:
+        me = self._connected_status().get("self")
+        ip = me.get("ip") if isinstance(me, dict) else None
+        if not isinstance(ip, str) or not network._is_tailscale_ipv4(ip):
             raise network.TailscaleNotRunning(MSG_NOT_CONNECTED)
         return ip
+
+    def self_hostname(self) -> str | None:
+        """This node's control-assigned name (what receivers verify), prefix stripped."""
+        me = self.status().get("self")
+        name = me.get("hostname") if isinstance(me, dict) else None
+        return _str_or_none(name)
 
     def peer_details(self) -> dict[str, Any]:
         from . import events
 
-        return details_from_status(self._running_status(), strip=True, same_user_only=True,
-                                   fallback_hostname=events.local_node_name())
+        data = self._get("/nodes")
+        if data.get("state") not in (None, "connected"):
+            raise network.TailscaleNotRunning(f"{MSG_NOT_CONNECTED} (state: {str(data.get('state'))[:32]})")
+        me_raw = data.get("self") if isinstance(data.get("self"), dict) else {}
+        me = {
+            "hostname": _str_or_none(me_raw.get("hostname")) or events.local_node_name(),
+            "ip": me_raw.get("ip") if isinstance(me_raw.get("ip"), str) and network._is_tailscale_ipv4(me_raw["ip"]) else None,
+            "os": _str_or_none(me_raw.get("os")) or _local_os(),
+        }
+        nodes: list[dict[str, Any]] = []
+        for n in data.get("nodes") or []:
+            if not isinstance(n, dict):
+                continue
+            name = _str_or_none(n.get("hostname"))
+            ip = n.get("ip")
+            if not name or not isinstance(ip, str) or not network._is_tailscale_ipv4(ip):
+                continue
+            last_seen = _str_or_none(n.get("last_seen"))
+            nodes.append({
+                "hostname": strip_prefix(name),
+                "ip": ip,
+                "os": _str_or_none(n.get("os")),
+                "online": n.get("online") is True,
+                "last_seen": None if (last_seen or "").startswith(_ZERO_TIME_PREFIX) else last_seen,
+            })
+        nodes.sort(key=lambda n: (not n["online"], n["hostname"].lower()))
+        return {"self": me, "nodes": nodes}
 
     def peers(self) -> dict[str, str]:
         result: dict[str, str] = {}
@@ -411,31 +415,37 @@ class EmbeddedTailscale:
         wanted = host.strip().rstrip(".").lower()
         if not wanted:
             return None
-        wanted = strip_prefix(wanted.split(".", 1)[0])
-        return self.peers().get(wanted)
+        return self.peers().get(strip_prefix(wanted.split(".", 1)[0]))
 
     def inbound_bind_host(self) -> str:
         return "127.0.0.1"
 
     def requests_proxies(self) -> dict[str, str] | None:
-        return {"http": f"socks5h://{self.socks5}"}
+        return None
 
     def whois(self, remote_addr: str) -> dict[str, Any] | None:
-        addr = str(remote_addr)[:80]
-        try:
-            status, body = localapi_get(self.socket_path, "/localapi/v0/whois?proto=tcp&addr=" + quote(addr, safe=""))
-        except network.TailscaleError:
-            logger.warning("whois lookup failed for %s", addr)
-            return None
-        if status != 200:
-            return None
-        try:
-            return parse_whois(json.loads(body))
-        except ValueError:
-            return None
+        """Not used: the sidecar verifies peers itself (WhoIs on the mesh connection)."""
+        return None
 
     def self_user_id(self) -> int | None:
-        return _user_id(self.status().get("Self"))
+        me = self.status().get("self")
+        uid = me.get("user_id") if isinstance(me, dict) else None
+        return uid if isinstance(uid, int) and not isinstance(uid, bool) else None
+
+    # -- sidecar-only --------------------------------------------------------
+    def register_inbox(self, port: int, token: str) -> None:
+        status, _ = self.request("POST", "/inbox", {"port": int(port), "token": token})
+        if status != 200:
+            raise SidecarError(f"could not register the inbox with the AirBridge network (HTTP {status})")
+
+    def send(self, target_hostname: str, payload: dict[str, Any], secret: str | None = None,
+             timeout: float = SIDECAR_SEND_TIMEOUT_S) -> tuple[int, dict[str, Any]]:
+        """``POST /send``. Returns (control-API status, response object)."""
+        body: dict[str, Any] = {"target_hostname": target_hostname, "payload": payload}
+        if secret:
+            body["secret"] = secret
+        status, data = self.request("POST", "/send", body, timeout=timeout)
+        return status, data if isinstance(data, dict) else {}
 
 
 # --------------------------------------------------------------------------- #
@@ -450,33 +460,21 @@ def set_backend_override(backend: NetBackend | None) -> None:
     _override = backend
 
 
-def _valid_socks5(value: Any) -> str | None:
-    """``[::1]:P`` (preferred, F-1) or ``127.0.0.1:P`` (no-IPv6 fallback); anything else -> None."""
-    if not isinstance(value, str):
-        return None
-    host, sep, port = value.strip().rpartition(":")
-    if not sep or host not in ("[::1]", "127.0.0.1") or not port.isdigit() or not (0 < int(port) < 65536):
-        return None
-    return f"{host}:{int(port)}"
+def _sidecar_endpoint() -> tuple[str | None, str | None, bool]:
+    """(url, token, network_json_present): env first (daemon), then network.json (MCP)."""
 
-
-def _valid_socket(value: Any) -> str | None:
-    if not isinstance(value, str) or not value or len(value) > 512 or "\x00" in value:
-        return None
-    if _is_pipe(value) or os.path.isabs(value):
-        return value
-    return None
-
-
-def _embedded_endpoint() -> tuple[str | None, str | None, bool]:
-    """(socket, socks5, network_json_present) from env first, then network.json."""
+    env_url = os.environ.get(config.ENV_NET_URL, "").strip()
+    env_tok = os.environ.get(config.ENV_NET_TOKEN, "").strip()
+    if parse_sidecar_url(env_url) and valid_token(env_tok):
+        return env_url, env_tok, False
     info = config.read_network_json()
-    present = info is not None
-    sock = _valid_socket(os.environ.get(config.ENV_TS_SOCKET, "").strip()) or (
-        _valid_socket(info.get("socket")) if info else None)
-    socks = _valid_socks5(os.environ.get(config.ENV_TS_SOCKS5, "").strip()) or (
-        _valid_socks5(info.get("socks5")) if info else None)
-    return sock, socks, present
+    if not info:
+        return None, None, False
+    url = info.get("control_url_local")
+    tok = info.get("control_token")
+    if parse_sidecar_url(url) and valid_token(tok) and info.get("pid"):
+        return url, tok, True
+    return None, None, True
 
 
 def _system_available() -> bool:
@@ -488,21 +486,22 @@ def _system_available() -> bool:
 
 
 def select_backend() -> NetBackend:
-    """Pick the backend for this call (cheap: env + a small file + a connect probe)."""
+    """Pick the backend for this call (cheap: env + a small file + maybe one local request)."""
     if _override is not None:
         return _override
     mode = config.network_mode()
     if mode == "system":
         return SystemTailscale()
-    sock, socks, present = _embedded_endpoint()
-    if mode == "embedded":
-        if not sock or not socks:
+    url, token, present = _sidecar_endpoint()
+    if mode == "sidecar":
+        if not url or not token:
             raise NetworkOff(MSG_NETWORK_OFF)
-        return EmbeddedTailscale(sock, socks)
-    # auto
-    if sock and socks and (present or os.environ.get(config.ENV_TS_SOCKET)):
-        if socket_answers(sock):
-            return EmbeddedTailscale(sock, socks)
+        return SidecarBackend(url, token)
+    # auto (MCP stdio process of the free CLI or of the app)
+    if url and token:
+        backend = SidecarBackend(url, token)
+        if backend.alive():
+            return backend
         if _system_available():
             return SystemTailscale()
         raise NetworkOff(MSG_NETWORK_OFF)
@@ -512,18 +511,17 @@ def select_backend() -> NetBackend:
 
 
 __all__ = [
-    "EmbeddedTailscale",
     "HOST_PREFIX",
-    "LocalAPIError",
     "MSG_NETWORK_OFF",
     "NetBackend",
     "NetworkOff",
+    "SidecarBackend",
+    "SidecarError",
     "SystemTailscale",
     "details_from_status",
-    "localapi_get",
+    "parse_sidecar_url",
     "parse_whois",
     "select_backend",
     "set_backend_override",
-    "socket_answers",
     "strip_prefix",
 ]

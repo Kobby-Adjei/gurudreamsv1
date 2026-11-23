@@ -79,31 +79,9 @@ async def list_nodes() -> str:
     )
 
 
-class _SocksAdapter(requests.adapters.HTTPAdapter):
-    """urllib3's SOCKSProxyManager keeps the brackets of an IPv6 proxy host
-    (``socks5h://[::1]:P`` -> host ``"[::1]"``), which PySocks cannot resolve.
-    Strip them so tailscaled's ``[::1]`` SOCKS5 listener (F-1) works."""
-
-    def proxy_manager_for(self, proxy: str, **proxy_kwargs: Any) -> Any:
-        manager = super().proxy_manager_for(proxy, **proxy_kwargs)
-        opts = getattr(manager, "connection_pool_kw", {}).get("_socks_options")
-        if isinstance(opts, dict):
-            host = opts.get("proxy_host")
-            if isinstance(host, str) and host.startswith("[") and host.endswith("]"):
-                opts["proxy_host"] = host[1:-1]
-        return manager
-
-
-def _post(url: str, body: dict[str, Any], headers: dict[str, str], timeout: float,
-          proxies: dict[str, str] | None = None) -> requests.Response:
+def _post(url: str, body: dict[str, Any], headers: dict[str, str], timeout: float) -> requests.Response:
     with requests.Session() as session:
         session.trust_env = False  # never route tailnet traffic through env proxies
-        if proxies:
-            # Embedded network: tailscaled's SOCKS5 (socks5h://[::1]:P).
-            # Session-level so trust_env=False still applies to everything else.
-            session.proxies.clear()
-            session.proxies.update(proxies)
-            session.mount("http://", _SocksAdapter())
         return session.post(url, json=body, headers=headers, timeout=timeout, allow_redirects=False)
 
 
@@ -131,20 +109,23 @@ def _fail(error: str, status: int, target: str | None = None, nbytes: int | None
 
 
 def _interpret_response(resp: requests.Response, host: str, nbytes: int) -> dict[str, Any]:
-    status = resp.status_code
+    try:
+        data = resp.json()
+    except ValueError:
+        data = None
+    return _interpret(resp.status_code, data if isinstance(data, dict) else None, host, nbytes)
+
+
+def _interpret(status: int, data: dict[str, Any] | None, host: str, nbytes: int,
+               *, sidecar: bool = False) -> dict[str, Any]:
+    """Map the receiving inbox's HTTP status + JSON body to a structured result."""
     if status in (200, 201):
-        name = ""
-        try:
-            data = resp.json()
-            if isinstance(data, dict) and isinstance(data.get("file"), str):
-                name = data["file"]
-        except ValueError:
-            pass
+        name = data["file"] if data and isinstance(data.get("file"), str) else ""
         where = f" as {name}" if name else ""
         return _ok(host, name,
                    f"SUCCESS: task delivered to {host}{where}. It is waiting in {host}'s AirBridge inbox.",
                    nbytes)
-    detail = _response_detail(resp)
+    detail = data["detail"][:200] if data and isinstance(data.get("detail"), str) else ""
     suffix = f" (server said: {detail})" if detail else ""
     if status == 400:
         return _fail(f"{host} rejected the task as invalid{suffix}.", 502, host, nbytes)
@@ -153,6 +134,10 @@ def _interpret_response(resp: requests.Response, host: str, nbytes: int) -> dict
             f"{host} refused the task because the shared secret did not match. "
             "Set the same AIRBRIDGE_SECRET on both machines and restart AirBridge.", 502, host, nbytes)
     if status == 403:
+        if sidecar:
+            return _fail(
+                f"{host} did not accept this device. Make sure both computers are signed in to the "
+                "same AirBridge account.", 502, host, nbytes)
         return _fail(
             f"{host} refused the connection because it did not come from a "
             "Tailscale address. Check that both machines are on the same tailnet.", 502, host, nbytes)
@@ -162,6 +147,9 @@ def _interpret_response(resp: requests.Response, host: str, nbytes: int) -> dict
             "Shorten the description or send less code.", 413, host, nbytes)
     if status == 429:
         return _fail(f"{host} is rate-limiting requests. Wait a minute and try again.", 429, host, nbytes)
+    if status == 503 and sidecar:
+        return _fail(f"AirBridge on {host} is not ready to receive tasks yet. Is the AirBridge app running there?",
+                     502, host, nbytes)
     if 300 <= status < 400:
         return _fail(f"{host} answered with a redirect (HTTP {status}); AirBridge does not follow redirects.",
                      502, host, nbytes)
@@ -248,6 +236,13 @@ async def _send_task(
         except security.SecurityError as exc:
             return _fail(f"code_payload is not acceptable: {exc}", 400, target)
 
+    try:
+        backend = await asyncio.to_thread(network.get_backend)
+    except network.TailscaleError as exc:
+        return _fail(f"could not query the network: {exc}", 502, target)
+    if getattr(backend, "kind", "") == "sidecar":
+        return await _send_via_sidecar(settings, backend, target, task, code)
+
     body: dict[str, Any] = {
         "sender_node": _local_sender_name(),
         "task_description": task,
@@ -262,7 +257,6 @@ async def _send_task(
     # --- resolve the target on the tailnet ---
     try:
         ip = await asyncio.to_thread(network.resolve_peer, target)
-        proxies = await asyncio.to_thread(network.requests_proxies) if ip else None
     except network.TailscaleError as exc:
         return _fail(f"could not query the network: {exc}", 502, target, encoded_len)
     if not ip:
@@ -281,10 +275,7 @@ async def _send_task(
 
     logger.info("sending task to %s (%s): %s", target, ip, security.truncate_for_log(task, 200))
     try:
-        if proxies:
-            resp = await asyncio.to_thread(_post, url, body, headers, settings.http_timeout_s, proxies)
-        else:
-            resp = await asyncio.to_thread(_post, url, body, headers, settings.http_timeout_s)
+        resp = await asyncio.to_thread(_post, url, body, headers, settings.http_timeout_s)
     except requests.exceptions.Timeout:
         return _fail(
             f"timed out after {settings.http_timeout_s}s waiting for {target} ({ip}). "
@@ -299,6 +290,60 @@ async def _send_task(
     result = _interpret_response(resp, target, encoded_len)
     logger.info("send to %s finished with HTTP %s", target, resp.status_code)
     return result
+
+
+async def _send_via_sidecar(settings: config.Settings, backend: Any, target: str, task: str,
+                            code: str | None) -> dict[str, Any]:
+    """Desktop app network: the airbridge-net sidecar resolves ``target`` among this user's online
+    devices and delivers over the private network (POST /send; hostname only, never an IP)."""
+    try:
+        own = await asyncio.to_thread(backend.self_hostname)
+    except network.TailscaleError as exc:
+        return _fail(f"could not query the network: {exc}", 502, target)
+    try:
+        # F-13: send our control-assigned name, exactly what the receiver verifies.
+        sender = security.validate_sender(own) if own else _local_sender_name()
+    except security.SecurityError:
+        sender = _local_sender_name()
+    body: dict[str, Any] = {"sender_node": sender, "task_description": task, "code_payload": code}
+    encoded_len = len(json.dumps(body).encode("utf-8"))
+    if encoded_len > security.MAX_BODY_BYTES:
+        return _fail(
+            f"the task is too large to send ({encoded_len} bytes encoded, limit "
+            f"{security.MAX_BODY_BYTES}). Shorten the description or send less code.", 413, target, encoded_len)
+    logger.info("sending task to %s via the AirBridge network: %s", target, security.truncate_for_log(task, 200))
+    try:
+        status, data = await asyncio.to_thread(
+            backend.send, target, body, settings.shared_secret, settings.http_timeout_s + 5)
+    except network.TailscaleError as exc:
+        return _fail(f"could not reach the AirBridge network on this computer: {exc}", 502, target, encoded_len)
+    error = data.get("error") if isinstance(data.get("error"), str) else ""
+    if status == 200 and isinstance(data.get("status"), int):
+        try:
+            peer_body = json.loads(data.get("body") or "null")
+        except (TypeError, ValueError):
+            peer_body = None
+        result = _interpret(data["status"], peer_body if isinstance(peer_body, dict) else None,
+                            target, encoded_len, sidecar=True)
+        logger.info("send to %s finished with HTTP %s", target, data["status"])
+        return result
+    if status == 404:
+        hint = await _available_hosts_hint()
+        return _fail(f"no online device named '{target}' was found on your AirBridge network. {hint}",
+                     404, target, encoded_len)
+    if status == 503:
+        return _fail("the AirBridge network is not connected on this computer yet. Open the AirBridge app.",
+                     502, target, encoded_len)
+    if status == 504 or error == "timeout":
+        return _fail(f"timed out waiting for {target}. The machine may be asleep or AirBridge may be busy.",
+                     502, target, encoded_len)
+    if status == 502:
+        return _fail(f"could not connect to {target}. Is AirBridge running on {target}?", 502, target, encoded_len)
+    if status == 413:
+        return _fail(f"the task is too large to send (limit {security.MAX_BODY_BYTES} bytes).", 413, target,
+                     encoded_len)
+    return _fail(f"the AirBridge network refused the request (HTTP {status}{', ' + error[:40] if error else ''}).",
+                 502, target, encoded_len)
 
 
 def build_mcp_server(settings: config.Settings | None = None) -> MCPServer:

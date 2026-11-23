@@ -17,10 +17,12 @@ import { randomBytes } from 'node:crypto';
 import { EventEmitter } from 'node:events';
 import { homedir } from 'node:os';
 import { dirname, isAbsolute } from 'node:path';
-import type { BackendLifecycle, BackendStatus, NetStatus } from '../shared/types';
-import { systemNetStatus } from './network/TailscaleManager';
+import type { BackendLifecycle, NetStatus } from '../shared/types';
+import type { SidecarLaunch } from './network/NetManager';
 
 export const READY_PREFIX = 'AIRBRIDGE_READY ';
+/** The only network variables the daemon gets (from NetworkSupervisor.daemonEnv()). */
+export const NETWORK_ENV_KEYS = ['AIRBRIDGE_NETWORK', 'AIRBRIDGE_NET_URL', 'AIRBRIDGE_NET_TOKEN'] as const;
 export const MAX_RESTARTS = 5;
 export const STOP_TIMEOUT_MS = 3000;
 export const READY_TIMEOUT_MS = 30_000;
@@ -52,8 +54,8 @@ export interface ProcessManagerOptions {
   /** AIRBRIDGE_DATA_DIR for the daemon (activity.jsonl, logs). */
   dataDir?: string;
   /**
-   * Phase 3: extra variables evaluated at every spawn (TailscaleManager.daemonEnv():
-   * AIRBRIDGE_NETWORK=embedded, AIRBRIDGE_TS_SOCKET, AIRBRIDGE_TS_SOCKS5). null/undefined = none.
+   * Phase 3 §9: extra variables evaluated at every spawn (NetworkSupervisor.daemonEnv():
+   * AIRBRIDGE_NETWORK=sidecar [+ AIRBRIDGE_NET_URL, AIRBRIDGE_NET_TOKEN]). null/undefined = none.
    */
   extraEnv?: () => Record<string, string> | null | undefined;
   /**
@@ -213,12 +215,10 @@ export class ProcessManager extends EventEmitter<ProcessManagerEvents> {
     };
     if (this.opts.dataDir) env.AIRBRIDGE_DATA_DIR = this.opts.dataDir;
     // Never inherit a stale network selection from the app's own environment.
-    delete env.AIRBRIDGE_NETWORK;
-    delete env.AIRBRIDGE_TS_SOCKET;
-    delete env.AIRBRIDGE_TS_SOCKS5;
+    for (const k of [...NETWORK_ENV_KEYS, 'AIRBRIDGE_TS_SOCKET', 'AIRBRIDGE_TS_SOCKS5']) delete env[k];
     const extra = this.opts.extraEnv?.();
     if (extra) {
-      for (const k of ['AIRBRIDGE_NETWORK', 'AIRBRIDGE_TS_SOCKET', 'AIRBRIDGE_TS_SOCKS5'] as const) {
+      for (const k of NETWORK_ENV_KEYS) {
         if (typeof extra[k] === 'string' && extra[k]) env[k] = extra[k];
       }
     }
@@ -457,109 +457,85 @@ export function licenseGateCallbacks(pm: Pick<ProcessManager, 'start' | 'block'>
   };
 }
 
-// ------------------------------------------------------------------ network selection (PHASE3_PLAN.md §8)
+// ------------------------------------------------------------------ private network (PHASE3_PLAN.md §8, §9)
 
-/** Which network the daemon is told to use: the bundled tailscaled, or the user's own Tailscale. */
-export type DaemonNetwork = 'embedded' | 'system';
-
-/** The slice of TailscaleManager the supervisor needs. */
-export interface NetworkSupervisorTm {
-  start(): Promise<void>;
+/** The slice of NetManager the supervisor needs. */
+export interface NetworkSupervisorNm {
+  start(launch: SidecarLaunch): Promise<void>;
   stop(): Promise<void>;
   logout(): Promise<void>;
+  wipeState(): Promise<void>;
   status(): Promise<NetStatus>;
   lastStatus(): NetStatus;
+  isRunning(): boolean;
   daemonEnv(): Record<string, string> | null;
   on(event: 'status', cb: (s: NetStatus) => void): unknown;
 }
 
 export interface NetworkSupervisorOptions {
-  tm: NetworkSupervisorTm;
-  /** licenseEnforced(): true = exact Phase-3 behaviour (gate-driven, embedded only). */
+  nm: NetworkSupervisorNm;
+  /** licenseEnforced(): true = the gate drives start (license valid -> network -> daemon). */
   enforced: boolean;
-  /** Preview: signed in AND a license server is configured (embedded enrollment can be attempted). */
-  canEmbed: () => boolean;
-  /** ensureEnrolled wrapper; resolves true when this device is on the private network. Never throws. */
+  /** Signed in AND a license server is configured: enrollment can be attempted. */
+  canEnroll: () => boolean;
+  /** ensureEnrolled wrapper (spawns the sidecar); resolves true when this device is on the network. Never throws. */
   enroll: () => Promise<boolean>;
   onNetwork: (s: NetStatus) => void;
   log?: (msg: string) => void;
 }
 
+/** Shown while nobody is signed in: the app never falls back to a system Tailscale (§9). */
+export const SIGNED_OUT_STATUS: NetStatus = { state: 'needs_login', mode: 'embedded' };
+
 /**
- * Decides which network the daemon runs with and starts/stops it accordingly.
+ * Owns the private network (the airbridge-net sidecar) and starts the daemon with its endpoint.
  *
- * Enforced (licenseEnforced() === true): unchanged Phase-3 wiring. Nothing starts until the LicenseGate
- * calls licenseValid() -> tailscaled -> enrollment -> daemon (embedded env); licenseInvalid() blocks.
+ * The app path never uses a system Tailscale. The daemon always runs with AIRBRIDGE_NETWORK=sidecar;
+ * while the sidecar is not running (signed out, enrollment failed) it gets no endpoint and its inbox
+ * stays degraded ("AirBridge network is off"), while the feed and MCP config keep working.
  *
- * Preview (not enforced): start() always starts the daemon. Signed in + license server configured +
- * enrollment succeeds -> embedded; anything else -> AIRBRIDGE_NETWORK=system and tailscaled is never
- * spawned. Sign-in later re-attempts embedded (daemon restarted with the new env); sign-out falls back
- * to system. Gate verdicts are logged only (shadow mode) and never stop the daemon.
+ * Preview (not enforced): start() starts the daemon right away; signed in + license server configured
+ * -> enrollment (sidecar) first. Signed out -> NetStatus {state:'needs_login', mode:'embedded'}.
+ * Enforced: nothing starts until the LicenseGate calls licenseValid(); licenseInvalid() blocks.
  */
 export class NetworkSupervisor {
-  private network: DaemonNetwork;
   private pm: ProcessManager | null = null;
   private daemonNetEnv = '';
-  private lastBackendStatus: BackendStatus | null = null;
-  private lastPushed = '';
   private chain: Promise<void> = Promise.resolve();
   private readonly log: (msg: string) => void;
 
   constructor(private readonly opts: NetworkSupervisorOptions) {
-    this.network = opts.enforced ? 'embedded' : 'system';
     this.log = opts.log ?? (() => undefined);
-    opts.tm.on('status', (s) => {
-      if (this.network === 'embedded') this.opts.onNetwork(this.tag(s));
+    opts.nm.on('status', (s) => {
+      this.opts.onNetwork(this.tag(s));
+      // A sidecar restarted after a crash has a new endpoint: hand it to the daemon.
+      if (this.pm && this.opts.nm.isRunning() && this.daemonNetEnv && JSON.stringify(this.daemonEnv()) !== this.daemonNetEnv) {
+        const phase = this.pm.getLifecycle().phase;
+        if (phase === 'running' || phase === 'starting') void this.serial(() => this.startDaemon());
+      }
     });
   }
 
   /** Wire the ProcessManager (constructed with `extraEnv: () => supervisor.daemonEnv()`). */
   attach(pm: ProcessManager): void {
     this.pm = pm;
-    pm.on('lifecycle', () => this.pushSystem());
-    pm.on('exit', () => {
-      this.lastBackendStatus = null;
-      this.pushSystem();
-    });
   }
 
-  currentNetwork(): DaemonNetwork {
-    return this.network;
+  /** ProcessManager.extraEnv: the sidecar endpoint when running, else sidecar mode without one. */
+  daemonEnv(): Record<string, string> {
+    return this.opts.nm.daemonEnv() ?? { AIRBRIDGE_NETWORK: 'sidecar' };
   }
 
-  /** ProcessManager.extraEnv. */
-  daemonEnv(): Record<string, string> | null {
-    if (this.network === 'system') return { AIRBRIDGE_NETWORK: 'system' };
-    return this.opts.tm.daemonEnv();
-  }
-
-  /** ControlClient 'status' (GET /status poll). Drives NetStatus while on the system network. */
-  onBackendStatus(s: BackendStatus | null): void {
-    const reason = s && !s.tailnet_ip ? s.inbox?.degraded_reason ?? null : null;
-    if (this.network === 'system' && reason && reason !== this.lastBackendStatus?.inbox?.degraded_reason) {
-      this.log(`system network unavailable: ${reason.replace(/[\x00-\x1f\x7f]/g, ' ').slice(0, 300)}`);
-    }
-    this.lastBackendStatus = s;
-    this.pushSystem();
-  }
-
-  /** NetStatus for IPC (network.getStatus). */
-  async status(fetchBackendStatus?: () => Promise<BackendStatus | null>): Promise<NetStatus> {
-    if (this.network === 'embedded') return this.tag(await this.opts.tm.status());
-    if (fetchBackendStatus) {
-      try {
-        this.lastBackendStatus = await fetchBackendStatus();
-      } catch {
-        /* keep the last poll */
-      }
-    }
-    return this.tag(systemNetStatus(this.lastBackendStatus, this.pmRef().getLifecycle()));
+  /** NetStatus for IPC (network.getStatus). Always mode 'embedded'. */
+  async status(): Promise<NetStatus> {
+    if (!this.opts.canEnroll()) return { ...SIGNED_OUT_STATUS };
+    return this.tag(await this.opts.nm.status());
   }
 
   /** App start (after the window loaded). Enforced: the gate drives everything. */
   async start(): Promise<void> {
     if (this.opts.enforced) return;
-    await this.serial(() => this.bringUpPreview());
+    await this.serial(() => this.bringUp());
   }
 
   /** LicenseGate.onValid. */
@@ -568,10 +544,7 @@ export class NetworkSupervisor {
       this.log('license valid (preview: not enforced)');
       return;
     }
-    await this.opts.tm.start();
-    await this.opts.enroll();
-    // The daemon runs even if enrollment failed (feed, MCP config); its inbox reports degraded.
-    await this.startDaemon();
+    await this.serial(() => this.bringUp());
   }
 
   /** LicenseGate.onInvalid. */
@@ -580,45 +553,44 @@ export class NetworkSupervisor {
       this.log(`license would block (${reason}) - preview: not enforced, backend keeps running`);
       return;
     }
-    await this.pmRef().block(`License check: ${reason}`);
-    await this.opts.tm.stop();
+    await this.serial(async () => {
+      await this.pmRef().block(`License check: ${reason}`);
+      await this.opts.nm.stop();
+    });
   }
 
-  /** Auth became signed_in. Preview: try to move onto the embedded network. */
+  /** Auth became signed_in. Preview: join the private network now. */
   async signedIn(): Promise<void> {
     if (this.opts.enforced) return; // gate.check() -> licenseValid()
-    await this.serial(() => this.bringUpPreview());
+    await this.serial(() => this.bringUp());
   }
 
-  /** Sign-out: leave the private network. Preview: keep the backend on the system network. */
+  /** Sign-out: leave the private network (logout + wipe node state); preview keeps the daemon running. */
   async signedOut(): Promise<void> {
     await this.serial(async () => {
       await this.pmRef().stop();
-      await this.opts.tm.logout().catch(() => undefined);
-      await this.opts.tm.stop();
+      if (this.opts.nm.isRunning()) await this.opts.nm.logout().catch(() => undefined);
+      await this.opts.nm.stop();
+      await this.opts.nm.wipeState().catch(() => undefined);
+      this.opts.onNetwork({ ...SIGNED_OUT_STATUS });
       if (this.opts.enforced) return;
-      this.setNetwork('system');
       await this.startDaemon();
     });
   }
 
-  /** network.retry (IPC). */
+  /** network.retry (IPC): re-run enrollment (restarts the sidecar if needed), then the daemon. */
   async retry(isEntitled: () => boolean): Promise<NetStatus> {
-    if (this.opts.enforced) {
-      const st = this.opts.tm.lastStatus();
-      if (st.state === 'stopped' || st.state === 'error') await this.opts.tm.start();
-      await this.opts.enroll();
-      if (isEntitled()) await this.startDaemon();
-      return this.tag(await this.opts.tm.status());
-    }
-    await this.serial(() => this.bringUpPreview());
+    await this.serial(async () => {
+      if (this.opts.enforced && !isEntitled()) return;
+      await this.bringUp();
+    });
     return this.status();
   }
 
-  /** App quit. */
+  /** App quit: daemon first, then the sidecar. */
   async stop(): Promise<void> {
-    await this.pmRef().stop(); // daemon first, then tailscaled
-    await this.opts.tm.stop();
+    await this.pmRef().stop();
+    await this.opts.nm.stop();
   }
 
   // ------------------------------------------------------------------ internals
@@ -634,54 +606,29 @@ export class NetworkSupervisor {
     return this.chain;
   }
 
-  private async bringUpPreview(): Promise<void> {
-    let target: DaemonNetwork = 'system';
-    if (this.opts.canEmbed()) {
-      await this.opts.tm.start();
-      if (await this.opts.enroll()) target = 'embedded';
-      else {
-        this.log('private network unavailable; using this computer\'s Tailscale');
-        await this.opts.tm.stop();
-      }
-    } else if (this.network === 'embedded') {
-      await this.opts.tm.stop();
+  private async bringUp(): Promise<void> {
+    if (this.opts.canEnroll()) {
+      if (!(await this.opts.enroll())) this.log('private network unavailable (the backend runs without it)');
+    } else {
+      if (this.opts.nm.isRunning()) await this.opts.nm.stop();
+      this.opts.onNetwork({ ...SIGNED_OUT_STATUS });
     }
-    this.setNetwork(target);
     await this.startDaemon();
   }
 
-  private setNetwork(n: DaemonNetwork): void {
-    const changed = n !== this.network;
-    this.network = n;
-    if (!changed) return;
-    this.log(`daemon network: ${n}`);
-    this.lastPushed = '';
-    if (n === 'embedded') this.opts.onNetwork(this.tag(this.opts.tm.lastStatus()));
-    else this.pushSystem();
-  }
-
-  /** Start the daemon, respawning it when its network env changed. */
+  /** Start the daemon, respawning it when the sidecar endpoint changed. */
   private async startDaemon(): Promise<void> {
     const pm = this.pmRef();
     const want = JSON.stringify(this.daemonEnv());
     const phase = pm.getLifecycle().phase;
     const active = phase === 'running' || phase === 'starting' || phase === 'crashed';
-    if (active && want !== this.daemonNetEnv) await pm.stop(); // network moved: respawn with the new env
+    if (active && want !== this.daemonNetEnv) await pm.stop(); // endpoint moved: respawn with the new env
     this.daemonNetEnv = want;
     await pm.start();
   }
 
-  /** Every NetStatus leaving the supervisor says which network the daemon is on (NetStatus.mode). */
+  /** Every NetStatus leaving the supervisor is the app's own network (NetStatus.mode = 'embedded'). */
   private tag(s: NetStatus): NetStatus {
-    return { ...s, mode: this.network };
-  }
-
-  private pushSystem(): void {
-    if (this.network !== 'system' || !this.pm) return;
-    const s = this.tag(systemNetStatus(this.lastBackendStatus, this.pm.getLifecycle()));
-    const json = JSON.stringify(s);
-    if (json === this.lastPushed) return;
-    this.lastPushed = json;
-    this.opts.onNetwork(s);
+    return { ...s, mode: 'embedded' };
   }
 }
