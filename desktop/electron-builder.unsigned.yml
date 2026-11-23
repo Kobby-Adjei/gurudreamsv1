@@ -1,0 +1,14 @@
+# Unsigned test builds (CI: .github/workflows/desktop-build.yml). Same as electron-builder.yml, except:
+# * macOS is ad-hoc signed (identity "-"): Apple Silicon refuses to run arm64 code with no signature at
+#   all, and flipping the Electron fuses invalidates Electron's own linker signature, so the whole
+#   bundle (including mac.binaries: airbridge-core and airbridge-net) is re-signed ad hoc.
+# * hardenedRuntime is off: with an ad-hoc signature there is no Team ID, so hardened-runtime library
+#   validation would refuse to load Electron's frameworks.
+# * No notarization, no Windows signing (no certificate is configured; CSC_IDENTITY_AUTO_DISCOVERY=false).
+# Gatekeeper/SmartScreen will warn on first launch; see README "Download and install".
+#   npx electron-builder --config electron-builder.unsigned.yml --mac dmg zip --arm64
+extends: ./electron-builder.yml
+mac:
+  identity: "-"
+  hardenedRuntime: false
+  notarize: false

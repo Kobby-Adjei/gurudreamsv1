@@ -1,0 +1,178 @@
+# Unsigned AirBridge Pro test installers for macOS (arm64 + x64) and Windows (x64).
+# Each runner builds its own airbridge-core (PyInstaller cannot cross-compile) and airbridge-net,
+# then packages the app with desktop/electron-builder.unsigned.yml. The public build config in
+# desktop/.env.production is baked in by `electron-vite build` (production mode).
+name: desktop-build
+
+on:
+  push:
+    branches: [claude/airbridge-p2p-network-ha3opt]
+    paths:
+      - "desktop/**"
+      - "airbridge/**"
+      - ".github/workflows/desktop-build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: ${{ matrix.artifact }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14
+            artifact: airbridge-mac-arm64
+            platform: darwin
+            arch: arm64
+          - os: macos-15-intel
+            artifact: airbridge-mac-x64
+            platform: darwin
+            arch: x64
+          - os: windows-latest
+            artifact: airbridge-win-x64
+            platform: win32
+            arch: x64
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      GOTOOLCHAIN: auto
+      PLAT_DIR: ${{ matrix.platform }}-${{ matrix.arch }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            airbridge/requirements.txt
+            airbridge/requirements-build.txt
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: desktop/sidecar/airbridge-net/go.mod
+          cache-dependency-path: desktop/sidecar/airbridge-net/go.sum
+
+      - name: Check runner arch
+        shell: bash
+        run: |
+          echo "runner: $(uname -s) $(uname -m); want ${{ matrix.platform }}-${{ matrix.arch }}"
+          node -e "const want='${{ matrix.platform }}-${{ matrix.arch }}', got=process.platform+'-'+process.arch; if (got!==want) { console.error('node is '+got+', expected '+want); process.exit(1) }"
+
+      # airbridge-core (PyInstaller) + airbridge-net (Go sidecar, S-1 DNS-fallback guard)
+      - name: Build backend (macOS)
+        if: runner.os == 'macOS'
+        env:
+          PYTHON: python
+        run: |
+          bash airbridge/build_backend.sh
+          bash desktop/scripts/build-net.sh
+
+      - name: Build backend (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          PYTHON: python
+        run: |
+          ./airbridge/build_backend.ps1
+          ./desktop/scripts/build-net.ps1
+
+      - name: Smoke test backend binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          ext=""; [ "${{ runner.os }}" = Windows ] && ext=".exe"
+          core="desktop/resources/bin/$PLAT_DIR/airbridge-core$ext"
+          net="desktop/resources/net/$PLAT_DIR/airbridge-net$ext"
+          ls -l "$core" "$net"
+          file "$core" "$net" || true
+          export AIRBRIDGE_DATA_DIR="$RUNNER_TEMP/abdata" AIRBRIDGE_LOG_FILE="$RUNNER_TEMP/ab.log"
+          "$core" --help 2>&1 | tee "$RUNNER_TEMP/core-help.txt"
+          grep -q -- "--daemon" "$RUNNER_TEMP/core-help.txt"
+          # airbridge-net has no flags: it reads one JSON config line on stdin and exits 2 without it.
+          set +e; "$net" </dev/null 2>"$RUNNER_TEMP/net.err"; rc=$?; set -e
+          cat "$RUNNER_TEMP/net.err"
+          [ "$rc" -eq 2 ] && grep -q "missing configuration on stdin" "$RUNNER_TEMP/net.err"
+          cat "desktop/resources/net/$PLAT_DIR/manifest.json"
+
+      - name: npm ci
+        working-directory: desktop
+        run: npm ci
+
+      - name: electron-vite build (production config from .env.production)
+        working-directory: desktop
+        shell: bash
+        run: |
+          npx electron-vite build
+          url="$(grep '^MAIN_VITE_AIRBRIDGE_LICENSE_URL=' .env.production | cut -d= -f2-)"
+          grep -q "$url" out/main/index.js || { echo "production config not baked into out/main" >&2; exit 1; }
+
+      - name: Package (macOS, ad-hoc signed)
+        if: runner.os == 'macOS'
+        working-directory: desktop
+        run: npx electron-builder --config electron-builder.unsigned.yml --mac dmg zip --${{ matrix.arch }} --publish never
+
+      - name: Package (Windows, unsigned)
+        if: runner.os == 'Windows'
+        working-directory: desktop
+        run: npx electron-builder --config electron-builder.unsigned.yml --win nsis --x64 --publish never
+
+      - name: Verify packaged app (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          set -euo pipefail
+          app="$(ls -d desktop/release/mac*/*.app | head -1)"
+          echo "app: $app"
+          codesign --verify --deep --strict --verbose=2 "$app"
+          res="$app/Contents/Resources"
+          for b in "$res/bin/$PLAT_DIR/airbridge-core" "$res/net/$PLAT_DIR/airbridge-net"; do
+            codesign -dv "$b" 2>&1 | grep -E "Signature|Identifier|Format"
+            codesign --verify --strict "$b"
+          done
+          lipo -archs "$app/Contents/MacOS/"* "$res/bin/$PLAT_DIR/airbridge-core" "$res/net/$PLAT_DIR/airbridge-net" || true
+          export AIRBRIDGE_DATA_DIR="$RUNNER_TEMP/abdata2" AIRBRIDGE_LOG_FILE="$RUNNER_TEMP/ab2.log"
+          "$res/bin/$PLAT_DIR/airbridge-core" --help 2>&1 | grep -q -- "--daemon"
+          set +e; "$res/net/$PLAT_DIR/airbridge-net" </dev/null 2>/dev/null; rc=$?; set -e
+          [ "$rc" -eq 2 ]
+          ls "$res/licenses"
+          npx --prefix desktop @electron/fuses read --app "$app" || true
+          ls -l desktop/release
+
+      - name: Verify packaged app (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          set -euo pipefail
+          res="desktop/release/win-unpacked/resources"
+          export AIRBRIDGE_DATA_DIR="$RUNNER_TEMP/abdata2" AIRBRIDGE_LOG_FILE="$RUNNER_TEMP/ab2.log"
+          "$res/bin/$PLAT_DIR/airbridge-core.exe" --help 2>&1 | grep -q -- "--daemon"
+          set +e; "$res/net/$PLAT_DIR/airbridge-net.exe" </dev/null 2>/dev/null; rc=$?; set -e
+          [ "$rc" -eq 2 ]
+          ls "$res/licenses"
+          ls -l desktop/release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          retention-days: 14
+          if-no-files-found: error
+          compression-level: 0
+          path: |
+            desktop/release/*.dmg
+            desktop/release/*.zip
+            desktop/release/*.exe
