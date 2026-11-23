@@ -1,4 +1,4 @@
-import { useId, type SVGProps } from 'react'
+import type { SVGProps } from 'react'
 
 /**
  * Hand-drawn 24×24 line icons (1.75 stroke, round caps) – no icon dependency.
@@ -196,28 +196,24 @@ export const WifiOffIcon = (p: IconProps) => (
   </Svg>
 )
 
-/** App mark: a bridge arc joining two points, on the accent tile. */
-export function LogoMark({ size = 28 }: { size?: number }) {
-  const gid = `ab-logo-${useId().replace(/:/g, '')}`
+/**
+ * App mark: two offset rounded squares – two devices, one outlined, one solid.
+ * Monochrome (currentColor) so it is white on dark and black on light, and
+ * drawn on a 16-unit grid so it stays crisp at 16px.
+ */
+export function LogoMark({ size = 20, className = '' }: { size?: number; className?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-      <defs>
-        <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="rgb(var(--accent-hover))" />
-          <stop offset="1" stopColor="rgb(var(--accent))" />
-        </linearGradient>
-      </defs>
-      <rect width="32" height="32" rx="9" fill={`url(#${gid})`} />
-      <path
-        d="M7 21c2.2-6.5 5.2-9.5 9-9.5s6.8 3 9 9.5"
-        fill="none"
-        stroke="#fff"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-      />
-      <path d="M11 21v-4.2M16 21v-6M21 21v-4.2" stroke="#fff" strokeOpacity=".55" strokeWidth="1.6" strokeLinecap="round" />
-      <circle cx="7" cy="21.5" r="2.2" fill="#fff" />
-      <circle cx="25" cy="21.5" r="2.2" fill="#fff" />
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      aria-hidden="true"
+      focusable="false"
+      className={className}
+      shapeRendering="geometricPrecision"
+    >
+      <rect x="1.75" y="1.75" width="8.5" height="8.5" rx="2.25" fill="none" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="6" y="6" width="9" height="9" rx="2.5" fill="currentColor" />
     </svg>
   )
 }

@@ -19,15 +19,15 @@ export interface BackendStatus {
 
 export interface Node {
   hostname: string;
-  ip: string;
-  os: string;
+  ip: string | null;
+  os: string | null;
   online: boolean;
   last_seen: string | null;
 }
 
 /** GET /nodes */
 export interface NodesResponse {
-  self: { hostname: string; ip: string; os: string };
+  self: { hostname: string; ip: string | null; os: string | null };
   nodes: Node[];
   error: string | null;
 }

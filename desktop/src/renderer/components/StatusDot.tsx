@@ -5,7 +5,7 @@ const dotColor: Record<DotStatus, string> = {
   offline: 'bg-ink-faint/70',
   warning: 'bg-warn',
   error: 'bg-danger',
-  starting: 'bg-accent-ink'
+  starting: 'bg-ink-muted'
 }
 
 const textColor: Record<DotStatus, string> = {
@@ -13,7 +13,7 @@ const textColor: Record<DotStatus, string> = {
   offline: 'text-ink-faint',
   warning: 'text-warn',
   error: 'text-danger',
-  starting: 'text-accent-ink'
+  starting: 'text-ink-muted'
 }
 
 const defaultLabel: Record<DotStatus, string> = {
@@ -25,38 +25,31 @@ const defaultLabel: Record<DotStatus, string> = {
 }
 
 /**
- * Status is never colour-only: the dot always comes with a text label
- * (visible by default, or screen-reader-only with `hideLabel`).
+ * A small solid dot plus text. Status is never colour-only: the label is
+ * always present (visible by default, or screen-reader-only with `hideLabel`).
  */
 export function StatusDot({
   status,
   label,
   hideLabel = false,
-  pulse,
   className = ''
 }: {
   status: DotStatus
   label?: string
   hideLabel?: boolean
-  pulse?: boolean
   className?: string
 }) {
   const text = label ?? defaultLabel[status]
-  const shouldPulse = pulse ?? (status === 'online' || status === 'starting')
   return (
     <span
       className={`inline-flex items-center gap-1.5 text-[12px] font-medium ${textColor[status]} ${className}`}
       data-status={status}
     >
-      <span className="relative inline-flex h-2 w-2 shrink-0" aria-hidden="true">
-        {shouldPulse ? (
-          <span className={`absolute inset-0 rounded-full ${dotColor[status]} animate-pulse-ring`} />
-        ) : null}
-        <span
-          className={`relative inline-flex h-2 w-2 rounded-full ${dotColor[status]} ${status === 'online' ? 'shadow-[0_0_8px_rgb(var(--ok-dot)/0.7)]' : ''}`}
-          data-testid={`status-dot-${status}`}
-        />
-      </span>
+      <span
+        aria-hidden="true"
+        className={`inline-block h-1.5 w-1.5 shrink-0 rounded-full ${dotColor[status]}`}
+        data-testid={`status-dot-${status}`}
+      />
       <span className={hideLabel ? 'sr-only' : ''}>{text}</span>
     </span>
   )

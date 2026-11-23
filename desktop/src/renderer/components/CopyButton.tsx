@@ -52,7 +52,7 @@ export function CopyButton({
         onClick={handle}
         disabled={state === 'copying'}
         aria-describedby={describedBy}
-        className={`${copied ? '!bg-ok/15 !text-ok !shadow-none ring-1 ring-inset ring-ok/30' : ''} min-w-[7.5rem] ${className}`}
+        className={`${copied ? '!border !border-line/10 !bg-surface-2 !text-ok' : ''} min-w-[7.5rem] ${className}`}
         icon={copied ? <CheckIcon size={16} /> : <CopyIcon size={16} />}
       >
         {copied ? copiedLabel : state === 'error' ? 'Try again' : label}

@@ -1,12 +1,10 @@
-/** Shimmering placeholder block. Decorative – announce loading elsewhere. */
+/** Static placeholder block. Decorative – announce loading elsewhere. */
 export function Skeleton({ className = '' }: { className?: string }) {
   return (
     <span
       aria-hidden="true"
-      className={`relative block overflow-hidden rounded-lg bg-line/[0.06] ${className}`}
-    >
-      <span className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-line/[0.06] to-transparent" />
-    </span>
+      className={`block rounded-lg bg-line/[0.06] ${className}`}
+    />
   )
 }
 

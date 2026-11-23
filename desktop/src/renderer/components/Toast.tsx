@@ -48,15 +48,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <div
               key={t.id}
               role={t.tone === 'error' ? 'alert' : 'status'}
-              className="pointer-events-auto flex items-start gap-3 rounded-2xl border border-line/10 bg-surface-2/95 p-4 shadow-lift backdrop-blur-xl animate-enter"
+              className="pointer-events-auto flex items-start gap-3 rounded-2xl border border-line/10 bg-surface-2 p-4 shadow-overlay animate-enter"
             >
               <span
                 className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full ${
                   t.tone === 'success'
-                    ? 'bg-ok/15 text-ok'
+                    ? 'text-ok'
                     : t.tone === 'error'
-                      ? 'bg-danger/15 text-danger'
-                      : 'bg-accent/15 text-accent-ink'
+                      ? 'text-danger'
+                      : 'text-ink-muted'
                 }`}
               >
                 {t.tone === 'success' ? (

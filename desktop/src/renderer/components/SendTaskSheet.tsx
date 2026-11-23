@@ -140,14 +140,14 @@ export function SendTaskSheet({
 
   return (
     <div className="fixed inset-0 z-40 flex justify-end">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] animate-fade-in" onClick={onClose} aria-hidden="true" />
+      <div className="absolute inset-0 bg-black/50 animate-fade-in" onClick={onClose} aria-hidden="true" />
       <div
         ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descId}
-        className="relative m-3 flex w-[440px] max-w-[calc(100vw-24px)] flex-col overflow-hidden rounded-2xl border border-line/10 bg-surface-1 shadow-lift animate-sheet-in"
+        className="relative m-3 flex w-[440px] max-w-[calc(100vw-24px)] flex-col overflow-hidden rounded-2xl border border-line/10 bg-surface-1 shadow-overlay animate-sheet-in"
       >
         <div className="flex items-start justify-between gap-4 border-b border-line/[0.06] px-6 pb-4 pt-5">
           <div>
@@ -174,7 +174,7 @@ export function SendTaskSheet({
               <legend className="mb-2 text-[13px] font-medium text-ink">Send to</legend>
               {sorted.length === 0 ? (
                 <p className="rounded-xl bg-surface-2 px-4 py-3 text-[13px] text-ink-muted">
-                  No other computers yet. Add one from the Swarm page.
+                  No other computers yet. Add one from the Devices page.
                 </p>
               ) : (
                 <div className="space-y-2">
@@ -185,7 +185,7 @@ export function SendTaskSheet({
                         key={n.hostname}
                         className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 transition duration-150 ease-calm has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent-ink ${
                           !n.online ? 'cursor-not-allowed opacity-60' : ''
-                        } ${checked ? 'border-accent/60 bg-accent/10' : 'border-line/[0.08] bg-surface-2 hover:border-line/15'}`}
+                        } ${checked ? 'border-ink/40 bg-surface-3' : 'border-line/[0.08] bg-surface-2 hover:border-line/15'}`}
                       >
                         <input
                           type="radio"
@@ -204,12 +204,12 @@ export function SendTaskSheet({
                             {!n.online ? ` · last seen ${relativeTime(n.last_seen)}` : ''}
                           </span>
                         </span>
-                        <StatusDot status={n.online ? 'online' : 'offline'} pulse={false} />
+                        <StatusDot status={n.online ? 'online' : 'offline'} />
                         <span
                           aria-hidden="true"
-                          className={`grid h-4 w-4 place-items-center rounded-full border ${checked ? 'border-accent bg-accent' : 'border-line/25'}`}
+                          className={`grid h-4 w-4 place-items-center rounded-full border ${checked ? 'border-ink bg-ink' : 'border-line/25'}`}
                         >
-                          {checked ? <span className="h-1.5 w-1.5 rounded-full bg-white" /> : null}
+                          {checked ? <span className="h-1.5 w-1.5 rounded-full bg-canvas" /> : null}
                         </span>
                       </label>
                     )
@@ -232,7 +232,7 @@ export function SendTaskSheet({
                 aria-invalid={taskBytes > MAX_TASK_BYTES || undefined}
                 aria-describedby={error ? errId : undefined}
                 placeholder="e.g. Run the test suite and fix anything that fails"
-                className="block w-full resize-y rounded-xl border border-line/10 bg-surface-2 px-3.5 py-3 text-[14px] leading-6 text-ink placeholder:text-ink-faint focus-visible:border-accent/60 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/20"
+                className="block w-full resize-y rounded-xl border border-line/10 bg-surface-2 px-3.5 py-3 text-[14px] leading-6 text-ink placeholder:text-ink-faint focus-visible:border-line/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/50"
               />
             </div>
 
@@ -259,7 +259,7 @@ export function SendTaskSheet({
                     spellCheck={false}
                     aria-invalid={codeBytes > MAX_CODE_BYTES || undefined}
                     placeholder="Paste a snippet, a diff or a file"
-                    className="block w-full resize-y rounded-xl border border-line/10 bg-canvas px-3.5 py-3 font-mono text-[12.5px] leading-5 text-ink placeholder:text-ink-faint focus-visible:border-accent/60 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/20"
+                    className="block w-full resize-y rounded-xl border border-line/10 bg-canvas px-3.5 py-3 font-mono text-[12.5px] leading-5 text-ink placeholder:text-ink-faint focus-visible:border-line/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-ink/50"
                   />
                 </>
               )}

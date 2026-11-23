@@ -6,11 +6,11 @@ interface CardProps extends HTMLAttributes<HTMLElement> {
   children: ReactNode
 }
 
-/** Rounded-2xl surface with a hairline border and a soft shadow. */
+/** Rounded-2xl surface with a hairline border. No shadow: hierarchy comes from layout. */
 export function Card({ as: Tag = 'div', padded = true, className = '', children, ...rest }: CardProps) {
   return (
     <Tag
-      className={`rounded-2xl border border-line/[0.08] bg-surface-1 shadow-soft shadow-inset-line ${padded ? 'p-6' : ''} ${className}`}
+      className={`rounded-2xl border border-line/[0.08] bg-surface-1 ${padded ? 'p-6' : ''} ${className}`}
       {...rest}
     >
       {children}

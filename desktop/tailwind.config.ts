@@ -65,46 +65,25 @@ const config: Config = {
         display: '-0.022em'
       },
       boxShadow: {
-        soft: '0 1px 2px rgb(0 0 0 / 0.18), 0 8px 24px -12px rgb(0 0 0 / 0.35)',
-        lift: '0 2px 4px rgb(0 0 0 / 0.2), 0 24px 48px -16px rgb(0 0 0 / 0.5)',
-        glow: '0 0 0 1px rgb(var(--accent) / 0.35), 0 12px 40px -8px rgb(var(--accent) / 0.45)',
-        'inset-line': 'inset 0 1px 0 rgb(255 255 255 / 0.04)'
+        // Elevation for overlays only (sheet, toast). Cards rely on borders.
+        overlay: '0 1px 2px rgb(0 0 0 / 0.2), 0 16px 40px -12px rgb(0 0 0 / 0.45)'
       },
       transitionTimingFunction: {
         calm: 'cubic-bezier(0.2, 0.8, 0.2, 1)'
       },
       keyframes: {
-        'pulse-ring': {
-          '0%': { transform: 'scale(1)', opacity: '0.55' },
-          '80%, 100%': { transform: 'scale(2.6)', opacity: '0' }
-        },
-        enter: {
-          from: { opacity: '0', transform: 'translateY(6px)' },
-          to: { opacity: '1', transform: 'translateY(0)' }
-        },
+        enter: { from: { opacity: '0' }, to: { opacity: '1' } },
         'fade-in': { from: { opacity: '0' }, to: { opacity: '1' } },
         'sheet-in': {
           from: { opacity: '0', transform: 'translateX(24px)' },
           to: { opacity: '1', transform: 'translateX(0)' }
         },
-        flow: { to: { strokeDashoffset: '-24' } },
-        packet: { from: { strokeDashoffset: '100' }, to: { strokeDashoffset: '0' } },
-        shimmer: { '100%': { transform: 'translateX(100%)' } },
-        breathe: {
-          '0%, 100%': { transform: 'scale(1)', opacity: '0.9' },
-          '50%': { transform: 'scale(1.06)', opacity: '1' }
-        },
         spin: { to: { transform: 'rotate(360deg)' } }
       },
       animation: {
-        'pulse-ring': 'pulse-ring 2s cubic-bezier(0.2, 0.8, 0.2, 1) infinite',
-        enter: 'enter 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both',
+        enter: 'enter 240ms ease-out both',
         'fade-in': 'fade-in 240ms ease-out both',
         'sheet-in': 'sheet-in 280ms cubic-bezier(0.2, 0.8, 0.2, 1) both',
-        flow: 'flow 1.2s linear infinite',
-        packet: 'packet 2.8s cubic-bezier(0.45, 0, 0.55, 1) infinite',
-        shimmer: 'shimmer 1.6s infinite',
-        breathe: 'breathe 2.4s ease-in-out infinite',
         'spin-slow': 'spin 1.1s linear infinite'
       }
     }

@@ -17,10 +17,8 @@ const base =
   'app-no-drag relative inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-xl font-medium tracking-tightish transition duration-150 ease-calm disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98] motion-reduce:active:scale-100'
 
 const variants: Record<ButtonVariant, string> = {
-  primary:
-    'bg-accent text-accent-fg shadow-[0_1px_0_rgb(255_255_255/0.18)_inset,0_6px_20px_-8px_rgb(var(--accent)/0.7)] hover:bg-accent-hover disabled:hover:bg-accent',
-  secondary:
-    'bg-surface-2 text-ink border border-line/10 shadow-inset-line hover:bg-surface-3 hover:border-line/15',
+  primary: 'bg-accent text-accent-fg hover:bg-accent-hover disabled:hover:bg-accent',
+  secondary: 'bg-surface-2 text-ink border border-line/10 hover:bg-surface-3 hover:border-line/15',
   ghost: 'text-ink-muted hover:bg-line/[0.06] hover:text-ink',
   danger: 'bg-surface-2 text-danger border border-line/10 hover:bg-surface-3'
 }

@@ -17,10 +17,10 @@ export function EmptyState({
 }) {
   const H = headingLevel === 2 ? 'h2' : 'h3'
   return (
-    <div className="mx-auto flex max-w-md flex-col items-center px-6 py-12 text-center animate-fade-in">
+    <div className="mx-auto flex max-w-md flex-col items-center px-6 py-12 text-center">
       <div
         className={`mb-5 grid h-14 w-14 place-items-center rounded-2xl ring-1 ring-inset ${
-          tone === 'warn' ? 'bg-warn/10 text-warn ring-warn/20' : 'bg-accent/10 text-accent-ink ring-accent/20'
+          tone === 'warn' ? 'bg-warn/10 text-warn ring-warn/20' : 'bg-line/[0.05] text-ink-muted ring-line/10'
         }`}
       >
         {icon}

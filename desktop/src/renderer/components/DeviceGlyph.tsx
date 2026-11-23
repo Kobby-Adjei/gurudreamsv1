@@ -13,14 +13,13 @@ export function DeviceGlyph({
   hostname?: string | null
   size?: number
   className?: string
-  tone?: 'neutral' | 'accent' | 'muted'
+  tone?: 'neutral' | 'muted'
 }) {
   const kind = deviceKind(os, hostname)
   const Icon =
     kind === 'laptop' ? LaptopIcon : kind === 'phone' ? PhoneIcon : kind === 'server' ? TerminalIcon : DesktopIcon
   const tones = {
     neutral: 'bg-line/[0.06] text-ink ring-line/10',
-    accent: 'bg-accent/15 text-accent-ink ring-accent/30',
     muted: 'bg-line/[0.04] text-ink-faint ring-line/[0.06]'
   }
   return (
