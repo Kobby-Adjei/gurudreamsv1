@@ -55,11 +55,11 @@ mac:
       arch: [arm64, x64]
   hardenedRuntime: true
   gatekeeperAssess: false
-  # Sign (hardened runtime) + notarize the extra executables too, not just the app bundle.
-  # NOTE: these paths are inside Contents/Resources; electron-builder signs them with the app identity.
-  binaries:
-    - Contents/Resources/bin/darwin-${arch}/airbridge-core
-    - Contents/Resources/net/darwin-${arch}/airbridge-net
+  # airbridge-core and airbridge-net (Contents/Resources/{bin,net}/darwin-<arch>/) are signed with the
+  # app identity (hardened runtime, same entitlements) because @electron/osx-sign walks all of
+  # Contents/ and signs every Mach-O it finds. Do NOT list them in mac.binaries: electron-builder
+  # expands "-${arch}" there to "" for single-arch builds (bin/darwin/airbridge-core), and codesign
+  # then fails with "No such file or directory". CI checks both binaries' signatures after packaging.
   # Signing/notarization happen in CI (CSC_LINK / APPLE_ID env); unsigned locally.
   notarize: false
 win:
