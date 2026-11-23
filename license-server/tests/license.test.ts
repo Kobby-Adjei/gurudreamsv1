@@ -4,7 +4,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { generateKeyPair } from 'jose';
 import { describe, expect, it } from 'vitest';
-import { makeHarness, PRICE_ID, KID, USER } from './helpers.js';
+import { createLicenseSigner } from '../src/licenseToken.js';
+import { ed25519Pair, makeHarness, PRICE_ID, KID, USER } from './helpers.js';
 
 const b64 = (s: string) => JSON.parse(Buffer.from(s, 'base64url').toString('utf8'));
 
@@ -171,8 +172,29 @@ describe('misc routes', () => {
     const h = await makeHarness();
     const res = await h.app.request('/healthz');
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ ok: true });
+    expect(await res.json()).toEqual({ ok: true, policy: 'not_configured' });
     expect(res.headers.get('x-content-type-options')).toBe('nosniff');
+  });
+  it('GET /v1/license/public-key serves the signing key\'s public half (verifies a real token); 404 when unset', async () => {
+    const { jwtVerify } = await import('jose');
+    const { buildFromEnv } = await import('../src/bootstrap.js');
+    const pair = ed25519Pair();
+    const { app, config } = buildFromEnv({
+      NODE_ENV: 'test',
+      ENFORCE_ENTITLEMENT: 'false',
+      LICENSE_KEY_ID: 'ab-test-1',
+      LICENSE_SIGNING_KEY_PEM: pair.privatePem,
+      WAITLIST_PATH: '/nonexistent-dir-for-test/w.jsonl',
+    });
+    const res = await app.request('/v1/license/public-key');
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { kid: string; alg: string; pem: string };
+    expect(body).toEqual({ kid: 'ab-test-1', alg: 'EdDSA', pem: pair.publicPem });
+    expect(body.pem).not.toContain('PRIVATE');
+    const { token } = await createLicenseSigner({ privateKey: config.licenseSigningKey, kid: 'ab-test-1', ttlSeconds: 600 }).sign({ sub: USER, status: 'active' });
+    await expect(jwtVerify(token, createPublicKey(body.pem))).resolves.toBeTruthy();
+    const h = await makeHarness();
+    expect((await h.app.request('/v1/license/public-key')).status).toBe(404);
   });
   it('unknown route 404 json', async () => {
     const h = await makeHarness();

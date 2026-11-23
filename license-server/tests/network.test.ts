@@ -8,7 +8,12 @@ import { createHeadscaleClient, HeadscaleError } from '../src/headscale.js';
 import { createLicenseSigner } from '../src/licenseToken.js';
 import { EXPECTED_POLICY, headscaleUserName, hujsonToJson, isExpectedPolicy, revokeUserNodes } from '../src/network.js';
 import { readFileSync } from 'node:fs';
+import { existsSync, mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { InMemorySubscriptionStore } from '../src/store.js';
+import type { SmokeConfig } from '../src/smoke.js';
+import { JsonlWaitlistStore } from '../src/waitlist.js';
 import { AUDIENCE, clerkKeys, ed25519Pair, FAKE_STRIPE_KEY, FakeBilling, ISSUER, KID, PRICE_ID, USER, WEBHOOK_SECRET } from './helpers.js';
 
 const HS_URL = 'https://hs-api.test.example';
@@ -92,6 +97,14 @@ class FakeHeadscale {
         },
       });
     }
+    const um = /^\/api\/v1\/user\/([0-9]+)$/.exec(url.pathname);
+    if (um && method === 'DELETE') {
+      const i = this.users.findIndex((u) => u.id === um[1]);
+      if (i < 0) return json({ code: 5, message: 'user not found' }, 404);
+      if (this.nodes.some((n) => n.user.id === um[1])) return json({ code: 13, message: 'user still has nodes' }, 500);
+      this.users.splice(i, 1);
+      return json({});
+    }
     const m = /^\/api\/v1\/node\/([0-9]+)$/.exec(url.pathname);
     if (m && method === 'GET') {
       const n = this.nodes.find((x) => x.id === m[1]);
@@ -138,6 +151,8 @@ async function harness(
     now?: () => number;
     setup?: (hs: FakeHeadscale) => void;
     enforceEntitlement?: boolean;
+    smoke?: SmokeConfig | null;
+    adminToken?: string | null;
   } = {},
 ) {
   const hs = new FakeHeadscale();
@@ -173,6 +188,8 @@ async function harness(
     },
     network,
     ...(opts.enforceEntitlement === undefined ? {} : { enforceEntitlement: opts.enforceEntitlement }),
+    smoke: opts.smoke ?? null,
+    waitlist: opts.adminToken === undefined ? null : { store: new JsonlWaitlistStore(join(mkdtempSync(join(tmpdir(), 'ab-wl-')), 'w.jsonl')), adminToken: opts.adminToken },
   });
   const entitle = (sub = USER, status: 'active' | 'trialing' | 'past_due' | 'canceled' = 'active') =>
     store.upsert({ clerkUserId: sub, stripeCustomerId: 'cus_1', stripeSubscriptionId: 'sub_1', status, currentPeriodEnd: null, lastEventCreated: 1 });
@@ -667,5 +684,109 @@ describe('config: HEADSCALE_*', () => {
     expect(() => loadConfig({ ...base(), HEADSCALE_URL: HS_URL, HEADSCALE_API_KEY: HS_API_KEY, HEADSCALE_PUBLIC_URL: 'http://headscale:8080' })).toThrow(/HEADSCALE_PUBLIC_URL must be an https/);
     // localhost http is allowed for dev
     expect(loadConfig({ ...base(), HEADSCALE_URL: 'http://127.0.0.1:8080', HEADSCALE_API_KEY: HS_API_KEY, HEADSCALE_PUBLIC_URL: 'http://localhost:8080' }).headscale?.url).toBe('http://127.0.0.1:8080');
+  });
+});
+
+describe('/healthz policy readiness (non-secret)', () => {
+  it('reports verified / mismatch / unverifiable / not_configured without calling Headscale per request', async () => {
+    const ok = await harness();
+    await new Promise((r) => setTimeout(r, 0));
+    const before = ok.hs.policyCalls.length;
+    expect(await (await ok.app.request('/healthz')).json()).toEqual({ ok: true, policy: 'verified' });
+    expect(ok.hs.policyCalls.length).toBe(before);
+    const bad = await harness({ setup: (hs) => (hs.policy = '{}') });
+    await new Promise((r) => setTimeout(r, 0));
+    expect(await (await bad.app.request('/healthz')).json()).toEqual({ ok: true, policy: 'mismatch' });
+    const down = await harness({ setup: (hs) => (hs.policyDown = true) });
+    await new Promise((r) => setTimeout(r, 0));
+    expect(await (await down.app.request('/healthz')).json()).toEqual({ ok: true, policy: 'unverifiable' });
+    const none = await harness({ network: false });
+    expect(await (await none.app.request('/healthz')).json()).toEqual({ ok: true, policy: 'not_configured' });
+  });
+});
+
+describe('TEMPORARY smoke-test routes (SMOKE_TEST=1)', () => {
+  const TOKEN = 'a'.repeat(64);
+  const auth = { authorization: `Bearer ${TOKEN}` };
+  const smokeHarness = (extra: { until?: number | null; now?: () => number } = {}) => {
+    const smoke: SmokeConfig = { stateDir: join(mkdtempSync(join(tmpdir(), 'ab-smoke-')), 'smoke'), until: extra.until ?? null };
+    return harness({ smoke, adminToken: TOKEN, now: extra.now }).then((h) => ({ ...h, smoke }));
+  };
+
+  it('are not registered without SMOKE_TEST, without Headscale, or without the admin token', async () => {
+    for (const h of [await harness({ adminToken: TOKEN }), await harness({ network: false, adminToken: TOKEN, smoke: { stateDir: '/nonexistent', until: null } }), await harness({ smoke: { stateDir: '/nonexistent', until: null } })]) {
+      expect((await h.app.request('/v1/admin/smoke/keys', { method: 'POST', headers: auth })).status).toBe(404);
+    }
+  });
+
+  it('require the admin bearer token', async () => {
+    const h = await smokeHarness();
+    expect((await h.app.request('/v1/admin/smoke/keys', { method: 'POST' })).status).toBe(401);
+    expect((await h.app.request('/v1/admin/smoke/keys', { method: 'POST', headers: { authorization: 'Bearer nope' } })).status).toBe(401);
+    expect(h.hs.calls).toHaveLength(0);
+  });
+
+  it('issue 2 single-use non-ephemeral 10-min keys for a throwaway user; never logged; capped at 3 calls', async () => {
+    const h = await smokeHarness();
+    const r = await h.app.request('/v1/admin/smoke/keys', { method: 'POST', headers: auth });
+    expect(r.status).toBe(200);
+    expect(r.headers.get('cache-control')).toBe('no-store');
+    const body = (await r.json()) as { user: string; login_server: string; auth_keys: string[]; expires_at: number };
+    expect(body.user).toMatch(/^smoke-[0-9a-f]{8}$/);
+    expect(body.login_server).toBe(LOGIN_SERVER);
+    expect(body.auth_keys).toHaveLength(2);
+    expect(new Set(body.auth_keys).size).toBe(2);
+    const keyCalls = h.hs.calls.filter((c) => c.path === '/api/v1/preauthkey');
+    expect(keyCalls.map((c) => [c.body.reusable, c.body.ephemeral])).toEqual([[false, false], [false, false]]);
+    expect(Date.parse(keyCalls[0]!.body.expiration) / 1000 - 1_800_000_000).toBe(600);
+    for (const k of body.auth_keys) expect(h.lines.join('\n')).not.toContain(k);
+    expect((await h.app.request('/v1/admin/smoke/keys', { method: 'POST', headers: auth })).status).toBe(200);
+    expect((await h.app.request('/v1/admin/smoke/keys', { method: 'POST', headers: auth })).status).toBe(200);
+    expect((await h.app.request('/v1/admin/smoke/keys', { method: 'POST', headers: auth })).status).toBe(429);
+  });
+
+  it('cleanup deletes only smoke-* users and their nodes, then disables the routes for good', async () => {
+    const h = await smokeHarness();
+    const { user } = (await (await h.app.request('/v1/admin/smoke/keys', { method: 'POST', headers: auth })).json()) as { user: string };
+    h.hs.addNode(user);
+    h.hs.addNode(user);
+    const customer = h.hs.addNode(expectedName(USER));
+    const r = await h.app.request('/v1/admin/smoke/cleanup', { method: 'POST', headers: auth });
+    expect(r.status).toBe(200);
+    expect(await r.json()).toEqual({ removed_users: 1, removed_nodes: 2, disabled: true });
+    expect(h.hs.users.map((u) => u.name)).toEqual([expectedName(USER)]);
+    expect(h.hs.nodes.map((n) => n.id)).toEqual([customer]);
+    expect(existsSync(join(h.smoke.stateDir, 'disabled'))).toBe(true);
+    for (const path of ['/v1/admin/smoke/keys', '/v1/admin/smoke/cleanup']) {
+      expect((await h.app.request(path, { method: 'POST', headers: auth })).status, path).toBe(404);
+    }
+  });
+
+  it('are 404 after SMOKE_TEST_UNTIL', async () => {
+    const h = await smokeHarness({ until: 1_800_000_000 - 1 });
+    expect((await h.app.request('/v1/admin/smoke/keys', { method: 'POST', headers: auth })).status).toBe(404);
+  });
+
+  it('config: SMOKE_TEST=1 needs Headscale and the admin token', () => {
+    const base = {
+      NODE_ENV: 'test',
+      ENFORCE_ENTITLEMENT: 'false',
+      LICENSE_KEY_ID: 'k',
+      LICENSE_SIGNING_KEY_PEM: ed25519Pair().privatePem,
+    };
+    expect(() => loadConfig({ ...base, SMOKE_TEST: '1' })).toThrow(/SMOKE_TEST=1 requires HEADSCALE_URL[\s\S]*requires WAITLIST_ADMIN_TOKEN/);
+    expect(() => loadConfig({ ...base, SMOKE_TEST: 'yes' })).toThrow(/SMOKE_TEST must be 0 or 1/);
+    expect(loadConfig({ ...base, SMOKE_TEST: '0' }).smoke).toBeNull();
+    const c = loadConfig({
+      ...base,
+      SMOKE_TEST: '1',
+      SMOKE_TEST_UNTIL: '1900000000',
+      SMOKE_STATE_DIR: '/var/x',
+      WAITLIST_ADMIN_TOKEN: TOKEN,
+      HEADSCALE_URL: 'http://headscale:8080',
+      HEADSCALE_API_KEY: HS_API_KEY,
+      HEADSCALE_PUBLIC_URL: LOGIN_SERVER,
+    });
+    expect(c.smoke).toEqual({ stateDir: '/var/x', until: 1_900_000_000 });
   });
 });
