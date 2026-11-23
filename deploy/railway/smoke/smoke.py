@@ -133,6 +133,7 @@ class Daemon:
 
 
 def main() -> int:
+    subprocess.run([sys.executable, "/app/probe.py"], check=False)
     result: dict = {"ok": False}
     try:
         control = os.environ["SMOKE_CONTROL_URL"]

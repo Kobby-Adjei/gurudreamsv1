@@ -6,3 +6,4 @@
 !deploy/railway/smoke/smoke.py
 **/__pycache__
 **/vendor
+!deploy/railway/smoke/probe.py

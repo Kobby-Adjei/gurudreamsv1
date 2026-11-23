@@ -11,7 +11,7 @@ RUN pip install --no-cache-dir -r /app/airbridge/requirements.txt
 COPY airbridge/main.py /app/airbridge/main.py
 COPY airbridge/airbridge_app /app/airbridge/airbridge_app
 COPY --from=net /out/airbridge-net /usr/local/bin/airbridge-net
-COPY deploy/railway/smoke/smoke.py /app/smoke.py
+COPY deploy/railway/smoke/smoke.py deploy/railway/smoke/probe.py /app/
 RUN useradd -m smoke
 USER smoke
 CMD ["python", "/app/smoke.py"]
