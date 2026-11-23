@@ -385,7 +385,12 @@ def test_raw_same_user_node_recorded_under_verified_name(lab):
         pytest.skip("AIRBRIDGE_MESHPROBE_BIN not set")
     before = _md(lab.dm["a2"].inbox)
     a2_ip = lab.sc["a2"].status()["self"]["ip"]
+    # F-13: a same-user node claiming another device's name is refused (REJECT_SENDER_MISMATCH)...
     res = lab.probe(lab.users["a"], a2_ip, {"sender_node": "a1", "task_description": "claims to be a1"})
+    assert res.get("status") == 400, res
+    assert _md(lab.dm["a2"].inbox) == before
+    # ...and its own name (Headscale may bump it to meshprobe-N) is accepted and recorded verified.
+    res = lab.probe(lab.users["a"], a2_ip, {"sender_node": "meshprobe", "task_description": "honest"})
     assert res.get("status") == 201, res
     files = [f for f in _md(lab.dm["a2"].inbox) if f not in before]
     text = files[0].read_text(encoding="utf-8")

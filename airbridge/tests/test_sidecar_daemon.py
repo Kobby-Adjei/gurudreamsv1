@@ -69,9 +69,12 @@ def test_daemon_registers_loopback_inbox_and_enforces_token(sc, settings, inbox_
             r1 = await c.post(url, json=payload, headers=forged)
             r2 = await c.post(url, json=payload, headers={**forged, "X-AirBridge-Sidecar-Token": "x" * 43})
             r3 = await c.post(url, json=payload, headers={**forged, "X-AirBridge-Sidecar-Token": token})
-        return r1.status_code, r2.status_code, r3.status_code
+            # F-13 (REJECT_SENDER_MISMATCH): "liar" does not name the verified a2 -> 400; "a2" -> 201.
+            r4 = await c.post(url, json={**payload, "sender_node": "a2"},
+                              headers={**forged, "X-AirBridge-Sidecar-Token": token})
+        return r1.status_code, r2.status_code, r3.status_code, r4.status_code
 
-    assert _run(settings, scenario) == (403, 403, 201)
+    assert _run(settings, scenario) == (403, 403, 400, 201)
     files = list(inbox_dir.glob("*.md"))
     assert len(files) == 1
     text = files[0].read_text(encoding="utf-8")
