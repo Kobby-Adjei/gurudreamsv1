@@ -100,10 +100,10 @@ DETAIL_AMP = 0.9                 # how far (units) the erosion noise pushes the 
 
 MOON_ELEV_DEG = 22.0
 MOON_LEFT_DEG = 78.0             # azimuth left of the view axis (>90 = behind-left of camera)
-MOON_STRENGTH = 9.0
+MOON_STRENGTH = 6.5
 MOON_COLOR = (0.82, 0.89, 1.0)
 
-FOG_DIST = 220.0                 # aerial perspective distance (scene units)
+FOG_DIST = 150.0                 # aerial perspective distance (scene units)
 CLOUD_ALBEDO = (0.90, 0.94, 1.0)
 CLOUD_G = 0.62                   # Henyey-Greenstein anisotropy (forward scattering)
 HORIZON_COLOR = (0.030, 0.045, 0.078)
@@ -463,7 +463,7 @@ plane.data.materials.append(paper_material())
 # plane placement in camera-relative terms (camera at origin looking +Y, pitched down)
 PLANE_DIST = 3.9
 PLANE_RIGHT = 0.18
-PLANE_DOWN_DEG = 10.0    # angle below horizontal -> sits in the lower-middle third
+PLANE_DOWN_DEG = 11.0    # angle below horizontal -> sits in the lower-middle third
 
 
 def periodic(t, terms):
