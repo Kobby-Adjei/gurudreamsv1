@@ -122,3 +122,18 @@ Freemium math (evidence for benchmarks, my estimate for the result): developer t
 The research changes the question. In 2025 the question was "do people want agents to work across machines?" In late 2026 the answer is "yes, and the vendors built it, each for their own agent." So AirBridge's real question is **"do enough people mix vendors and care about privacy enough to pay for a neutral layer?"** Nobody has measured that, and the small traction of open-source bridges is a warning. The good news is that the vendors' business interests protect the cross-vendor, no-relay space. Anthropic will not make Codex work well, and OpenAI will not make Claude work well.
 
 For you as a solo founder, the practical risk is not building the wrong thing slowly, but building the right thing in the wrong frame. Lead with "all your agents, private" rather than "connect your computers". Make security visible and open, so trust is not your weak point. Let the interviews and the price test decide between $8 and $15. If cross-vendor users do not show up in four weeks, the same technology can serve the larger, proven pain of keeping agents' setup and sessions in sync across machines.
+
+## Addendum (2026-11-23): OpenCrawl, the closest funded competitor
+
+The founder flagged **OpenCrawl** after the main research was done. It was missed in the first pass.
+
+- **What it is:** Y Combinator Fall 2026, 2 founders in San Francisco. "Multiplayer for your coding agents": agents "search each other's histories and talk to each other, across laptops and cloud coding environments."
+- **How it works:** a central server (OpenCrawl Cloud, or self-hosted via Docker/Helm). Claude Code and Codex sessions are captured into a shared workspace, with a team message board, MCP search, and a private git remote per workspace for files. Cursor is not stated.
+- **Target:** engineering **teams**. Captured sessions are "team-visible by default and can contain sensitive information" (their docs).
+- **Pricing:** free to self-host (Apache-2.0); Cloud is free for 100M tokens a month of session history; paid tiers are not announced.
+- **Traction (2026-11-23):** 72 GitHub stars, 12 forks, pre-1.0 preview with weekly releases.
+- **Implications:**
+  - YC funding validates cross-machine agent coordination as a category, and it is a real, fast-moving, free-to-start competitor.
+  - AirBridge's differentiation is **personal and private**: one person's own machines, peer-to-peer, no server storing sessions or code, and handoff of tasks and artifacts rather than shared team memory.
+  - Lead positioning with privacy. Treat OpenCrawl's team-memory angle as a substitute to probe in interviews: ask whether shared history would solve the pain without handoff.
+- **Sources:** https://www.ycombinator.com/companies/opencrawl, https://github.com/getopencrawl/opencrawl-core, https://getopencrawl.com/ (all fetched 2026-11-23).
