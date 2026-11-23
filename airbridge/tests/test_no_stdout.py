@@ -86,8 +86,6 @@ def find_stdout_violations(src: str, path: str = "<src>") -> list[str]:
             or any(k.arg == "stream" and _is_stdout_expr(k.value) for k in node.keywords)
         ):
             out.append(f"{_loc(path, node)} StreamHandler(sys.stdout)")
-        elif name in {"contextlib.redirect_stdout", "redirect_stdout"}:
-            pass  # redirecting *away* from stdout is fine
     return out
 
 
