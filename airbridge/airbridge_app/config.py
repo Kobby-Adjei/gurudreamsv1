@@ -39,9 +39,11 @@ ENV_NETWORK = "AIRBRIDGE_NETWORK"  # auto | sidecar | system
 ENV_NET_URL = "AIRBRIDGE_NET_URL"  # sidecar control API, http://[::1]:<port> (daemon env)
 ENV_NET_TOKEN = "AIRBRIDGE_NET_TOKEN"  # sidecar control token (daemon env; never logged)
 NETWORK_MODES = ("auto", "sidecar", "system")
-SIDECAR_TOKEN_HEADER = "X-AirBridge-Sidecar-Token"
+SIDECAR_TS_HEADER = "X-AirBridge-Sidecar-Ts"
+SIDECAR_SIG_HEADER = "X-AirBridge-Sidecar-Sig"
 PEER_NODE_HEADER = "X-AirBridge-Peer-Node"
 PEER_IP_HEADER = "X-AirBridge-Peer-IP"
+PEER_USER_HEADER = "X-AirBridge-Peer-User"
 NETWORK_JSON = "network.json"
 _NETWORK_JSON_MAX_BYTES = 64 * 1024
 

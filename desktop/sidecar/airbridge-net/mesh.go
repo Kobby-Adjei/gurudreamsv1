@@ -22,12 +22,12 @@ const (
 	maxReplyBody = 64 * 1024
 	meshPort     = 8989
 
-	headerSidecarTS    = "X-AirBridge-Sidecar-Ts"
-	headerSidecarSig   = "X-AirBridge-Sidecar-Sig"
-	headerPeerNode     = "X-AirBridge-Peer-Node"
-	headerPeerIP       = "X-AirBridge-Peer-IP"
-	headerPeerUser     = "X-AirBridge-Peer-User"
-	headerSecret       = "X-AirBridge-Secret"
+	headerSidecarTS  = "X-AirBridge-Sidecar-Ts"
+	headerSidecarSig = "X-AirBridge-Sidecar-Sig"
+	headerPeerNode   = "X-AirBridge-Peer-Node"
+	headerPeerIP     = "X-AirBridge-Peer-IP"
+	headerPeerUser   = "X-AirBridge-Peer-User"
+	headerSecret     = "X-AirBridge-Secret"
 
 	meshMaxInFlight     = 16
 	peerRequestsPerMin  = 30

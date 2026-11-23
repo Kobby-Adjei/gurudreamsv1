@@ -439,6 +439,12 @@ class SidecarBackend:
         if status != 200:
             raise SidecarError(f"could not register the inbox with the AirBridge network (HTTP {status})")
 
+    def deregister_inbox(self, port: int) -> None:
+        """S-2: forget our registration (only if ``port`` is still the registered one)."""
+        status, _ = self.request("POST", "/inbox", {"port": 0, "if_port": int(port)}, timeout=2.0)
+        if status != 200:
+            raise SidecarError(f"could not deregister the inbox (HTTP {status})")
+
     def send(self, target_hostname: str, payload: dict[str, Any], secret: str | None = None,
              timeout: float = SIDECAR_SEND_TIMEOUT_S) -> tuple[int, dict[str, Any]]:
         """``POST /send``. Returns (control-API status, response object)."""

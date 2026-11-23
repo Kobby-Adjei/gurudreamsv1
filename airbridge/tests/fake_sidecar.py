@@ -35,6 +35,7 @@ class FakeSidecar:
         self.nodes = make_nodes()
         self.requests: list[dict[str, Any]] = []
         self.inbox: tuple[int, str] | None = None
+        self.deregistered: list[Any] = []
         # POST /send: (control status, response body) or a callable(body) -> that.
         self.send_reply: Any = (200, {"ok": True, "status": 201, "body": json.dumps({"status": "ok", "file": "t.md"})})
         fake = self
@@ -67,7 +68,12 @@ class FakeSidecar:
                 if method == "GET" and self.path == "/nodes":
                     return self._reply(200, {"state": fake.state, "self": fake.self_info, "nodes": fake.nodes})
                 if method == "POST" and self.path == "/inbox":
-                    fake.inbox = (body["port"], body["token"])
+                    if body.get("port") == 0:
+                        fake.deregistered.append(body.get("if_port"))
+                        if body.get("if_port") in (None, fake.inbox and fake.inbox[0]):
+                            fake.inbox = None
+                    else:
+                        fake.inbox = (body["port"], body["token"])
                     return self._reply(200, {"ok": True})
                 if method == "POST" and self.path == "/send":
                     status, obj = fake.send_reply(body) if callable(fake.send_reply) else fake.send_reply

@@ -7,7 +7,8 @@ Runs concurrently:
   (free CLI): tailnet IP :8989. Desktop app (``AIRBRIDGE_NETWORK=sidecar``,
   PHASE3_PLAN.md §9): ``127.0.0.1:<ephemeral>`` with a fresh per-run sidecar
   token, registered with the airbridge-net sidecar (``POST /inbox``), which
-  forwards only WhoIs-verified same-user mesh requests to it;
+  forwards only WhoIs-verified same-user mesh requests to it, HMAC-signed with
+  that token; deregistered (``{port:0}``) when the inbox stops (S-2);
 * the control API on ``[::1]:<AIRBRIDGE_CONTROL_PORT>`` (IPv4 loopback only as a
   fallback; see control.py);
 * a node watcher that diffs online peers every ``NODE_POLL_S`` seconds and
@@ -314,6 +315,10 @@ class _InboxSupervisor:
             if sock is not None:
                 with contextlib.suppress(Exception):
                     sock.close()
+            if sidecar:
+                # S-2: tell the sidecar right away, so it never forwards to a port someone else may bind.
+                with contextlib.suppress(Exception):
+                    await asyncio.wait_for(asyncio.to_thread(backend.deregister_inbox, port), timeout=3)
             self.server = None
 
 

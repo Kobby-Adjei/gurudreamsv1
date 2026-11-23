@@ -6,9 +6,11 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"net/netip"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -20,6 +22,8 @@ import (
 	"tailscale.com/tailcfg"
 	"tailscale.com/types/key"
 )
+
+const signForwardVector = "35afa488a3c058a3430d95b056ccfb5796dc0ce5ae01d46cd81427198e8bc523"
 
 const (
 	testToken = "ctl-token-0123456789abcdefghijklmnopqrstuv"
@@ -329,6 +333,22 @@ func TestInboxRegistrationAndLogout(t *testing.T) {
 	if p, tok := api.inbox.get(); p != 1234 || tok != inboxTok {
 		t.Fatal("not stored")
 	}
+	// deregistration: {port:0, if_port:other} is a no-op, {port:0, if_port:1234} and {port:0} clear
+	if w, _ := do(api, ctlReq("POST", "/inbox", `{"port":0,"if_port":999}`, nil)); w.Code != 200 {
+		t.Fatal("deregister")
+	}
+	if p, _ := api.inbox.get(); p != 1234 {
+		t.Fatal("if_port mismatch must not clear")
+	}
+	if w, _ := do(api, ctlReq("POST", "/inbox", `{"port":0,"if_port":1234}`, nil)); w.Code != 200 {
+		t.Fatal("deregister")
+	}
+	if p, tok := api.inbox.get(); p != 0 || tok != "" {
+		t.Fatal("not deregistered")
+	}
+	if w, _ := do(api, ctlReq("POST", "/inbox", `{"port":5,"token":"`+inboxTok+`","if_port":5}`, nil)); w.Code != 400 {
+		t.Fatal("if_port only with port 0")
+	}
 	if w, _ := do(api, ctlReq("POST", "/logout", "", nil)); w.Code != 200 || !f.loggedOut {
 		t.Fatal("logout")
 	}
@@ -340,17 +360,19 @@ func TestInboxRegistrationAndLogout(t *testing.T) {
 // ---------------------------------------------------------------- mesh handler
 
 type inboxRec struct {
-	mu   sync.Mutex
-	hdrs []http.Header
-	n    int
+	mu     sync.Mutex
+	hdrs   []http.Header
+	bodies [][]byte
+	n      int
 }
 
 func newInbox(t *testing.T, mh *meshHandler) *inboxRec {
 	rec := &inboxRec{}
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, _ = io.ReadAll(r.Body)
+		b, _ := io.ReadAll(r.Body)
 		rec.mu.Lock()
 		rec.hdrs = append(rec.hdrs, r.Header.Clone())
+		rec.bodies = append(rec.bodies, b)
 		rec.n++
 		rec.mu.Unlock()
 		w.WriteHeader(201)
@@ -369,24 +391,71 @@ func meshReq(remote string, body []byte) *http.Request {
 	return r
 }
 
-func TestMeshSameUserForwardedWithVerifiedIdentity(t *testing.T) {
+func TestMeshSameUserForwardedSignedWithoutToken(t *testing.T) {
 	f := newFake()
 	mh := newMeshHandler(f, &inboxTarget{}, func(string, ...any) {})
+	now := time.Unix(1_800_000_000, 0)
+	mh.now = func() time.Time { return now }
 	rec := newInbox(t, mh)
-	r := meshReq("100.64.0.2:41000", []byte(`{"sender_node":"liar","task_description":"x"}`))
+	body := []byte(`{"sender_node":"liar","task_description":"x"}`)
+	r := meshReq("100.64.0.2:41000", body)
 	r.Header.Set(headerSecret, "shh")
-	r.Header.Set(headerSidecarToken, "attacker-chosen")
+	r.Header.Set(headerSidecarSig, "attacker-chosen")
 	w, _ := do(mh, r)
 	if w.Code != 201 || rec.n != 1 {
 		t.Fatalf("got %d (%s) inbox=%d", w.Code, w.Body.String(), rec.n)
 	}
 	h := rec.hdrs[0]
-	if h.Get(headerSidecarToken) != inboxTok || h.Get(headerPeerNode) != "airbridge-a2" ||
-		h.Get(headerPeerIP) != "100.64.0.2" || h.Get(headerPeerUser) != "7" || h.Get(headerSecret) != "shh" {
+	if h.Get(headerPeerNode) != "airbridge-a2" || h.Get(headerPeerIP) != "100.64.0.2" || h.Get(headerPeerUser) != "7" ||
+		h.Get(headerSecret) != "shh" || h.Get(headerSidecarTS) != "1800000000" {
 		t.Fatalf("headers %v", h)
+	}
+	// S-2: the inbox token itself never leaves the sidecar.
+	for k, vs := range h {
+		for _, v := range vs {
+			if strings.Contains(v, inboxTok) {
+				t.Fatalf("inbox token sent in header %s", k)
+			}
+		}
+	}
+	want := signForward(inboxTok, "POST", "/incoming_task", "1800000000", rec.bodies[0], "airbridge-a2", "100.64.0.2", "7")
+	if h.Get(headerSidecarSig) != want {
+		t.Fatalf("signature %q want %q", h.Get(headerSidecarSig), want)
 	}
 	if f.whoCalls[0] != "100.64.0.2:41000" {
 		t.Fatalf("whois must use the live RemoteAddr, got %v", f.whoCalls)
+	}
+}
+
+// The Python inbox (tests/test_phase3_security.py) pins the same vector.
+func TestSignForwardVector(t *testing.T) {
+	got := signForward("k-0123456789abcdefghijklmnopqrstuvwxyzABCDE", "POST", "/incoming_task", "1800000000",
+		[]byte(`{"a":1}`), "airbridge-a2", "100.64.0.2", "7")
+	if got != signForwardVector {
+		t.Fatalf("vector changed: %s", got)
+	}
+	if signForward("k-0123456789abcdefghijklmnopqrstuvwxyzABCDE", "POST", "/incoming_task", "1800000000",
+		[]byte(`{"a":2}`), "airbridge-a2", "100.64.0.2", "7") == got {
+		t.Fatal("body not bound")
+	}
+}
+
+func TestMeshClearsStaleRegistrationOnConnectionError(t *testing.T) {
+	mh := newMeshHandler(newFake(), &inboxTarget{}, func(string, ...any) {})
+	l, _ := net.Listen("tcp4", "127.0.0.1:0")
+	port := l.Addr().(*net.TCPAddr).Port
+	l.Close() // nothing listens: the daemon is gone
+	mh.inbox.set(port, inboxTok)
+	if w, _ := do(mh, meshReq("100.64.0.2:1", []byte(`{}`))); w.Code != 503 {
+		t.Fatalf("%d", w.Code)
+	}
+	if p, tok := mh.inbox.get(); p != 0 || tok != "" {
+		t.Fatal("stale registration kept")
+	}
+	// clearIf never undoes a newer registration
+	mh.inbox.set(4000, inboxTok)
+	if mh.inbox.clearIf(3999) {
+		t.Fatal("cleared a different port")
 	}
 }
 
@@ -513,6 +582,29 @@ func TestRedaction(t *testing.T) {
 	lg.Logf("To start this tsnet server, restart with TS_AUTHKEY set, or go to: %s", "http://127.0.0.1:1/register/xyz")
 	if strings.Contains(buf.String(), "register") {
 		t.Fatal(buf.String())
+	}
+}
+
+func TestScrubTailscaleEnv(t *testing.T) {
+	t.Setenv("TS_AUTHKEY", "x")
+	t.Setenv("TS_CONTROL_URL", "https://evil.example")
+	t.Setenv("TSNET_FORCE_LOGIN", "1")
+	t.Setenv("TS_DEBUG_USE_DERP_HTTP", "1")
+	t.Setenv("TS_NO_LOGS_NO_SUPPORT", "true")
+	t.Setenv("TSX_UNRELATED", "keep")
+	scrubTailscaleEnv(false)
+	for _, k := range []string{"TS_AUTHKEY", "TS_CONTROL_URL", "TSNET_FORCE_LOGIN", "TS_DEBUG_USE_DERP_HTTP"} {
+		if v, ok := os.LookupEnv(k); ok {
+			t.Errorf("%s still set (%q)", k, v)
+		}
+	}
+	if os.Getenv("TS_NO_LOGS_NO_SUPPORT") != "true" || os.Getenv("TSX_UNRELATED") != "keep" {
+		t.Error("kept vars removed")
+	}
+	t.Setenv("TS_DEBUG_USE_DERP_HTTP", "1")
+	scrubTailscaleEnv(true) // loopback http control server (local tests only)
+	if os.Getenv("TS_DEBUG_USE_DERP_HTTP") != "1" {
+		t.Error("DERP-over-HTTP must survive only for a plain-http (loopback) control server")
 	}
 }
 

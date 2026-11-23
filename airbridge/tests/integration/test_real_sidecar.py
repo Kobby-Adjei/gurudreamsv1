@@ -405,9 +405,20 @@ def test_direct_local_post_to_python_inbox_without_token_403(lab):
     code, res = http("POST", f"http://127.0.0.1:{port}/incoming_task",
                      {"sender_node": "a1", "task_description": "local forgery"}, forged)
     assert code == 403, res
+    import time as _t
+
+    sig_hdrs = {**forged, "X-AirBridge-Sidecar-Ts": str(int(_t.time())), "X-AirBridge-Sidecar-Sig": "0" * 64}
     code, _ = http("POST", f"http://127.0.0.1:{port}/incoming_task",
-                   {"sender_node": "a1", "task_description": "x"}, {**forged, "X-AirBridge-Sidecar-Token": "x" * 43})
+                   {"sender_node": "a1", "task_description": "x"}, sig_hdrs)
     assert code == 403
+
+
+def test_binary_has_no_tailscale_dns_fallback(lab):
+    """S-1: the shipped binary embeds no Tailscale DERP/bootstrap-DNS hostnames."""
+    import re
+
+    data = lab.net_bin.read_bytes()
+    assert not re.search(rb"derp[0-9]+[a-z]?\.tailscale\.com", data)
 
 
 def test_sidecar_control_api_guards(lab):
@@ -419,6 +430,15 @@ def test_sidecar_control_api_guards(lab):
     assert code == 403
     code, res = sc.api("POST", "/send", {"target_hostname": lab.sc["a1"].status()["self"]["ip"], "payload": {}})
     assert code == 400 and res["error"] == "hostname_required"
+
+
+def test_daemon_stop_deregisters_inbox_and_stale_port_is_cleared(lab):
+    """S-2: a stopped engine deregisters; tasks are then refused (503), never sent to a squatter."""
+    dm, sc = lab.dm["b1"], lab.sc["b1"]
+    assert sc.status()["inbox_registered"] is True
+    dm.proc.send_signal(signal.SIGTERM)
+    dm.proc.wait(15)
+    _wait(lambda: sc.status()["inbox_registered"] is False, 10, "b1 inbox deregistered")
 
 
 def test_restart_reuses_node_state_without_key(lab):

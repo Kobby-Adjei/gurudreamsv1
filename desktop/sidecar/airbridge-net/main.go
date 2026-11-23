@@ -30,6 +30,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strconv"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -41,11 +42,27 @@ import (
 
 const readyPrefix = "AIRBRIDGE_NET_READY"
 
-// Environment knobs that could make tsnet pick up credentials or a different control
-// server behind our back. Electron scrubs the environment too; this is belt and braces.
-var scrubbedEnv = []string{
-	"TS_AUTHKEY", "TS_AUTH_KEY", "TS_CLIENT_SECRET", "TS_CLIENT_ID", "TS_ID_TOKEN",
-	"TS_AUDIENCE", "TS_CONTROL_URL", "TSNET_FORCE_LOGIN", "TS_LOGS_DIR",
+// scrubTailscaleEnv clears EVERY TS_* / TSNET_* knob (S-5: an allowlist, not a denylist) except
+// TS_NO_LOGS_NO_SUPPORT, through envknob.Setenv so knobs that tailscale.com packages already registered
+// at init time are reset too. Credentials, control URLs, debug switches: none can steer tsnet behind
+// our back. Electron's allowlist scrub is the first layer. One exception, for local test setups only:
+// TS_DEBUG_USE_DERP_HTTP survives when the control server is plain http (which config.go permits only
+// for loopback), because a local Headscale's embedded DERP has no TLS. Returns the names cleared.
+func scrubTailscaleEnv(plainHTTPControl bool) []string {
+	var cleared []string
+	for _, kv := range os.Environ() {
+		k, _, _ := strings.Cut(kv, "=")
+		if !strings.HasPrefix(k, "TS_") && !strings.HasPrefix(k, "TSNET_") {
+			continue
+		}
+		if k == "TS_NO_LOGS_NO_SUPPORT" || (k == "TS_DEBUG_USE_DERP_HTTP" && plainHTTPControl) {
+			continue
+		}
+		envknob.Setenv(k, "")
+		_ = os.Unsetenv(k)
+		cleared = append(cleared, k)
+	}
+	return cleared
 }
 
 func main() {
@@ -71,8 +88,8 @@ func run() int {
 	// No log upload, no "logs and support" channel to Tailscale Inc.: TS_NO_LOGS_NO_SUPPORT
 	// makes logpolicy's transport a no-op and logtail.Disable() stops uploads AND local
 	// buffering for the whole process (tailscale.com@v1.104.7 logtail.go:736, logpolicy.go:895).
-	for _, k := range scrubbedEnv {
-		_ = os.Unsetenv(k)
+	if cleared := scrubTailscaleEnv(strings.HasPrefix(cfg.ControlURL, "http://")); len(cleared) > 0 {
+		lg.Logf("ignoring %d TS_*/TSNET_* environment variable(s)", len(cleared))
 	}
 	envknob.SetNoLogsNoSupport()
 	logtail.Disable()
@@ -135,7 +152,16 @@ func run() int {
 		return 1
 	}
 	api.setHost(expectedHostFor(ln.Addr()))
-	ctlSrv := &http.Server{Handler: api, ReadHeaderTimeout: 10 * time.Second, MaxHeaderBytes: 16 << 10}
+	// S-4: bounded timeouts so a local client cannot pin connections. WriteTimeout covers /send
+	// (sendTimeout 10 s to the peer) and /logout (20 s) with margin.
+	ctlSrv := &http.Server{
+		Handler:           api,
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		WriteTimeout:      40 * time.Second,
+		IdleTimeout:       60 * time.Second,
+		MaxHeaderBytes:    16 << 10,
+	}
 	go func() { _ = ctlSrv.Serve(ln) }()
 
 	var meshSrv *http.Server
@@ -243,13 +269,10 @@ func ensurePrivateDir(dir string) error {
 	if err != nil || !st.IsDir() || st.Mode()&os.ModeSymlink != 0 {
 		return errors.New("unsafe network state directory")
 	}
-	if runtime.GOOS == "windows" {
-		return nil // per-user %APPDATA% ACLs
-	}
-	if !ownedByMe(st) {
+	if !ownedByMe(dir, st) {
 		return errors.New("network state directory is owned by another user")
 	}
-	if st.Mode().Perm()&0o077 != 0 {
+	if runtime.GOOS != "windows" && st.Mode().Perm()&0o077 != 0 { // Windows: per-user %APPDATA% ACLs
 		if err := os.Chmod(dir, 0o700); err != nil {
 			return errors.New("cannot restrict the network state directory")
 		}

@@ -15,11 +15,13 @@ Sidecar network (desktop app, PHASE3_PLAN.md §9): the ``airbridge-net``
 sidecar (embedded tsnet) owns the private network. It identifies every mesh
 connection with WhoIs, requires the same Headscale user, rate-limits per peer
 and forwards to this inbox on ``127.0.0.1:<ephemeral>`` with
-``X-AirBridge-Sidecar-Token`` (a per-daemon random token registered with the
-sidecar) plus ``X-AirBridge-Peer-Node`` / ``X-AirBridge-Peer-IP``. Step 1 is
-then: the client must be loopback and present that token (constant-time
-compare), else 403 - only then are the peer headers trusted. Steps 2-5 are
-unchanged (the rate limit is keyed on the verified sender node).
+``X-AirBridge-Peer-Node`` / ``-IP`` / ``-User`` plus ``X-AirBridge-Sidecar-Ts`` and
+``X-AirBridge-Sidecar-Sig``: an HMAC keyed with a per-daemon random token that
+the daemon registered with the sidecar (the token itself is never sent; S-2).
+Step 1 is then: loopback, a valid MAC over method/path/time/body/peer headers
+within 60 s and never seen before (:class:`ForwardVerifier`), else 403 - only
+then are the peer headers trusted. Steps 2-5 are unchanged (the rate limit is
+keyed on the verified sender node).
 
 Sender identity (sidecar): the payload's ``sender_node`` is self-asserted, so
 after validation it is compared with the verified node name (control-assigned
@@ -33,12 +35,14 @@ ASCII alphanumerics only) and tolerates Headscale's global collision bump
 
 from __future__ import annotations
 
+import hashlib
 import hmac
 import logging
 import os
 import re
 import tempfile
 import threading
+import time
 import unicodedata
 from collections.abc import Callable
 from datetime import datetime
@@ -192,30 +196,81 @@ def sender_matches_verified(claimed: str, verified: str) -> bool:
 
 
 _LOOPBACK_HOSTS = ("127.0.0.1", "::1")
+#: Allowed clock skew between the sidecar's signature timestamp and now (same machine).
+FORWARD_WINDOW_S = 60
+_FORWARD_DOMAIN = "AIRBRIDGE-FWD-1"
+_HEX64_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
-def sidecar_identity(headers: Any, client_host: str, expected_token: str) -> tuple[Any, str]:
-    """Sidecar-mode step 1 -> ``(security.VerifiedPeer, "")`` or ``(None, reason)``.
+def sign_forward(token: str, method: str, path: str, ts: str, body: bytes, node: str, ip: str, user: str) -> str:
+    """HMAC-SHA256 (key = per-daemon inbox token) the sidecar puts in ``X-AirBridge-Sidecar-Sig``.
 
-    The client must be loopback and present the per-daemon sidecar token
-    (``hmac.compare_digest``); only then are the sidecar's verified peer
-    headers read. A local process that connects directly has no token -> 403.
+    Message: ``AIRBRIDGE-FWD-1\\n<METHOD>\\n<path>\\n<unix ts>\\n<hex sha256(body)>\\n<node>\\n<ip>\\n<user>``
+    (byte-identical to ``signForward`` in desktop/sidecar/airbridge-net/mesh.go).
     """
-    if client_host not in _LOOPBACK_HOSTS:
-        return None, "forbidden: not_loopback"
-    provided = headers.get(config.SIDECAR_TOKEN_HEADER) or ""
-    if not expected_token or not hmac.compare_digest(provided.encode("utf-8"), expected_token.encode("utf-8")):
-        return None, "forbidden: missing or wrong sidecar token"
-    try:
-        node = security.embedded_peer_node_name(headers.get(config.PEER_NODE_HEADER) or "")
-    except security.SecurityError:
-        return None, "forbidden: bad_peer"
-    ip = (headers.get(config.PEER_IP_HEADER) or "").strip() or None
-    if ip is not None and not security.is_tailnet_ip(ip):
-        return None, "forbidden: bad_peer"
-    user = (headers.get("X-AirBridge-Peer-User") or "").strip()
-    user_id = user if user.isdigit() and len(user) <= 20 else ""
-    return security.VerifiedPeer(node, user_id, ip, None), ""
+    msg = "\n".join([_FORWARD_DOMAIN, method, path, ts, hashlib.sha256(body).hexdigest(), node, ip, user])
+    return hmac.new(token.encode("utf-8"), msg.encode("utf-8"), hashlib.sha256).hexdigest()
+
+
+class ForwardVerifier:
+    """Sidecar-mode step 1 (PHASE3_SECURITY.md S-2).
+
+    The sidecar never sends the inbox token: every forwarded request carries a timestamp and an HMAC
+    over method, path, timestamp, body hash and the verified peer headers. A process that squats a
+    stale inbox port therefore receives nothing it can reuse, a local process without the token
+    cannot forge a request, and a captured request cannot be replayed (60 s window + seen-signature
+    cache). Only after the MAC checks out are the peer headers trusted.
+    """
+
+    MAX_SEEN = 10_000
+
+    def __init__(self, token: str, clock: Callable[[], float] = time.time) -> None:
+        self._token = token
+        self._clock = clock
+        self._seen: dict[str, float] = {}
+        self._lock = threading.Lock()
+
+    @staticmethod
+    def precheck(headers: Any, client_host: str) -> str:
+        """Cheap checks before the body is read: "" if plausible, else the 403 reason."""
+        if client_host not in _LOOPBACK_HOSTS:
+            return "forbidden: not_loopback"
+        if not _HEX64_RE.match(headers.get(config.SIDECAR_SIG_HEADER) or "") or \
+                not (headers.get(config.SIDECAR_TS_HEADER) or "").isdigit():
+            return "forbidden: missing or invalid sidecar signature"
+        return ""
+
+    def verify(self, method: str, path: str, headers: Any, client_host: str, body: bytes) -> tuple[Any, str]:
+        """-> ``(security.VerifiedPeer, "")`` or ``(None, reason)``."""
+        reason = self.precheck(headers, client_host)
+        if reason:
+            return None, reason
+        ts = headers.get(config.SIDECAR_TS_HEADER) or ""
+        now = self._clock()
+        if len(ts) > 12 or abs(now - int(ts)) > FORWARD_WINDOW_S:
+            return None, "forbidden: stale sidecar signature"
+        raw_node = headers.get(config.PEER_NODE_HEADER) or ""
+        raw_ip = headers.get(config.PEER_IP_HEADER) or ""
+        raw_user = headers.get(config.PEER_USER_HEADER) or ""
+        sig = headers.get(config.SIDECAR_SIG_HEADER) or ""
+        want = sign_forward(self._token, method, path, ts, body, raw_node, raw_ip, raw_user)
+        if not self._token or not hmac.compare_digest(sig.encode("ascii"), want.encode("ascii")):
+            return None, "forbidden: missing or invalid sidecar signature"
+        with self._lock:
+            for k in [k for k, exp in self._seen.items() if exp < now]:
+                del self._seen[k]
+            if sig in self._seen or len(self._seen) >= self.MAX_SEEN:
+                return None, "forbidden: replayed sidecar signature"
+            self._seen[sig] = now + 2 * FORWARD_WINDOW_S
+        try:
+            node = security.embedded_peer_node_name(raw_node)
+        except security.SecurityError:
+            return None, "forbidden: bad_peer"
+        ip = raw_ip.strip() or None
+        if ip is not None and not security.is_tailnet_ip(ip):
+            return None, "forbidden: bad_peer"
+        user_id = raw_user if raw_user.isdigit() and len(raw_user) <= 20 else ""
+        return security.VerifiedPeer(node, user_id, ip, None), ""
 
 
 def create_app(
@@ -232,6 +287,7 @@ def create_app(
     peer headers); None (default) keeps the Phase-1 tailnet-source-IP check.
     """
     sidecar = sidecar_token is not None
+    forward = ForwardVerifier(sidecar_token or "") if sidecar else None
     app = FastAPI(
         title="AirBridge Inbox",
         docs_url=None,
@@ -247,8 +303,8 @@ def create_app(
 
     @app.get("/health")
     async def health(request: Request) -> JSONResponse:
-        if sidecar:
-            peer, reason = sidecar_identity(request.headers, _client_ip(request), sidecar_token or "")
+        if forward is not None:
+            peer, reason = forward.verify("GET", "/health", request.headers, _client_ip(request), b"")
             if peer is None:
                 return _error(403, reason)
         elif not security.is_tailnet_ip(_client_ip(request)):
@@ -260,15 +316,14 @@ def create_app(
         source_ip = _client_ip(request)
         limit_key = source_ip
 
-        # 1. Tailnet only (sidecar: loopback + sidecar token, then the verified peer headers).
-        if sidecar:
-            peer, detail = sidecar_identity(request.headers, source_ip, sidecar_token or "")
-            if peer is None:
+        # 1. Tailnet only. Sidecar: loopback + a well-formed signature now; the HMAC itself is checked
+        #    once the body is read (it covers the body), BEFORE any peer header is trusted or used.
+        if forward is not None:
+            detail = forward.precheck(request.headers, source_ip)
+            if detail:
                 logger.warning("rejected task from unverified local connection %s:%s (%s)",
                                source_ip, _client_port(request), detail)
                 return _error(403, detail)
-            source_ip = peer.tailnet_ip or source_ip
-            limit_key = "node:" + str(peer.node)
         elif not security.is_tailnet_ip(source_ip):
             logger.warning("rejected task from non-tailnet address %s", source_ip)
             return _error(403, "forbidden: not a tailnet address")
@@ -283,8 +338,9 @@ def create_app(
             if declared_len > security.MAX_BODY_BYTES:
                 logger.warning("rejected oversized task (%s bytes declared) from %s", declared_len, source_ip)
                 return _error(413, f"payload too large (max {security.MAX_BODY_BYTES} bytes)")
-        # 3. Rate limit per source IP (before reading the body, so floods stay cheap).
-        if not limiter.allow(limit_key):
+        # 3. Rate limit per source IP (before reading the body, so floods stay cheap). Sidecar mode
+        #    rate-limits per verified node after the MAC check below (the sidecar already limits per peer).
+        if forward is None and not limiter.allow(limit_key):
             logger.warning("rate limit exceeded for %s", source_ip)
             return _error(429, "too many requests, slow down")
 
@@ -297,6 +353,17 @@ def create_app(
                 return _error(413, f"payload too large (max {security.MAX_BODY_BYTES} bytes)")
             chunks.append(chunk)
         body = b"".join(chunks)
+
+        if forward is not None:
+            peer, detail = forward.verify("POST", "/incoming_task", request.headers, source_ip, body)
+            if peer is None:
+                logger.warning("rejected task from unverified local connection %s:%s (%s)",
+                               source_ip, _client_port(request), detail)
+                return _error(403, detail)
+            source_ip = peer.tailnet_ip or source_ip
+            if not limiter.allow("node:" + str(peer.node)):
+                logger.warning("rate limit exceeded for %s", peer)
+                return _error(429, "too many requests, slow down")
 
         # 4. Shared secret (only when configured).
         expected = settings.shared_secret

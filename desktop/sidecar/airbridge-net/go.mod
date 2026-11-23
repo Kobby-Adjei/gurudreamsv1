@@ -4,7 +4,10 @@ module airbridge.local/airbridge-net
 
 go 1.27.4
 
-require tailscale.com v1.104.7
+require (
+	golang.org/x/sys v0.49.0
+	tailscale.com v1.104.7
+)
 
 require (
 	filippo.io/edwards25519 v1.2.0 // indirect
@@ -43,7 +46,6 @@ require (
 	golang.org/x/net v0.60.0 // indirect
 	golang.org/x/oauth2 v0.37.0 // indirect
 	golang.org/x/sync v0.24.0 // indirect
-	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/term v0.47.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
 	golang.org/x/time v0.16.0 // indirect

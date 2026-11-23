@@ -7,7 +7,9 @@ accepts requests only with that token, and records the sidecar-verified sender.
 from __future__ import annotations
 
 import asyncio
+import json
 import os
+import time
 import sys
 from pathlib import Path
 
@@ -15,6 +17,7 @@ import httpx
 import pytest
 
 from airbridge_app import config, daemon, netbackend
+from airbridge_app import inbox as inbox_mod
 
 sys.path.insert(0, os.path.dirname(__file__))
 from fake_sidecar import TOKEN, FakeSidecar  # noqa: E402
@@ -57,28 +60,37 @@ async def _wait_for(pred, timeout=10.0):
     raise AssertionError("timeout")
 
 
-def test_daemon_registers_loopback_inbox_and_enforces_token(sc, settings, inbox_dir: Path):
-    payload = {"sender_node": "liar", "task_description": "hello from a2"}
+def test_daemon_registers_loopback_inbox_and_enforces_signature(sc, settings, inbox_dir: Path):
+    payload = {"sender_node": "a2", "task_description": "hello from a2"}
+    raw = json.dumps(payload).encode()
 
     async def scenario(stop):
         port, token = await _wait_for(lambda: sc.inbox)
         assert port != config.PORT and len(token) >= 32
+        forged = {"X-AirBridge-Peer-Node": "airbridge-a2", "X-AirBridge-Peer-IP": "100.64.0.2",
+                  "X-AirBridge-Peer-User": "7", "Content-Type": "application/json"}
+
+        def signed(key: str) -> dict:
+            t = str(int(time.time()))
+            sig = inbox_mod.sign_forward(key, "POST", "/incoming_task", t, raw, "airbridge-a2", "100.64.0.2", "7")
+            return {**forged, "X-AirBridge-Sidecar-Ts": t, "X-AirBridge-Sidecar-Sig": sig}
+
         async with httpx.AsyncClient(trust_env=False, timeout=5) as c:
             url = f"http://127.0.0.1:{port}/incoming_task"
-            forged = {"X-AirBridge-Peer-Node": "airbridge-a2", "X-AirBridge-Peer-IP": "100.64.0.2"}
-            r1 = await c.post(url, json=payload, headers=forged)
-            r2 = await c.post(url, json=payload, headers={**forged, "X-AirBridge-Sidecar-Token": "x" * 43})
-            r3 = await c.post(url, json=payload, headers={**forged, "X-AirBridge-Sidecar-Token": token})
-            # F-13 (REJECT_SENDER_MISMATCH): "liar" does not name the verified a2 -> 400; "a2" -> 201.
-            r4 = await c.post(url, json={**payload, "sender_node": "a2"},
-                              headers={**forged, "X-AirBridge-Sidecar-Token": token})
+            r1 = await c.post(url, content=raw, headers=forged)  # no signature
+            r2 = await c.post(url, content=raw, headers=signed("x" * 43))  # wrong key
+            good = signed(token)  # what the sidecar sends
+            r3 = await c.post(url, content=raw, headers=good)
+            r4 = await c.post(url, content=raw, headers=good)  # replay
         return r1.status_code, r2.status_code, r3.status_code, r4.status_code
 
-    assert _run(settings, scenario) == (403, 403, 400, 201)
+    assert _run(settings, scenario) == (403, 403, 201, 403)
     files = list(inbox_dir.glob("*.md"))
     assert len(files) == 1
     text = files[0].read_text(encoding="utf-8")
-    assert "a2" in text and "liar" not in text
+    assert 'sender: "a2"' in text
+    # S-2: the inbox deregistered itself from the sidecar when the daemon stopped
+    assert sc.inbox is None and sc.deregistered
 
 
 def test_daemon_degraded_while_sidecar_needs_login(sc, settings):

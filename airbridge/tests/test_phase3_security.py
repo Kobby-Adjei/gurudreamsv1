@@ -327,14 +327,25 @@ def _payload() -> dict[str, Any]:
     }
 
 
-def _peer_headers(node: str = "airbridge-laptop", ip: str | None = "100.64.0.9",
-                  token: str | None = SIDECAR_TOKEN) -> dict[str, str]:
-    h = {"X-AirBridge-Peer-Node": node}
+def _signed(client: Any, payload: dict[str, Any], node: str = "airbridge-laptop", ip: str | None = "100.64.0.9",
+            token: str | None = SIDECAR_TOKEN, ts: int | None = None, user: str = "7",
+            tamper_body: bool = False) -> Any:
+    """POST /incoming_task as the sidecar does (S-2): peer headers + timestamp + HMAC keyed with the
+    inbox token over method/path/ts/body/peer headers. token=None sends peer headers only (a forger)."""
+    import time
+
+    from airbridge_app import inbox
+
+    raw = json.dumps(payload).encode()
+    h = {"Content-Type": "application/json", "X-AirBridge-Peer-Node": node, "X-AirBridge-Peer-User": user}
     if ip is not None:
         h["X-AirBridge-Peer-IP"] = ip
     if token is not None:
-        h["X-AirBridge-Sidecar-Token"] = token
-    return h
+        t = str(int(time.time()) if ts is None else ts)
+        h["X-AirBridge-Sidecar-Ts"] = t
+        h["X-AirBridge-Sidecar-Sig"] = inbox.sign_forward(token, "POST", "/incoming_task", t, raw, node, ip or "", user)
+    body = raw + b" " if tamper_body else raw
+    return client.post("/incoming_task", content=body, headers=h)
 
 
 @pytest.fixture
@@ -356,18 +367,64 @@ def _md(inbox_dir: Path) -> list[Path]:
 
 def test_sidecar_direct_local_connection_without_token_403(sidecar_client, inbox_dir) -> None:  # noqa: ANN001
     """A local process that forges the peer headers but has no sidecar token is refused."""
-    r = sidecar_client().post("/incoming_task", json=_payload(), headers=_peer_headers(token=None))
+    r = _signed(sidecar_client(), _payload(), token=None)
     assert r.status_code == 403
-    assert "sidecar token" in r.json()["detail"]
+    assert "sidecar signature" in r.json()["detail"]
     assert _md(inbox_dir) == []
     assert sidecar_client().get("/health").status_code == 403
 
 
 @pytest.mark.parametrize("token", ["", "wrong", SIDECAR_TOKEN + "x", SIDECAR_TOKEN[:-1], SIDECAR_TOKEN.upper()])
 def test_sidecar_wrong_token_403(sidecar_client, inbox_dir, token) -> None:  # noqa: ANN001
-    r = sidecar_client().post("/incoming_task", json=_payload(), headers=_peer_headers(token=token))
+    r = _signed(sidecar_client(), _payload(), token=token)
     assert r.status_code == 403
     assert _md(inbox_dir) == []
+
+
+def test_sidecar_stale_or_future_signature_403(sidecar_client, inbox_dir) -> None:  # noqa: ANN001
+    import time
+
+    for skew in (-120, 120):
+        r = _signed(sidecar_client(), _payload(), ts=int(time.time()) + skew)
+        assert r.status_code == 403 and "stale" in r.json()["detail"]
+    assert _md(inbox_dir) == []
+
+
+def test_sidecar_signature_binds_body_and_peer_headers(sidecar_client, inbox_dir) -> None:  # noqa: ANN001
+    assert _signed(sidecar_client(), _payload(), tamper_body=True).status_code == 403
+    # a signature made for one peer cannot be re-labelled as another
+    import time
+
+    from airbridge_app import inbox
+
+    raw = json.dumps(_payload()).encode()
+    t = str(int(time.time()))
+    sig = inbox.sign_forward(SIDECAR_TOKEN, "POST", "/incoming_task", t, raw, "airbridge-laptop", "100.64.0.9", "7")
+    h = {"Content-Type": "application/json", "X-AirBridge-Peer-Node": "airbridge-desktop", "X-AirBridge-Peer-IP": "100.64.0.9",
+         "X-AirBridge-Peer-User": "7", "X-AirBridge-Sidecar-Ts": t, "X-AirBridge-Sidecar-Sig": sig}
+    assert sidecar_client().post("/incoming_task", content=raw, headers=h).status_code == 403
+    assert _md(inbox_dir) == []
+
+
+def test_sidecar_replay_403(sidecar_client, inbox_dir) -> None:  # noqa: ANN001
+    import time
+
+    c = sidecar_client()
+    t = int(time.time())
+    assert _signed(c, _payload(), ts=t).status_code == 201
+    assert _signed(c, _payload(), ts=t).status_code == 403  # identical request = identical MAC
+    assert len(_md(inbox_dir)) == 1
+
+
+def test_sidecar_never_sends_the_token_and_matches_go_vector() -> None:
+    """S-2: Go's signForward and Python's sign_forward agree (vector pinned in handlers_test.go)."""
+    from airbridge_app import inbox
+
+    assert inbox.sign_forward("k-0123456789abcdefghijklmnopqrstuvwxyzABCDE", "POST", "/incoming_task", "1800000000",
+                              b'{"a":1}', "airbridge-a2", "100.64.0.2", "7") == (
+        "35afa488a3c058a3430d95b056ccfb5796dc0ce5ae01d46cd81427198e8bc523")
+    mesh = (REPO / "desktop" / "sidecar" / "airbridge-net" / "mesh.go").read_text(encoding="utf-8")
+    assert "Sidecar-Token" not in mesh and "signForward(" in mesh
 
 
 def test_sidecar_token_compared_in_constant_time() -> None:
@@ -376,8 +433,7 @@ def test_sidecar_token_compared_in_constant_time() -> None:
 
 
 def test_sidecar_rejects_non_loopback_source_even_with_token(sidecar_client, inbox_dir) -> None:  # noqa: ANN001
-    r = sidecar_client(client=("100.64.0.9", 41234)).post("/incoming_task", json=_payload(),
-                                                         headers=_peer_headers())
+    r = _signed(sidecar_client(client=("100.64.0.9", 41234)), _payload())
     assert r.status_code == 403
     assert _md(inbox_dir) == []
 
@@ -385,13 +441,13 @@ def test_sidecar_rejects_non_loopback_source_even_with_token(sidecar_client, inb
 @pytest.mark.parametrize("node,ip", [("", "100.64.0.9"), ("x y", "100.64.0.9"), ("a/b", None),
                                      ("airbridge-laptop", "8.8.8.8"), ("airbridge-laptop", "127.0.0.1")])
 def test_sidecar_bad_peer_headers_403(sidecar_client, inbox_dir, node, ip) -> None:  # noqa: ANN001
-    r = sidecar_client().post("/incoming_task", json=_payload(), headers=_peer_headers(node=node, ip=ip))
+    r = _signed(sidecar_client(), _payload(), node=node, ip=ip)
     assert r.status_code == 403
     assert _md(inbox_dir) == []
 
 
 def test_sidecar_same_user_201(sidecar_client, inbox_dir) -> None:  # noqa: ANN001
-    r = sidecar_client().post("/incoming_task", json=_payload(), headers=_peer_headers())
+    r = _signed(sidecar_client(), _payload())
     assert r.status_code == 201, r.text
     files = _md(inbox_dir)
     assert len(files) == 1
@@ -405,8 +461,7 @@ def test_sidecar_mode_is_off_without_a_token(settings) -> None:  # noqa: ANN001
     from airbridge_app import inbox
 
     app = inbox.create_app(settings, peers_provider=lambda: {})
-    r = TestClient(app, client=("127.0.0.1", 41234)).post("/incoming_task", json=_payload(),
-                                                         headers=_peer_headers())
+    r = _signed(TestClient(app, client=("127.0.0.1", 41234)), _payload())
     assert r.status_code == 403
 
 
@@ -419,7 +474,7 @@ def test_sidecar_sender_mismatch_400_by_default(sidecar_client, inbox_dir) -> No
     from airbridge_app import inbox
 
     assert inbox.REJECT_SENDER_MISMATCH is True
-    r = sidecar_client().post("/incoming_task", json=_payload_from("desktop"), headers=_peer_headers())
+    r = _signed(sidecar_client(), _payload_from("desktop"))
     assert r.status_code == 400
     assert "sender_mismatch" in r.json()["detail"]
     assert _md(inbox_dir) == []
@@ -429,7 +484,7 @@ def test_sidecar_sender_mismatch_overwritten_if_reject_disabled(sidecar_client, 
     from airbridge_app import inbox
 
     monkeypatch.setattr(inbox, "REJECT_SENDER_MISMATCH", False)
-    r = sidecar_client().post("/incoming_task", json=_payload_from("desktop"), headers=_peer_headers())
+    r = _signed(sidecar_client(), _payload_from("desktop"))
     assert r.status_code == 201
     text = _md(inbox_dir)[0].read_text(encoding="utf-8")
     assert "laptop" in text and "desktop" not in text  # self-asserted name never recorded
@@ -446,7 +501,7 @@ def test_sidecar_sender_mismatch_overwritten_if_reject_disabled(sidecar_client, 
     ],
 )
 def test_sidecar_sender_replaced_by_verified_name(sidecar_client, inbox_dir, claimed, verified_name, stored) -> None:  # noqa: ANN001
-    r = sidecar_client().post("/incoming_task", json=_payload_from(claimed), headers=_peer_headers(node=verified_name))
+    r = _signed(sidecar_client(), _payload_from(claimed), node=verified_name)
     assert r.status_code == 201, r.text
     files = _md(inbox_dir)
     assert len(files) == 1
@@ -726,8 +781,10 @@ def test_go_secrets_only_from_stdin(go_src: dict[str, str]) -> None:
     assert "DisallowUnknownFields" in go_src["config.go"]
     assert "os.Args" not in src and "flag." not in src, "no argv configuration"
     assert not re.search(r"os\.(Getenv|LookupEnv)\(", src), "no configuration or secrets from the environment"
-    for k in ("TS_AUTHKEY", "TS_AUTH_KEY", "TS_CLIENT_SECRET", "TS_CONTROL_URL", "TSNET_FORCE_LOGIN"):
-        assert f'"{k}"' in main, f"{k} must be scrubbed"
+    # S-5: every TS_*/TSNET_* knob is cleared (allowlist), through envknob so init-time knobs reset too
+    assert "func scrubTailscaleEnv(" in main and "os.Environ()" in main
+    assert '"TS_"' in main and '"TSNET_"' in main and 'envknob.Setenv(k, "")' in main
+    assert main.index("scrubTailscaleEnv(") < main.index("srv.Start()")
     # redaction of this run's secrets and of key/URL shapes
     assert all(f"red.Add(cfg.{f})" in main for f in ("AuthKey", "ControlToken", "InboxToken"))
     assert "(?:hs|ts)key-" in go_src["logging.go"] and "https?://" in go_src["logging.go"]
@@ -752,7 +809,7 @@ def test_go_no_hardcoded_tailscale_hosts(go_src: dict[str, str]) -> None:
 def test_go_state_dir_private(go_src: dict[str, str]) -> None:
     main = go_src["main.go"]
     assert "ensurePrivateDir(cfg.StateDir)" in main
-    assert "os.MkdirAll(dir, 0o700)" in main and "os.Lstat(dir)" in main and "ownedByMe(st)" in main
+    assert "os.MkdirAll(dir, 0o700)" in main and "os.Lstat(dir)" in main and "ownedByMe(dir, st)" in main
     assert main.index("ensurePrivateDir(cfg.StateDir)") < main.index("srv.Start()")
 
 
