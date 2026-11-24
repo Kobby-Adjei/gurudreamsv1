@@ -11,7 +11,7 @@ READY within the timeout.
 
 ``app``: launches the packaged Electron app (preview build: no sign-in needed,
 the daemon starts once the window has loaded) and watches its main-process log
-for ``backend: engine: AIRBRIDGE_READY``. Fails on ``missing dependency``,
+for ``backend: engine ready``. Fails on ``missing dependency``,
 ``engine exited unexpectedly`` or a restart loop. ``--soft-no-output``: if the app
 produced no log output at all (GUI-subsystem stderr on Windows), only warn.
 
@@ -195,7 +195,7 @@ def smoke_app(app: str, soft_no_output: bool) -> None:
                     print(f"   {line}", flush=True)
                 if "[airbridge]" in line and any(m in line for m in BAD_MARKERS):
                     fail(f"app log: {line}")
-                if "engine: AIRBRIDGE_READY" in line:
+                if "backend: engine ready" in line:
                     ok = True
             if ok:
                 # Keep watching ~20s for a crash loop after READY.

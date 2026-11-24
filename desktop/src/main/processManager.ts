@@ -291,6 +291,7 @@ export class ProcessManager extends EventEmitter<ProcessManagerEvents> {
       if (this.readyTimer) clearTimeout(this.readyTimer);
       this.readyTimer = null;
       this.connection = { port: ready.port, pid: ready.pid, token, ...(ready.host ? { host: ready.host } : {}) };
+      this.log(`engine ready (pid ${ready.pid})`);
       this.setLifecycle({ phase: 'running' });
       this.emit('ready', { ...this.connection });
       this.resolveWaiters(true);
