@@ -95,3 +95,15 @@ def test_requirements_include_phase2_deps():
     assert re.search(r"^websockets>=", req, re.M)
     build = (AIRBRIDGE_DIR / "requirements-build.txt").read_text(encoding="utf-8")
     assert re.search(r"^pyinstaller>=6", build, re.M | re.I)
+
+
+def test_build_scripts_use_binary_wheels_and_self_test():
+    """Wheels only: a source-built cryptography links Homebrew OpenSSL dynamically and the
+    frozen binary then crash-loops with 'Symbol not found: _SSL_get0_group_name' (Intel Mac)."""
+    for path in (BUILD_SH, BUILD_PS1):
+        text = path.read_text(encoding="utf-8")
+        assert "--only-binary=:all:" in text, path.name
+        assert "--self-test" in text, path.name
+    req = (AIRBRIDGE_DIR / "requirements.txt").read_text(encoding="utf-8")
+    assert 'cryptography<49; sys_platform == "darwin" and platform_machine == "x86_64"' in req
+    assert "airbridge_app.selftest" in set(_list_assign("HIDDEN_IMPORTS"))

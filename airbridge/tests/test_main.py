@@ -405,3 +405,29 @@ def test_subprocess_mcp_handshake_with_fake_tailscale(tmp_path):
     names = sorted(t["name"] for t in by_id[2]["result"]["tools"])
     assert names == ["list_airbridge_nodes", "send_task_to_node"]
     assert proc.returncode == 0, err
+
+
+def test_self_test_passes_with_empty_stdout(tmp_path):
+    """--self-test (CI startup smoke test of the frozen binary) imports and starts everything."""
+    env = dict(os.environ, AIRBRIDGE_LOG_FILE=str(tmp_path / "ab.log"), AIRBRIDGE_DATA_DIR=str(tmp_path / "data"))
+    env.pop("AIRBRIDGE_CONTROL_TOKEN", None)
+    proc = subprocess.run([sys.executable, str(MAIN_PY), "--self-test"], cwd=str(tmp_path), env=env,
+                          capture_output=True, text=True, timeout=120)
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout == ""
+    assert "self-test: PASSED" in proc.stderr
+    assert "cryptography AES-GCM" in proc.stderr
+    assert "/status ok" in proc.stderr
+
+
+def test_self_test_reports_import_failure(main_mod, monkeypatch, capfd):
+    from airbridge_app import selftest
+
+    monkeypatch.setattr(selftest, "RUNTIME_MODULES", ("airbridge_no_such_module_xyz",))
+    assert selftest.run_self_test(main_mod._mod("config").load()) == 1
+    err = capfd.readouterr().err
+    assert "FAIL import airbridge_no_such_module_xyz" in err and "FAILED" in err
+
+
+def test_self_test_cannot_combine(main_mod, capfd):
+    assert main_mod.main(["--self-test", "--daemon"]) == 2

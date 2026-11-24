@@ -110,6 +110,8 @@ jobs:
           cat "$RUNNER_TEMP/net.err"
           [ "$rc" -eq 2 ] && grep -q "missing configuration on stdin" "$RUNNER_TEMP/net.err"
           cat "desktop/resources/net/$PLAT_DIR/manifest.json"
+          # Real startup: --self-test (imports + starts everything) and --daemon until READY.
+          python airbridge/ci_smoke.py core "$core"
 
       - name: npm ci
         working-directory: desktop
@@ -156,6 +158,19 @@ jobs:
           ls "$res/licenses"
           npx --prefix desktop @electron/fuses read --app "$app" || true
           ls -l desktop/release
+          # The signed copy inside the .app must start too (self-test + daemon READY).
+          python airbridge/ci_smoke.py core "$res/bin/$PLAT_DIR/airbridge-core"
+
+      - name: Launch packaged app (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          set -euo pipefail
+          app="$(ls -d desktop/release/mac*/*.app | head -1)"
+          exe="$(ls "$app/Contents/MacOS/"* | head -1)"
+          # Preview build: the app starts the bundled engine once its window loads. Fails on
+          # "missing dependency" / "engine exited unexpectedly" / restart loop.
+          python airbridge/ci_smoke.py app "$exe"
 
       - name: Verify packaged app (Windows)
         if: runner.os == 'Windows'
@@ -169,6 +184,17 @@ jobs:
           [ "$rc" -eq 2 ]
           ls "$res/licenses"
           ls -l desktop/release
+          python airbridge/ci_smoke.py core "$res/bin/$PLAT_DIR/airbridge-core.exe"
+
+      - name: Launch packaged app (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          set -euo pipefail
+          exe="$(ls desktop/release/win-unpacked/*.exe | grep -vi uninstall | head -1)"
+          # GUI-subsystem app: if Windows gives us no main-process output at all, only warn
+          # (the core itself is covered by ci_smoke.py core above).
+          python airbridge/ci_smoke.py app "$exe" --soft-no-output
 
       - uses: actions/upload-artifact@v4
         with:

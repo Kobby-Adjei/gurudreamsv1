@@ -7,3 +7,9 @@ requests>=2.32
 pydantic>=2.7
 # Phase 2: WebSocket support for the daemon control API (/events/stream).
 websockets>=13
+# cryptography comes in via mcp (mcp.server.request_state uses AES-GCM; pyjwt[crypto]).
+# cryptography >= 49 ships no macOS x86_64 wheel: pip then builds it from source against
+# Homebrew OpenSSL (dynamically linked), and the frozen airbridge-core crash-loops on Intel
+# Macs ("Symbol not found: _SSL_get0_group_name"). 48.x has a universal2 wheel with a
+# statically linked OpenSSL. The build scripts also install with --only-binary=:all:.
+cryptography<49; sys_platform == "darwin" and platform_machine == "x86_64"

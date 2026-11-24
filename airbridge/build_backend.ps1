@@ -36,7 +36,9 @@ if (-not (Test-Path $VenvPython)) {
   Invoke-Checked $parts[0] ($pyArgs + @('-m', 'venv', $Venv))
 }
 Invoke-Checked $VenvPython @('-m', 'pip', 'install', '--quiet', '--upgrade', 'pip')
-Invoke-Checked $VenvPython @('-m', 'pip', 'install', '--quiet',
+# Wheels only (--only-binary=:all:): never compile a dependency from source on the build
+# machine (the official cryptography wheels link OpenSSL statically).
+Invoke-Checked $VenvPython @('-m', 'pip', 'install', '--only-binary=:all:',
   '-r', (Join-Path $ScriptDir 'requirements.txt'),
   '-r', (Join-Path $ScriptDir 'requirements-build.txt'))
 
@@ -79,6 +81,16 @@ try {
   if ($saved) { $env:AIRBRIDGE_CONTROL_TOKEN = $saved }
   if ($p.ExitCode -ne 2) { throw "--daemon without token exited $($p.ExitCode) (expected 2)" }
   Write-Host '    --daemon without token exit 2 ok'
+
+  $p = Start-Process -FilePath $Bin -ArgumentList '--self-test' -NoNewWindow -Wait -PassThru `
+    -RedirectStandardOutput (Join-Path $SmokeTmp 'selftest.out') -RedirectStandardError (Join-Path $SmokeTmp 'selftest.err')
+  if ($p.ExitCode -ne 0) {
+    Get-Content (Join-Path $SmokeTmp 'selftest.err') | Write-Host
+    throw "--self-test exited $($p.ExitCode)"
+  }
+  if ((Get-Item (Join-Path $SmokeTmp 'selftest.out')).Length -gt 0) { throw '--self-test wrote to stdout' }
+  Get-Content (Join-Path $SmokeTmp 'selftest.err') | Select-String -Pattern 'cryptography AES-GCM|stdlib ssl|/status ok|PASSED' | Write-Host
+  Write-Host '    --self-test ok'
 } finally {
   Remove-Item -Recurse -Force $SmokeTmp -ErrorAction SilentlyContinue
 }

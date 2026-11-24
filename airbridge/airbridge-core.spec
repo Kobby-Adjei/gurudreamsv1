@@ -15,6 +15,7 @@
 #   mcp transports), so they are collected whole.
 
 import os
+import sys
 
 from PyInstaller.utils.hooks import collect_all
 
@@ -61,6 +62,11 @@ HIDDEN_IMPORTS = [
     "airbridge_app.notify",
     "airbridge_app.outbox",
     "airbridge_app.security",
+    "airbridge_app.selftest",
+    # mcp.server.request_state imports cryptography (AES-GCM) at import time.
+    "cryptography.hazmat.bindings._rust",
+    "cryptography.hazmat.primitives.ciphers.aead",
+    "cryptography.hazmat.primitives.kdf.hkdf",
 ]
 
 # mcp.cli needs the optional `typer` extra and calls sys.exit(1) on import
@@ -94,6 +100,18 @@ a = Analysis(  # noqa: F821
     noarchive=False,
     optimize=0,
 )
+# Never ship a Homebrew/MacPorts dylib: it is built for the build machine's macOS and, for
+# OpenSSL, shadows (or is shadowed by) Python's own libssl.3.dylib inside the onefile bundle.
+# A dynamically linked (source-built) cryptography is how one gets here; build_backend.sh
+# installs wheels only and checks _rust.abi3.so with otool as well.
+if sys.platform == "darwin":
+    _foreign = sorted(
+        src for _dest, src, _kind in a.binaries
+        if src and os.path.realpath(src).startswith(("/usr/local/opt/", "/usr/local/Cellar/", "/opt/homebrew/", "/opt/local/"))
+    )
+    if _foreign:
+        raise SystemExit("airbridge-core.spec: refusing to bundle Homebrew/MacPorts libraries: " + ", ".join(_foreign))
+
 pyz = PYZ(a.pure)  # noqa: F821
 
 exe = EXE(  # noqa: F821

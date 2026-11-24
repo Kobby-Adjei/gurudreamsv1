@@ -7,6 +7,7 @@ Usage:
     python /abs/path/to/airbridge/main.py           # run inbox (HTTP) + outbox (MCP stdio)
     python /abs/path/to/airbridge/main.py --check   # diagnose Tailscale/config, then exit
     python /abs/path/to/airbridge/main.py --daemon  # desktop-app daemon (inbox + local control API)
+    airbridge-core --self-test                      # build check: import + start everything, exit 0/1
 
 Daemon mode (Phase 2) is launched by the AirBridge Pro desktop app with
 AIRBRIDGE_CONTROL_TOKEN (>= 32 random bytes, base64url; required),
@@ -269,9 +270,12 @@ def main(argv: list[str] | None = None) -> int:
     args = list(sys.argv[1:] if argv is None else argv)
     check = False
     daemon_mode = False
+    self_test = False
     for arg in args:
         if arg == "--check":
             check = True
+        elif arg == "--self-test":  # hidden: CI startup smoke test of the frozen binary
+            self_test = True
         elif arg == "--daemon":
             daemon_mode = True
         elif arg in ("-h", "--help"):
@@ -281,8 +285,8 @@ def main(argv: list[str] | None = None) -> int:
             _err(f"unknown argument {arg!r}")
             sys.stderr.write(USAGE)
             return 2
-    if check and daemon_mode:
-        _err("--check and --daemon cannot be combined")
+    if check + daemon_mode + self_test > 1:
+        _err("--check, --daemon and --self-test cannot be combined")
         sys.stderr.write(USAGE)
         return 2
 
@@ -300,6 +304,16 @@ def main(argv: list[str] | None = None) -> int:
 
     if check:
         return _run_check(settings)
+
+    if self_test:
+        sys.stdout = sys.stderr  # keep the no-stdout invariant
+        try:
+            return _mod("selftest").run_self_test(settings)
+        except BaseException as exc:  # noqa: BLE001 - report, never crash-loop silently
+            if isinstance(exc, KeyboardInterrupt):
+                return 130
+            _err(f"self-test crashed: {type(exc).__name__}: {exc}")
+            return 1
 
     if daemon_mode:
         return _run_daemon(config, settings)
