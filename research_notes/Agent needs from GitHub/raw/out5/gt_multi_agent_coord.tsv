@@ -1,0 +1,31 @@
+# in:title "multiple agents" is:issue created:>2025-09-01 total=877
+50	50	16	2026-05-12	closed	https://github.com/openai/codex/issues/22321	Add an Agent View for managing multiple Codex agents from the TUI
+36	36	7	2025-10-27	closed	https://github.com/github/spec-kit/issues/1065	Running multiple agents with spec-kit in one project?
+32	33	11	2026-04-05	open	https://github.com/anthropics/claude-code/issues/43698	[FEATURE] Multi-device Cowork: Allow concurrent Cowork agents on multiple machines under a single account
+24	24	2	2026-02-05	closed	https://github.com/github/spec-kit/issues/1578	Support for scaffolding a project with multiple agents for teams
+21	21	5	2025-09-15	closed	https://github.com/github/spec-kit/issues/269	Support Multiple Coding Agents
+13	13	6	2025-09-04	closed	https://github.com/github/spec-kit/issues/25	[Proposal] Support multiple agents
+12	12	9	2026-07-01	closed	https://github.com/tmux/tmux/issues/5312	Regression 3.7a: text invisible / very low contrast in multiple TUIs (Nvim, Lazygit, CLI agents) - works in 3.6b
+7	8	7	2025-12-20	closed	https://github.com/AndyMik90/Aperant/issues/83	Multiple CLI Agents
+8	8	5	2025-09-07	closed	https://github.com/openai/codex/issues/3280	Orchestration of multiple agents
+7	7	0	2026-05-03	open	https://github.com/openai/codex/issues/20852	Feature request: parallel Computer Use sessions for multiple Codex agents
+6	6	7	2026-01-25	closed	https://github.com/anthropics/claude-code/issues/20754	Background Task Notifications Not Delivered When Multiple Agents Complete Simultaneously (v2.1.19)
+5	5	8	2026-02-20	open	https://github.com/jenkinsci/jfrog-plugin/issues/60	Jenkins jfrog plugin stops working with error about encryption key file when multiple agents are used
+0	5	5	2026-01-15	closed	https://github.com/subsy/ralph-tui/issues/75	Feature Request: Parallel Task Execution with Multiple Agents
+0	4	0	2026-05-13	open	https://github.com/NousResearch/hermes-agent/issues/24913	[Feature]: one gateway serves multiple agents — switch via `/profile <name>` or `@<name>`
+4	4	5	2025-09-11	open	https://github.com/agentsmd/agents.md/issues/53	Question - When there are multiple agents.md files in a large monorepo, will it ignore the one at repo and use the nearest agents.md?
+4	4	4	2025-09-20	closed	https://github.com/esphome/home-assistant-voice-pe/issues/452	Feature request: Allow multiple wake words for multiple conversation agents
+4	4	4	2025-12-17	closed	https://github.com/hhftechnology/traefik-log-dashboard/issues/156	Add a way to declare multiple agents via environment
+4	4	5	2026-02-09	closed	https://github.com/anthropics/claude-code/issues/24341	TaskOutput burst polling causes unrecoverable 'Prompt is too long' when multiple background agents complete simultaneously
+4	4	4	2026-02-12	closed	https://github.com/anthropics/claude-code/issues/25146	Feature Request: Support Multiple API Endpoints for Different Models/Agents
+3	3	11	2026-08-25	open	https://github.com/herdrdev/herdr/issues/3217	Running multiple agents simultaneously causes severe lag, high resource usage, and noisy fans on macOS after upgrading to v0.8.2
+3	3	3	2025-11-25	closed	https://github.com/google/adk-python/issues/3701	Chargeback in GCP billing for multiple agents
+3	3	3	2026-01-23	closed	https://github.com/kenn-io/roborev/issues/87	Support reviewing with multiple agents simultaneously
+2	2	3	2026-07-01	open	https://github.com/openai/codex/issues/30842	Token drain issue w/ multiple agents
+2	2	2	2026-06-10	open	https://github.com/microsoft/vscode/issues/320759	Agents Window: Agent dropdown only shows “Agent” despite multiple agents being configured
+0	2	0	2026-07-11	open	https://github.com/multica-ai/multica/issues/5243	[Feature]: Support shared workdir mode for multiple agents under a single issue
+2	2	3	2025-10-01	open	https://github.com/BloopAI/vibe-kanban/issues/906	feature request: assign to multiple agents at once
+2	2	3	2026-02-05	open	https://github.com/letta-ai/lettabot/issues/165	Multi-agent support: multiple agents collaborating in same channel
+2	2	2	2026-08-24	closed	https://github.com/anthropics/claude-code/issues/89133	Subagent model not shown in UI when multiple agents launch in parallel
+1	2	15	2026-09-09	closed	https://github.com/QwenLM/qwen-code/issues/11500	TUI exits silently (uncaught React #185) when multiple background agents complete — Ink useBoxMetrics layout-listener setState loop
+2	2	5	2026-01-30	closed	https://github.com/vercel-labs/agent-browser/issues/326	Multiple agents running agent-browser appear to hijack each other

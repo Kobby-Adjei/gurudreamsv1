@@ -1,0 +1,31 @@
+# in:title "agent sandbox" is:issue created:>2025-09-01 total=6395
+240	255	28	2026-01-07	open	https://github.com/orbstack/orbstack/issues/2295	Support for docker sandbox command (AI agent sandboxing)
+62	62	29	2026-04-10	open	https://github.com/docker/sbx-releases/issues/34	Feature request: add Pi coding agent sandbox
+34	35	3	2026-02-25	open	https://github.com/docker/desktop-feedback/issues/227	Run Dev Containers inside Docker Sandboxes for AI coding agent workflows
+31	31	9	2026-08-10	open	https://github.com/stablyai/orca/issues/13665	[Feature]: Support for Docker Sandboxes to Run Agents
+6	24	13	2026-09-08	closed	https://github.com/cncf/sandbox/issues/523	[Sandbox] Agent Substrate
+19	19	23	2026-08-10	closed	https://github.com/zed-industries/zed/issues/62449	Agent terminal fails on trivial command when sandboxing is enabled
+15	17	4	2026-01-09	closed	https://github.com/oven-sh/bun/issues/25929	Bun as a secure sandbox runtime for AI agent code execution
+15	15	16	2026-06-30	open	https://github.com/openai/codex/issues/30712	Codex desktop app on Windows injects split writable roots, causing `apply_patch` to fail before patching workspace files, forcing agents to fallback to bypass the sandbox and write files using powershell
+14	14	6	2026-05-03	open	https://github.com/docker/sbx-releases/issues/113	Support mounting host user-level agent config like `~/.claude` into the sandbox
+13	13	2	2026-01-02	open	https://github.com/gastownhall/gastown/issues/10	Agent Agnostic Engine with Multi-provider support using SRT to safely sandbox headless sessions
+10	10	5	2026-07-08	open	https://github.com/openai/codex/issues/31599	Linux sandbox leaks empty .git/.agents/.codex dirs into /tmp when the helper is killed, and later runs never reclaim them
+7	9	1	2025-09-19	closed	https://github.com/openai/codex/issues/3947	Agent cannot edit files using the sandbox when resuming a session
+8	8	1	2026-09-21	open	https://github.com/kubernetes-sigs/agent-sandbox/issues/1726	Publish the agent sandbox helm chart to remote repo
+8	8	1	2026-05-04	closed	https://github.com/docker/sbx-releases/issues/115	Docker sandbox forwards SSH agent into the sandbox when SSH_AUTH_SOCK is not set
+8	8	22	2026-02-26	closed	https://github.com/openai/codex/issues/12888	Agent edits resulting in "command failed; retry without sandbox?"
+7	7	6	2026-05-20	open	https://github.com/google-antigravity/antigravity-cli/issues/36	Agent can bypass sandbox when combining `--sandbox` with `--dangerously-skip-permissions`
+6	7	12	2026-09-23	closed	https://github.com/openai/codex/issues/47559	VS Code agent sandbox fails before commands run: mountinfo path is not absolute
+7	7	24	2026-01-28	open	https://github.com/openai/codex/issues/10090	`elevated_windows_sandbox` causing all agent commands to fail with `(no output)` (logs show `CreateProcessAsUserW failed: 5`)
+7	7	6	2026-07-19	closed	https://github.com/anthropics/claude-code/issues/78985	Prohibited-actions rule blocks agents from testing login/account-creation flows in sandboxed dev/QA environments
+6	6	4	2026-05-01	open	https://github.com/NousResearch/hermes-agent/issues/18374	feat(cronjob): expose full cron prompt via get/include_prompt for sandboxed agents
+6	6	9	2026-01-19	open	https://github.com/eigent-ai/eigent/issues/950	[Proposal] Integrate QEMU VM Sandboxing for Secure Agent Execution
+6	6	4	2026-01-13	closed	https://github.com/kubernetes-sigs/agent-sandbox/issues/243	Feature Request: Support custom headers and mTLS in agentic-sandbox-client for external access
+6	6	10	2026-03-07	closed	https://github.com/paperclipai/paperclip/issues/248	PROPOSAL: Sandboxed Agent Execution — provider-agnostic interface for secure remote environments
+5	5	17	2026-03-28	open	https://github.com/kubernetes-sigs/agent-sandbox/issues/483	Helm chart for agent-sandbox
+5	5	6	2026-05-19	open	https://github.com/kubernetes-sigs/agent-sandbox/issues/818	Agentic Networking Identity and Controls (beyond L4) for Agent Sandboxes
+5	5	2	2025-12-19	open	https://github.com/microsoft/copilot-intellij-feedback/issues/1130	Support running agents in sandbox
+5	5	5	2026-05-12	open	https://github.com/warpdotdev/warp/issues/10714	Support Docker Sandbox AI Agents
+5	5	3	2026-02-09	closed	https://github.com/openclaw/openclaw/issues/12405	Feature: Pluggable sandbox backends & per-agent exec routing
+4	4	1	2026-10-26	open	https://github.com/JetBrains/thinkrail/issues/918	Sandbox agent tools per workspace (OS-level isolation for shell and file tools)
+4	4	1	2026-07-03	open	https://github.com/paperclipai/paperclip/issues/8950	feat: add openshell_direct adapter for NVIDIA OpenShell sandboxed agent execution

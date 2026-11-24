@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:block/goose repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue subagent mcp total=3738
+5197	6696	409	2025-08-21	closed	https://github.com/anthropics/claude-code/issues/6235	Feature Request: Support AGENTS.md.
+2072	3286	583	2026-04-02	closed	https://github.com/anthropics/claude-code/issues/42796	[MODEL] Claude Code is unusable for complex engineering tasks with the Feb updates
+1199	2121	288	2026-04-09	open	https://github.com/anthropics/claude-code/issues/45596	Bring Back Buddy — A Consolidated Plea from the Community
+797	1416	410	2026-01-09	closed	https://github.com/anthropics/claude-code/issues/17118	[Feature Request] Support for OpenCode and Max plan
+695	879	179	2026-02-03	closed	https://github.com/openai/codex/issues/10450	Remote Development in Codex Desktop App
+693	836	337	2025-07-16	closed	https://github.com/anthropics/claude-code/issues/3648	Terminal Scrolling Uncontrollably During Claude Code Interaction
+690	822	354	2025-04-19	open	https://github.com/anthropics/claude-code/issues/826	[BUG] Console scrolling top of history when claude add text to the console
+697	728	1499	2026-01-03	open	https://github.com/anthropics/claude-code/issues/16157	[BUG] Instantly hitting usage limits with Max subscription
+525	689	76	2025-08-09	closed	https://github.com/openai/codex/issues/2109	Event Hooks
+514	619	73	2026-01-05	open	https://github.com/openai/codex/issues/8745	LSP integration (auto-detect + auto-install) for Codex CLI
+364	557	211	2026-06-18	closed	https://github.com/openai/codex/issues/28879	Codex (gpt-5.5, Plus plan) — rate-limit cost per token jumped ~10-20x since June 16, draining the 5h budget in 2-3 prompts
+505	557	102	2026-01-14	open	https://github.com/openai/codex/issues/9203	Please make "/undo" back
+476	545	878	2026-03-24	open	https://github.com/anthropics/claude-code/issues/38335	[BUG] Claude Max plan session limits exhausted abnormally fast since March 23, 2026 (CLI usage)
+407	506	61	2025-08-09	closed	https://github.com/openai/codex/issues/2101	Plan Mode
+357	420	386	2026-01-09	closed	https://github.com/anomalyco/opencode/issues/7410	Broken Claude Max
+317	413	103	2025-08-23	closed	https://github.com/openai/codex/issues/2604	Subagent Support
+270	377	89	2025-08-31	closed	https://github.com/anthropics/claude-code/issues/6915	Allow MCP tools to be available only to subagent
+244	341	56	2026-04-12	closed	https://github.com/anthropics/claude-code/issues/46829	Cache TTL silently regressed from 1h to 5m around early March 2026, causing quota and cost inflation
+298	334	307	2025-04-12	open	https://github.com/anthropics/claude-code/issues/769	[BUG]  In-progress Call causes Screen Flickering
+322	322	187	2025-06-10	closed	https://github.com/anthropics/claude-code/issues/1913	Terminal Flickering
+284	307	630	2026-03-13	closed	https://github.com/openai/codex/issues/14593	Burning tokens very fast
+280	300	85	2026-03-02	open	https://github.com/anthropics/claude-code/issues/30154	FEATURE: Multi-window support in Claude Code Desktop
+238	277	270	2025-10-02	closed	https://github.com/anthropics/claude-code/issues/8763	API Error: 400 due to tool use concurrency issues. Run /rewind to recover the conversation. - [Bug] Anthropic API Error: Unexpected 400 Bad Request Response
+215	255	84	2026-04-18	closed	https://github.com/anthropics/claude-code/issues/50246	Feature Request: Message queue mode — queue messages instead of interrupting active tasks
+222	243	58	2026-04-14	closed	https://github.com/openai/codex/issues/17827	Customizable status line
+168	241	132	2026-04-24	closed	https://github.com/openai/codex/issues/19464	Support 1M token context for GPT-5.5 in Codex
+233	234	58	2026-02-12	open	https://github.com/openai/codex/issues/11626	CLI: Add /rewind checkpoint restore that reverts both chat context and Codex-applied code edits
+131	224	279	2026-09-03	open	https://github.com/anthropics/claude-code/issues/91870	Mods - make Claude 10x more extensible
+225	225	90	2025-09-09	closed	https://github.com/anthropics/claude-code/issues/7328	[FEATURE] MCP Tool Filtering: Allow Selective Enable/Disable of Individual Tools from Servers
+159	223	124	2026-03-29	closed	https://github.com/anthropics/claude-code/issues/40524	[BUG] Conversation history invalidated on subsequent turns

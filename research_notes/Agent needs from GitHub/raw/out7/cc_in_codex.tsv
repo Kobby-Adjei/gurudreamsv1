@@ -1,0 +1,31 @@
+# repo:openai/codex is:issue in:title claude total=126
+47	91	12	2026-01-14	closed	https://github.com/openai/codex/issues/9184	vi editing mode (like claude code /vim)
+88	88	14	2025-12-24	closed	https://github.com/openai/codex/issues/8512	Implement Codex Plugins same as Claude Plugins
+33	51	35	2026-05-08	open	https://github.com/openai/codex/issues/21753	Full Claude Code Hook Parity (29+)
+29	29	16	2026-06-11	open	https://github.com/openai/codex/issues/27565	Claude Code-like remote control
+26	26	5	2026-07-18	open	https://github.com/openai/codex/issues/34002	Feature request: support .codex/rules/ directory with path-scoped conditional loading (like Claude Code's  .claude/rules/)
+25	25	5	2025-10-18	closed	https://github.com/openai/codex/issues/5321	Add  Skill to Codex CLI like Claude Code
+23	23	10	2026-06-17	open	https://github.com/openai/codex/issues/28739	[codex] Add AGENTS.local overlays, @-reference expansion, and source file attribution / provenance like Claude Code
+23	23	6	2025-12-19	closed	https://github.com/openai/codex/issues/8342	Expose MCP Server Prompts as Slash Commands Like Claude Code
+17	17	4	2026-04-14	closed	https://github.com/openai/codex/issues/17737	Feature request: Claude Code-like /monitoring for background terminals
+14	14	8	2026-04-21	closed	https://github.com/openai/codex/issues/18884	Feature request: Claude-style /recap
+14	15	6	2026-03-07	closed	https://github.com/openai/codex/issues/13834	Feature Request: Claude-style /ide command to attach Codex CLI to the active IDE session
+11	13	3	2025-11-18	closed	https://github.com/openai/codex/issues/6824	Real-Time Steering During Codex Runs (Similar to Claude Code)
+13	13	4	2025-09-20	closed	https://github.com/openai/codex/issues/3967	Codex chokes on big diffs — please add auto-compact/auto-continue like Claude Code
+9	9	8	2026-04-23	open	https://github.com/openai/codex/issues/19112	Codex App: Persistent PR Review Loop (Claude Code parity)
+9	9	3	2026-07-18	closed	https://github.com/openai/codex/issues/34073	Add a configurable shortcut to cycle permission modes (Claude Code-style Shift+Tab)
+8	8	3	2025-12-20	open	https://github.com/openai/codex/issues/8356	Codex cannot open specific links via web.run whereas Claude's fetch works
+7	7	5	2025-09-02	closed	https://github.com/openai/codex/issues/3043	Add memory functionality similar to Claude code
+5	6	1	2026-07-20	open	https://github.com/openai/codex/issues/34328	Allow repo-committed skills to be opt-in per contributor (default-off, like Claude Code's @skills-dir + enabledPlugins)
+4	5	3	2026-07-11	closed	https://github.com/openai/codex/issues/32418	Add Claude Code-style reusable subagent types to MultiAgentV2 spawn_agent
+4	4	1	2026-05-16	open	https://github.com/openai/codex/issues/22943	Support Claude-style `context: fork` and inline command execution in Codex skills
+4	4	6	2026-03-31	closed	https://github.com/openai/codex/issues/16301	hooks: add permission request event for parity with claude code's auto-approve flow
+0	3	1	2026-06-14	open	https://github.com/openai/codex/issues/28176	Support agent team like Claude code
+3	3	1	2026-05-02	closed	https://github.com/openai/codex/issues/20764	The skill-creator skill in codex does not have a feature for evaluation like Claude code.
+3	3	2	2026-04-27	closed	https://github.com/openai/codex/issues/19887	Remote Control is blocking full migration from Claude Code to Codex
+3	3	1	2025-09-04	closed	https://github.com/openai/codex/issues/3145	having difficulties connecting account sign in to HPC (claude code worked fine)
+2	2	3	2026-10-21	open	https://github.com/openai/codex/issues/55925	macOS double typing across apps except Codex during agent control of Claude.
+2	2	0	2026-10-06	open	https://github.com/openai/codex/issues/51489	Feature Request: Dynamic OTel Headers Helper (otelHeadersHelper) for CLI (Parity with Claude Code)
+1	2	3	2026-05-08	open	https://github.com/openai/codex/issues/21675	Codex Rules: per-session cache for additionalContext (Claude Code InstructionsLoaded parity)
+2	2	0	2026-07-28	open	https://github.com/openai/codex/issues/35702	Expose Codex skill path environment variables (and Claude-compatible aliases) during plugin skill execution
+1	2	1	2026-07-13	open	https://github.com/openai/codex/issues/32748	Feature request: User-facing workflow retrospective for past Codex sessions, similar to Claude Code /insights

@@ -1,0 +1,31 @@
+# repo:openclaw/openclaw is:issue total=65655
+82	95	116	2026-01-01	closed	https://github.com/openclaw/openclaw/issues/75	Linux/Windows Clawdbot Apps
+52	75	6	2026-02-01	closed	https://github.com/openclaw/openclaw/issues/5799	OpenClaw: Stabilisation Mode
+73	75	69	2026-02-04	closed	https://github.com/openclaw/openclaw/issues/8650	[Feature]: Request: Switch Built-in Feishu Plugin to @m1heng/clawdbot-feishu/請求：將內置飛書插件切換為 @m1heng/clawdbot-feishu
+60	60	30	2026-03-23	closed	https://github.com/openclaw/openclaw/issues/52808	Bug: dist/control-ui/ missing from npm package in 2026.3.22
+28	59	78	2026-02-25	closed	https://github.com/openclaw/openclaw/issues/26534	Add DingTalk as a first-install channel option
+31	31	28	2026-02-15	closed	https://github.com/openclaw/openclaw/issues/17019	[Bug]: 400 Item 'rs_[...]' of type 'reasoning' was provided without its required following item.
+7	31	120	2026-01-28	closed	https://github.com/openclaw/openclaw/issues/3460	Internationalization (i18n) & Localization Support
+29	29	4	2026-02-12	closed	https://github.com/openclaw/openclaw/issues/14992	Feature: Support Brave Search LLM Context API as web_search provider option
+28	28	12	2026-01-26	closed	https://github.com/openclaw/openclaw/issues/2170	[Feature]: Please add Feishu and WeChat support
+0	28	14	2026-02-09	closed	https://github.com/openclaw/openclaw/issues/12602	[Feature]: Slack Block Kit support for agent messages
+28	28	1	2026-02-05	closed	https://github.com/openclaw/openclaw/issues/9979	[Feature Request] Add Support for Google Cloud Vertex AI Provider
+28	28	11	2026-02-03	closed	https://github.com/openclaw/openclaw/issues/8081	Feature Request: Multi-user permission management with role-based access control
+27	27	14	2026-01-26	closed	https://github.com/openclaw/openclaw/issues/2317	web_search: Add SearXNG as fallback provider
+19	26	5	2026-01-30	closed	https://github.com/openclaw/openclaw/issues/4834	Feature: Native MCP (Model Context Protocol) support
+26	26	29	2026-02-11	closed	https://github.com/openclaw/openclaw/issues/14203	🚨 Google banning accounts for using OpenClaw with Antigravity/Gemini CLI
+25	25	23	2026-02-26	closed	https://github.com/openclaw/openclaw/issues/27009	[Feature]: Support for using OpenCode Go subscription to onboard.
+25	25	12	2026-01-27	closed	https://github.com/openclaw/openclaw/issues/2676	Remove the whatsapp dialogue
+25	25	31	2026-01-25	closed	https://github.com/openclaw/openclaw/issues/1818	[Bug]: Onboarding wizard does not install Systemd service on Ubuntu 22.04
+24	24	11	2026-03-05	closed	https://github.com/openclaw/openclaw/issues/36817	Tracking: gpt-5.4 model availability/support in OpenClaw
+17	23	53	2026-01-29	closed	https://github.com/openclaw/openclaw/issues/4111	[Bug]:This version of Antigravity is no longer supported. Please update to receive the latest features!
+23	23	23	2026-01-26	closed	https://github.com/openclaw/openclaw/issues/2280	[Feature]: Azure OpenAI as model provider
+23	23	24	2026-02-02	closed	https://github.com/openclaw/openclaw/issues/7200	Feature Request: Real-time Voice Conversation Support
+15	22	23	2026-02-17	closed	https://github.com/openclaw/openclaw/issues/19184	[Bug]: [OpenAI Responses] "400 Item 'rs_...' of type 'reasoning' was provided without its required following item" loop on gpt-5.2
+21	21	3	2026-03-06	closed	https://github.com/openclaw/openclaw/issues/37057	feat: RTK exec proxy — compress tool output to save context tokens
+0	20	19	2026-01-26	closed	https://github.com/openclaw/openclaw/issues/2254	[Bug]: Large session files
+20	20	21	2026-01-30	closed	https://github.com/openclaw/openclaw/issues/4686	[Bug]: WhatsApp linking stuck at "logging in" after initial successful link -   cannot relink any number
+20	20	10	2026-02-04	closed	https://github.com/openclaw/openclaw/issues/9028	[Bug]: Docker install/onboarding stuck: CLI can’t connect to gateway (1006/1008), token mismatch due to OPENCLAW_GATEWAY_TOKEN override + confusing pairing flow/docs
+19	19	7	2026-01-27	closed	https://github.com/openclaw/openclaw/issues/2856	[Bug]:  npm install -g moltbot@latest installs v0.1.0 which has no CLI binary
+19	19	9	2026-02-12	closed	https://github.com/openclaw/openclaw/issues/14352	GLM-5 model support
+18	18	10	2026-01-26	closed	https://github.com/openclaw/openclaw/issues/2102	[Bug]: HTTP_PROXY is ignored

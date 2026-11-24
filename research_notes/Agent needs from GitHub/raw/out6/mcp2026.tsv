@@ -1,0 +1,41 @@
+# org:modelcontextprotocol is:issue created:>2026-01-01 total=5395
+0	19	1	2026-02-10	open	https://github.com/modelcontextprotocol/java-sdk/issues/778	Introduce a unified Virtual Threads friendly API
+18	18	14	2026-07-29	closed	https://github.com/modelcontextprotocol/inspector/issues/1858	v2 hangs silently when connecting to streamable-http
+16	16	4	2026-03-16	closed	https://github.com/modelcontextprotocol/inspector/issues/1150	Client ID Metadata Document support
+0	15	1	2026-03-13	closed	https://github.com/modelcontextprotocol/csharp-sdk/issues/1431	SEP-1865: MCP Apps - Interactive User Interfaces for MCP
+0	13	4	2026-01-05	open	https://github.com/modelcontextprotocol/ext-apps/issues/201	Protocol discrepancies between MCP Apps and Apps SDK
+6	13	11	2026-01-28	closed	https://github.com/modelcontextprotocol/csharp-sdk/issues/1182	Proof of Concept: MCP Apps
+9	12	26	2026-05-27	open	https://github.com/modelcontextprotocol/ext-apps/issues/671	Bug Report: MCP Apps UI Resource Not Rendering in Claude Desktop / claude.ai
+12	12	3	2026-07-21	closed	https://github.com/modelcontextprotocol/typescript-sdk/issues/2531	Widen `@hono/node-server` range: `^1.19.9` cannot resolve past GHSA-frvp-7c67-39w9 (no patched 1.x)
+12	12	1	2026-01-07	open	https://github.com/modelcontextprotocol/mcpb/issues/176	Support for remote MCP servers (streamable HTTP transport)
+11	11	2	2026-07-08	closed	https://github.com/modelcontextprotocol/ext-apps/issues/702	Migrate `ext-apps` to `@modelcontextprotocol/server` v2 SDK
+11	11	5	2026-02-27	open	https://github.com/modelcontextprotocol/ext-apps/issues/511	[Proposal] Rich UI elicitation — attach an MCP App to an elicitation/create request
+9	11	6	2026-01-08	closed	https://github.com/modelcontextprotocol/typescript-sdk/issues/1369	Next AppRouter routes break because hono globally overwrites the response objects (v1.25.x +)
+11	11	5	2026-03-18	open	https://github.com/modelcontextprotocol/csharp-sdk/issues/1446	[Auth] OAuth proxy / DCR facade for non-DCR providers (e.g. Entra ID + Claude Code)
+10	10	12	2026-06-06	closed	https://github.com/modelcontextprotocol/java-sdk/issues/1011	SEP-2575: Make MCP Stateless
+9	10	6	2026-05-07	closed	https://github.com/modelcontextprotocol/servers/issues/4122	[Gmail MCP] Add get_attachment tool to download message attachments
+10	10	14	2026-06-06	open	https://github.com/modelcontextprotocol/python-sdk/issues/2806	Implement SEP-2663: Tasks Extension
+10	10	1	2026-01-30	open	https://github.com/modelcontextprotocol/csharp-sdk/issues/1216	Version-Based Tool Registration for MCP Server
+8	9	1	2026-01-09	closed	https://github.com/modelcontextprotocol/ext-apps/issues/222	(optional)Dependencies on Bun and Rollup adds 400+ MB to the install size
+7	9	5	2026-01-27	open	https://github.com/modelcontextprotocol/ext-apps/issues/380	Properly clarify content model visibility - content vs structuredContent vs _meta
+9	9	5	2026-02-03	open	https://github.com/modelcontextprotocol/ext-apps/issues/430	Re-usable views
+0	9	2	2026-01-31	open	https://github.com/modelcontextprotocol/ext-apps/issues/417	View state persistence
+3	9	8	2026-02-10	closed	https://github.com/modelcontextprotocol/inspector/issues/1082	MCP App rendering fails with invalid static resource path
+8	8	14	2026-05-27	open	https://github.com/modelcontextprotocol/ext-apps/issues/674	Set up public MCP Apps platform tests
+8	8	4	2026-03-11	open	https://github.com/modelcontextprotocol/typescript-sdk/issues/1658	StreamableHTTPServerTransport has no public API to reconstruct a session-aware transport from persisted session data
+5	8	2	2026-01-02	closed	https://github.com/modelcontextprotocol/inspector/issues/995	OAuth CORS errors when Connection Type is set to 'Via Proxy'
+7	7	6	2026-04-07	open	https://github.com/modelcontextprotocol/ext-apps/issues/605	Support `wasm-unsafe-eval` CSP directive to enable WebAssembly in MCP Apps
+6	7	3	2026-06-03	open	https://github.com/modelcontextprotocol/ext-apps/issues/684	Pinned or Split Screen MCP Apps
+7	7	0	2026-08-13	open	https://github.com/modelcontextprotocol/ext-apps/issues/743	MCP Apps Conformance Test - Host Interface Requirements
+7	7	2	2026-07-07	open	https://github.com/modelcontextprotocol/ext-apps/issues/696	Claude Desktop strips structuredContent from ui/notifications/tool-result — views built per SDK examples render blank
+4	7	10	2026-02-05	open	https://github.com/modelcontextprotocol/ext-apps/issues/431	Accessibility
+7	7	5	2026-11-17	open	https://github.com/modelcontextprotocol/rust-sdk/issues/1469	chrono is flagged unmaintained (RUSTSEC-2026-0543): any plan to move to jiff/time or make it optional?
+5	7	4	2026-04-20	closed	https://github.com/modelcontextprotocol/servers/issues/3988	Add Agent Governance Toolkit MCP server for policy enforcement
+7	7	6	2026-01-16	closed	https://github.com/modelcontextprotocol/csharp-sdk/issues/1155	Allow HybridCache for session storage
+7	7	3	2026-02-27	closed	https://github.com/modelcontextprotocol/inspector/issues/1120	Resource refresh button is not working
+6	6	1	2026-05-27	open	https://github.com/modelcontextprotocol/ext-apps/issues/673	Adding an official MCP App validator
+6	6	3	2026-07-28	closed	https://github.com/modelcontextprotocol/servers/issues/4560	fetch: ImportError on startup with mcp SDK 2.0.0 (McpError renamed to MCPError)
+6	6	3	2026-07-30	closed	https://github.com/modelcontextprotocol/inspector/issues/1859	Apps sandbox proxy omitted from package
+5	6	2	2026-01-18	closed	https://github.com/modelcontextprotocol/inspector/issues/1015	Tracking: JSON Schema Support in Inspector
+5	5	1	2026-05-01	open	https://github.com/modelcontextprotocol/ext-apps/issues/649	app-bridge pulls in entire Zod library (~1.4MB pre-minified) - most of it unused
+5	5	1	2026-04-17	closed	https://github.com/modelcontextprotocol/conformance/issues/234	Add check for CIMD of authorization server metadata

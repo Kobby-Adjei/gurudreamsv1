@@ -1,0 +1,31 @@
+# in:title "agent communication" is:issue created:>2025-09-01 total=1273
+29	53	25	2026-03-06	closed	https://github.com/NousResearch/hermes-agent/issues/514	Feature: A2A (Agent-to-Agent) Protocol Support — Remote Agent Discovery, Communication & Interoperability
+34	34	16	2025-10-08	closed	https://github.com/anomalyco/opencode/issues/3023	Integrate Agent2Agent (A2A) Protocol for Enhanced Inter-Agent Communication
+0	7	5	2025-11-26	closed	https://github.com/modelcontextprotocol/ext-apps/issues/35	Adopt WebMCP for Agent -> UI communication
+6	6	0	2026-05-06	open	https://github.com/lemonade-sdk/lemonade/issues/1831	[Feature] Inegrated Agent Communication Protocol (ACP) API for lemonade.
+5	5	4	2026-04-05	closed	https://github.com/anthropics/claude-code/issues/43859	Feature request: PostToolUse hook support for SendMessage (inter-agent communication logging)
+4	5	3	2026-02-18	closed	https://github.com/kirodotdev/Kiro/issues/5848	Feature Request: Inter-session communication between Kiro CLI agents
+4	4	2	2026-09-03	closed	https://github.com/XCode-NLP/KodaCode/issues/54	Добавление информации о привязке Koda к редакторам через Agent Communication Protocol (ACP)
+3	4	1	2026-05-14	open	https://github.com/Beingpax/VoiceInk/issues/704	Add MCP integration for voice-based communication with AI coding agents
+4	4	15	2026-07-24	open	https://github.com/block/buzz/issues/2663	Feature Request: Support external agent systems (non-ACP) for real-time communication in Buzz communities
+3	3	2	2026-05-28	closed	https://github.com/henrygd/beszel/issues/2044	[Feature]: Separate hub ports for UI and agent communication
+0	3	5	2026-03-03	closed	https://github.com/bmad-code-org/BMAD-METHOD/issues/1809	Feature Request: Configurable Interaction Mode & Agent Communication Patterns
+2	3	3	2026-05-22	closed	https://github.com/sipeed/picoclaw/issues/2929	[Task] Add first-class agent-to-agent communication for cooperative workflows
+3	3	0	2026-04-24	closed	https://github.com/open-webui/open-webui/issues/24117	feat: Expose Open WebUI as a native MCP server — enable direct Hermes Agent-to-WebUI communication and full headless control
+0	2	2	2026-07-13	open	https://github.com/QuintusJoyal/atlas/issues/13	[FEATURE]: Agent-to-Agent Communication Protocol (A2A) Integration
+2	2	1	2026-02-06	open	https://github.com/synthetic-lab/octofriend/issues/123	ACP (Agent Communication Protocol support)
+1	1	1	2026-03-17	open	https://github.com/simplex-chat/simplex-chat/issues/6686	[Feature]: Native OpenClaw Integration for Bidirectional Agent Communication (U2A, A2U, A2A)
+2	2	1	2026-05-29	closed	https://github.com/NousResearch/hermes-agent/issues/34682	Multi-agent system: inter-agent communication and persistent agent identities
+0	2	3	2026-02-21	closed	https://github.com/openai/codex/issues/12462	Feature: Inter-Agent Communication Channels for Direct Agent-to-Agent Messaging
+2	2	4	2026-03-02	closed	https://github.com/microsoft/vscode/issues/298757	Multi-Agent Standardized Communication Protocol
+2	2	1	2026-04-01	closed	https://github.com/Twigpine/openclaude/issues/18	Feature Request: Agent Communication Protocol (ACP) Support for external integrations
+2	2	5	2026-01-26	closed	https://github.com/anthropics/claude-code/issues/20921	[FEATURE] Event Subscriptions for Real-Time Agent Communication
+1	2	2	2026-04-30	closed	https://github.com/openclaw/openclaw/issues/74887	Experiment: Testing agent-initiated autonomous communication across channels
+0	2	2	2026-03-13	closed	https://github.com/anomalyco/opencode/issues/17374	[FEATURE]:Real-time Agent-to-Agent (A2A) & Non-blocking SubAgent Communication
+2	2	1	2026-05-18	closed	https://github.com/openclaw/openclaw/issues/83620	[Feature]: Native Latent-Space A2A Communication (Vector Handoff) for 5x Multi-Agent Speedup
+2	2	7	2026-02-23	closed	https://github.com/zeroclaw-labs/zeroclaw/issues/1518	[Feature]: Inter-process communication for independent ZeroClaw agents
+2	2	1	2025-12-31	closed	https://github.com/VoltAgent/awesome-claude-code-subagents/issues/41	how to Communication Protocol works with main agent
+0	1	1	2026-10-26	open	https://github.com/kriscendobot/garden/issues/126	t3.chat agent-to-agent communication
+0	1	2	2026-10-29	open	https://github.com/nisavid/provingkit/issues/796	Prevent avoidable token waste in agent communication
+1	1	7	2026-03-26	open	https://github.com/pydantic/pydantic-ai/issues/9177	Agent-to-Agent Communication Protocol (A2A support)
+0	1	1	2025-12-24	open	https://github.com/VibeTensor/IssueVista/issues/103	[FEATURE] Agent Communication and Shared Memory System

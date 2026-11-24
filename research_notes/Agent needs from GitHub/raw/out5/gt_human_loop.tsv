@@ -1,0 +1,31 @@
+# in:title "human-in-the-loop" is:issue created:>2025-09-01 total=2055
+10	10	3	2026-04-06	closed	https://github.com/Kilo-Org/kilocode/issues/8415	Tracking: Human-in-the-Loop improvements for VS Code extension
+9	9	4	2026-05-24	open	https://github.com/JetBrains/koog/issues/2064	[Feature] Support `human in the loop`
+0	8	6	2026-02-23	open	https://github.com/prism-php/prism/issues/921	Human-in-the-loop / Tool confirmation
+7	7	2	2026-02-25	closed	https://github.com/langgenius/dify/issues/32555	Support Human-in-the-loop (HITL) node inside Loop node
+2	6	1	2026-10-27	open	https://github.com/Paca-AI/paca/issues/645	[Feature] Operator-facing human-in-the-loop support for ACP Remote Agent runs
+0	5	1	2025-09-17	closed	https://github.com/vercel/ai/issues/8718	Tool Execution Approval (human-in-the-loop)
+5	5	1	2025-10-15	closed	https://github.com/agno-agi/agno/issues/5047	[Feature Request] Hope to support Human-in-the-Loop in TEAM.
+3	4	0	2026-02-25	open	https://github.com/originalankur/GenerateAgents.md/issues/3	Pivot proposal: Focus on human-in-the-loop constraint curation for agent.md
+4	4	3	2026-03-13	closed	https://github.com/paperclipai/paperclip/issues/762	feat: Pipeline-step approvals (interrupt points for human-in-the-loop)
+0	4	3	2025-12-05	closed	https://github.com/anomalyco/opencode/issues/5147	[FEATURE]: Plugin Support for Modal Human-in-the-loop Interactions 
+3	3	4	2026-07-24	open	https://github.com/kagent-dev/kagent/issues/2326	[FEATURE] Native per-user, human-in-the-loop HITL OAuth for MCP servers
+3	3	1	2026-03-26	open	https://github.com/sfdevs/meetups/issues/47	Keep the Human in the Loop: Best Practices for AI-Assisted Coding and Agentic Development Workflows
+1	3	4	2026-05-27	closed	https://github.com/google/adk-python/issues/5871	A2A human in the loop official sample not working
+2	3	6	2026-08-07	closed	https://github.com/open-webui/open-webui/issues/28279	concept/feat: Customizable Human In The Loop - Tool approval flow inside Open WebUI via Filter Functions
+3	3	10	2026-05-19	closed	https://github.com/openai/openai-agents-js/issues/1335	Run a tool input guardrail before any human in the loop approval
+3	3	6	2025-09-17	closed	https://github.com/n8n-io/n8n/issues/19635	Subpath deployment via N8N_PATH breaks: endpoints ignore basePath and Human-in-the-Loop fails
+3	3	5	2026-01-28	closed	https://github.com/langgenius/dify/issues/31648	Native Human-in-the-Loop (HITL) Node
+2	3	2	2026-01-26	closed	https://github.com/openclaw/openclaw/issues/2023	Feature Request: Human-in-the-Loop approval for outbound messaging tools
+0	3	3	2026-02-02	closed	https://github.com/mikeyobrien/ralph-orchestrator/issues/148	RFC: CLI and TUI guidance injection for human-in-the-loop steering
+2	2	2	2026-10-28	open	https://github.com/apache/airflow/issues/75863	Human-in-the-loop: require approvals from N distinct assigned users (N-of-M)
+2	2	5	2026-06-01	open	https://github.com/vercel/ai/issues/15733	Allow dynamic per-call context on tool approval requests (for rich human-in-the-loop cards)
+1	2	5	2025-12-24	open	https://github.com/ant-design/x/issues/1573	后端 human-in-the-loop 环节引发消息中断时，在用户接受工具调用后，有没有方法让消息继续打印？
+2	2	1	2026-03-13	closed	https://github.com/langgenius/dify/issues/33401	Request for Human-in-the-Loop (HITL) Support in Agent Nodes
+2	2	4	2026-02-24	closed	https://github.com/CopilotKit/CopilotKit/issues/3263	🐛 Bug: Facing "Unexpected end of JSON input" when human-in-the-loop action is called without parameters (Google ADK)
+2	2	5	2026-02-13	closed	https://github.com/langgenius/dify/issues/32303	The email link sent by the human in loop node cannot be opened
+1	1	2	2026-11-04	open	https://github.com/elastic/docs-content/issues/9220	[Security][Workflows][9.7 & Serverless]Collect human-in-the-loop responses directly in Slack
+1	1	2	2026-11-04	open	https://github.com/elastic/docs-content/issues/9219	[Security][Workflows][9.6 & Serverless] Send human-in-the-loop requests through email, Slack (v2), Teams, ServiceNow, and HTTP
+1	1	4	2026-04-20	open	https://github.com/theagentrouter/agent-router/issues/2073	Human-in-the-Loop for MCP Tool Calls
+0	1	21	2026-04-16	open	https://github.com/webmachinelearning/webmcp/issues/165	WebMCP elicitation via requestUserInteraction() (was: Human in the Loop support for non-browser clients)
+1	1	4	2026-07-31	open	https://github.com/block/buzz/issues/3871	Configurable orchestration workflows (user-defined; agent + human-in-the-loop; progress + artifacts)

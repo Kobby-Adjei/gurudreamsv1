@@ -1,0 +1,31 @@
+# "agent identity" is:issue created:>2025-06-01 total=138262
+5197	6696	409	2025-08-21	closed	https://github.com/anthropics/claude-code/issues/6235	Feature Request: Support AGENTS.md.
+1199	2121	288	2026-04-09	open	https://github.com/anthropics/claude-code/issues/45596	Bring Back Buddy — A Consolidated Plea from the Community
+476	545	878	2026-03-24	open	https://github.com/anthropics/claude-code/issues/38335	[BUG] Claude Max plan session limits exhausted abnormally fast since March 23, 2026 (CLI usage)
+357	420	386	2026-01-09	closed	https://github.com/anomalyco/opencode/issues/7410	Broken Claude Max
+270	377	89	2025-08-31	closed	https://github.com/anthropics/claude-code/issues/6915	Allow MCP tools to be available only to subagent
+178	240	41	2026-09-01	open	https://github.com/cli/cli/issues/14309	`--attach` cannot work for GitHub App installation tokens — the upload endpoint 404s them even with write access
+131	224	279	2026-09-03	open	https://github.com/anthropics/claude-code/issues/91870	Mods - make Claude 10x more extensible
+183	183	41	2025-07-26	closed	https://github.com/anthropics/claude-code/issues/4476	Implement Agent-Scoped MCP Configuration with Strict Isolation
+130	171	11	2026-06-11	open	https://github.com/zed-industries/zed/issues/59157	Add PR-style review comments in Git Diff UI that feed into the active agent thread
+128	168	35	2026-01-06	closed	https://github.com/anomalyco/opencode/issues/7101	[FEATURE]: Allow custom system prompts in global, project or custom directories
+141	155	45	2026-06-13	open	https://github.com/openai/codex/issues/28058	Regression: encrypted MultiAgentV2 messages remove readable task audit trail
+118	147	34	2026-04-30	open	https://github.com/openai/codex/issues/20500	Feature request: support multiple named accounts per app/connector
+68	123	30	2026-04-26	open	https://github.com/stablyai/orca/issues/1099	[Feature]: Multi-repo workspaces — view diffs of several repos at the same time
+94	115	24	2026-02-05	open	https://github.com/obra/superpowers/issues/429	Support for Claude Code Agent Teams (TeammateTool, SendMessage, TaskList)
+90	107	20	2026-07-25	open	https://github.com/anthropics/claude-code/issues/81138	[BUG] Account email (PII) is injected into the model's system prompt without consent, disclosure,
+91	97	1054	2026-08-08	open	https://github.com/yuliskov/SmartTube/issues/6030	[BUG]: infinite loading of videos
+37	89	24	2025-12-23	closed	https://github.com/anthropics/claude-code/issues/15125	[FEATURE] Support targeting specific Chrome instances/profiles for Claude in Chrome integration
+83	87	25	2025-07-25	closed	https://github.com/anthropics/claude-code/issues/4380	Feature: Per-agent MCP tool filtering to improve agent focus and accuracy
+79	85	49	2026-06-14	closed	https://github.com/openai/codex/issues/28190	rg is blocked by macOS
+69	82	35	2026-03-07	open	https://github.com/paperclipai/paperclip/issues/187	Feature Request: Support for Local LLMs via Ollama
+58	80	6	2025-08-27	open	https://github.com/aws/amazon-q-developer-cli/issues/2703	Feature request: support ACP (Agent Client Protocol)
+24	74	16	2026-02-08	closed	https://github.com/anomalyco/opencode/issues/12711	[DESIGN]: Agent Teams — flat teams with named messaging, multi-model support, and TUI integration
+45	73	37	2025-06-25	closed	https://github.com/php/web-pecl/issues/105	Site is down
+63	63	9	2025-10-12	closed	https://github.com/microsoft/playwright/issues/37812	[Feature]: Support for Red Hat and Oracle Linux
+60	60	70	2026-02-13	closed	https://github.com/openai/codex/issues/11701	Subagent configuration and orchestration
+51	54	33	2026-05-02	open	https://github.com/NousResearch/hermes-agent/issues/18715	Support remote Hermes agent with local tool execution
+29	53	25	2026-03-06	closed	https://github.com/NousResearch/hermes-agent/issues/514	Feature: A2A (Agent-to-Agent) Protocol Support — Remote Agent Discovery, Communication & Interoperability
+53	53	29	2026-01-08	closed	https://github.com/anomalyco/sst/issues/6314	Random issue trying to deploy
+48	48	17	2026-04-17	open	https://github.com/anthropics/claude-code/issues/49790	Feature request: Claude Desktop SSH remote — session should survive client disconnect (reconnect/resume)
+41	44	10	2025-09-20	closed	https://github.com/github/spec-kit/issues/377	Multi agent in one project.

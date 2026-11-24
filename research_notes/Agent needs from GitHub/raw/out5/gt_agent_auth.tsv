@@ -1,0 +1,31 @@
+# in:title "agent authentication" OR "agent auth" is:issue created:>2025-09-01 total=4351
+35	43	6	2026-05-27	closed	https://github.com/microsoft/vscode/issues/318578	Agents window: support use without GitHub authentication
+24	25	13	2026-03-01	closed	https://github.com/anthropics/claude-code/issues/29717	SSH: CC_ENV_EXTRACT_LIST missing SSH_AUTH_SOCK breaks 1Password SSH agent
+19	19	11	2026-05-05	open	https://github.com/docker/sbx-releases/issues/121	Unexpected github authentication through default ssh agent forwarding
+13	14	10	2026-04-21	open	https://github.com/zed-industries/zed/issues/54410	Agents do not see custom remote MCPs with OAuth authentication
+7	13	4	2026-08-04	open	https://github.com/zed-industries/zed/issues/62174	Claude Agent only offers Anthropic API key auth — no option to log in with Claude Code / Pro-Max subscription
+10	10	18	2026-01-04	closed	https://github.com/pop-os/cosmic-osd/issues/170	COSMIC Auth failing: polkit-agent-helper-1 missing SUID bit (Arch linux)
+9	9	10	2026-09-26	open	https://github.com/Eugeny/tabby/issues/11743	Auto SSH auth fallback fails after agent signer error with IdentityFile key
+8	8	1	2026-05-04	closed	https://github.com/docker/sbx-releases/issues/115	Docker sandbox forwards SSH agent into the sandbox when SSH_AUTH_SOCK is not set
+7	7	11	2026-10-12	open	https://github.com/nginx/nginx-gateway-fabric/issues/6080	NGF 2.6.8: Duplicate agent Secret retains stale CA after certificate rotation, causing mTLS authentication failures
+5	7	3	2026-06-23	closed	https://github.com/anthropics/claude-code/issues/70355	[BUG] Auth token and base URL wiped after navigating to agents panel and back
+4	7	0	2025-09-26	closed	https://github.com/quickshell-mirror/quickshell/issues/271	[FEATURE]: Polkit Authentication Agent
+6	6	12	2026-01-22	open	https://github.com/zed-industries/zed/issues/47422	Codex agent authentication via OpenAI account not possible in DevContainers
+5	6	4	2026-06-13	closed	https://github.com/zed-industries/zed/issues/59273	Adding external GitHub Copilot agent breaks native Copilot auth: GH_COPILOT_TOKEN="" poisons Zed agent + edit predictions
+6	6	4	2026-06-27	closed	https://github.com/xenodium/agent-shell/issues/677	Codex ACP config in agent-shell-agent-configs keeps stale auth method ids for @agentclientprotocol/codex-acp 1.x
+1	5	1	2026-05-13	closed	https://github.com/Scottcjn/Rustchain/issues/5009	Bug: Agent relationships API has no authentication on mutating endpoints
+4	4	2	2026-11-07	open	https://github.com/docker/sbx-releases/issues/835	v3 claude kit does not request ssh-agent@1: new sandboxes get no SSH_AUTH_SOCK despite forwarding enabled (v0.51.0)
+4	4	3	2026-09-03	open	https://github.com/microsoft/vscode/issues/334169	Claude agent host harness ignores ANTHROPIC_BASE_URL / ANTHROPIC_AUTH_TOKEN (cc-switch and other Anthropic-compatible relays)
+3	4	5	2026-05-02	closed	https://github.com/openclaw/openclaw/issues/76236	[Bug]: Regression in 2026.4.29: WebUI chat/embedded agent becomes extremely slow with long model-resolution, auth, core-plugin-tools and session operations
+3	3	0	2026-09-14	open	https://github.com/katanemo/plano/issues/1031	Support per-agent outbound auth (headers) when routing to a registered agent URL
+3	3	1	2026-09-17	open	https://github.com/microsoft/vscode/issues/336660	Agents Window SSH fails with Kerberos/GSSAPI authentication while Remote-SSH works
+3	3	1	2026-04-07	open	https://github.com/cline/cline/issues/10167	Kanban Agent fails with OCA OAuth re-authentication error despite active session
+3	3	19	2026-05-09	open	https://github.com/paperclipai/paperclip/issues/5534	adapter-claude-local: regex in parse.ts mislabels successful runs as claude_auth_required when agent output contains words like "Unauthorized"
+3	3	3	2026-09-27	open	https://github.com/microsoft/vscode/issues/338273	/remote on fails in Agent Host Copilot session with "Failed to get authentication token" (works in standalone Copilot CLI)
+3	3	6	2026-07-09	closed	https://github.com/microsoft/vscode/issues/325081	Agents Window: MCP Server with Authentication are not available in Agents Window
+2	3	6	2026-05-19	closed	https://github.com/openclaw/openclaw/issues/84032	Model picker should distinguish GPT provider/auth route from agent runtime
+3	3	5	2026-09-26	closed	https://github.com/paperclipai/paperclip/issues/14078	New Agent wizard forces an OpenRouter AI connection on OpenCode agents, blocking harness sign-in (opencode auth login)
+3	3	1	2026-07-28	closed	https://github.com/basecamp/hey-cli/issues/147	HEY skill should reuse stored authentication for unattended agents
+3	3	4	2026-02-25	closed	https://github.com/generalaction/emdash/issues/1102	[bug]: SSH Host IdentityAgent not being loaded when selecting SSH Agent Authentication
+3	3	3	2026-04-30	closed	https://github.com/microsoft/vscode/issues/313396	Agent host: support GitHub Enterprise (GHE) for Copilot auth
+2	3	9	2026-06-19	closed	https://github.com/openclaw/openclaw/issues/94716	[Bug]: Anthropic claude-cli provider sends stale user-agent (claude-cli/2.1.75) — bearer auth fails with authentication_error

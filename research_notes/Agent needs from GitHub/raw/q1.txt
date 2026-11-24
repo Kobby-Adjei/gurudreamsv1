@@ -1,0 +1,24 @@
+codex_enh|||repo:openai/codex is:issue label:enhancement
+codex_all|||repo:openai/codex is:issue
+gemini_enh|||repo:google-gemini/gemini-cli is:issue label:kind/enhancement
+gemini_all|||repo:google-gemini/gemini-cli is:issue
+openclaw_all|||repo:openclaw/openclaw is:issue
+mcp_spec|||repo:modelcontextprotocol/modelcontextprotocol is:issue
+mcp_org|||org:modelcontextprotocol is:issue
+a2a|||org:a2aproject is:issue
+a2a_google|||repo:google/A2A is:issue
+autogen|||repo:microsoft/autogen is:issue
+crewai|||repo:crewAIInc/crewAI is:issue
+langgraph|||repo:langchain-ai/langgraph is:issue
+cline|||repo:cline/cline is:issue
+aider|||repo:Aider-AI/aider is:issue
+goose|||repo:block/goose is:issue
+opencode|||repo:sst/opencode is:issue
+opencode2|||repo:anomalyco/opencode is:issue
+browseruse|||repo:browser-use/browser-use is:issue
+e2b|||org:e2b-dev is:issue
+openhands|||repo:All-Hands-AI/OpenHands is:issue
+openhands2|||repo:OpenHands/OpenHands is:issue
+continue|||repo:continuedev/continue is:issue
+cc_2026|||repo:anthropics/claude-code is:issue created:>2026-05-01
+codex_2026|||repo:openai/codex is:issue created:>2026-05-01

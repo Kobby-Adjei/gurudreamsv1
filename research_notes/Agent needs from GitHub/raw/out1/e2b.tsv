@@ -1,0 +1,31 @@
+# org:e2b-dev is:issue total=1240
+14	14	26	2025-07-11	closed	https://github.com/e2b-dev/runtime/issues/864	Self-Hosting E2B on On-Premise / Amazon Web Services
+12	12	3	2025-03-18	closed	https://github.com/e2b-dev/runtime/issues/469	Request: Support for deploying E2B without cloud provider
+2	11	0	2023-11-27	closed	https://github.com/e2b-dev/E2B/issues/242	[CLOSED] The Bounty program is currently cancelled
+11	11	6	2025-10-22	open	https://github.com/e2b-dev/E2B/issues/985	Request to add the golang sdk
+11	11	3	2026-02-25	closed	https://github.com/e2b-dev/E2B/issues/1160	Credential/Secret Brokering for HTTP(S) Requests
+10	10	6	2026-06-18	closed	https://github.com/e2b-dev/runtime/issues/3035	Proposal: Add Alibaba Cloud self-hosting support
+5	5	2	2025-07-26	open	https://github.com/e2b-dev/awesome-ai-agents/issues/154	What’s the Plan for This Repo?
+3	5	8	2024-07-17	open	https://github.com/e2b-dev/fragments/issues/3	Can you add OpenRouter
+4	4	3	2025-02-27	closed	https://github.com/e2b-dev/open-computer-use/issues/17	e2b template error
+4	4	5	2025-08-27	closed	https://github.com/e2b-dev/E2B/issues/879	E2b is not honoring timeout
+3	3	2	2026-10-19	closed	https://github.com/e2b-dev/runtime/issues/3693	Embed: make per-node sandbox limits configurable without LaunchDarkly (`max-starting-instances-per-node`, `max-sandboxes-per-node`)
+1	3	2	2024-08-05	closed	https://github.com/e2b-dev/fragments/issues/9	Add baseURL，pick from different LLMs
+3	3	5	2024-08-21	open	https://github.com/e2b-dev/fragments/issues/39	Make code editable
+1	3	3	2024-01-05	closed	https://github.com/e2b-dev/E2B/issues/281	[CLOSED] Build an AI code interpreter with LlamaIndex and E2B
+3	3	6	2025-10-03	closed	https://github.com/e2b-dev/E2B/issues/928	Sandbox clone functionality
+2	2	3	2025-10-22	closed	https://github.com/e2b-dev/runtime/issues/1393	Overlaybd is recommended as the backend of rootfs and template
+2	2	5	2026-04-05	closed	https://github.com/e2b-dev/runtime/issues/2305	Support Route53 instead of Coudflare provider
+1	2	0	2026-07-15	open	https://github.com/e2b-dev/runtime/issues/3292	envd: a stale process-stream subscriber can wedge stdout fan-out for all subscribers for ~15 minutes after sandbox resume
+2	2	0	2023-08-05	closed	https://github.com/e2b-dev/awesome-ai-agents/issues/33	Add MetaGPT
+2	2	1	2024-08-10	closed	https://github.com/e2b-dev/fragments/issues/14	Add integration for Groq API
+2	2	2	2024-08-11	closed	https://github.com/e2b-dev/fragments/issues/17	License
+0	2	11	2024-06-21	closed	https://github.com/e2b-dev/code-interpreter/issues/23	401 Unauthorized when pushing new template
+1	2	2	2025-08-21	open	https://github.com/e2b-dev/code-interpreter/issues/144	Custom template fails to start after Node.js 24 update - WebSocket connection timeout
+2	2	1	2023-04-05	closed	https://github.com/e2b-dev/E2B/issues/7	Misunderstood goal
+1	2	2	2024-01-05	closed	https://github.com/e2b-dev/E2B/issues/280	[🛑 Assigned] :eight_pointed_black_star: Build AI code interpreter with Autogen and E2B
+0	2	4	2024-11-23	closed	https://github.com/e2b-dev/E2B/issues/477	Async Code Not Executing Correctly in e2b Sandbox Environment
+2	2	4	2025-11-14	closed	https://github.com/e2b-dev/E2B/issues/1024	Code-Interpreter Sandbox Support & Base Image Clarification for v2 Templates
+2	2	1	2025-09-02	closed	https://github.com/e2b-dev/E2B/issues/888	Add `py.typed` file for type checking
+0	2	4	2026-01-09	open	https://github.com/e2b-dev/E2B/issues/1069	[Feature Request] Support Webhook/Callback for long-running code execution results
+2	2	7	2025-01-29	open	https://github.com/e2b-dev/E2B/issues/560	Error: date dataframe columns fail to serialize

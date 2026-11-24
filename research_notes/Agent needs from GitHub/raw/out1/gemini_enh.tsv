@@ -1,0 +1,31 @@
+# repo:google-gemini/gemini-cli is:issue label:kind/enhancement total=1068
+50	150	46	2025-07-03	open	https://github.com/google-gemini/gemini-cli/issues/3132	[Agents] Post V1.0 Work
+42	49	11	2025-08-09	closed	https://github.com/google-gemini/gemini-cli/issues/5874	Feature: Neovim IDE Integration
+47	49	17	2026-08-13	closed	https://github.com/google-gemini/gemini-cli/issues/28802	Latest Gemini models including Flash 3.5, Flash 3.6 and Flash 3.7 are fully available and working
+37	46	14	2025-08-10	closed	https://github.com/google-gemini/gemini-cli/issues/5938	Add support for local/offline language models (Ollola, LM Studio, etc.)
+43	43	4	2025-06-25	closed	https://github.com/google-gemini/gemini-cli/issues/1428	Brew installation ?
+16	38	83	2026-03-21	open	https://github.com/google-gemini/gemini-cli/issues/23331	GSoC Behavioral evals, Quality, and the OSS Community
+0	35	111	2026-03-21	closed	https://github.com/google-gemini/gemini-cli/issues/23365	[☀️ Google Summer Of Code ] Terminal-Integrated Performance & Memory Investigation Companion
+26	29	22	2025-09-22	closed	https://github.com/google-gemini/gemini-cli/issues/9066	stop displaying clever messages while the CLI is working (or at least add a robust option for the user to tell it to stop)
+26	26	12	2025-09-23	closed	https://github.com/google-gemini/gemini-cli/issues/9273	Add integration with IntelliJ and other JetBrains IDEs
+14	22	80	2026-03-20	open	https://github.com/google-gemini/gemini-cli/issues/23316	Long-Context & Complex Reasoning Coding Evaluation Dataset
+19	21	5	2026-06-12	closed	https://github.com/google-gemini/gemini-cli/issues/27858	Antigravity CLI is a massive downgrade from Gemini CLI for developers. Bring back intelligent auto-edit and model routing.
+20	20	15	2025-06-27	closed	https://github.com/google-gemini/gemini-cli/issues/2094	Show costs
+19	19	3	2025-06-12	closed	https://github.com/google-gemini/gemini-cli/issues/983	Support remote MCP servers (configured with `url` in `settings.json`)
+16	17	7	2025-06-25	closed	https://github.com/google-gemini/gemini-cli/issues/1457	How to point gemini-cli to a proxy ?
+17	17	26	2025-07-10	closed	https://github.com/google-gemini/gemini-cli/issues/3804	Consumer: Native Executable Install
+15	15	8	2025-06-30	closed	https://github.com/google-gemini/gemini-cli/issues/2657	Google AI Ultra Usage Limit Increase
+14	14	4	2025-06-25	closed	https://github.com/google-gemini/gemini-cli/issues/1452	[Enhancement] Image paste support
+14	14	6	2025-11-01	closed	https://github.com/google-gemini/gemini-cli/issues/12419	Unable to Attribute Commits to google-gemini Due to Missing Verified Email (I guess)
+12	13	6	2025-09-10	closed	https://github.com/google-gemini/gemini-cli/issues/8191	Gemini CLI Statusline
+13	13	7	2025-06-25	closed	https://github.com/google-gemini/gemini-cli/issues/1626	Gemini API rate limit handling causes permanent CLI lockup + User cancelled the request messages (even when I haven't)
+13	13	8	2025-09-15	closed	https://github.com/google-gemini/gemini-cli/issues/8474	Feature Request: Add a command to view daily cumulative usage statistics
+9	9	6	2025-06-25	closed	https://github.com/google-gemini/gemini-cli/issues/1412	FR: Adding advanced proxy setting
+11	11	6	2025-11-02	closed	https://github.com/google-gemini/gemini-cli/issues/12453	Model switch in ACP
+11	11	16	2025-08-23	closed	https://github.com/google-gemini/gemini-cli/issues/6930	Tool for Jupyter notebook editing
+11	11	5	2026-03-22	closed	https://github.com/google-gemini/gemini-cli/issues/23430	NotebookLM features inside gemini cli
+3	10	6	2025-07-31	closed	https://github.com/google-gemini/gemini-cli/issues/5280	Add support for setting API call configurations - temperature, topK, thinking budget
+9	10	13	2025-10-08	closed	https://github.com/google-gemini/gemini-cli/issues/10704	MCP Feature Request: Support Client Sampling
+9	9	4	2025-07-12	closed	https://github.com/google-gemini/gemini-cli/issues/3982	Add Shift+Enter support for multi-line input, allowing users to create line breaks without submitting the input.
+9	9	3	2025-06-26	closed	https://github.com/google-gemini/gemini-cli/issues/1843	Home and End keys doesn't work
+9	9	2	2025-07-22	closed	https://github.com/google-gemini/gemini-cli/issues/4641	Add Hooks similar to Claude

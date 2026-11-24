@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title identity total=877
+36	36	12	2026-04-23	open	https://github.com/openai/codex/issues/19154	codex mcp login appears to require dynamic client registration for private OAuth MCP servers; cannot use pre-registered client identity
+20	24	10	2026-08-21	closed	https://github.com/anthropics/claude-code/issues/88490	[BUG] Cloud Cowork sessions intermittently export OTLP with no identity attributes (user.email/account_uuid/account_id/organization.id) and a fresh per-session user.id
+20	20	3	2026-07-27	open	https://github.com/anthropics/claude-code/issues/81502	[FEATURE] Issue an OIDC identity token to cloud sessions for keyless cloud provider auth
+19	20	0	2026-04-28	open	https://github.com/openai/codex/issues/19897	Include user identity in Codex OTel standard attributes
+7	12	5	2026-07-15	closed	https://github.com/anthropics/claude-code/issues/77655	[BUG] Subagent view renders the main session's model/effort/agent identity instead of the subagent's (header, thinking indicator, agent list)
+10	10	3	2026-07-12	open	https://github.com/openai/codex/issues/32504	MultiAgentV2 canonical activity items omit effective subagent identity/model/effort metadata
+9	9	8	2026-03-13	closed	https://github.com/openclaw/openclaw/issues/44967	[Bug]: Control UI still rejects LAN token-only access with 'device identity required' on v2026.3.12
+8	8	3	2026-07-19	closed	https://github.com/anthropics/claude-code/issues/79215	[FEATURE] Sessions should follow a renamed/moved project folder (persistent project identity)
+8	8	9	2026-02-14	closed	https://github.com/anthropics/claude-code/issues/25661	SSH connection ignores Identity File setting, requires ssh-agent
+8	8	15	2026-03-08	closed	https://github.com/openclaw/openclaw/issues/39611	Control UI "device identity required" error after page navigation in 2026.3.7
+7	7	3	2026-03-31	closed	https://github.com/anomalyco/opencode/issues/20280	[FEATURE]: Show subagent identity (agent name, model, provider) in permission prompts
+5	7	3	2026-01-03	closed	https://github.com/anthropics/claude-code/issues/16126	[FEATURE] Add agent identity to PreToolUse hook data
+1	6	13	2026-09-26	open	https://github.com/openai/codex/issues/48421	[Windows 26.924.2738.0] ChatGPT fails to start via Run as administrator: no package identity
+6	6	8	2026-07-10	closed	https://github.com/anomalyco/opencode/issues/36233	Project identity should not rely solely on git remote URL
+6	6	5	2026-08-06	closed	https://github.com/anthropics/claude-code/issues/84504	[FEATURE] Claude Apps Gateway: Customize STS role session name with OIDC user identity for Bedrock invocation logs
+6	6	6	2026-07-11	closed	https://github.com/anthropics/claude-code/issues/76615	[BUG] macOS App Management accumulates one permission row per release; stable signing identity defeated by version-named binary paths (follow-up to #38722)
+5	5	13	2026-09-12	closed	https://github.com/openai/codex/issues/45060	Regression in 26.908: Chrome extension commands blocked by ChatGPT identity check with Azure-only auth
+5	5	8	2026-03-17	closed	https://github.com/anomalyco/opencode/issues/17940	Multiple local clones of same repo share one project identity, breaking file change tracking
+5	5	17	2026-03-03	closed	https://github.com/openclaw/openclaw/issues/32473	[Bug]: control ui requires device identity (use HTTPS or localhost secure context)
+4	4	18	2026-07-22	closed	https://github.com/anthropics/claude-code/issues/79992	[BUG] macOS: filesystem-class MCP tool calls silently dropped between approval gate and local server dispatch — survives app rollback, extension reinstall, new connector identity (started 2026-07-21→22 with no local change)
+3	4	6	2026-03-31	closed	https://github.com/anthropics/claude-code/issues/41283	Memory identity is derived from filesystem path, causing orphaned memories and missing the human-vs-project distinction
+4	4	4	2026-04-16	closed	https://github.com/google-gemini/gemini-cli/issues/25525	Identity Hijacking of gemini-cli@google.com on GitHub
+4	4	9	2026-02-04	closed	https://github.com/openclaw/openclaw/issues/8529	[Bug]: disconnected (1008): device identity required
+3	3	10	2026-10-10	open	https://github.com/openai/codex/issues/52765	[Dots] Recent cloud-workspace files unavailable after execution stall; older files remain and filesystem identity changes
+2	3	11	2026-04-12	open	https://github.com/openclaw/openclaw/issues/65374	Bug: Built-in dreaming system contaminates agent identity in multi-agent setups
+3	3	1	2026-10-18	open	https://github.com/anthropics/claude-code/issues/103094	[FEATURE] Path-independent, VCS-agnostic project identity with only one local Claude Code marker in the repository
+3	3	3	2026-07-26	open	https://github.com/anthropics/claude-code/issues/81391	Feature request: stable project identity + first-class cross-machine sync for auto memory and portable profile state
+2	3	3	2026-07-03	open	https://github.com/openclaw/openclaw/issues/99279	Mattermost: no inbound bot-identity facts — botLoopProtection can't cover it, bot↔bot loops unguarded
+3	3	2	2026-09-26	open	https://github.com/anthropics/claude-code/issues/97338	[BUG] macOS: Claude Code shows up as three identities (Desktop "Claude", "claude", and per-version "2.1.x") with four separate copies on disk
+3	3	1	2026-06-06	open	https://github.com/openai/codex/issues/26798	Agent-visible runtime identity says GPT-5 even when using GPT-5.5

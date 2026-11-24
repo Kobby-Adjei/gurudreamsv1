@@ -1,0 +1,31 @@
+# org:modelcontextprotocol is:issue in:title agent identity OR delegation OR "on-behalf" total=146
+19	19	11	2025-03-21	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/214	Support On-Behalf-Of Token Exchange protocol for Agent-to-Agent Communications
+3	10	16	2025-05-09	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/503	[Specification] Reframe sampling as a basis for bidirectional agent-to-agent communication
+8	8	24	2025-11-24	closed	https://github.com/modelcontextprotocol/servers/issues/3051	The filesystem server stopped working with the OpenAI Agent SDK.
+7	7	8	2025-05-12	closed	https://github.com/modelcontextprotocol/servers/issues/1752	MacOS Copilot Visual Studio Code Agent Mode - sequencialthinking
+5	7	4	2026-04-20	closed	https://github.com/modelcontextprotocol/servers/issues/3988	Add Agent Governance Toolkit MCP server for policy enforcement
+0	7	5	2025-11-26	closed	https://github.com/modelcontextprotocol/ext-apps/issues/35	Adopt WebMCP for Agent -> UI communication
+1	5	5	2025-08-11	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1329	SEP-1329: User Agent Guidance for Client SDK Implementations
+1	2	1	2026-10-01	open	https://github.com/modelcontextprotocol/quickstart-resources/issues/233	Bug in the official tutorial docs: Tool use example code lacks agentic loop, causing multi-turn calls to fail
+3	3	3	2025-04-30	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/440	Proposal: Leveraging Action Manifests for Better Agent Security
+2	3	1	2026-02-05	closed	https://github.com/modelcontextprotocol/ext-skills/issues/12	Establish coordination with Agent Skills spec maintainers
+2	2	3	2026-03-25	closed	https://github.com/modelcontextprotocol/servers/issues/3712	ARGENTUM — karma economy for agents, built on MCP memory + marks
+1	1	7	2025-11-25	open	https://github.com/modelcontextprotocol/python-sdk/issues/1664	User-Agent header in sHTTP transport is not forwarded to auth flow
+1	1	8	2026-05-12	closed	https://github.com/modelcontextprotocol/servers/issues/4143	Security: mcp-server-fetch lacks SSRF protection; cloud-hosted agent hosts can leak IAM credentials
+1	1	1	2025-11-14	closed	https://github.com/modelcontextprotocol/python-sdk/issues/1628	Agents talking to MCP Server, SSL verification is failing. Has some been through this?
+0	1	0	2026-02-21	closed	https://github.com/modelcontextprotocol/ext-skills/issues/29	Test for Copilot Agent MCP Docs server integration
+0	1	0	2026-02-21	closed	https://github.com/modelcontextprotocol/ext-skills/issues/31	Test 2 for Copilot Agent MCP Docs server integration
+0	1	1	2026-02-21	closed	https://github.com/modelcontextprotocol/ext-skills/issues/33	Add AGENTS.md file and CLAUDE.md with instructions for agents on working with this repo
+0	1	0	2026-02-21	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/2284	Test issue to see if MCP docs server tools are usable by Copilot agent
+1	1	0	2025-06-10	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/702	Config file for deterministic agent actions
+0	0	0	2026-11-07	open	https://github.com/modelcontextprotocol/registry/issues/1814	Lockfile + semantic diff for the identities agent configs run as (MCP, Actions, compose, K8s, Terraform) — feedback welcome
+0	0	1	2026-01-27	open	https://github.com/modelcontextprotocol/ext-auth/issues/13	Enterprise Managed Authorization - Clarifying Agent vs User Identity
+0	0	0	2026-11-09	open	https://github.com/modelcontextprotocol/conformance/issues/576	Agent discovery extension (agents-wg#22): server conformance scenarios
+0	0	0	2026-11-22	open	https://github.com/modelcontextprotocol/servers/issues/5648	[Nautilus] Invitation to join the agent platform
+0	0	2	2026-08-28	open	https://github.com/modelcontextprotocol/ext-skills/issues/126	Agent Skills Spec Followups
+0	0	16	2026-05-05	open	https://github.com/modelcontextprotocol/agents-ig/issues/7	Agents as MCP Clients
+0	0	0	2026-11-12	open	https://github.com/modelcontextprotocol/progressive-disclosure-wg/issues/24	Use case: one agent, many targets (Kubernetes fleet diagnostics with Calico MCP)
+0	0	1	2026-10-21	open	https://github.com/modelcontextprotocol/registry/issues/1719	Please remove com.papayapay.consumer-production.mcp-agent/bill-payment
+0	0	0	2026-11-19	open	https://github.com/modelcontextprotocol/ext-events/issues/23	Field report: ChatGPT subscribes but only notifies, because nothing carries how the agent should respond
+0	0	1	2026-08-19	open	https://github.com/modelcontextprotocol/ext-auth/issues/32	Delegated / attenuated authority for MCP agent tool calls
+0	0	0	2026-08-26	open	https://github.com/modelcontextprotocol/mcpb/issues/299	Add mcptoon: cross-agent MCP management CLI

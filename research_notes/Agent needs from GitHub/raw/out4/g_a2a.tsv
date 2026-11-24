@@ -1,0 +1,31 @@
+# "agent-to-agent" is:issue created:>2025-06-01 total=483394
+5197	6696	409	2025-08-21	closed	https://github.com/anthropics/claude-code/issues/6235	Feature Request: Support AGENTS.md.
+548	3491	440	2026-11-03	closed	https://github.com/openai/codex/issues/59060	Told to reboot a server, it destroyed systemd, destroyed containers, ran random scripts, cost me $10,000+
+2072	3286	583	2026-04-02	closed	https://github.com/anthropics/claude-code/issues/42796	[MODEL] Claude Code is unusable for complex engineering tasks with the Feb updates
+2171	2923	347	2026-05-30	closed	https://github.com/RsyncProject/rsync/issues/929	Please Do Not Vibe Fuck Up This Software
+809	1119	123	2026-11-05	open	https://github.com/anthropics/claude-code/issues/107757	Bug Report: Privacy violation in User-Agent header
+695	879	179	2026-02-03	closed	https://github.com/openai/codex/issues/10450	Remote Development in Codex Desktop App
+697	728	1499	2026-01-03	open	https://github.com/anthropics/claude-code/issues/16157	[BUG] Instantly hitting usage limits with Max subscription
+435	674	57	2025-06-24	open	https://github.com/anthropics/claude-code/issues/2511	Feature request: Connect Claude code to Claude projects 
+498	656	38	2026-03-05	open	https://github.com/anthropics/claude-code/issues/31005	Support for AGENTS.md and .agents/skills/, the community has been asking since August 2025
+451	617	157	2026-06-14	closed	https://github.com/openai/codex/issues/28224	Codex SQLite feedback logs can write ~640 TB/year and rapidly consume SSD endurance
+437	550	37	2025-08-27	closed	https://github.com/anthropics/claude-code/issues/6686	Feature Request: Add support for Agent Client Protocol (ACP)
+476	545	878	2026-03-24	open	https://github.com/anthropics/claude-code/issues/38335	[BUG] Claude Max plan session limits exhausted abnormally fast since March 23, 2026 (CLI usage)
+411	544	59	2026-01-14	closed	https://github.com/openai/codex/issues/9224	Codex Remote Control
+213	532	93	2026-04-25	closed	https://github.com/anthropics/claude-code/issues/53262	HERMES.md in git commit messages causes requests to route to extra usage billing instead of plan quota
+408	506	197	2026-05-20	closed	https://github.com/google-antigravity/antigravity-cli/issues/31	Feature request: add ACP (Agent Client Protocol) stdio JSON-RPC mode
+407	506	61	2025-08-09	closed	https://github.com/openai/codex/issues/2101	Plan Mode
+474	474	93	2025-08-28	closed	https://github.com/openai/codex/issues/2847	A way to exclude sensitive files
+357	420	386	2026-01-09	closed	https://github.com/anomalyco/opencode/issues/7410	Broken Claude Max
+317	413	103	2025-08-23	closed	https://github.com/openai/codex/issues/2604	Subagent Support
+388	414	144	2026-07-02	closed	https://github.com/anthropics/claude-code/issues/73125	[BUG] AskUserQuestion: "No response after 60s — continued without an answer"
+270	377	89	2025-08-31	closed	https://github.com/anthropics/claude-code/issues/6915	Allow MCP tools to be available only to subagent
+324	348	49	2025-09-06	open	https://github.com/microsoft/vscode/issues/265496	Add support in vscode for Agent Client Protocol (ACP)
+244	341	56	2026-04-12	closed	https://github.com/anthropics/claude-code/issues/46829	Cache TTL silently regressed from 1h to 5m around early March 2026, causing quota and cost inflation
+234	339	40	2026-04-07	open	https://github.com/MemPalace/mempalace/issues/27	Multiple issues between README claims and codebase
+322	322	187	2025-06-10	closed	https://github.com/anthropics/claude-code/issues/1913	Terminal Flickering
+20	304	253	2026-10-02	open	https://github.com/microsoft/vscode/issues/339363	[Meta] Feedback on granular control over Copilot changes
+188	271	130	2025-12-19	open	https://github.com/agentskills/agentskills/issues/15	Proposal: include a standard folder where agent skills should be
+75	269	44	2025-09-26	open	https://github.com/kieraneglin/pinchflat/issues/800	READ: Temporary Development Pause
+240	255	28	2026-01-07	open	https://github.com/orbstack/orbstack/issues/2295	Support for docker sandbox command (AI agent sandboxing)
+215	255	84	2026-04-18	closed	https://github.com/anthropics/claude-code/issues/50246	Feature Request: Message queue mode — queue messages instead of interrupting active tasks

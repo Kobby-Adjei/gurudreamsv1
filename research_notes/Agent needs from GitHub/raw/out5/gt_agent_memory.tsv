@@ -1,0 +1,31 @@
+# in:title "agent memory" is:issue created:>2025-09-01 total=12315
+16	16	1	2026-02-11	closed	https://github.com/openclaw/openclaw/issues/14049	[Feature]: Qdrant-based Persistent Memory for OpenClaw Agents
+15	15	18	2025-09-02	closed	https://github.com/anthropics/claude-code/issues/7020	[Bug] Memory Leak When Initializing Sub-Agent Orchestration
+14	14	1	2026-10-17	open	https://github.com/microsoft/vscode/issues/342279	[Copilot harness] User memory is unavailable in Agent Host sessions
+10	12	3	2026-06-16	open	https://github.com/vectorize-io/hindsight/issues/2235	Feature Request: Team, agent, and memory-level access control
+12	12	6	2026-03-18	closed	https://github.com/microsoft/vscode/issues/302960	VSCode Insiders - Built-in agent .md files reference unregistered tools ('github/issue_read', stale 'memory' name, trailing period in 'vscode/memory.')
+10	10	13	2026-04-09	closed	https://github.com/openclaw/openclaw/issues/63829	[Feature]: Per-agent memory-wiki vault configuration
+9	9	4	2026-04-03	closed	https://github.com/ggml-org/llama.cpp/issues/21383	Eval bug: Qwen3.5-27B CUDA illegal memory access regression in prompt cache (single GPU, agentic tool-call pattern)
+6	8	2	2026-03-23	open	https://github.com/nanocoai/nanoclaw/issues/1356	Agent memory system redesign
+7	8	1	2026-03-06	open	https://github.com/NousResearch/hermes-agent/issues/553	Feature: Subconscious Observer Agent — Background Memory Processing, Cross-Session Pattern Detection & Proactive Guidance (inspired by Letta claude-subconscious)
+7	8	7	2026-07-13	open	https://github.com/cilium/cilium/issues/47128	cilium-agent: unbounded memory growth with toFQDNs policy under continuously-fresh subdomain resolution; not released by fqdn cache clean
+6	7	12	2026-04-14	open	https://github.com/NousResearch/hermes-agent/issues/9514	Feature: Single-Daemon Multi-Agent with Per-Topic Workspace & Memory Isolation
+7	7	2	2026-09-24	open	https://github.com/microsoft/vscode/issues/337676	Setting or memory for the default agent harness in the main window (Welcome page / chat panel always start on Copilot)
+0	6	4	2026-03-10	open	https://github.com/paperclipai/paperclip/issues/460	feat: Agent Persistent Memory Store
+0	6	67	2026-07-22	closed	https://github.com/moorcheh-ai/memanto/issues/1609	[BOUNTY $200] 🐜 The Great Memory Migration: Own Your Agentic Memory with Memanto + OKF
+6	6	9	2026-05-19	closed	https://github.com/zed-industries/zed/issues/57126	Zed agent - memory usage rising fast until crash when editing files
+6	6	2	2026-07-09	open	https://github.com/anthropics/claude-agent-sdk-typescript/issues/372	[Architecture] The Subprocess-based Agent Loop causes poor performance and memory bottlenecks in server-side/high-concurrency scenarios
+5	6	5	2026-02-08	closed	https://github.com/mem0ai/mem0/issues/3998	feat: Per-agent memory isolation for openclaw-mem0 plugin
+4	6	5	2026-03-26	closed	https://github.com/anomalyco/opencode/issues/19215	[FEATURE]: DB-backed agent team coordination (parallel sub-agents, messaging, memory)
+5	5	5	2026-05-14	closed	https://github.com/multica-ai/multica/issues/2577	[Feature Request] Add per-Agent Hermes profile selection for isolated memory, env, sessions, and gateway
+6	6	2	2026-05-07	closed	https://github.com/angristan/opencode-wakatime/issues/73	Process leak: wakatime-cli processes never exit when AI agent batch-edits files, causing massive memory usage
+1	5	2	2026-07-20	open	https://github.com/decolua/9router/issues/2719	Feature Request: Persistent Agent Memory / MCP Memory Server Integration
+4	5	12	2026-03-14	open	https://github.com/openclaw/openclaw/issues/45608	[Feature]: Pre-reset agentic memory flush — /new and daily reset should get the same memory flush as compaction
+3	5	6	2026-11-04	open	https://github.com/opensearch-project/ml-commons/issues/5185	[RFC] OpenSearch Memory API: events and memories for AI agents
+5	5	18	2026-07-06	open	https://github.com/perber/leafwiki/issues/1273	Feature Request: MCP server for LLM/agent integration (wiki as long-term memory)
+3	5	6	2026-03-25	open	https://github.com/microsoft/vscode/issues/304903	Problems pane constantly re-evaluates frontmatter diagnostics for custom agent/instruction/skill/prompt files — excessive CPU and memory
+5	5	10	2026-03-06	closed	https://github.com/zed-industries/zed/issues/50889	Opening and closing Claude Agents leaks memory
+5	5	25	2025-09-10	closed	https://github.com/cilium/cilium/issues/41623	cilium-agent memory leak after v1.18.1 upgrade
+5	5	8	2026-02-10	closed	https://github.com/lobehub/lobehub/issues/12243	SYSTEM_AGENT configuration ignored - Memory function falls back to OpenAI despite Google Gemini configuration
+0	4	13	2026-11-16	open	https://github.com/BaaRai/ARTEX/issues/269	ARTEX analyzed and compared with other agentic memory systems
+1	4	3	2026-07-17	open	https://github.com/redis/RedisInsight/issues/6226	[Feature Request]: Agent Memory Explorer

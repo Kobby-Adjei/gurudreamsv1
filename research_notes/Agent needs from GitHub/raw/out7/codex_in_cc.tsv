@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code is:issue in:title codex total=101
+47	50	15	2026-07-10	open	https://github.com/anthropics/claude-code/issues/76272	[FEATURE] Give users control over weekly limit reset timing (configurable reset day, or banked on-demand resets like Codex)
+9	9	4	2026-11-10	open	https://github.com/anthropics/claude-code/issues/108890	[FEATURE] Desktop app: two-way voice chat with any session of a project (the Codex app already offers this)
+8	8	5	2026-09-23	open	https://github.com/anthropics/claude-code/issues/96497	Desktop Code tab: auto-collapse a turn's thinking and tool calls when the task finishes (like Codex's "Worked for X min")
+8	8	9	2026-05-24	closed	https://github.com/anthropics/claude-code/issues/62096	[BUG] subscribe_pr_activity delivers human review events but not bot review events (from GitHub Apps like chatgpt-codex-connector[bot] and gemini-code-assist[bot])
+7	7	4	2026-06-17	closed	https://github.com/anthropics/claude-code/issues/69124	Feature request: Codex-style live steering (inject input into the in-flight turn)
+4	7	5	2026-06-02	closed	https://github.com/anthropics/claude-code/issues/64805	[FEATURE] Visible context-window usage indicator in Cowork (parity with Codex / Claude Code status line)
+6	6	5	2026-09-28	open	https://github.com/anthropics/claude-code/issues/97937	[FEATURE] Cowork built-in browser: apply View → Zoom to the browser pane when it has focus (persisted, like Codex)
+6	6	4	2026-05-05	closed	https://github.com/anthropics/claude-code/issues/56193	[FEATURE] Support additional skills search paths (e.g. .agents/skills/) to enable sharing with Codex and Gemini
+2	3	2	2026-10-28	open	https://github.com/anthropics/claude-code/issues/105702	Feature request: Remote Control parity with Codex "Control this Mac" (all projects, unified host view, device-to-device control, handoff)
+2	2	2	2026-09-15	open	https://github.com/anthropics/claude-code/issues/94572	Feature request: import/sync sessions from Codex, mirroring ChatGPT's existing "import from Claude Code" feature
+2	2	2	2026-09-12	closed	https://github.com/anthropics/claude-code/issues/93755	Feature request: expose a session-rename tool to the agent (like Codex's set_thread_title)
+2	2	4	2026-08-27	closed	https://github.com/anthropics/claude-code/issues/90189	[FEATURE] Desktop app should keep Remote Control connected automatically across app updates (Codex-style always-on)
+2	2	2	2026-09-26	closed	https://github.com/anthropics/claude-code/issues/97535	[FEATURE] VS Code extension: add a command to add a file or folder to the chat (like Codex's chatgpt.addFileToThread)
+2	2	4	2026-07-04	closed	https://github.com/anthropics/claude-code/issues/74270	Feature request: make usage/spend glanceable by default (parity with Codex), not buried behind a command
+2	2	4	2026-05-27	closed	https://github.com/anthropics/claude-code/issues/62856	[FEATURE] Compose-while-working with send-time choice of interrupt vs queue (Codex-style)
+0	2	2	2026-05-01	closed	https://github.com/anthropics/claude-code/issues/55161	[BUG] You made Opus dumb again and I'm officially moving to codex.
+1	1	1	2026-11-14	open	https://github.com/anthropics/claude-code/issues/109760	[FEATURE] First-class `claude remote-control serve`: register machines as devices and start sessions from mobile (parity with Codex / Antigravity)
+1	1	2	2026-09-06	closed	https://github.com/anthropics/claude-code/issues/92416	Feature request: mobile Remote Control should be able to take over any local session (like Codex mobile)
+1	1	3	2026-09-07	closed	https://github.com/anthropics/claude-code/issues/92745	[Feature Request] Fast mode in the desktop app (Code tab): meter it against plan usage at a multiplier, like Codex, instead of a separate usage-credits wallet
+1	1	3	2026-08-05	closed	https://github.com/anthropics/claude-code/issues/84002	I'm canceling 2 of my 3 Claude plans. I added Codex and Gemini. I cannot keep Claude on task, and I've spent two years trying to out-engineer it. I'm tired.
+1	1	4	2026-05-03	closed	https://github.com/anthropics/claude-code/issues/55703	Demonstrable regression: Claude Code vs Codex 5.5 — same prompt, incomparable results (Feb–Apr 2026)
+1	1	3	2026-05-13	closed	https://github.com/anthropics/claude-code/issues/58787	Feature Request: Separate /-prefix (commands) from skills/agents picker (Codex-style)
+1	1	1	2026-05-04	closed	https://github.com/anthropics/claude-code/issues/56085	[FEATURE] Add /goal command for persistent thread-level objectives (parity with Codex CLI 0.128.0)
+1	1	3	2026-03-22	closed	https://github.com/anthropics/claude-code/issues/37506	An open letter from a power user: Claude Code is losing the terminal to Codex
+1	1	2	2026-02-04	closed	https://github.com/anthropics/claude-code/issues/23042	[Feature Request] Add Codex sync-to-local feature
+0	0	1	2026-11-11	open	https://github.com/anthropics/claude-code/issues/109043	[Bug] Codex vs. Opus: Code Review Speed and Token Consumption Comparison
+0	0	0	2026-10-15	open	https://github.com/anthropics/claude-code/issues/102271	[FEATURE] Clear terminal scrollback on /clear, consistent with Codex CLI
+0	0	0	2026-11-11	open	https://github.com/anthropics/claude-code/issues/108934	[Bug] Custom Home Assistant integration flagged as cyber risk; Codex does not
+0	0	0	2026-11-05	open	https://github.com/anthropics/claude-code/issues/107553	[Bug] Claude Code deletes user files when Codex is mentioned in conversation
+0	0	0	2026-11-15	open	https://github.com/anthropics/claude-code/issues/110173	[FEATURE] Desktop Code tab: simple sidebar, just project folders with their sessions (like Codex)

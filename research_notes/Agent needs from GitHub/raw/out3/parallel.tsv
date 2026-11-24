@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title parallel total=670
+73	73	24	2026-02-18	open	https://github.com/openai/codex/issues/12098	Tabbed interface for parallel chat sessions in Codex extension
+61	64	36	2026-01-31	closed	https://github.com/anthropics/claude-code/issues/22264	Sibling tool call errored: parallel tool calls cascade-fail when one fails
+45	45	15	2026-05-12	open	https://github.com/anomalyco/opencode/issues/27110	[FEATURE]: Setting to limit max number of parallel subagents
+44	44	15	2026-02-18	closed	https://github.com/google-gemini/gemini-cli/issues/19430	Feature Request: Parallel Agent Teams / Multi-Agent Collaboration (like Claude Code Agent Teams)
+33	33	6	2026-06-19	open	https://github.com/anthropics/claude-code/issues/69554	[FEATURE] Add --worktree support for parallel sessions in VS Code (same as Agent View in VSCode does)
+20	30	4	2026-07-12	closed	https://github.com/openai/codex/issues/32503	GPT-5.6 Sol rarely parallelizes programmatic tool calls, multiplying model turns and quota usage
+28	28	8	2026-05-28	open	https://github.com/anthropics/claude-code/issues/63192	Cancelling a parallel tool-call batch corrupts thinking blocks -> 400 "thinking blocks cannot be modified" permanently wedges the session
+20	20	14	2026-05-29	open	https://github.com/anthropics/claude-code/issues/63538	Model fabricates tool output (and even a user instruction) when a parallel batch is partially cancelled / appears empty
+18	20	7	2026-05-30	closed	https://github.com/anthropics/claude-code/issues/63881	[Bug] Parallel tool calls hang on Bash execution errors
+19	19	10	2026-05-29	closed	https://github.com/anthropics/claude-code/issues/63576	[Bug] Parallel tool calls trigger persistent "Cancelled" errors
+14	14	7	2026-01-27	open	https://github.com/anthropics/claude-code/issues/21167	ESC key kills ALL background tasks/subagents - poor UX for parallel workflows
+14	14	8	2026-05-30	open	https://github.com/anthropics/claude-code/issues/63884	[MODEL] Opus 4.8 starts hallucinating results before parallel tasks finish
+14	14	6	2025-12-27	closed	https://github.com/openai/codex/issues/8570	Use git worktrees to achieve parallel agents
+5	13	10	2026-04-22	closed	https://github.com/anthropics/claude-code/issues/51837	[Bug] v2.1.117 regression: parallel Bash tool calls corrupt fd 3 in nested-Docker sandbox; permanent /proc/self/fd/3: Permission denied
+7	12	7	2026-03-30	closed	https://github.com/anomalyco/opencode/issues/19999	[FEATURE]: Ephemeral Sub-Agent Teams (parallel multi-agent orchestration)
+10	11	10	2025-07-05	closed	https://github.com/anthropics/claude-code/issues/3013	Feature Request: Parallel Agent Execution Mode
+10	10	8	2025-12-17	open	https://github.com/anthropics/claude-code/issues/14353	[BUG] MCP tools running sequentially instead of in parallel in v2.0.71
+10	10	10	2026-01-31	closed	https://github.com/anthropics/claude-code/issues/22172	v2.1.23+ causes 100% CPU hang with multiple parallel instances and hooks
+10	10	9	2026-07-29	closed	https://github.com/google-gemini/gemini-cli/issues/28579	bug(core): 400 Bad Request: "Function call is missing a thought_signature in functionCall parts" during parallel tool calls
+9	9	13	2026-05-30	closed	https://github.com/anthropics/claude-code/issues/64047	[BUG] Automatic parallel-tool-call cancellation is indistinguishable from a user interrupt
+9	9	9	2026-05-30	closed	https://github.com/anthropics/claude-code/issues/63966	[BUG] Tool-call results empty in live UI then flush late/out-of-order (Bash, Read, MCP, advisor) — macOS, Opus 4.8, parallel batches
+8	8	4	2025-09-27	closed	https://github.com/openai/codex/issues/4348	Support Running Multiple Background Jobs in Parallel
+8	8	0	2026-03-08	open	https://github.com/openai/codex/issues/13963	Codex issues sequential commands in parallel, causing races
+8	8	3	2026-01-12	closed	https://github.com/anthropics/claude-code/issues/17774	[FEATURE] Native Git Worktree Management for Parallel & Isolated Agent Execution
+7	7	0	2026-05-03	open	https://github.com/openai/codex/issues/20852	Feature request: parallel Computer Use sessions for multiple Codex agents
+7	7	13	2026-05-30	closed	https://github.com/anthropics/claude-code/issues/63930	Prompt cache fully re-created after turns with many parallel tool calls (cache_read collapses to system+tools floor) — ~74% of cache writes wasted on Opus 4.8 / v2.1.15x
+7	7	3	2026-05-28	closed	https://github.com/anthropics/claude-code/issues/63213	Session permanently wedged on 400 "thinking blocks cannot be modified" after parallel tool_results
+7	7	4	2025-08-02	closed	https://github.com/anthropics/claude-code/issues/4963	Feature Request: Integrated Parallel Task Management and Worktree Orchestration
+6	6	6	2026-03-12	open	https://github.com/openai/codex/issues/14485	GPT5.4 is too aggressive to use parallel tool calls
+4	6	5	2026-03-26	closed	https://github.com/anomalyco/opencode/issues/19215	[FEATURE]: DB-backed agent team coordination (parallel sub-agents, messaging, memory)

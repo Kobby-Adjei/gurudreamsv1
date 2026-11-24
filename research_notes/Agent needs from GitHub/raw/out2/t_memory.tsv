@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:block/goose repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue memory across sessions total=7039
+5197	6696	409	2025-08-21	closed	https://github.com/anthropics/claude-code/issues/6235	Feature Request: Support AGENTS.md.
+2072	3286	583	2026-04-02	closed	https://github.com/anthropics/claude-code/issues/42796	[MODEL] Claude Code is unusable for complex engineering tasks with the Feb updates
+1199	2121	288	2026-04-09	open	https://github.com/anthropics/claude-code/issues/45596	Bring Back Buddy — A Consolidated Plea from the Community
+1097	1452	253	2026-01-15	open	https://github.com/anthropics/claude-code/issues/18435	[FEATURE] Add the ability to manage multiple Claude accounts within the Claude Desktop app with easy switching between profiles.
+783	1093	188	2026-03-19	open	https://github.com/anthropics/claude-code/issues/36151	[FEATURE] Multi-account switching in Claude Mobile app without shared email
+695	879	179	2026-02-03	closed	https://github.com/openai/codex/issues/10450	Remote Development in Codex Desktop App
+693	836	337	2025-07-16	closed	https://github.com/anthropics/claude-code/issues/3648	Terminal Scrolling Uncontrollably During Claude Code Interaction
+690	822	354	2025-04-19	open	https://github.com/anthropics/claude-code/issues/826	[BUG] Console scrolling top of history when claude add text to the console
+697	728	1499	2026-01-03	open	https://github.com/anthropics/claude-code/issues/16157	[BUG] Instantly hitting usage limits with Max subscription
+435	674	57	2025-06-24	open	https://github.com/anthropics/claude-code/issues/2511	Feature request: Connect Claude code to Claude projects 
+496	630	159	2026-01-01	open	https://github.com/anthropics/claude-code/issues/15942	Add support for Visual Studio 2026 Integration
+451	617	157	2026-06-14	closed	https://github.com/openai/codex/issues/28224	Codex SQLite feedback logs can write ~640 TB/year and rapidly consume SSD endurance
+443	583	143	2026-07-13	open	https://github.com/anthropics/claude-code/issues/77136	[BUG] Claude 4.7, 4.8, 5.0, 5.5, and Fable increasingly default to repetitive rhetorical tics and often struggle to produce coherent prose despite explicit style instructions
+364	557	211	2026-06-18	closed	https://github.com/openai/codex/issues/28879	Codex (gpt-5.5, Plus plan) — rate-limit cost per token jumped ~10-20x since June 16, draining the 5h budget in 2-3 prompts
+476	545	878	2026-03-24	open	https://github.com/anthropics/claude-code/issues/38335	[BUG] Claude Max plan session limits exhausted abnormally fast since March 23, 2026 (CLI usage)
+452	475	71	2025-05-31	open	https://github.com/anthropics/claude-code/issues/1455	Claude Code does not respect the XDG Base Directory specification
+398	454	92	2026-06-01	open	https://github.com/openai/codex/issues/25719	Codex Desktop for macOS repeatedly triggers `syspolicyd` / `trustd` CPU and memory runaway
+289	428	188	2026-06-27	closed	https://github.com/openai/codex/issues/30364	GPT-5.5 Codex reasoning-token clustering at 516/1034/1552 may be leading to degraded performance on complex tasks
+357	420	386	2026-01-09	closed	https://github.com/anomalyco/opencode/issues/7410	Broken Claude Max
+317	413	103	2025-08-23	closed	https://github.com/openai/codex/issues/2604	Subagent Support
+337	364	94	2025-09-30	closed	https://github.com/anthropics/claude-code/issues/8477	[FEATURE] Add Option to Always Show Claude's Thinking
+298	334	307	2025-04-12	open	https://github.com/anthropics/claude-code/issues/769	[BUG]  In-progress Call causes Screen Flickering
+322	322	187	2025-06-10	closed	https://github.com/anthropics/claude-code/issues/1913	Terminal Flickering
+284	307	630	2026-03-13	closed	https://github.com/openai/codex/issues/14593	Burning tokens very fast
+306	307	140	2026-01-14	open	https://github.com/anthropics/claude-code/issues/18170	Copy/paste from terminal includes unwanted indentation and trailing spaces
+280	300	85	2026-03-02	open	https://github.com/anthropics/claude-code/issues/30154	FEATURE: Multi-window support in Claude Code Desktop
+240	281	86	2026-02-02	open	https://github.com/anthropics/claude-code/issues/22543	Cowork feature creates 10GB VM bundle that severely degrades performance
+275	275	98	2026-02-10	closed	https://github.com/anthropics/claude-code/issues/24726	[FEATURE] VS Code extension: add setting to disable auto-attach of open file / selection
+259	259	41	2026-06-07	open	https://github.com/anthropics/claude-code/issues/65961	[MODEL] Claude verbose code comments by default — ignores instructions to stop.
+168	241	132	2026-04-24	closed	https://github.com/openai/codex/issues/19464	Support 1M token context for GPT-5.5 in Codex

@@ -1,0 +1,31 @@
+# "long-running agent" is:issue created:>2025-06-01 total=24689
+548	3491	440	2026-11-03	closed	https://github.com/openai/codex/issues/59060	Told to reboot a server, it destroyed systemd, destroyed containers, ran random scripts, cost me $10,000+
+2072	3286	583	2026-04-02	closed	https://github.com/anthropics/claude-code/issues/42796	[MODEL] Claude Code is unusable for complex engineering tasks with the Feb updates
+693	836	337	2025-07-16	closed	https://github.com/anthropics/claude-code/issues/3648	Terminal Scrolling Uncontrollably During Claude Code Interaction
+697	728	1499	2026-01-03	open	https://github.com/anthropics/claude-code/issues/16157	[BUG] Instantly hitting usage limits with Max subscription
+525	689	76	2025-08-09	closed	https://github.com/openai/codex/issues/2109	Event Hooks
+476	545	878	2026-03-24	open	https://github.com/anthropics/claude-code/issues/38335	[BUG] Claude Max plan session limits exhausted abnormally fast since March 23, 2026 (CLI usage)
+411	544	59	2026-01-14	closed	https://github.com/openai/codex/issues/9224	Codex Remote Control
+317	413	103	2025-08-23	closed	https://github.com/openai/codex/issues/2604	Subagent Support
+20	304	253	2026-10-02	open	https://github.com/microsoft/vscode/issues/339363	[Meta] Feedback on granular control over Copilot changes
+280	300	85	2026-03-02	open	https://github.com/anthropics/claude-code/issues/30154	FEATURE: Multi-window support in Claude Code Desktop
+174	284	35	2026-07-18	open	https://github.com/openai/codex/issues/34035	Make the temporary removal of the 5-hour usage limit permanent
+233	234	58	2026-02-12	open	https://github.com/openai/codex/issues/11626	CLI: Add /rewind checkpoint restore that reverts both chat context and Codex-applied code edits
+203	224	61	2025-09-20	open	https://github.com/openai/codex/issues/3962	Play a sound when Codex finishes a prompt / task
+159	223	124	2026-03-29	closed	https://github.com/anthropics/claude-code/issues/40524	[BUG] Conversation history invalidated on subsequent turns
+119	190	36	2026-02-08	closed	https://github.com/anomalyco/opencode/issues/12661	[FEATURE]: Add Agent Teams Equivalent or Better
+124	167	75	2025-12-01	closed	https://github.com/anthropics/claude-code/issues/12836	Support Tool Search and Programmatic Tool Use betas for reduced token consumption
+50	150	46	2025-07-03	open	https://github.com/google-gemini/gemini-cli/issues/3132	[Agents] Post V1.0 Work
+102	136	14	2026-02-26	open	https://github.com/anthropics/claude-code/issues/28795	[FEATURE] Support AWS Bedrock + AWS SSO in `claude remote-control`
+121	123	32	2026-01-10	closed	https://github.com/anomalyco/opencode/issues/7602	[FEATURE]: Native Model Fallback / Failover Support
+121	121	15	2026-08-15	closed	https://github.com/anthropics/claude-code/issues/86879	Feature request: a supported way to disable the agent_summary spinner (22.7% of requests, ~18% of weighted tokens in a subagent-heavy session)
+105	116	43	2026-04-07	open	https://github.com/anthropics/claude-code/issues/44763	Show timestamps on conversation messages
+96	113	17	2025-09-29	closed	https://github.com/microsoft/vscode/issues/268829	Copilot Chat feature request: show timestamp for messages/prompts
+94	103	15	2025-07-01	closed	https://github.com/google-gemini/gemini-cli/issues/2779	Feature Request: Implement a Hooks System for Custom Automation and Workflow Integration
+89	98	57	2026-06-18	closed	https://github.com/anthropics/claude-code/issues/69415	[BUG] API Error: Connection closed mid-response ==> frequent enough to make Claude Code unusable for any task
+72	89	106	2026-03-16	closed	https://github.com/openai/codex/issues/14860	Error running remote compact task
+72	91	38	2026-07-24	open	https://github.com/anthropics/claude-code/issues/80988	[BUG] v2.1.219 `heron_brook` prompt section injects "Do not call the AgentTool unless the user requested it" for Opus 5 only, silently overriding user-configured delegation policy, with no opt-out
+74	87	58	2026-01-04	open	https://github.com/ninehills/blog/issues/150	自主 Agent / 上下文工程资料索引
+86	86	18	2026-06-18	open	https://github.com/openai/codex/issues/28931	Auto Resume /Goal after limit reached once limit is reset (5h)
+83	83	66	2026-08-21	closed	https://github.com/openai/codex/issues/39903	add an option to disable “Ran N commands” collapsing and always show executed commands
+81	81	7	2026-04-15	open	https://github.com/anthropics/claude-code/issues/48322	[FEATURE] Team/Enterprise: shared routines (org-owned scheduled agents)

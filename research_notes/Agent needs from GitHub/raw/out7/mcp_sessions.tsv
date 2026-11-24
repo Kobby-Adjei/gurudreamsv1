@@ -1,0 +1,31 @@
+# org:modelcontextprotocol is:issue in:title session total=265
+7	25	30	2025-08-04	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1299	SEP-1299: Server-Side Authorization Management with Client Session Binding
+24	24	23	2025-06-03	closed	https://github.com/modelcontextprotocol/python-sdk/issues/880	[horizontal scaling] How to actually build session persistence in streamable http MCP server?
+16	16	53	2025-07-18	closed	https://github.com/modelcontextprotocol/go-sdk/issues/148	Proposal: Session recovery / shared session storage for distributed MCP env
+12	13	11	2025-04-15	closed	https://github.com/modelcontextprotocol/python-sdk/issues/520	MCP Server Session Lost in Multi-Worker Environment
+10	10	13	2025-04-07	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/282	Streamable HTTP - session management inconsistency
+8	8	4	2026-03-11	open	https://github.com/modelcontextprotocol/typescript-sdk/issues/1658	StreamableHTTPServerTransport has no public API to reconstruct a session-aware transport from persisted session data
+8	8	11	2025-11-04	closed	https://github.com/modelcontextprotocol/inspector/issues/905	Streamable HTTP: header Mcp-Session-Id is not set for "notifications/initialized" request
+3	8	3	2025-04-28	closed	https://github.com/modelcontextprotocol/java-sdk/issues/212	Session based architecture is conflict with stateless Streamable HTTP transport protocol
+7	7	3	2025-07-25	closed	https://github.com/modelcontextprotocol/typescript-sdk/issues/812	MCP - "Streamable HTTP" transport - Idle Session Timeout
+7	7	6	2026-01-16	closed	https://github.com/modelcontextprotocol/csharp-sdk/issues/1155	Allow HybridCache for session storage
+7	7	11	2025-04-15	closed	https://github.com/modelcontextprotocol/java-sdk/issues/162	the session wont be removed while client disconnect the mcp-server in WebMvcSseServerTransportProvider
+6	6	16	2025-03-12	open	https://github.com/modelcontextprotocol/python-sdk/issues/262	cannot get response from  await session.call_tool()
+3	6	2	2025-09-19	closed	https://github.com/modelcontextprotocol/python-sdk/issues/1382	Cannot handle `Unexpected content type` when initializing MCP session
+4	5	3	2025-06-23	closed	https://github.com/modelcontextprotocol/python-sdk/issues/1004	Session ID not present in memory store should return 404, not 400
+2	5	6	2025-06-05	closed	https://github.com/modelcontextprotocol/inspector/issues/492	Local Proxy Causes Session ID Mismatch with Streamable HTTP Servers
+2	4	10	2025-08-07	closed	https://github.com/modelcontextprotocol/typescript-sdk/issues/852	Missing session reuse in browser: client.connect ignores mcp-session-id
+4	4	1	2025-03-19	closed	https://github.com/modelcontextprotocol/python-sdk/issues/321	Multi-session client support in `mcp.client`
+4	4	1	2025-03-20	closed	https://github.com/modelcontextprotocol/python-sdk/issues/331	How does the mcp server using the SSE design scheme ensure client session stickiness in a distributed architecture?
+4	4	1	2025-04-28	closed	https://github.com/modelcontextprotocol/java-sdk/issues/213	mcp server: get session from exchange
+3	3	9	2026-03-19	open	https://github.com/modelcontextprotocol/typescript-sdk/issues/1708	StreamableHTTPClientTransport doesn't handle 404 per spec (no session clear + re-init)
+3	3	5	2025-09-01	closed	https://github.com/modelcontextprotocol/csharp-sdk/issues/745	Support specifying custom mcp-session-id via McpClientOptions
+3	3	3	2025-06-10	closed	https://github.com/modelcontextprotocol/python-sdk/issues/922	Create and Close multiple client session result "RuntimeError: Attempted to exit a cancel scope that isn't the current tasks's current cancel scope"
+2	3	9	2025-05-26	closed	https://github.com/modelcontextprotocol/python-sdk/issues/808	FastMCP 2.5.1 does not recognize X-Session-ID header (MCP 1.9.1, minimal example)
+3	3	2	2025-03-20	closed	https://github.com/modelcontextprotocol/python-sdk/issues/338	Expose session_id back to server when SSE connections are established
+3	3	6	2025-08-07	closed	https://github.com/modelcontextprotocol/go-sdk/issues/258	streamable session persists past client disconnect
+3	3	1	2025-06-14	closed	https://github.com/modelcontextprotocol/inspector/issues/508	v0.14.1 Bearer Token overwritten by Proxy Session Token
+2	2	1	2026-02-20	open	https://github.com/modelcontextprotocol/kotlin-sdk/issues/553	Add a way to register session cleanup actions from server handlers
+2	2	3	2026-07-30	closed	https://github.com/modelcontextprotocol/csharp-sdk/issues/1777	Support hybrid  MCP server serving both stateful legacy clients and session less 2026-07-28 clients simultaneously
+1	2	2	2025-11-25	closed	https://github.com/modelcontextprotocol/rust-sdk/issues/559	401 session not found once MCP server is restarted on a existing client session.
+1	2	4	2025-04-23	closed	https://github.com/modelcontextprotocol/typescript-sdk/issues/389	Streamable HTTP examples use incorrect status code for invalid session IDs

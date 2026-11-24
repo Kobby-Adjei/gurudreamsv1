@@ -1,0 +1,31 @@
+# "session" portable agents export import is:issue created:>2025-09-01 total=8345
+1097	1452	253	2026-01-15	open	https://github.com/anthropics/claude-code/issues/18435	[FEATURE] Add the ability to manage multiple Claude accounts within the Claude Desktop app with easy switching between profiles.
+131	224	279	2026-09-03	open	https://github.com/anthropics/claude-code/issues/91870	Mods - make Claude 10x more extensible
+203	224	61	2025-09-20	open	https://github.com/openai/codex/issues/3962	Play a sound when Codex finishes a prompt / task
+189	190	157	2026-02-11	closed	https://github.com/anthropics/claude-code/issues/24964	[BUG] Cowork: Folder picker rejects folders outside home directory, symlinks/junctions also blocked
+85	97	108	2026-04-01	closed	https://github.com/anthropics/claude-code/issues/41930	[BUG] Critical: Widespread abnormal usage limit drain across all paid tiers since March 23, 2026 — multiple root causes identified, no formal communication issued
+74	74	43	2026-04-02	open	https://github.com/anthropics/claude-code/issues/42700	TTS readback of responses + voice mode for Remote Control sessions
+65	68	14	2026-05-08	open	https://github.com/openai/codex/issues/21803	Feature request: Cross-device sync for Codex Projects and Chats
+29	50	36	2026-02-14	open	https://github.com/anthropics/claude-code/issues/25739	[FEATURE] Portable project memory across machines (multi-device workflow)
+24	40	18	2026-05-24	closed	https://github.com/anomalyco/opencode/issues/29059	[FEATURE]: Add Dynamic workflows for repeatable multi-step automation (new Claude Code feature)
+27	27	45	2025-11-12	open	https://github.com/anthropics/claude-code/issues/11455	Feature Request: Session Handoff / Continuity Support
+7	24	2500	2026-02-06	closed	https://github.com/Scottcjn/rustchain-bounties/issues/73	[BOUNTY] Code Review Bounty Program — Review PRs, Earn RTC (100 RTC Pool)
+22	22	16	2026-03-08	open	https://github.com/anthropics/claude-code/issues/31992	[FEATURE] Cross-machine session resume — sync session state for CLI-to-CLI handoff
+17	17	10	2026-05-03	closed	https://github.com/microsoft/vscode/issues/313970	Allow renaming or moving a project folder while persisting history for Copilot chats
+10	15	212	2026-02-24	open	https://github.com/deepseek-ai/DeepSeek-V3/issues/1121	Feature Request: On-Device Persistent Memory with Cryptographic Identity Binding (Local Storage Architecture)
+5	10	1419	2026-04-02	closed	https://github.com/Scottcjn/rustchain-bounties/issues/2782	[ONBOARD: 2 RTC] Review an Open PR
+11	11	0	2026-10-17	open	https://github.com/microsoft/vscode/issues/342308	[Feature Request]: Public API for user-defined local agent harnesses and runtimes
+11	11	97	2025-10-28	open	https://github.com/zedeus/nitter/issues/1301	get_session.py returns Authentication failed every time
+5	11	708	2026-02-06	open	https://github.com/Scottcjn/rustchain-bounties/issues/71	[BOUNTY] Ongoing Bug Bounty Program — Find Bugs, Earn RTC (133 RTC Pool)
+10	11	38	2025-12-16	closed	https://github.com/anthropics/claude-code/issues/14227	Feature Request: Persistent Memory Between Claude Code Sessions
+9	9	19	2026-08-05	open	https://github.com/vorssaint/vorssaint-utils/issues/497	Store settings in a folder
+9	9	24	2026-01-11	closed	https://github.com/agentskills/agentskills/issues/81	RFC: Standardize npm/JavaScript Package Distribution
+8	8	17	2026-10-10	open	https://github.com/morluto/rea/issues/1558	[Feature] Java Reverse Engineering
+1	8	2500	2026-10-29	open	https://github.com/StegVerse-Labs/.github/issues/3402	[RECORD] Muse StegOS Node / KV session — 2026-10-29
+3	7	161	2026-02-17	closed	https://github.com/Scottcjn/rustchain-bounties/issues/254	[BOUNTY] Open an Issue or Comment on Any Scottcjn Repo — 1 RTC Each
+6	6	18	2025-12-31	open	https://github.com/agentskills/agentskills/issues/57	RFC: Skill Activation Mechanisms - Bridging the Gap Between Discovery and Usage
+6	6	20	2026-09-24	open	https://github.com/anthropics/claude-code/issues/96870	[BUG] Windows MSIX Desktop: every process a session spawns leaks kernel nonpaged pool (NtFC) when it opens a path through a junction under AppData (bindflt.sys bug)
+0	6	67	2026-07-22	closed	https://github.com/moorcheh-ai/memanto/issues/1609	[BOUNTY $200] 🐜 The Great Memory Migration: Own Your Agentic Memory with Memanto + OKF
+6	6	114	2026-03-15	closed	https://github.com/anthropics/claude-code/issues/34556	Feature Request: Persistent Memory Across Context Compactions (59 compactions, built our own)
+6	6	7	2026-01-12	closed	https://github.com/anthropics/claude-code/issues/17682	[FEATURE] Cross-Environment Conversation History Synchronization for Claude Code CLI
+6	6	168	2026-03-17	closed	https://github.com/cyberjunky/python-garminconnect/issues/332	Did Garmin change authentication API?

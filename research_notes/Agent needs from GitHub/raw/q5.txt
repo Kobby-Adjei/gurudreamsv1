@@ -1,0 +1,20 @@
+gt_inter_session|||in:title inter-session OR "between sessions" OR "between agents" is:issue created:>2025-09-01
+gt_multi_agent_coord|||in:title "multiple agents" is:issue created:>2025-09-01
+gt_parallel_agents|||in:title "parallel agents" is:issue created:>2025-09-01
+gt_agent_comm|||in:title "agent communication" is:issue created:>2025-09-01
+gt_agent_memory|||in:title "agent memory" is:issue created:>2025-09-01
+gt_shared_ctx|||in:title "shared context" agents is:issue created:>2025-09-01
+gt_agent_identity|||in:title "agent identity" is:issue created:>2025-09-01
+gt_agent_auth|||in:title "agent authentication" OR "agent auth" is:issue created:>2025-09-01
+gt_agent_wallet|||in:title "agent wallet" OR "agent payments" is:issue created:>2025-09-01
+gt_a2a_title|||in:title "agent-to-agent" is:issue created:>2025-09-01
+gt_long_running|||in:title "long-running" agent is:issue created:>2025-09-01
+gt_durable|||in:title durable agent is:issue created:>2025-09-01
+gt_agent_registry|||in:title "agent registry" OR "agent discovery" is:issue created:>2025-09-01
+gt_agent_obs|||in:title agent observability is:issue created:>2025-09-01
+gt_worktree_merge|||in:title worktree merge agent is:issue created:>2025-09-01
+gt_agent_lock|||in:title agents lock OR locking OR claim is:issue created:>2025-09-01 agent
+gt_mcp_session|||in:title mcp session identity is:issue created:>2025-09-01
+gt_human_loop|||in:title "human-in-the-loop" is:issue created:>2025-09-01
+gt_agent_sandbox|||in:title "agent sandbox" is:issue created:>2025-09-01
+gt_cross_vendor|||in:title "claude code" codex gemini is:issue created:>2025-09-01

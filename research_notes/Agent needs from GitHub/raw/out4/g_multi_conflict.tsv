@@ -1,0 +1,31 @@
+# "multiple agents" conflict is:issue created:>2025-06-01 total=7692
+5197	6696	409	2025-08-21	closed	https://github.com/anthropics/claude-code/issues/6235	Feature Request: Support AGENTS.md.
+697	728	1499	2026-01-03	open	https://github.com/anthropics/claude-code/issues/16157	[BUG] Instantly hitting usage limits with Max subscription
+476	545	878	2026-03-24	open	https://github.com/anthropics/claude-code/issues/38335	[BUG] Claude Max plan session limits exhausted abnormally fast since March 23, 2026 (CLI usage)
+188	271	130	2025-12-19	open	https://github.com/agentskills/agentskills/issues/15	Proposal: include a standard folder where agent skills should be
+243	261	31	2025-06-04	open	https://github.com/anthropics/claude-code/issues/1547	[BUG] IME input causes performance issues and duplicate conversion candidates
+131	224	279	2026-09-03	open	https://github.com/anthropics/claude-code/issues/91870	Mods - make Claude 10x more extensible
+176	206	100	2026-07-09	closed	https://github.com/openai/codex/issues/31814	GPT-5.6 Sol cannot specify subagent models, forcing all subagents to also be Sol instances
+159	192	41	2026-02-26	open	https://github.com/anthropics/claude-code/issues/28791	[FEATURE] Sync conversation history between CLI and Claude Code desktop app
+165	165	32	2025-10-20	closed	https://github.com/google-gemini/gemini-cli/issues/11506	Add Skill to Gemini CLI like Claude Code
+50	150	46	2025-07-03	open	https://github.com/google-gemini/gemini-cli/issues/3132	[Agents] Post V1.0 Work
+92	117	47	2026-01-11	open	https://github.com/anthropics/claude-code/issues/17428	[Feature Request] Enhanced /compact with file-backed summaries and selective restoration
+81	81	27	2025-12-04	closed	https://github.com/anthropics/claude-code/issues/13024	[FEATURE] Add hook for when Claude is waiting for user input
+71	77	59	2026-02-05	closed	https://github.com/openai/codex/issues/10760	macOS app: Stuck "Awaiting approval" prompt - Cannot be approved
+48	69	310	2026-01-15	open	https://github.com/Yellow-Dog-Man/Resonite-Issues/issues/6134	Official policy for AI generated content on Resonite
+65	65	100	2025-10-23	open	https://github.com/anthropics/claude-code/issues/10199	[BUG] API Error 400 - Thinking Block Modification Error
+62	62	34	2026-01-05	closed	https://github.com/anthropics/claude-code/issues/16345	[Feature Request] Support the standard .agents/skills/ directory for agent skills
+34	56	14	2025-07-14	closed	https://github.com/google-gemini/gemini-cli/issues/4168	Feature: Run autonomous background Agents
+46	53	18	2025-06-15	open	https://github.com/microsoft/vscode/issues/251515	Support Storing Toolset Files Directly Within the Workspace
+29	53	25	2026-03-06	closed	https://github.com/NousResearch/hermes-agent/issues/514	Feature: A2A (Agent-to-Agent) Protocol Support — Remote Agent Discovery, Communication & Interoperability
+29	50	36	2026-02-14	open	https://github.com/anthropics/claude-code/issues/25739	[FEATURE] Portable project memory across machines (multi-device workflow)
+50	50	16	2026-05-12	closed	https://github.com/openai/codex/issues/22321	Add an Agent View for managing multiple Codex agents from the TUI
+49	49	20	2025-10-12	closed	https://github.com/anthropics/claude-code/issues/9444	[FEATURE] Support for Plugin Dependencies and Shared Resources
+48	48	26	2026-01-31	closed	https://github.com/anthropics/claude-code/issues/22087	BUG: classifyHandoffIfNeeded is not defined - SubagentStop hook failure
+44	44	9	2026-05-29	open	https://github.com/stablyai/orca/issues/3035	[Feature]: Support LSP and codebase search
+44	44	15	2026-02-18	closed	https://github.com/google-gemini/gemini-cli/issues/19430	Feature Request: Parallel Agent Teams / Multi-Agent Collaboration (like Claude Code Agent Teams)
+35	43	43	2026-02-09	closed	https://github.com/anthropics/claude-code/issues/24316	[FEATURE] Allow custom .claude/agents/ definitions as agent team teammates
+38	41	28	2025-12-23	open	https://github.com/anthropics/claude-code/issues/15193	Multi-Session Support for Claude in Chrome (Tab Group Isolation)
+37	38	23	2026-03-13	closed	https://github.com/gastownhall/beads/issues/2573	Moving to dolt pretty much made beads unusable for me
+33	33	6	2026-06-19	open	https://github.com/anthropics/claude-code/issues/69554	[FEATURE] Add --worktree support for parallel sessions in VS Code (same as Agent View in VSCode does)
+32	33	11	2026-04-05	open	https://github.com/anthropics/claude-code/issues/43698	[FEATURE] Multi-device Cowork: Allow concurrent Cowork agents on multiple machines under a single account

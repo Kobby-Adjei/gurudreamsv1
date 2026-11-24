@@ -1,0 +1,31 @@
+# in:title "shared context" agents is:issue created:>2025-09-01 total=83
+4	5	2	2025-10-03	closed	https://github.com/vizra-ai/vizra-adk/issues/48	Shared workflow context across agents
+0	1	1	2026-10-25	open	https://github.com/nam-hle/docstamp/issues/160	Related proposal: human-confirmed context for agents (possible shared format?)
+1	1	0	2026-03-20	open	https://github.com/obra/superpowers-marketplace/issues/28	Feature request: Remember user preference for agent execution mode (separate agents vs. shared context)
+1	1	1	2026-05-20	closed	https://github.com/ladislas/mypac/issues/251	Update shared AGENTS.md to recommend XML-style context boundaries
+0	0	0	2026-11-18	open	https://github.com/aicodeking/pandacode/issues/394	Memory Fabric — persistent, shared context across threads and agents
+0	0	0	2026-06-18	open	https://github.com/EduAI-Lab/EduAI/issues/661	Y: Week X  - Shared Context Agents
+0	0	0	2026-10-03	open	https://github.com/chatmcp/mcpso/issues/4664	Submit Remote MCP Server: Detextit — shared context for agents (no authentication)
+0	0	0	2026-10-01	open	https://github.com/xfajarr/shared-context-mcp/issues/1	Peer question: one-shot hops for agents that can't join the shared context?
+0	0	1	2026-04-01	open	https://github.com/coderooz/Local-MCP-Memory-Server/issues/13	Implement shared context reuse across agents
+0	0	0	2026-03-28	open	https://github.com/chatmcp/mcpso/issues/1345	shared-context-cache-mcp-server — Shared context cache for AI agents
+0	0	0	2026-03-16	open	https://github.com/Farmer-Pete/Zing1.old/issues/40	Shared context cache across parallel agents
+0	0	3	2026-11-02	open	https://github.com/nisavid/provingkit/issues/813	Investigate agents assuming unexplained context is shared
+0	0	0	2026-02-10	open	https://github.com/Reailiteen/talk-my-mind/issues/63	Implement shared context passing across agents
+0	0	0	2026-06-09	open	https://github.com/clawanthonyzed/cortexos-australia/issues/13	feat: Agent collaboration — shared context bus between agents
+0	0	0	2026-07-27	open	https://github.com/andylow92/file-system-brain-mcp/issues/102	Roadmap: one shared context for agents across machines & networks (distributed vault)
+0	0	0	2026-04-05	open	https://github.com/usmaneth/void-cli/issues/41	Workspace Context Sync — shared context materialization across agents
+0	0	0	2026-07-31	open	https://github.com/ashish921998/multi-ai/issues/1	Workspace documents: shared context for specs, reviews, and decisions agents build on
+0	0	0	2026-10-05	open	https://github.com/smaramwbc/statewave/issues/484	[Bug][multi-agent-shared-context]: pip-installed statewave_agents fails to import - it depends on the unpackaged core/ module
+0	0	0	2026-09-06	open	https://github.com/Code-and-Sorts/awesome-copilot-agents/issues/84	Add ContextStream MCP — shared project context for Copilot agents
+0	0	0	2026-09-06	open	https://github.com/caramaschiHG/awesome-ai-agents-2026/issues/554	Add ContextStream — shared project context for AI coding agents
+0	0	0	2026-09-29	open	https://github.com/sxhxliang/agent-studio/issues/48	Shared approved project context across Agent Studio agents
+0	0	2	2026-10-05	open	https://github.com/smaramwbc/statewave/issues/475	[Bug][multi-agent-shared-context]: before_acting() reads a 'memories' key the SDK never returns, so agents always report 0 retrieved memories
+0	0	0	2026-09-07	open	https://github.com/jamesmurdza/awesome-ai-devtools/issues/1064	Add ContextStream — shared project context MCP for AI coding agents
+0	0	0	2026-09-06	open	https://github.com/eudk/awesome-ai-tools/issues/610	Add ContextStream — shared project context MCP for AI coding agents
+0	0	0	2026-03-22	open	https://github.com/SebastianElvis/clawpier/issues/39	Shared memory/context across agents
+0	0	0	2026-11-06	open	https://github.com/ix-infrastructure/Peer2Peer/issues/41	Epic: Ix as the context layer (local and shared graphs, real-time context between agents)
+0	0	0	2026-11-14	closed	https://github.com/FakeKase/cpe334-sec01-team47/issues/29	Proper monorepo toolings, AI Agents shared context
+0	0	0	2026-09-10	open	https://github.com/fr0gger/Awesome-GPT-Agents/issues/99	Add ContextStream — shared project context for AI coding agents (fit check)
+0	0	1	2026-08-21	open	https://github.com/Zero-State-LLC/agent-context/issues/1	Install shared agent context so our agents stay in sync
+0	0	1	2026-07-31	open	https://github.com/wardian-app/Wardian/issues/791	fix(terminal): render Agents terminals in one shared WebGL context

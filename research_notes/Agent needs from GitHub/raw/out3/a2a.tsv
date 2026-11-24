@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title a2a total=132
+34	34	16	2025-10-08	closed	https://github.com/anomalyco/opencode/issues/3023	Integrate Agent2Agent (A2A) Protocol for Enhanced Inter-Agent Communication
+6	16	3	2025-07-03	closed	https://github.com/google-gemini/gemini-cli/issues/3076	Agent-to-Agent (A2A) Communication
+9	10	8	2026-02-02	closed	https://github.com/openclaw/openclaw/issues/6842	Feature Request: Add A2A (Agent-to-Agent) Protocol Support
+4	5	7	2026-03-18	closed	https://github.com/anomalyco/opencode/issues/18021	[FEATURE]: Evaluate upstreaming native A2A support from a working prototype
+4	4	6	2026-02-17	closed	https://github.com/openai/codex/issues/11980	feat(a2a): add ACP session management and token usage tracking to A2A server
+2	3	7	2026-03-30	closed	https://github.com/openclaw/openclaw/issues/57447	sessions_send blocked by visibility guard even when a2a policy allows cross-agent messaging
+2	2	2	2026-11-09	open	https://github.com/anomalyco/opencode/issues/62903	[FEATURE]: Native A2A support (serve sessions over A2A, delegate to remote A2A agents)
+2	2	1	2026-10-29	open	https://github.com/openai/codex/issues/58146	[FEATURE] Native Agent2Agent (A2A) v1.0 Client Support for Codex
+1	2	19	2026-03-12	closed	https://github.com/openclaw/openclaw/issues/44309	[Feature]: Add one-way dispatch mode for A2A handoffs without reply-back ping-pong
+0	2	2	2026-03-13	closed	https://github.com/anomalyco/opencode/issues/17374	[FEATURE]:Real-time Agent-to-Agent (A2A) & Non-blocking SubAgent Communication
+0	2	1	2025-12-04	closed	https://github.com/google-gemini/gemini-cli/issues/14535	Implement full A2A Server support
+2	2	1	2026-05-18	closed	https://github.com/openclaw/openclaw/issues/83620	[Feature]: Native Latent-Space A2A Communication (Vector Handoff) for 5x Multi-Agent Speedup
+1	2	12	2026-01-12	closed	https://github.com/google-gemini/gemini-cli/issues/16393	`allowedTools` config ignored in a2a-server initialization (affects VS Code Extension)
+0	1	1	2026-11-19	open	https://github.com/openclaw/openclaw/issues/201646	[Feature]: A2A tasks should say which agent handled them
+0	1	1	2026-11-14	open	https://github.com/openclaw/openclaw/issues/198978	[Bug]: Updating an A2A peer token removes its outbound URL and credential
+0	1	1	2026-10-08	open	https://github.com/openclaw/openclaw/issues/167138	A2A agent card reflects untrusted Host header
+0	1	1	2026-11-10	open	https://github.com/openclaw/openclaw/issues/196417	[Bug]: A2A adapter lacks durableFinal.reconcileUnknownSend; plugin-handled delivery mirror has no retry on writer-claim rebound (false-negative dead-letters + bundled a2a still on legacy queueMessage)
+0	1	5	2026-11-17	open	https://github.com/openclaw/openclaw/issues/200344	[Feature]: one-way A2A dispatch that also suppresses failure receipts (refile of #44309)
+0	1	1	2026-10-08	open	https://github.com/openclaw/openclaw/issues/167146	A2A agent card origin built from untrusted Host header
+0	1	1	2026-10-08	open	https://github.com/openclaw/openclaw/issues/167107	[P0][Security] A2A agent card reflects untrusted Host header
+1	1	0	2026-10-24	open	https://github.com/anthropics/claude-code/issues/104852	[FEATURE] Native Agent2Agent (A2A) Protocol v1.0 Client Support for Claude Code
+0	1	1	2026-11-20	open	https://github.com/openclaw/openclaw/issues/202321	Owner-scoped tools (e.g. a2a) unavailable in requester-settle continuation after sessions_yield (senderIsOwner=false)
+0	1	1	2026-10-08	open	https://github.com/openclaw/openclaw/issues/167147	A2A RPC large request ID causes memory pressure in error responses
+0	1	2	2026-09-29	open	https://github.com/openclaw/openclaw/issues/161189	[Bug]: A2A outbound send binds the sender's main session route to the peer (resolver ignores A2A peer scope; send prefers caller session key)
+0	1	2	2026-09-04	open	https://github.com/openclaw/openclaw/issues/138493	Reliability: prevent relayed A2A content from rendering as verified native agent output
+0	1	1	2026-11-05	open	https://github.com/openclaw/openclaw/issues/193086	[Bug]: GET /a2a/v1/agent-card returns the Control-UI SPA with 200 instead of a JSON 404
+0	1	1	2026-10-04	open	https://github.com/openclaw/openclaw/issues/165113	[Feature]: SecretRef for A2A peer tokens (and an optional sha256 verifier for inbound peers)
+0	1	13	2026-03-08	open	https://github.com/openclaw/openclaw/issues/39476	A2A sessions_send: target agent can call sessions_send back, causing duplicate messages
+0	1	8	2026-09-27	open	https://github.com/openclaw/openclaw/issues/159787	[Bug]: 2026.9.6 A2A Workshop approval request missing operator.approvals reported as gateway unavailable
+0	1	1	2026-10-08	open	https://github.com/openclaw/openclaw/issues/167200	A2A webhook has no rate limit or lockout on failed bearer auth (token brute-force)

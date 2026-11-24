@@ -1,0 +1,14 @@
+rmrf|||repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:github/copilot-cli repo:microsoft/vscode is:issue in:title "rm -rf"
+gitreset|||repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:github/copilot-cli repo:microsoft/vscode is:issue in:title "git reset"
+without_permission|||repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:github/copilot-cli repo:microsoft/vscode is:issue in:title "without permission"
+codex_in_cc|||repo:anthropics/claude-code is:issue in:title codex
+cc_in_codex|||repo:openai/codex is:issue in:title claude
+runaway|||repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:github/copilot-cli repo:microsoft/vscode is:issue in:title subagents spawn tokens
+quota_subagent|||repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:github/copilot-cli repo:microsoft/vscode is:issue in:title subagent usage OR quota
+payment|||repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:github/copilot-cli repo:microsoft/vscode is:issue in:title payment OR purchase OR checkout agent
+credential|||repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:github/copilot-cli repo:microsoft/vscode is:issue in:title credential OR password agent
+shared_task|||repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:github/copilot-cli repo:microsoft/vscode is:issue in:title "task list" OR tasklist shared
+mcp_identity|||org:modelcontextprotocol is:issue in:title agent identity OR delegation OR "on-behalf"
+mcp_sessions|||org:modelcontextprotocol is:issue in:title session
+openclaw_multi|||repo:openclaw/openclaw is:issue in:title multi-agent OR "agent-to-agent" OR "sessions_send"
+openclaw_mem|||repo:openclaw/openclaw is:issue in:title memory

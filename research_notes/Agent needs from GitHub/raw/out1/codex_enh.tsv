@@ -1,0 +1,31 @@
+# repo:openai/codex is:issue label:enhancement total=7282
+953	1463	209	2026-02-07	closed	https://github.com/openai/codex/issues/11023	Codex desktop app for Linux
+695	879	179	2026-02-03	closed	https://github.com/openai/codex/issues/10450	Remote Development in Codex Desktop App
+525	689	76	2025-08-09	closed	https://github.com/openai/codex/issues/2109	Event Hooks
+514	619	73	2026-01-05	open	https://github.com/openai/codex/issues/8745	LSP integration (auto-detect + auto-install) for Codex CLI
+505	557	102	2026-01-14	open	https://github.com/openai/codex/issues/9203	Please make "/undo" back
+411	544	59	2026-01-14	closed	https://github.com/openai/codex/issues/9224	Codex Remote Control
+407	506	61	2025-08-09	closed	https://github.com/openai/codex/issues/2101	Plan Mode
+474	474	93	2025-08-28	closed	https://github.com/openai/codex/issues/2847	A way to exclude sensitive files
+316	453	70	2025-09-26	closed	https://github.com/openai/codex/issues/4313	Extension for JetBrains IDEs (PyCharm, IntelliJ, etc.)
+317	413	103	2025-08-23	closed	https://github.com/openai/codex/issues/2604	Subagent Support
+232	402	31	2025-08-29	closed	https://github.com/openai/codex/issues/2890	Custom prompts - passing arguments
+293	376	190	2026-02-02	closed	https://github.com/openai/codex/issues/10410	Codex Desktop App: macOS Intel (x86_64) support
+245	302	38	2025-08-31	open	https://github.com/openai/codex/issues/3000	Voice transcription for IDE extension
+271	285	43	2025-04-16	closed	https://github.com/openai/codex/issues/5	Add MCP support.
+174	284	35	2026-07-18	open	https://github.com/openai/codex/issues/34035	Make the temporary removal of the 5-hour usage limit permanent
+209	270	86	2026-03-08	open	https://github.com/openai/codex/issues/13993	Support standalone Windows installer (`codex-setup.exe`)
+244	247	70	2025-08-31	open	https://github.com/openai/codex/issues/2998	IDE-integrated diff / approval
+222	243	58	2026-04-14	closed	https://github.com/openai/codex/issues/17827	Customizable status line
+168	241	132	2026-04-24	closed	https://github.com/openai/codex/issues/19464	Support 1M token context for GPT-5.5 in Codex
+233	234	58	2026-02-12	open	https://github.com/openai/codex/issues/11626	CLI: Add /rewind checkpoint restore that reverts both chat context and Codex-applied code edits
+203	224	61	2025-09-20	open	https://github.com/openai/codex/issues/3962	Play a sound when Codex finishes a prompt / task
+115	216	81	2026-02-23	closed	https://github.com/openai/codex/issues/12564	Allow renaming task/thread titles to improve history navigation
+193	213	19	2026-09-25	open	https://github.com/openai/codex/issues/48195	CLI: make `daemon_auto_start` opt-in — a persistent, self-updating background daemon shouldn't be the default
+140	201	64	2026-05-30	open	https://github.com/openai/codex/issues/25319	Scope Codex VS Code chats to the current workspace/project
+197	197	19	2025-08-02	open	https://github.com/openai/codex/issues/1797	PDF support
+147	196	44	2025-04-16	closed	https://github.com/openai/codex/issues/35	Using with ChatGPT Plus/Pro
+140	162	30	2025-08-23	closed	https://github.com/openai/codex/issues/2628	Project-specific MCPs
+113	159	52	2025-04-16	closed	https://github.com/openai/codex/issues/26	Support for local / other LLMs
+135	156	21	2025-09-29	open	https://github.com/openai/codex/issues/4432	First-class multi-account auth via '--auth-profile'
+155	158	64	2026-02-10	closed	https://github.com/openai/codex/issues/11325	Manual /compact command in Codex app

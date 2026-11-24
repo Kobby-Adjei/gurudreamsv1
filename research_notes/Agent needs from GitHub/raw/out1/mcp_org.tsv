@@ -1,0 +1,31 @@
+# org:modelcontextprotocol is:issue total=10954
+147	182	91	2024-11-26	closed	https://github.com/modelcontextprotocol/servers/issues/64	MCP Servers Don't Work with NVM
+133	150	88	2025-03-16	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/205	Treat the MCP server as an OAuth resource server rather than an authorization server
+86	86	13	2025-05-27	closed	https://github.com/modelcontextprotocol/typescript-sdk/issues/555	Zod 4 supported
+49	80	5	2025-08-19	closed	https://github.com/modelcontextprotocol/go-sdk/issues/328	Updated roadmap and timelines
+40	72	92	2025-09-08	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1442	SEP-1442: Make MCP Stateless (by default)
+63	69	24	2025-02-27	closed	https://github.com/modelcontextprotocol/typescript-sdk/issues/164	Adopting Standard Schema
+54	64	14	2025-05-08	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/493	Simplify HTTP transport with Websockets and stateless request/response options
+42	55	7	2025-03-26	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/236	Simplify Streamable HTTP to use Standard HTTP Protocol / Methods
+52	52	9	2025-07-14	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/966	Add gRPC as a Standard Transport for MCP
+44	51	14	2025-03-26	closed	https://github.com/modelcontextprotocol/java-sdk/issues/72	Support "Streamable HTTP" transport
+51	51	23	2025-04-08	open	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/292	Define a Standard MCP Configuration Schema
+40	51	13	2024-12-16	open	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/117	Streaming tool use results
+45	45	17	2025-04-07	closed	https://github.com/modelcontextprotocol/python-sdk/issues/443	Implement Streamable HTTP transport
+38	44	0	2025-04-07	open	https://github.com/modelcontextprotocol/docs/issues/269	Add GitHub Copilot client
+41	42	12	2025-04-07	closed	https://github.com/modelcontextprotocol/typescript-sdk/issues/283	Support JSON schema in addition to zod
+40	40	39	2025-04-02	closed	https://github.com/modelcontextprotocol/inspector/issues/249	Support adding arbitrary headers
+35	37	9	2025-08-15	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1352	SEP-1352: Add gRPC as a transport
+11	36	11	2025-07-17	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/991	SEP-991: Enable URL-based Client Registration using OAuth Client ID Metadata Documents
+25	34	13	2025-06-02	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/630	MCP "Server" terminology creates dangerous user misconceptions
+15	33	7	2025-03-24	closed	https://github.com/modelcontextprotocol/typescript-sdk/issues/219	Add Browser-Based MCP Transport for Client-Server Communication within Browser Environments
+30	32	12	2025-12-13	closed	https://github.com/modelcontextprotocol/java-sdk/issues/724	`InitializeRequest` doesn't accept non-empty Elicitation, violating 2025-11-25 spec
+21	32	20	2025-05-18	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/544	The MCP protocol exhibits insufficient security design, which increases the risk of widespread phishing attacks.
+30	30	60	2025-08-04	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1300	SEP-1300: Tool Filtering with Groups and Tags
+28	28	8	2025-08-06	closed	https://github.com/modelcontextprotocol/kotlin-sdk/issues/218	Why is Kotlin SDK always left behind?
+25	29	26	2025-04-03	open	https://github.com/modelcontextprotocol/python-sdk/issues/423	MCP SSE Server: Received request before initialization was complete
+26	27	27	2025-08-02	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1288	SEP-1288: WebSocket Transport
+25	26	19	2025-04-05	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/278	At the MCP Client side to selectivelly disable some of the tools from being listed
+22	26	18	2025-03-27	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/246	Include OpenTelemetry Trace identifiers as part of the MCP client -> server protocol
+7	25	30	2025-08-04	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1299	SEP-1299: Server-Side Authorization Management with Client Session Binding
+0	25	12	2025-07-24	closed	https://github.com/modelcontextprotocol/typescript-sdk/issues/809	SDK V2

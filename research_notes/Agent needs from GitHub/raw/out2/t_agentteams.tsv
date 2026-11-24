@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:block/goose repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue agent teams total=2680
+5197	6696	409	2025-08-21	closed	https://github.com/anthropics/claude-code/issues/6235	Feature Request: Support AGENTS.md.
+2072	3286	583	2026-04-02	closed	https://github.com/anthropics/claude-code/issues/42796	[MODEL] Claude Code is unusable for complex engineering tasks with the Feb updates
+1199	2121	288	2026-04-09	open	https://github.com/anthropics/claude-code/issues/45596	Bring Back Buddy — A Consolidated Plea from the Community
+953	1463	209	2026-02-07	closed	https://github.com/openai/codex/issues/11023	Codex desktop app for Linux
+1097	1452	253	2026-01-15	open	https://github.com/anthropics/claude-code/issues/18435	[FEATURE] Add the ability to manage multiple Claude accounts within the Claude Desktop app with easy switching between profiles.
+797	1416	410	2026-01-09	closed	https://github.com/anthropics/claude-code/issues/17118	[Feature Request] Support for OpenCode and Max plan
+783	1093	188	2026-03-19	open	https://github.com/anthropics/claude-code/issues/36151	[FEATURE] Multi-account switching in Claude Mobile app without shared email
+821	893	742	2026-03-14	open	https://github.com/anthropics/claude-code/issues/34229	[BUG] Phone verification
+695	879	179	2026-02-03	closed	https://github.com/openai/codex/issues/10450	Remote Development in Codex Desktop App
+690	822	354	2025-04-19	open	https://github.com/anthropics/claude-code/issues/826	[BUG] Console scrolling top of history when claude add text to the console
+697	728	1499	2026-01-03	open	https://github.com/anthropics/claude-code/issues/16157	[BUG] Instantly hitting usage limits with Max subscription
+490	702	324	2026-02-21	open	https://github.com/anthropics/claude-code/issues/27302	[FEATURE] Support multiple Connector accounts (same connector, different accounts) in Claude and Claude Code on the web (claude.ai/code)
+435	674	57	2025-06-24	open	https://github.com/anthropics/claude-code/issues/2511	Feature request: Connect Claude code to Claude projects 
+498	656	38	2026-03-05	open	https://github.com/anthropics/claude-code/issues/31005	Support for AGENTS.md and .agents/skills/, the community has been asking since August 2025
+498	655	55	2026-06-05	closed	https://github.com/anthropics/claude-code/issues/65697	[FEATURE] Official Claude Desktop build for Linux (Ubuntu LTS / Debian)
+502	648	216	2026-01-11	open	https://github.com/anthropics/claude-code/issues/17432	Feature Request: India-Specific Pricing Plans (INR) for Claude & Claude Code
+443	583	143	2026-07-13	open	https://github.com/anthropics/claude-code/issues/77136	[BUG] Claude 4.7, 4.8, 5.0, 5.5, and Fable increasingly default to repetitive rhetorical tics and often struggle to produce coherent prose despite explicit style instructions
+437	550	37	2025-08-27	closed	https://github.com/anthropics/claude-code/issues/6686	Feature Request: Add support for Agent Client Protocol (ACP)
+476	545	878	2026-03-24	open	https://github.com/anthropics/claude-code/issues/38335	[BUG] Claude Max plan session limits exhausted abnormally fast since March 23, 2026 (CLI usage)
+407	506	61	2025-08-09	closed	https://github.com/openai/codex/issues/2101	Plan Mode
+474	474	93	2025-08-28	closed	https://github.com/openai/codex/issues/2847	A way to exclude sensitive files
+357	420	386	2026-01-09	closed	https://github.com/anomalyco/opencode/issues/7410	Broken Claude Max
+317	413	103	2025-08-23	closed	https://github.com/openai/codex/issues/2604	Subagent Support
+293	376	190	2026-02-02	closed	https://github.com/openai/codex/issues/10410	Codex Desktop App: macOS Intel (x86_64) support
+244	341	56	2026-04-12	closed	https://github.com/anthropics/claude-code/issues/46829	Cache TTL silently regressed from 1h to 5m around early March 2026, causing quota and cost inflation
+298	334	307	2025-04-12	open	https://github.com/anthropics/claude-code/issues/769	[BUG]  In-progress Call causes Screen Flickering
+227	318	52	2026-03-13	open	https://github.com/anthropics/claude-code/issues/33932	[FEATURE] VS Code Extension: Diff review UI similar to GitHub Copilot Edits Review
+230	315	51	2026-08-07	open	https://github.com/anthropics/claude-code/issues/84862	[FEATURE] Passkey (WebAuthn) sign-in for Claude accounts, across every surface
+173	271	126	2025-08-07	closed	https://github.com/anomalyco/opencode/issues/1686	Add OpenAI auth login like claude
+176	253	172	2026-05-21	closed	https://github.com/openai/codex/issues/23794	Codex Desktop no longer shows visible context/token usage indicator

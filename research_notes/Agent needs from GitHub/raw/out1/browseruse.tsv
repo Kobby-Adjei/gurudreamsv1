@@ -1,0 +1,31 @@
+# repo:browser-use/browser-use is:issue total=1759
+20	20	0	2025-03-05	closed	https://github.com/browser-use/browser-use/issues/947	Simulate Human-Like Browsing Behavior
+19	19	4	2025-01-16	closed	https://github.com/browser-use/browser-use/issues/282	ERROR    [posthog] error uploading: HTTPSConnectionPool(host='eu.i.posthog.com', port=443)
+18	19	12	2025-08-05	closed	https://github.com/browser-use/browser-use/issues/2605	Feature Request: Gpt-OSS model support (Ollama)
+18	18	24	2025-01-11	closed	https://github.com/browser-use/browser-use/issues/221	[Feature Request] human-in-the-loop 
+4	17	1	2025-04-02	closed	https://github.com/browser-use/browser-use/issues/1263	# TypeScript Port: browser-use-typescript Now Available
+14	14	37	2025-03-13	closed	https://github.com/browser-use/browser-use/issues/1020	blank chromium page at step 1, nothing happens
+14	14	41	2025-02-23	closed	https://github.com/browser-use/browser-use/issues/839	Chromium stuck, need manual intervention to unlock
+13	13	13	2025-03-25	closed	https://github.com/browser-use/browser-use/issues/1137	Stuck on Stage 1
+4	11	1	2025-03-04	closed	https://github.com/browser-use/browser-use/issues/943	Export a generated script for given task.
+12	12	5	2025-03-03	closed	https://github.com/browser-use/browser-use/issues/931	Can you implement browser use as an MCP Server?
+0	11	13	2025-02-18	closed	https://github.com/browser-use/browser-use/issues/763	ability to rerun same thing faster
+11	11	6	2025-02-11	closed	https://github.com/browser-use/browser-use/issues/658	Docker Image for Self Hosting Cloud API
+9	11	2	2025-09-08	closed	https://github.com/browser-use/browser-use/issues/3023	Bug: mcp can not run,because CLI addon is not installed.
+8	11	4	2025-01-26	closed	https://github.com/browser-use/browser-use/issues/404	Add support for manually entered data (for login/MFA)
+10	10	15	2025-01-14	closed	https://github.com/browser-use/browser-use/issues/265	eu.i.posthog.com   SSLError
+10	10	5	2025-01-06	closed	https://github.com/browser-use/browser-use/issues/171	Choose different playwright broswer engine
+10	10	14	2025-02-05	closed	https://github.com/browser-use/browser-use/issues/567	How to use OpenRouter API for DeepSeek?
+0	10	0	2024-12-26	closed	https://github.com/browser-use/browser-use/issues/122	why don't we rewrite it in rust?
+10	10	36	2025-04-29	closed	https://github.com/browser-use/browser-use/issues/1520	Chrome >= v136 no longer supports being driven over CDP while using the default `--user-data-dir` profile
+9	9	5	2025-02-10	closed	https://github.com/browser-use/browser-use/issues/652	Integrate with Capsolver API
+9	9	15	2024-11-24	closed	https://github.com/browser-use/browser-use/issues/51	[REQUEST] Use persistent browser context as option
+5	9	5	2024-11-26	closed	https://github.com/browser-use/browser-use/issues/62	Is there any way to use puppeteer-real-browser instead of playwright web agent
+9	9	29	2025-01-17	closed	https://github.com/browser-use/browser-use/issues/291	real_browser.py Example Doesn’t Work Properly
+9	9	9	2025-06-26	closed	https://github.com/browser-use/browser-use/issues/2134	Bug: Browser-use not working with ChatAnthropic and ChatOpenAI
+9	9	0	2025-12-03	closed	https://github.com/browser-use/browser-use/issues/3709	Feature Request: QA Assertion Tool
+9	9	5	2026-03-24	closed	https://github.com/browser-use/browser-use/issues/4505	[Security] CLI install script pulls malicious litellm 1.82.8 — credential harvesting + backdoor affecting all users
+9	9	1	2025-03-10	closed	https://github.com/browser-use/browser-use/issues/991	Golang SDK support
+8	8	3	2025-02-06	closed	https://github.com/browser-use/browser-use/issues/584	Ollama example doesn't work
+8	8	7	2025-02-13	closed	https://github.com/browser-use/browser-use/issues/702	can we just reuse storage_state in playwright instead of cookies_file in BrowserContextConfig class?
+5	8	5	2025-02-13	closed	https://github.com/browser-use/browser-use/issues/710	Browser-use fails with Bedrock Converse API – messages.2.content ValidationException

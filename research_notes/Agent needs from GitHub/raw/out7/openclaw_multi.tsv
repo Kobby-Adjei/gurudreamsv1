@@ -1,0 +1,31 @@
+# repo:openclaw/openclaw is:issue in:title multi-agent OR "agent-to-agent" OR "sessions_send" total=754
+5	13	3	2026-01-28	closed	https://github.com/openclaw/openclaw/issues/3306	[Feature] Support multiple Discord accounts (multi-token) for multi-agent routing
+9	10	8	2026-02-02	closed	https://github.com/openclaw/openclaw/issues/6842	Feature Request: Add A2A (Agent-to-Agent) Protocol Support
+10	10	9	2026-02-13	closed	https://github.com/openclaw/openclaw/issues/15410	[Bug]: Multi-agent setup: "Session file path must be within sessions directory" error
+7	7	8	2026-03-08	closed	https://github.com/openclaw/openclaw/issues/40245	Feature request: shared workspace directory for multi-agent setups
+6	6	5	2026-02-14	closed	https://github.com/openclaw/openclaw/issues/16035	[Feature]: Make OpenClaw agents to identify themselves as agent, clearly, in Github profile
+6	6	5	2026-02-13	closed	https://github.com/openclaw/openclaw/issues/15601	[Bug]: resolveSessionFilePath falls back to DEFAULT_AGENT_ID when callers omit opts.agentId, breaking multi-agent setups
+5	5	9	2026-02-24	closed	https://github.com/openclaw/openclaw/issues/25359	Feature: Per-agent plugin slot overrides for multi-agent setups
+2	5	2	2026-02-13	closed	https://github.com/openclaw/openclaw/issues/15310	v2026.2.12 regression: resolveSessionFilePath missing agentId breaks multi-agent dispatch
+3	5	5	2026-02-04	closed	https://github.com/openclaw/openclaw/issues/8892	Feature: --agent flag for TUI to select which agent handles the session
+5	5	2	2026-02-02	closed	https://github.com/openclaw/openclaw/issues/7119	[Feature]: Add agentId to hooks.mappings for multi-agent webhook routing
+2	4	6	2026-05-02	closed	https://github.com/openclaw/openclaw/issues/76104	sessions_send reply routes to webchat instead of origin channel (Feishu)
+4	4	1	2026-03-15	closed	https://github.com/openclaw/openclaw/issues/47691	feat: Enable multi-bot group chat with mention-based routing (agents can respond to other agents' mentions)
+4	4	0	2026-02-01	closed	https://github.com/openclaw/openclaw/issues/6602	Multi-agent routing bindings are ignored - messages always go to main agent
+4	4	6	2026-02-13	closed	https://github.com/openclaw/openclaw/issues/15245	Multi-agent: resolveSessionFilePath missing agentId causes 'Session file path must be within sessions directory' for non-main agents
+2	3	11	2026-04-12	open	https://github.com/openclaw/openclaw/issues/65374	Bug: Built-in dreaming system contaminates agent identity in multi-agent setups
+2	3	11	2026-04-26	open	https://github.com/openclaw/openclaw/issues/72015	Reliability: active-memory blocks replies and QMD boot initialization can overload multi-agent gateways
+2	3	3	2026-04-20	closed	https://github.com/openclaw/openclaw/issues/69364	[Feature]: Control UI: no cross-agent view when configuring or debugging multi-agent teams
+2	3	7	2026-03-30	closed	https://github.com/openclaw/openclaw/issues/57447	sessions_send blocked by visibility guard even when a2a policy allows cross-agent messaging
+0	3	4	2026-04-10	closed	https://github.com/openclaw/openclaw/issues/64435	Octopus Orchestrator — multi-agent coordination for OpenClaw
+1	3	1	2026-05-12	closed	https://github.com/openclaw/openclaw/issues/81086	sessions_send announce delivery fails for Telegram groups: recipient must be a numeric chat ID
+3	3	7	2026-03-13	closed	https://github.com/openclaw/openclaw/issues/45086	[Feature]: WebChat UI: Add agent/session switcher for multi-agent support
+3	3	1	2026-03-26	closed	https://github.com/openclaw/openclaw/issues/54837	Slack: requireMention should suppress implicit thread mentions (multi-agent blocker)
+2	3	5	2026-03-08	closed	https://github.com/openclaw/openclaw/issues/39428	Discord account-to-agent routing falls back to default agent instead of matching by account name
+2	3	1	2026-04-30	closed	https://github.com/openclaw/openclaw/issues/75176	[Bug]: Active-memory on multi-agent Telegram gateway is inconsistent (ok / empty / timeout) and not safe to enable globally
+2	2	2	2026-02-14	closed	https://github.com/openclaw/openclaw/issues/16053	Cron jobs should be agent-scoped in multi-agent setups
+3	3	5	2026-02-13	closed	https://github.com/openclaw/openclaw/issues/15286	resolveSessionFilePath missing agentId causes path validation failure in multi-agent Slack setup
+2	3	2	2026-02-13	closed	https://github.com/openclaw/openclaw/issues/15469	[Bug]: Multi-agent session resolution fails — "Session file path must be within sessions directory"
+3	3	3	2026-02-13	closed	https://github.com/openclaw/openclaw/issues/15500	Multi-agent: resolveSessionFilePath missing agentId causes 'Session file path must be within sessions directory'
+0	3	9	2026-02-13	closed	https://github.com/openclaw/openclaw/issues/15565	[Bug]: Multi-agent Telegram: "Session file path must be within sessions directory" after 2026.2.12 update
+2	3	3	2026-05-06	closed	https://github.com/openclaw/openclaw/issues/78274	Feishu group chat replies=0: agent dispatches to wrong session (main webchat instead of agent session)

@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title account total=3276
+1097	1452	253	2026-01-15	open	https://github.com/anthropics/claude-code/issues/18435	[FEATURE] Add the ability to manage multiple Claude accounts within the Claude Desktop app with easy switching between profiles.
+783	1093	188	2026-03-19	open	https://github.com/anthropics/claude-code/issues/36151	[FEATURE] Multi-account switching in Claude Mobile app without shared email
+490	702	324	2026-02-21	open	https://github.com/anthropics/claude-code/issues/27302	[FEATURE] Support multiple Connector accounts (same connector, different accounts) in Claude and Claude Code on the web (claude.ai/code)
+230	315	51	2026-08-07	open	https://github.com/anthropics/claude-code/issues/84862	[FEATURE] Passkey (WebAuthn) sign-in for Claude accounts, across every surface
+135	156	21	2025-09-29	open	https://github.com/openai/codex/issues/4432	First-class multi-account auth via '--auth-profile'
+118	147	34	2026-04-30	open	https://github.com/openai/codex/issues/20500	Feature request: support multiple named accounts per app/connector
+113	117	98	2025-06-25	closed	https://github.com/google-gemini/gemini-cli/issues/1432	Login Failed: "Ensure your Google account is not a Workspace account" Error for a Standard Account
+115	115	44	2026-01-22	closed	https://github.com/anthropics/claude-code/issues/20131	Feature Request: Multi-Account Profile Support
+90	107	20	2026-07-25	open	https://github.com/anthropics/claude-code/issues/81138	[BUG] Account email (PII) is injected into the model's system prompt without consent, disclosure,
+88	106	20	2026-03-02	open	https://github.com/anthropics/claude-code/issues/30031	Feature Request: Support multiple account login and switching (like `gh auth switch`)
+89	89	40	2026-01-16	open	https://github.com/anthropics/claude-code/issues/18467	[BUG] Personal account repositories not visible in Claude web, only organization repositories work
+90	90	37	2026-03-19	closed	https://github.com/anthropics/claude-code/issues/36024	Support multiple Gmail accounts in MCP integration
+88	88	21	2026-05-02	open	https://github.com/anthropics/claude-code/issues/55621	[FEATURE] Multi-account support in VSCode extension
+70	77	13	2026-02-17	open	https://github.com/openai/codex/issues/12029	Ability to use more than one account
+77	79	74	2026-02-24	closed	https://github.com/anthropics/claude-code/issues/28098	[BUG] `claude remote-control` shows misleading "Contact your administrator" error for personal (Pro/Max) accounts
+71	78	73	2026-06-26	open	https://github.com/anthropics/claude-code/issues/71542	GitHub connector links repositories successfully but Claude cannot access content for ANY repository (account-wide, public and private alike) — recent regression
+64	70	191	2025-08-04	open	https://github.com/anthropics/claude-code/issues/5088	Claude Account Disabled After Payment for Claude Code Max 5x Plan
+62	69	25	2026-02-11	closed	https://github.com/anthropics/claude-code/issues/24963	[FEATURE]  Support for multiple accounts / profiles
+65	65	168	2026-04-02	closed	https://github.com/google-gemini/gemini-cli/issues/24517	403 PERMISSION_DENIED for Google One AI Premium subscriber - account correctly identified but API access blocked
+54	57	27	2026-02-03	open	https://github.com/anthropics/claude-code/issues/22648	[Feature Request] Account-level settings sync across devices
+0	51	22	2026-07-04	closed	https://github.com/anthropics/claude-code/issues/74066	[Bug] Potential session/cache leakage between workspace instances or consumer accounts
+45	50	4	2025-08-31	open	https://github.com/openai/codex/issues/2992	Automatic use API key once chatGPT account limits exceeded
+48	48	31	2026-02-16	open	https://github.com/openai/codex/issues/11881	To use Codex here, create a Codex account and connect to github
+39	44	17	2025-06-25	closed	https://github.com/google-gemini/gemini-cli/issues/1439	Add function to account authentication without GUI
+38	42	14	2026-06-30	open	https://github.com/openai/codex/issues/30684	Add account/workspace switching support
+34	42	83	2025-08-01	closed	https://github.com/google-gemini/gemini-cli/issues/5331	Cannot pass workspace account verification on macOS 15.6: `Failed to login. Message: Precondition check failed.`
+36	40	9	2025-03-02	closed	https://github.com/anthropics/claude-code/issues/261	Feature Request: Support for multiple Claude Code sessions with different accounts
+39	39	10	2026-02-21	closed	https://github.com/anthropics/claude-code/issues/27359	Feature Request: Named account profiles for quick switching between multiple claude.ai accounts
+37	37	16	2026-01-19	open	https://github.com/anthropics/claude-code/issues/19280	[BUG] Unable to access Claude Code after successful OAuth login with Google account
+32	33	11	2026-04-05	open	https://github.com/anthropics/claude-code/issues/43698	[FEATURE] Multi-device Cowork: Allow concurrent Cowork agents on multiple machines under a single account

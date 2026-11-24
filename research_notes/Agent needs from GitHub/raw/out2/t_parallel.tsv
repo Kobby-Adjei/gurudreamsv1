@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:block/goose repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue parallel agents total=5303
+5197	6696	409	2025-08-21	closed	https://github.com/anthropics/claude-code/issues/6235	Feature Request: Support AGENTS.md.
+548	3491	440	2026-11-03	closed	https://github.com/openai/codex/issues/59060	Told to reboot a server, it destroyed systemd, destroyed containers, ran random scripts, cost me $10,000+
+2072	3286	583	2026-04-02	closed	https://github.com/anthropics/claude-code/issues/42796	[MODEL] Claude Code is unusable for complex engineering tasks with the Feb updates
+953	1463	209	2026-02-07	closed	https://github.com/openai/codex/issues/11023	Codex desktop app for Linux
+1097	1452	253	2026-01-15	open	https://github.com/anthropics/claude-code/issues/18435	[FEATURE] Add the ability to manage multiple Claude accounts within the Claude Desktop app with easy switching between profiles.
+797	1416	410	2026-01-09	closed	https://github.com/anthropics/claude-code/issues/17118	[Feature Request] Support for OpenCode and Max plan
+695	879	179	2026-02-03	closed	https://github.com/openai/codex/issues/10450	Remote Development in Codex Desktop App
+690	822	354	2025-04-19	open	https://github.com/anthropics/claude-code/issues/826	[BUG] Console scrolling top of history when claude add text to the console
+697	728	1499	2026-01-03	open	https://github.com/anthropics/claude-code/issues/16157	[BUG] Instantly hitting usage limits with Max subscription
+476	545	878	2026-03-24	open	https://github.com/anthropics/claude-code/issues/38335	[BUG] Claude Max plan session limits exhausted abnormally fast since March 23, 2026 (CLI usage)
+474	474	93	2025-08-28	closed	https://github.com/openai/codex/issues/2847	A way to exclude sensitive files
+289	428	188	2026-06-27	closed	https://github.com/openai/codex/issues/30364	GPT-5.5 Codex reasoning-token clustering at 516/1034/1552 may be leading to degraded performance on complex tasks
+357	420	386	2026-01-09	closed	https://github.com/anomalyco/opencode/issues/7410	Broken Claude Max
+317	413	103	2025-08-23	closed	https://github.com/openai/codex/issues/2604	Subagent Support
+388	414	144	2026-07-02	closed	https://github.com/anthropics/claude-code/issues/73125	[BUG] AskUserQuestion: "No response after 60s — continued without an answer"
+298	334	307	2025-04-12	open	https://github.com/anthropics/claude-code/issues/769	[BUG]  In-progress Call causes Screen Flickering
+246	329	37	2026-01-14	closed	https://github.com/anomalyco/opencode/issues/8501	[FEATURE]: Allow to expand the pasted text (e.g. `[Pasted ~1 lines]`)
+322	322	187	2025-06-10	closed	https://github.com/anthropics/claude-code/issues/1913	Terminal Flickering
+284	307	630	2026-03-13	closed	https://github.com/openai/codex/issues/14593	Burning tokens very fast
+280	300	85	2026-03-02	open	https://github.com/anthropics/claude-code/issues/30154	FEATURE: Multi-window support in Claude Code Desktop
+238	277	270	2025-10-02	closed	https://github.com/anthropics/claude-code/issues/8763	API Error: 400 due to tool use concurrency issues. Run /rewind to recover the conversation. - [Bug] Anthropic API Error: Unexpected 400 Bad Request Response
+173	271	126	2025-08-07	closed	https://github.com/anomalyco/opencode/issues/1686	Add OpenAI auth login like claude
+250	264	63	2025-12-27	closed	https://github.com/anomalyco/opencode/issues/6231	Auto-discover models from OpenAI-compatible provider endpoints
+244	247	70	2025-08-31	open	https://github.com/openai/codex/issues/2998	IDE-integrated diff / approval
+131	224	279	2026-09-03	open	https://github.com/anthropics/claude-code/issues/91870	Mods - make Claude 10x more extensible
+159	223	124	2026-03-29	closed	https://github.com/anthropics/claude-code/issues/40524	[BUG] Conversation history invalidated on subsequent turns
+216	220	43	2026-04-12	open	https://github.com/anthropics/claude-code/issues/46917	CC v2.1.100+ inflates cache_creation by ~20K tokens vs v2.1.98 — same payload, server-side
+179	214	77	2026-09-25	open	https://github.com/anthropics/claude-code/issues/97074	[BUG] Headless `claude -p` (entrypoint `sdk-cli`) uses ~1.8× more of the 5-hour window per token than interactive `cli`, same workload
+176	206	100	2026-07-09	closed	https://github.com/openai/codex/issues/31814	GPT-5.6 Sol cannot specify subagent models, forcing all subagents to also be Sol instances
+168	197	184	2026-04-12	open	https://github.com/anthropics/claude-code/issues/46987	[BUG]  API Error: Stream idle timeout - partial response received - multiple time today

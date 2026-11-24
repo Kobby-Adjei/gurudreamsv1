@@ -1,0 +1,31 @@
+# in:title durable agent is:issue created:>2025-09-01 total=2819
+15	20	8	2026-06-02	closed	https://github.com/aaif/project-proposals/issues/34	[Project Proposal] Durable Agents (previously Dapr Agents)
+7	7	4	2025-09-10	closed	https://github.com/openai/openai-agents-python/issues/1711	Native durable agents support
+5	5	2	2026-07-17	open	https://github.com/vercel-labs/skills/issues/1718	Per-agent targeting (-a) is not durable: remove drops the lock entry, update re-links to all agents
+0	5	1	2026-05-01	open	https://github.com/cloudflare/agents/issues/1439	Project Think roadmap: durable agent platform preview to stable developer experience
+5	5	4	2025-12-19	closed	https://github.com/strands-agents/harness-sdk/issues/1369	[FEATURE] Durable Agent
+4	4	8	2026-07-05	open	https://github.com/apache/maka/issues/544	roadmap: durable agent platform
+3	3	7	2026-05-05	closed	https://github.com/mastra-ai/mastra/issues/16221	Custom chat route with durable agent and ai-sdk
+2	2	7	2026-10-03	open	https://github.com/earendil-works/pi/issues/10386	Durable: host coding-agent extensions (AgentSession-backed runtime or hook parity)
+1	2	3	2026-07-18	closed	https://github.com/openclaw/openclaw/issues/110896	[Feature]: System agent overhaul: shared chat UI, config change journal, durable history, agentic identity
+1	2	3	2026-07-29	closed	https://github.com/mastra-ai/mastra/issues/20402	[BUG] Durable agents drop tool results when a tool's `toModelOutput` returns `undefined`
+2	2	2	2026-07-07	closed	https://github.com/mastra-ai/mastra/issues/19056	Durable agents (default engine): RUNNING runs are unrecoverable after a process restart — no boot-time recovery or re-drive API
+1	2	3	2026-04-25	closed	https://github.com/openclaw/openclaw/issues/71733	[RFC] Durable next-turn injections and agent turn preparation hooks
+1	1	6	2026-11-21	open	https://github.com/ganyanentsiyeni-rgb/RYANAI-Automous-Reasioning-Plat-main/issues/628	Route PA and all Comms agent executions through the durable agent_runs lifecycle
+1	1	0	2026-11-01	open	https://github.com/design4pro/openbot/issues/6	Project workspaces: durable tickets, GitHub integration, and agent execution
+1	1	4	2026-08-07	open	https://github.com/mastra-ai/mastra/issues/20953	Feature: Cloudflare Workflows durable-agent executor
+1	1	0	2026-11-16	open	https://github.com/temporal-community/temporal-agent-kit/issues/309	Support Pi agent as an execution backend, with Temporal for durable execution
+0	1	6	2026-11-17	open	https://github.com/openclaw/openclaw/issues/200471	[Feature]: agent_end hooks cannot tell which attempts a durable context engine already owns
+0	1	2	2026-10-28	open	https://github.com/Azure/substrate-aks/issues/4	Split Substrate AKS setup between substrate-aks and aks-durable-agents
+0	1	12	2026-08-06	open	https://github.com/EffortlessMetrics/ripr-swarm/issues/2927	ux(repair): make agent repair a durable, resumable RepairAttempt
+0	1	1	2026-10-27	open	https://github.com/openclaw/openclaw/issues/186066	[Feature]: Share one person’s durable project knowledge between two authorized agents
+0	1	3	2026-10-17	open	https://github.com/Achi1984/meridian/issues/867	Proposal: bounded GitHub autopilot with agent delegation and durable progress ledger
+1	1	0	2026-10-03	open	https://github.com/fluxcd/website/issues/2671	[blog proposal] GitOps for agent permission policies and durable-state migrations
+0	1	2	2026-08-18	open	https://github.com/EffortlessMetrics/perl-lsp-swarm/issues/11601	refactor(agent-issues): make research, review, and synthesis comments the prepare-issue durability model
+1	1	2	2026-08-22	open	https://github.com/mastra-ai/mastra/issues/22092	[FEATURE] First-class durable coding-agent adapters with workflow and workspace lifecycle support
+0	1	2	2026-06-25	open	https://github.com/psgods101/scout/issues/50	Scout: durable cross-session memory for AI agents
+0	1	1	2026-09-07	open	https://github.com/openclaw/openclaw/issues/141346	[Feature]: [Feature request] Third-party channel outbound replies (WeCom agent) bypass conversation_deliveries durable delivery lifecycle
+1	1	3	2026-07-16	open	https://github.com/Agenta-AI/agenta/issues/5342	(bug) Runner silently drops agent files when the durable workspace mount is skipped
+1	1	1	2026-10-18	open	https://github.com/yetone/magpie/issues/2864	[feat] Pi Durable / Pi Pocket：没有 pi CLI 也应被识别并接管（读写同一份 ~/.pi/agent）
+1	1	0	2026-06-25	open	https://github.com/osaurus-ai/osaurus/issues/1714	Feature request: native durable multi-agent task board (Kanban-style orchestration) for spawned/remote agents
+0	1	1	2026-07-30	open	https://github.com/openonion/connectonion/issues/340	Give agents a durable goal/backlog store that survives across heartbeat wakeups and restarts

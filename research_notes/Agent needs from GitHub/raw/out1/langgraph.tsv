@@ -1,0 +1,31 @@
+# repo:langchain-ai/langgraph is:issue total=1798
+0	31	85	2025-06-05	closed	https://github.com/langchain-ai/langgraph/issues/4973	🚧 LangGraph v1 roadmap – feedback wanted!
+17	29	14	2025-06-09	closed	https://github.com/langchain-ai/langgraph/issues/5023	LangGraph `config.configurable` -> `context` API -- feedback wanted!
+21	21	7	2025-08-13	closed	https://github.com/langchain-ai/langgraph/issues/5891	`TypeError: Type is not msgpack serializable: Send` occurs when using `create_react_agent` with a tool that uses `BaseStore`.
+14	14	35	2024-06-21	closed	https://github.com/langchain-ai/langgraph/issues/740	langgraph.errors.InvalidUpdateError: Must write to at least one of ['input', 'plan', 'past_steps', 'response']
+8	12	7	2024-02-10	closed	https://github.com/langchain-ai/langgraph/issues/101	[StreamlitCallbackHandler] - Not compatible with LangGraph
+12	12	53	2025-03-06	open	https://github.com/langchain-ai/langgraph/issues/3716	langgraph-checkpoint-postgres (psycopg.OperationalError: sending query and params failed: SSL error: bad length) encountered across multiple version
+7	11	0	2026-01-21	closed	https://github.com/langchain-ai/langgraph/issues/6706	Incompatibility between langgraph-cli and langgraph-api >= 0.7.0
+6	8	4	2024-07-28	closed	https://github.com/langchain-ai/langgraph/issues/1156	DOC: Missing put_writes and aput_writes Method in "Create a Custom Checkpointer Using MongoDB"
+9	9	53	2025-07-25	open	https://github.com/langchain-ai/langgraph/issues/5672	Run Cancellation Causes Loss of Streamed State Not Yet Persisted as a Checkpoint
+8	8	5	2024-07-25	closed	https://github.com/langchain-ai/langgraph/issues/1134	DOC: Missing put_writes and aput_writes Method in "Create a Custom Checkpointer Using Redis"
+8	8	6	2024-06-11	closed	https://github.com/langchain-ai/langgraph/issues/639	(Python3.12.4) TypeError: ForwardRef._evaluate() missing 1 required keyword-only argument: 'recursive_guard'
+8	8	7	2025-04-11	closed	https://github.com/langchain-ai/langgraph/issues/4253	Langgraph Studio re-run from here fails after langgraph dev auto reload
+7	8	17	2025-06-29	open	https://github.com/langchain-ai/langgraph/issues/5253	Add support for Python 3.14
+7	7	6	2025-06-09	closed	https://github.com/langchain-ai/langgraph/issues/4996	TypeError: 'NoneType' object is not callable
+0	6	2	2024-04-12	closed	https://github.com/langchain-ai/langgraph/issues/307	JsonOutputToolsParser not streaming when called from a LangGraph node
+6	6	6	2025-07-17	closed	https://github.com/langchain-ai/langgraph/issues/5557	checkpointe-postgres v2.0.23 has error in any exists thread
+6	6	3	2025-12-14	closed	https://github.com/langchain-ai/langgraph/issues/6583	AsyncSqliteSaver AttributeError: 'Connection' object has no attribute 'is_alive'
+0	6	4	2026-03-03	closed	https://github.com/langchain-ai/langgraph/issues/7008	Type-Safe Streaming and Invoke for LangGraph
+6	6	12	2025-10-21	closed	https://github.com/langchain-ai/langgraph/issues/6318	ToolRuntime not supported in LangGraph's built-in ToolNode
+6	6	1	2025-06-09	closed	https://github.com/langchain-ai/langgraph/issues/5024	Reflect `pydantic` and `dataclass` types in final output
+5	5	3	2024-09-01	closed	https://github.com/langchain-ai/langgraph/issues/1568	Problem with add_messages, message didn't get merged
+5	5	16	2025-07-27	closed	https://github.com/langchain-ai/langgraph/issues/5677	AsyncPostgresSaver 2.0.23 fails to read channel values: NoneType object is not a mapping
+4	5	7	2025-05-15	closed	https://github.com/langchain-ai/langgraph/issues/4706	0.4.4 ModuleNotFoundError: No module named 'langgraph.cache'
+0	5	5	2025-09-02	closed	https://github.com/langchain-ai/langgraph/issues/6062	LangGraph V1 Alpha! 🚀 
+5	5	17	2025-02-10	closed	https://github.com/langchain-ai/langgraph/issues/3372	In Langgraph studio the subgraph part is not shown when we invoke the subgraphs in the parent graph's node
+5	5	6	2026-05-03	closed	https://github.com/langchain-ai/langgraph/issues/7692	Feature Request: Driver abstraction for checkpoint-postgres: to build support for asyncpg and other adapters
+4	4	2	2024-06-18	closed	https://github.com/langchain-ai/langgraph/issues/692	draw_mermaid() can't accept input other than 'str'
+4	4	9	2024-06-03	closed	https://github.com/langchain-ai/langgraph/issues/574	Graph stream labels "HumanMessage" but it is a "AiMessage" 
+3	4	3	2025-01-09	closed	https://github.com/langchain-ai/langgraph/issues/2965	Command do not render graph if nodes are defined within a class.
+4	4	5	2024-12-24	closed	https://github.com/langchain-ai/langgraph/issues/2870	Resume value get reused when resuming parent graph which has subgraph with multiple interrupts

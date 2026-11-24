@@ -1,0 +1,31 @@
+# "claude code" codex "same repo" is:issue total=8108
+5197	6696	409	2025-08-21	closed	https://github.com/anthropics/claude-code/issues/6235	Feature Request: Support AGENTS.md.
+2072	3286	583	2026-04-02	closed	https://github.com/anthropics/claude-code/issues/42796	[MODEL] Claude Code is unusable for complex engineering tasks with the Feb updates
+953	1463	209	2026-02-07	closed	https://github.com/openai/codex/issues/11023	Codex desktop app for Linux
+1097	1452	253	2026-01-15	open	https://github.com/anthropics/claude-code/issues/18435	[FEATURE] Add the ability to manage multiple Claude accounts within the Claude Desktop app with easy switching between profiles.
+797	1416	410	2026-01-09	closed	https://github.com/anthropics/claude-code/issues/17118	[Feature Request] Support for OpenCode and Max plan
+697	728	1499	2026-01-03	open	https://github.com/anthropics/claude-code/issues/16157	[BUG] Instantly hitting usage limits with Max subscription
+490	702	324	2026-02-21	open	https://github.com/anthropics/claude-code/issues/27302	[FEATURE] Support multiple Connector accounts (same connector, different accounts) in Claude and Claude Code on the web (claude.ai/code)
+443	583	143	2026-07-13	open	https://github.com/anthropics/claude-code/issues/77136	[BUG] Claude 4.7, 4.8, 5.0, 5.5, and Fable increasingly default to repetitive rhetorical tics and often struggle to produce coherent prose despite explicit style instructions
+476	545	878	2026-03-24	open	https://github.com/anthropics/claude-code/issues/38335	[BUG] Claude Max plan session limits exhausted abnormally fast since March 23, 2026 (CLI usage)
+213	532	93	2026-04-25	closed	https://github.com/anthropics/claude-code/issues/53262	HERMES.md in git commit messages causes requests to route to extra usage billing instead of plan quota
+452	475	71	2025-05-31	open	https://github.com/anthropics/claude-code/issues/1455	Claude Code does not respect the XDG Base Directory specification
+474	474	93	2025-08-28	closed	https://github.com/openai/codex/issues/2847	A way to exclude sensitive files
+289	428	188	2026-06-27	closed	https://github.com/openai/codex/issues/30364	GPT-5.5 Codex reasoning-token clustering at 516/1034/1552 may be leading to degraded performance on complex tasks
+284	307	630	2026-03-13	closed	https://github.com/openai/codex/issues/14593	Burning tokens very fast
+188	271	130	2025-12-19	open	https://github.com/agentskills/agentskills/issues/15	Proposal: include a standard folder where agent skills should be
+173	271	126	2025-08-07	closed	https://github.com/anomalyco/opencode/issues/1686	Add OpenAI auth login like claude
+131	224	279	2026-09-03	open	https://github.com/anthropics/claude-code/issues/91870	Mods - make Claude 10x more extensible
+140	201	64	2026-05-30	open	https://github.com/openai/codex/issues/25319	Scope Codex VS Code chats to the current workspace/project
+168	177	39	2024-06-20	open	https://github.com/zed-industries/zed/issues/13300	Per-project themes (multiple active themes)
+144	155	23	2025-08-29	closed	https://github.com/openai/codex/issues/2909	Support for multi-root workspaces
+152	152	134	2026-02-17	open	https://github.com/anthropics/claude-code/issues/26224	[BUG] [URGENT!!!] Claude Code is hanging / freezing / stuck on heaps of prompts for 5-20minutes or more.
+144	151	20	2025-10-22	open	https://github.com/agentsmd/agents.md/issues/91	Standardize global user-level AGENTS.md at ~/.config/agents/AGENTS.md
+119	135	35	2026-03-23	open	https://github.com/anthropics/claude-code/issues/37951	Option to hide inline diffs for Edit/Write tool output
+128	131	26	2026-02-18	open	https://github.com/openai/codex/issues/12115	Dynamically loading nested AGENTS.md
+68	123	30	2026-04-26	open	https://github.com/stablyai/orca/issues/1099	[Feature]: Multi-repo workspaces — view diffs of several repos at the same time
+107	107	40	2026-07-20	open	https://github.com/anthropics/claude-code/issues/79305	Desktop app: support custom themes / accent colors (parity with CLI custom theme system)
+72	91	38	2026-07-24	open	https://github.com/anthropics/claude-code/issues/80988	[BUG] v2.1.219 `heron_brook` prompt section injects "Do not call the AgentTool unless the user requested it" for Opus 5 only, silently overriding user-configured delegation policy, with no opt-out
+44	87	703	2025-08-01	open	https://github.com/microg/GmsCore/issues/2994	[BOUNTY] RCS Support [14999$]
+86	86	325	2026-03-05	closed	https://github.com/openai/codex/issues/13568	Usage dropping too quickly
+86	86	60	2026-04-01	open	https://github.com/anthropics/claude-code/issues/41788	Max 20 plan: rate limit 100% exhausted within ~70 minutes after reset (never happened before v2.1.89)

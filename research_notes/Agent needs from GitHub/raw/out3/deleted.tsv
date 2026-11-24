@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title deleted total=881
+17	170	48	2026-05-11	closed	https://github.com/google-gemini/gemini-cli/issues/26856	Your idiotic AI disobeyed me completely lied and has now cost me 300 dollars worth of work that went into my obsidian - 10000s of files and work deleted not recoverable I WANT MY MONEY BACK!!!!!!!!!!!!!
+43	43	24	2026-03-12	closed	https://github.com/anthropics/claude-code/issues/33502	[FEATURE] When setting up a folder in the CLAUD CODE GUI, please add it to the recent list so that it can be deleted.
+27	27	47	2026-09-30	closed	https://github.com/openai/codex/issues/49731	Windows app with "Run agent in WSL": every command fails with "Failed to create unified exec process: No such file or directory" (arg0 helper dir deleted by Windows exec-server)
+19	19	0	2026-01-12	closed	https://github.com/openai/codex/issues/9085	deleted
+12	18	11	2026-10-02	open	https://github.com/openai/codex/issues/50251	Codex Cloud: legacy-imported environment can’t be edited or deleted (UI not clickable)
+17	17	23	2026-08-23	open	https://github.com/openai/codex/issues/40219	[macOS][Chat] Server-deleted conversations repopulate in Recents and cannot be removed
+16	16	3	2025-11-21	closed	https://github.com/openai/codex/issues/7054	deleted
+15	15	14	2026-08-28	open	https://github.com/openai/codex/issues/41399	[macOS][Desktop] Deleted ChatGPT conversations remain in sidebar after full local profile reset
+13	15	1	2026-05-29	closed	https://github.com/anthropics/claude-code/issues/63550	[BUG] Stale "Pull request status couldn't be checked" on archived sessions whose repo/worktree was deleted
+11	13	28	2026-03-31	open	https://github.com/anthropics/claude-code/issues/41458	[BUG] cleanupPeriodDays: 99999 ignored — 490 sessions silently deleted despite explicit setting
+11	11	6	2026-03-06	open	https://github.com/anthropics/claude-code/issues/31422	[Cowork] User-created skills stored in ephemeral session dirs — silently deleted on cleanup
+7	11	29	2025-06-08	closed	https://github.com/anthropics/claude-code/issues/1788	MCP Configuration Unexpectedly Deleted From File During Auto-Update
+10	10	5	2026-07-16	closed	https://github.com/anthropics/claude-code/issues/77962	Background sessions dispatched from a non-git directory can never be deleted from the agents view: "worktree could not be removed (no git root for the worktree)"
+10	10	10	2026-01-14	closed	https://github.com/anthropics/claude-code/issues/18236	[BUG] Bash tool fails permanently after working directory is deleted
+6	6	3	2026-09-17	open	https://github.com/openai/codex/issues/46232	BUG: Individual Work conversations cannot be deleted – Delete action missing
+6	6	1	2026-10-11	open	https://github.com/anthropics/claude-code/issues/101190	Remote Control: session shows "environment was deleted" after server exit; no way to re-attach to a new environment
+6	6	4	2026-02-24	open	https://github.com/openai/codex/issues/12685	“Create permanent worktree” button doesn’t run env setup, doesn’t appear in Settings → Worktrees, and isn’t deleted when removed
+6	6	4	2026-04-25	closed	https://github.com/anthropics/claude-code/issues/53225	Desktop app shows no recovery option when working directory has been moved or deleted
+3	6	19	2025-07-23	closed	https://github.com/cline/cline/issues/5124	Cline autonomously delete files without keeping track of the deleted/changed files. Very Dangerous and Critical Issue!!!
+5	5	6	2026-05-02	open	https://github.com/openai/codex/issues/20753	Codex App Git diff panel shows all repository files as deleted even though local and origin branches are identical
+5	5	8	2026-07-28	closed	https://github.com/anthropics/claude-code/issues/82084	Session transcripts are silently and permanently deleted after 30 days — no warning, no recovery
+5	5	2	2026-07-08	closed	https://github.com/anthropics/claude-code/issues/75557	`claude agents` dashboard dumps entire historical backlog; deleted sessions reappear and orphaned ones can't be opened (v2.1.204)
+2	5	15	2026-02-07	closed	https://github.com/anthropics/claude-code/issues/23913	Agent deleted 2,229 untracked source files without explicit user instruction — catastrophic unrecoverable data loss
+5	5	13	2025-02-13	closed	https://github.com/continuedev/continue/issues/4126	Code will be deleted when writing a doc string
+4	4	26	2026-08-21	open	https://github.com/openai/codex/issues/39897	[ChatGPT Desktop][macOS] Deleted ChatGPT conversation remains in sidebar and cannot be removed
+4	4	2	2026-06-16	open	https://github.com/openai/codex/issues/28528	Codex app: Archived chats cannot be deleted
+4	4	12	2026-05-30	open	https://github.com/openai/codex/issues/25317	Regression: Windows Desktop + WSL shell stays poisoned after reboot; live app-server holds deleted CODEX_HOME/tmp/arg0 helper path despite unified_exec=false
+4	4	25	2026-05-25	closed	https://github.com/anthropics/claude-code/issues/62272	[BUG] Chat JSONLs deleted from ~/.claude/projects/ despite cleanupPeriodDays set high — appears triggered by updates/restarts
+3	3	3	2026-07-15	open	https://github.com/openai/codex/issues/33286	Codex/ChatGPT update deleted all the conversations
+3	3	9	2026-08-30	open	https://github.com/openai/codex/issues/41661	Deleted conversations remain stuck in Recents on macOS desktop app

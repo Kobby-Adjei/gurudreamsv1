@@ -1,0 +1,31 @@
+# "shared memory" agents is:issue created:>2025-09-01 total=20638
+284	307	630	2026-03-13	closed	https://github.com/openai/codex/issues/14593	Burning tokens very fast
+236	294	69	2026-03-25	closed	https://github.com/ollama/ollama/issues/15051	native ollama-go-engine: TurboQuant+RotorQuant implementation
+131	224	279	2026-09-03	open	https://github.com/anthropics/claude-code/issues/91870	Mods - make Claude 10x more extensible
+159	192	41	2026-02-26	open	https://github.com/anthropics/claude-code/issues/28791	[FEATURE] Sync conversation history between CLI and Claude Code desktop app
+137	159	128	2026-04-24	closed	https://github.com/ggml-org/llama.cpp/issues/22319	Model request: DeepSeek V4 Series
+18	138	2	2026-11-19	open	https://github.com/bazelbuild/bazel/issues/32824	Project Skymetal: Incrementally porting Bazel from Java to Rust
+86	86	60	2026-04-01	open	https://github.com/anthropics/claude-code/issues/41788	Max 20 plan: rate limit 100% exhausted within ~70 minutes after reset (never happened before v2.1.89)
+86	86	89	2026-10-24	closed	https://github.com/openai/codex/issues/56655	UI doesn't start in VS Code extension 26.51021.22027
+79	84	40	2026-01-07	open	https://github.com/anthropics/claude-code/issues/16550	[FEATURE] Allow Claude to Write/Update Project Files
+24	74	16	2026-02-08	closed	https://github.com/anomalyco/opencode/issues/12711	[DESIGN]: Agent Teams — flat teams with named messaging, multi-model support, and TUI integration
+60	66	34	2026-02-04	closed	https://github.com/nanocoai/nanoclaw/issues/80	Support runtimes and providers other than Claude/Anthropic (aka support opencode, codex, gemini, etc)
+47	65	18	2025-12-16	open	https://github.com/anthropics/claude-code/issues/14228	Feature Request: Claude Code Should Access User's claude.ai Memory and Context
+59	61	65	2025-11-09	open	https://github.com/anthropics/claude-code/issues/11315	Critical Memory Leak: Claude Code Consumed 129GB RAM and Caused System Freeze
+12	58	32	2025-09-03	closed	https://github.com/anthropics/claude-code/issues/7075	Feature request: Claude Code profiles with isolated memory, commands, hooks, and settings
+29	53	25	2026-03-06	closed	https://github.com/NousResearch/hermes-agent/issues/514	Feature: A2A (Agent-to-Agent) Protocol Support — Remote Agent Discovery, Communication & Interoperability
+29	50	36	2026-02-14	open	https://github.com/anthropics/claude-code/issues/25739	[FEATURE] Portable project memory across machines (multi-device workflow)
+46	49	12	2026-03-09	open	https://github.com/anthropics/claude-code/issues/32631	[FEATURE] Conversation Branching — full spec for fork, merge, and tree navigation
+41	44	21	2026-05-18	open	https://github.com/anthropics/claude-code/issues/60082	Feature request: real-time multi-user collaboration on a single Claude Code session
+44	44	15	2026-02-18	closed	https://github.com/google-gemini/gemini-cli/issues/19430	Feature Request: Parallel Agent Teams / Multi-Agent Collaboration (like Claude Code Agent Teams)
+43	44	26	2026-02-09	closed	https://github.com/anthropics/claude-code/issues/24317	Frequent re-authentication required with multiple concurrent Claude Code sessions (OAuth refresh token race condition)
+22	38	26	2026-03-04	closed	https://github.com/NousResearch/hermes-agent/issues/344	Feature: Multi-Agent Architecture — Orchestration, Cooperation, Specialized Roles & Resilient Workflows
+0	35	111	2026-03-21	closed	https://github.com/google-gemini/gemini-cli/issues/23365	[☀️ Google Summer Of Code ] Terminal-Integrated Performance & Memory Investigation Companion
+33	33	54	2026-03-25	open	https://github.com/anthropics/claude-code/issues/38993	[BUG] Cowork: virtiofs FUSE mount serves truncated/stale files — host-side file changes not reflected in VM
+30	30	21	2026-04-01	open	https://github.com/sgl-project/sglang/issues/21846	[Roadmap]: SGLang Distributed KVCache System For Agentic Workload
+27	27	45	2025-11-12	open	https://github.com/anthropics/claude-code/issues/11455	Feature Request: Session Handoff / Continuity Support
+16	26	21	2026-03-06	open	https://github.com/NousResearch/hermes-agent/issues/527	Feature: Gateway Permission Tiers — Role-Based Access Control (Owner/Admin/User/Guest) for Messenger Platforms
+18	25	23	2026-04-10	closed	https://github.com/MemPalace/mempalace/issues/524	Remove Baldfaced Lies Please
+10	24	268	2026-05-08	open	https://github.com/antirez/ds4/issues/16	AMD GPU (ROCm/HIP) and especially Strix Halo discussion group
+23	23	9	2026-03-07	open	https://github.com/openai/codex/issues/13836	Codex app: support Projects with movable chats, shared memory, and shared uploaded files
+23	23	34	2026-08-18	open	https://github.com/anthropics/claude-code/issues/87640	[Bug] Fable 5 safeguard `[reasoning_extraction]` false-positives on a one-word greeting ("Hi")

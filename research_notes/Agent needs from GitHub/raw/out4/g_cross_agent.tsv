@@ -1,0 +1,31 @@
+# "cross-agent" is:issue created:>2025-09-01 total=114975
+697	728	1499	2026-01-03	open	https://github.com/anthropics/claude-code/issues/16157	[BUG] Instantly hitting usage limits with Max subscription
+498	656	38	2026-03-05	open	https://github.com/anthropics/claude-code/issues/31005	Support for AGENTS.md and .agents/skills/, the community has been asking since August 2025
+443	583	143	2026-07-13	open	https://github.com/anthropics/claude-code/issues/77136	[BUG] Claude 4.7, 4.8, 5.0, 5.5, and Fable increasingly default to repetitive rhetorical tics and often struggle to produce coherent prose despite explicit style instructions
+188	271	130	2025-12-19	open	https://github.com/agentskills/agentskills/issues/15	Proposal: include a standard folder where agent skills should be
+203	224	61	2025-09-20	open	https://github.com/openai/codex/issues/3962	Play a sound when Codex finishes a prompt / task
+168	168	55	2025-10-24	closed	https://github.com/anthropics/claude-code/issues/10238	[FEATURE] Add support for subdirectories in skills
+157	163	110	2026-04-06	open	https://github.com/anthropics/claude-ai-mcp/issues/152	Support icons field from MCP serverInfo for custom connectors
+107	107	21	2025-12-27	open	https://github.com/anthropics/claude-code/issues/15542	[FEATURE] Enable Claude Code to access chat history in Claude App
+104	106	32	2025-11-18	closed	https://github.com/github/copilot-cli/issues/618	Feature Request: Support custom slash commands from .github/prompts directory
+83	99	26	2025-12-21	closed	https://github.com/anomalyco/opencode/issues/5887	[feat] True Async/Background Sub-Agent Delegation
+82	95	116	2026-01-01	closed	https://github.com/openclaw/openclaw/issues/75	Linux/Windows Clawdbot Apps
+79	90	225	2026-01-12	closed	https://github.com/anomalyco/opencode/issues/8030	Copilot auth now sets far too many requests as "user" consuming premium requests rapidly
+88	88	21	2026-03-10	open	https://github.com/anthropics/claude-code/issues/32982	[BUG] Remote Control sessions die after ~20 min idle — server TTL ignores keepalives
+77	84	19	2025-10-17	closed	https://github.com/openai/codex/issues/5291	Support for SKILL.md files
+75	75	69	2025-10-17	open	https://github.com/anthropics/claude-code/issues/9716	[BUG] Claude Code assistant not aware of available skills in .claude/skills/ directory
+24	74	16	2026-02-08	closed	https://github.com/anomalyco/opencode/issues/12711	[DESIGN]: Agent Teams — flat teams with named messaging, multi-model support, and TUI integration
+63	64	13	2025-12-31	open	https://github.com/anthropics/claude-code/issues/15881	[Feature Request] Seamless session sharing between Claude Code and Claude Desktop
+50	62	9	2026-07-07	open	https://github.com/stablyai/orca/issues/7754	[Feature]: Embedded VSCode editor
+62	62	34	2026-01-05	closed	https://github.com/anthropics/claude-code/issues/16345	[Feature Request] Support the standard .agents/skills/ directory for agent skills
+60	60	8	2026-05-05	closed	https://github.com/OxideAV/oxideav-magicyuv/issues/3	questionable LICENSE
+57	57	21	2026-05-13	closed	https://github.com/NousResearch/hermes-agent/issues/25267	[Feature]: Claude Agent SDK model provider with subscription OAuth (Codex-style)
+50	55	9	2026-04-18	open	https://github.com/microsoft/vscode/issues/311148	Agents App: Support multi-root workspaces with cross-repo change tracking and worktrees
+51	54	33	2026-05-02	open	https://github.com/NousResearch/hermes-agent/issues/18715	Support remote Hermes agent with local tool execution
+29	53	25	2026-03-06	closed	https://github.com/NousResearch/hermes-agent/issues/514	Feature: A2A (Agent-to-Agent) Protocol Support — Remote Agent Discovery, Communication & Interoperability
+50	50	3	2026-06-05	open	https://github.com/microsoft/vscode/issues/320044	Remote session/task persistence: Detach, preserve, and reattach all active tasks, terminals, and extension processes in VS Code Remote
+33	51	35	2026-05-08	open	https://github.com/openai/codex/issues/21753	Full Claude Code Hook Parity (29+)
+14	34	1137	2026-03-10	closed	https://github.com/Scottcjn/rustchain-bounties/issues/1611	[EASY BOUNTY: 1 RTC] Add emoji reactions to 3+ issues showing support
+46	49	12	2026-03-09	open	https://github.com/anthropics/claude-code/issues/32631	[FEATURE] Conversation Branching — full spec for fork, merge, and tree navigation
+45	48	67	2026-05-14	open	https://github.com/anthropics/claude-code/issues/59248	Silent retention cleanup deletes session transcripts with no warning, opt-in, or recovery
+12	46	16	2026-01-09	closed	https://github.com/anomalyco/opencode/issues/7467	[FEATURE]: GitHub-based Agent Marketplace for Sharing and Discovering Agents

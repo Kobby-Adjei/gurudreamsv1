@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title worktree total=2026
+113	129	24	2026-02-26	closed	https://github.com/openai/codex/issues/12862	CLI: add --worktree and --tmux flags for one-command isolated sessions
+110	110	32	2026-01-27	closed	https://github.com/anthropics/claude-code/issues/21236	[FEATURE] Option to disable automatic git worktree creation for linked repositories
+91	93	13	2026-02-04	closed	https://github.com/anthropics/claude-code/issues/23109	[FEATURE] Trusted workspace patterns to skip trust prompt for git worktrees
+89	89	22	2026-02-06	open	https://github.com/anthropics/claude-code/issues/23622	[Feature Request] Support selecting base branch when creating git worktree
+79	80	47	2025-11-27	closed	https://github.com/anthropics/claude-code/issues/12513	[BUG] Option to disable automatic worktree creation for solo developers (for the standalone macOS interface)
+78	78	21	2026-02-04	open	https://github.com/openai/codex/issues/10599	Way to configure location of worktrees
+74	74	13	2026-02-21	open	https://github.com/anthropics/claude-code/issues/27282	[Feature Request] Configurable worktree directory location with sibling directory support
+61	62	28	2026-03-06	open	https://github.com/openai/codex/issues/13762	Windows desktop in WSL mode uses the Windows CODEX_HOME inside WSL and creates/stores worktrees on /mnt/c instead of the WSL filesystem
+60	60	9	2026-03-02	open	https://github.com/anthropics/claude-code/issues/30213	Compound cd && git commands in worktrees should not require approval
+50	50	21	2026-03-14	open	https://github.com/anthropics/claude-code/issues/34437	Worktrees should share the same project directory as the main repo
+47	47	7	2025-12-30	closed	https://github.com/anthropics/claude-code/issues/15776	Session state should persist across git worktrees
+42	42	8	2026-02-20	closed	https://github.com/anthropics/claude-code/issues/27134	[Bug] EnterWorktree creates worktree from default branch instead of HEAD
+41	41	25	2026-02-20	closed	https://github.com/anthropics/claude-code/issues/27044	[BUG] claude --worktree (-w) does not create a git worktree
+38	38	8	2026-03-07	open	https://github.com/anthropics/claude-code/issues/31969	Feature: Enter/resume existing worktrees, configurable branch naming, hook removal control
+37	37	5	2026-06-05	open	https://github.com/openai/codex/issues/26648	Codex app: support Jujutsu (`jj`) workspaces or custom worktree backend
+34	34	16	2026-02-18	open	https://github.com/anthropics/claude-code/issues/26725	Stale worktrees are never cleaned up
+33	33	6	2026-06-19	open	https://github.com/anthropics/claude-code/issues/69554	[FEATURE] Add --worktree support for parallel sessions in VS Code (same as Agent View in VSCode does)
+30	30	19	2025-11-30	open	https://github.com/anthropics/claude-code/issues/12748	[FEATURE] Add cwd parameter to Task tool for setting subagent working directory (to support Git worktrees)
+9	30	13	2025-05-11	closed	https://github.com/anthropics/claude-code/issues/1052	Field notes: git worktree pattern
+28	28	9	2026-07-17	closed	https://github.com/anomalyco/opencode/issues/37546	Web: no way to revert the new layout, and the new layout is missing workspaces/worktrees
+29	29	11	2026-02-22	closed	https://github.com/anthropics/claude-code/issues/27744	[FEATURE] Add PostWorktreeCreate hook (or setup command) for environment initialization in worktrees
+27	27	16	2025-11-08	open	https://github.com/anthropics/claude-code/issues/11239	[Bug] Plan agent uses main branch path instead of git worktree directory
+27	27	1	2026-03-12	closed	https://github.com/openai/codex/issues/14468	Better WSL compatibility in Codex App for Windows, with configurable worktree directory
+26	26	7	2026-02-24	open	https://github.com/anthropics/claude-code/issues/28041	claude --worktree: .claude/ subdirectories (skills, agents, docs, rules) not copied to worktree
+26	26	14	2026-03-19	open	https://github.com/anthropics/claude-code/issues/36182	Worktree: Edit/Read tools use main workspace paths instead of worktree paths
+25	25	8	2026-05-15	open	https://github.com/openai/codex/issues/22925	Codex Mobile remote new thread cannot choose worktree or starting branch
+22	22	11	2026-02-27	closed	https://github.com/anthropics/claude-code/issues/29316	/sandbox creates empty stub files in project root when using git worktrees
+21	21	21	2026-07-20	open	https://github.com/anthropics/claude-code/issues/79366	Worktree sessions reuse an existing worktree directory from a previous session instead of creating a fresh one
+21	21	7	2026-05-18	open	https://github.com/anthropics/claude-code/issues/60097	[Desktop] Display current worktree/cwd name in app UI (statusLine equivalent)
+20	20	9	2026-07-13	open	https://github.com/anthropics/claude-code/issues/77069	Allow pre-approving EnterWorktree for worktree paths outside .claude/worktrees/

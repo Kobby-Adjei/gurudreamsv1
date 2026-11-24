@@ -1,0 +1,31 @@
+# "AGENTS.md" support is:issue created:>2025-06-01 total=196772
+5197	6696	409	2025-08-21	closed	https://github.com/anthropics/claude-code/issues/6235	Feature Request: Support AGENTS.md.
+548	3491	440	2026-11-03	closed	https://github.com/openai/codex/issues/59060	Told to reboot a server, it destroyed systemd, destroyed containers, ran random scripts, cost me $10,000+
+2072	3286	583	2026-04-02	closed	https://github.com/anthropics/claude-code/issues/42796	[MODEL] Claude Code is unusable for complex engineering tasks with the Feb updates
+1199	2121	288	2026-04-09	open	https://github.com/anthropics/claude-code/issues/45596	Bring Back Buddy — A Consolidated Plea from the Community
+797	1416	410	2026-01-09	closed	https://github.com/anthropics/claude-code/issues/17118	[Feature Request] Support for OpenCode and Max plan
+697	728	1499	2026-01-03	open	https://github.com/anthropics/claude-code/issues/16157	[BUG] Instantly hitting usage limits with Max subscription
+525	689	76	2025-08-09	closed	https://github.com/openai/codex/issues/2109	Event Hooks
+435	674	57	2025-06-24	open	https://github.com/anthropics/claude-code/issues/2511	Feature request: Connect Claude code to Claude projects 
+498	656	38	2026-03-05	open	https://github.com/anthropics/claude-code/issues/31005	Support for AGENTS.md and .agents/skills/, the community has been asking since August 2025
+514	619	73	2026-01-05	open	https://github.com/openai/codex/issues/8745	LSP integration (auto-detect + auto-install) for Codex CLI
+364	557	211	2026-06-18	closed	https://github.com/openai/codex/issues/28879	Codex (gpt-5.5, Plus plan) — rate-limit cost per token jumped ~10-20x since June 16, draining the 5h budget in 2-3 prompts
+505	557	102	2026-01-14	open	https://github.com/openai/codex/issues/9203	Please make "/undo" back
+213	532	93	2026-04-25	closed	https://github.com/anthropics/claude-code/issues/53262	HERMES.md in git commit messages causes requests to route to extra usage billing instead of plan quota
+407	506	61	2025-08-09	closed	https://github.com/openai/codex/issues/2101	Plan Mode
+474	474	93	2025-08-28	closed	https://github.com/openai/codex/issues/2847	A way to exclude sensitive files
+289	428	188	2026-06-27	closed	https://github.com/openai/codex/issues/30364	GPT-5.5 Codex reasoning-token clustering at 516/1034/1552 may be leading to degraded performance on complex tasks
+317	413	103	2025-08-23	closed	https://github.com/openai/codex/issues/2604	Subagent Support
+232	402	31	2025-08-29	closed	https://github.com/openai/codex/issues/2890	Custom prompts - passing arguments
+284	307	630	2026-03-13	closed	https://github.com/openai/codex/issues/14593	Burning tokens very fast
+20	304	253	2026-10-02	open	https://github.com/microsoft/vscode/issues/339363	[Meta] Feedback on granular control over Copilot changes
+188	271	130	2025-12-19	open	https://github.com/agentskills/agentskills/issues/15	Proposal: include a standard folder where agent skills should be
+176	253	172	2026-05-21	closed	https://github.com/openai/codex/issues/23794	Codex Desktop no longer shows visible context/token usage indicator
+168	241	132	2026-04-24	closed	https://github.com/openai/codex/issues/19464	Support 1M token context for GPT-5.5 in Codex
+222	227	99	2026-06-18	open	https://github.com/openai/codex/issues/28969	Add setting to disable the auto-resolve in 60 seconds for questions
+131	224	279	2026-09-03	open	https://github.com/anthropics/claude-code/issues/91870	Mods - make Claude 10x more extensible
+203	224	61	2025-09-20	open	https://github.com/openai/codex/issues/3962	Play a sound when Codex finishes a prompt / task
+176	206	100	2026-07-09	closed	https://github.com/openai/codex/issues/31814	GPT-5.6 Sol cannot specify subagent models, forcing all subagents to also be Sol instances
+140	201	64	2026-05-30	open	https://github.com/openai/codex/issues/25319	Scope Codex VS Code chats to the current workspace/project
+135	194	27	2026-03-10	closed	https://github.com/fish-shell/fish-shell/issues/12526	Removing the AGENTS.md file again
+157	192	20	2026-02-12	closed	https://github.com/zed-industries/zed/issues/49057	Support for Agent Skills

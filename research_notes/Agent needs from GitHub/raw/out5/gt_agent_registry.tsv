@@ -1,0 +1,31 @@
+# in:title "agent registry" OR "agent discovery" is:issue created:>2025-09-01 total=9803
+29	53	25	2026-03-06	closed	https://github.com/NousResearch/hermes-agent/issues/514	Feature: A2A (Agent-to-Agent) Protocol Support — Remote Agent Discovery, Communication & Interoperability
+22	22	9	2026-07-24	closed	https://github.com/microsoft/vscode/issues/327256	Proposal: Support a Shared `.agents/` Directory and Manifest-Based Discovery
+17	17	7	2026-01-29	closed	https://github.com/zed-industries/zed/issues/47910	External Agents installed via ACP Registry do not work on remote Zed Server (Windows → Ubuntu via SSH) or WSL
+11	11	4	2026-10-21	open	https://github.com/microsoft/vscode/issues/343364	Agent Host: one workspace folder from an extension file system (abap:) breaks agents/skills discovery for all folders
+3	8	43	2026-04-17	open	https://github.com/Scottcjn/rustchain-bounties/issues/3075	[AGENT-BOUNTY: 20 RTC] Submit rustchain-mcp to 3 MCP directories + registries
+9	9	7	2026-07-24	closed	https://github.com/anthropics/claude-code/issues/80801	[FEATURE] Proposal: Support a Shared `.agents/` Directory and Manifest-Based Discovery
+9	9	1	2026-08-06	closed	https://github.com/pingdotgg/t3code/issues/5487	[Bug]: Skill discovery never scans repo-local `.agents/skills` (Agent Skills standard dir)
+9	9	7	2026-06-10	closed	https://github.com/hashicorp/terraform-provider-aws/issues/48310	[Enhancement]: aws_bedrockagentcore_agent_runtime: support private_endpoint in custom_jwt_authorizer (private IdP discovery)
+7	8	1	2026-03-05	closed	https://github.com/github/copilot-cli/issues/1859	Support agent discovery from current working directory (nested .github/agents/)
+8	8	8	2026-03-24	closed	https://github.com/microsoft/vscode/issues/304425	Copilot custom agents: recursive discovery for nested .github/agents folders
+8	8	4	2026-04-09	closed	https://github.com/anomalyco/opencode/issues/21742	[FEATURE]: Built-in "Ask" Agent for Codebase Discovery and Brainstorming
+7	7	2	2025-10-09	closed	https://github.com/agno-agi/agno/issues/4968	[Feature Request] a2a agent discovery card
+6	7	6	2026-05-27	open	https://github.com/rtk-ai/rtk/issues/2110	Auto-rewriting discovery commands can lose exact file/path semantics for agents
+6	6	2	2026-10-22	open	https://github.com/gomezzz/too-useful-not-to-build/issues/14	Agentic language discovery
+6	6	4	2026-02-23	closed	https://github.com/zed-industries/zed/issues/49918	ACP Registry Agents should check for binary in PATH before downloading
+5	5	2	2026-03-09	open	https://github.com/vercel-labs/skills/issues/559	[Feature]: Registry manifest file (.agents/manifest.json) for versioned skill distribution
+5	5	7	2026-08-05	closed	https://github.com/PrimeIntellect-ai/prime-agent/issues/639	RLM excludes OpenAI Codex models because discovery sends Prime Agent version as client_version
+4	4	2	2026-07-21	open	https://github.com/github/copilot-cli/issues/4204	Add `.agents` discovery for instructions, agents, and hooks in any opened folder
+4	4	2	2026-04-13	open	https://github.com/NousResearch/hermes-agent/issues/9111	[Feature]: ADDING hermes-agent to ACP registry
+3	4	0	2026-07-17	closed	https://github.com/laravel/ai/issues/799	[Feature Request] Native Agent Skills Support for Laravel AI SDK (Skill Registry + Lazy Loading + Agent Integration)
+3	3	7	2026-11-19	open	https://github.com/fullsend-ai/fullsend/issues/9683	cli: lock --all deletes lock entries for config-registered agents when agent discovery fails
+3	3	5	2025-09-03	open	https://github.com/LAB02-Research/HASS.Agent-Integration/issues/65	RuntimeError: hass_agent calls device_registry.async_update_device from a thread other than the event loop
+0	3	4	2026-08-08	closed	https://github.com/anomalyco/opencode/issues/41213	[BUG]: external .claude/.agents skill discovery silently finds nothing (global and project) in 1.18.15
+3	3	5	2026-06-14	closed	https://github.com/omnigent-ai/omnigent/issues/67	[Feature] Registry for custom agents
+3	3	7	2026-06-08	closed	https://github.com/anthropics/claude-code/issues/66352	[FEATURE] Support user-level .agents/skills/ discovery for cross-agent single-source-of-truth workflows
+3	3	5	2026-06-19	closed	https://github.com/kagent-dev/kagent/issues/2055	[BUG] Pinned Agent images | Ignoring --image-registry / --image-repository in private-registry deployments
+1	3	1	2026-04-26	closed	https://github.com/nicobailon/pi-subagents/issues/117	Feature Request: Add Recursive Subdirectory Support for Agent Definition Discovery
+0	2	2	2026-09-07	open	https://github.com/QuintusJoyal/atlas/issues/33	[FEATURE]: Agent Specialization Registry with Role-Based Access Control
+2	2	5	2026-10-19	open	https://github.com/FG-TIDA/themes/issues/45	Subject-Anchored Identity, Delegation and Discovery for Agentic AI
+0	2	1	2026-06-19	closed	https://github.com/agentgateway/agentgateway/issues/2254	Agent Registry and Discovery

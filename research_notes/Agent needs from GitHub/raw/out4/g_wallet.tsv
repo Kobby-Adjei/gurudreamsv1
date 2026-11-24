@@ -1,0 +1,31 @@
+# "agent wallet" is:issue total=16102
+598	1210	85	2024-01-29	closed	https://github.com/zed-industries/zed/issues/7015	Linux Roadmap
+697	728	1499	2026-01-03	open	https://github.com/anthropics/claude-code/issues/16157	[BUG] Instantly hitting usage limits with Max subscription
+284	307	630	2026-03-13	closed	https://github.com/openai/codex/issues/14593	Burning tokens very fast
+195	264	77	2025-08-19	closed	https://github.com/anomalyco/opencode/issues/2072	Support for Cursor?
+76	78	99	2019-10-29	open	https://github.com/PowerShell/Win32-OpenSSH/issues/1487	ssh-agent: permanent loaded ssh-key storage
+48	52	29	2026-03-16	closed	https://github.com/openclaw/community/issues/11	Rules change: Add Prediction Market Talk to Disallowed Topics
+51	51	36	2021-05-07	open	https://github.com/w3c/webcrypto/issues/263	PROPOSAL: Add support for general (hardware backed) cryptographic signatures and key exchange
+14	34	1137	2026-03-10	closed	https://github.com/Scottcjn/rustchain-bounties/issues/1611	[EASY BOUNTY: 1 RTC] Add emoji reactions to 3+ issues showing support
+8	45	25	2021-09-25	closed	https://github.com/IntersectMBO/cardano-node/issues/3247	[FR] - Increase network throughput
+16	30	551	2026-03-11	closed	https://github.com/Scottcjn/rustchain-bounties/issues/1677	[EASY BOUNTY: 2 RTC] Star & Share Campaign — Help Us Hit 200 Stars on RustChain!
+36	36	26	2016-11-01	open	https://github.com/dlech/KeeAgent/issues/173	Add GPG agent/GPG support
+10	28	852	2026-03-15	closed	https://github.com/Scottcjn/rustchain-bounties/issues/2103	[BOUNTY] Star & Follow — Earn RTC (Ongoing, Agents Welcome)
+10	22	128	2026-04-22	open	https://github.com/Scottcjn/rustchain-bounties/issues/3418	[BOUNTY] Register on Beacon Atlas + Prove Commerce (Pool: 100 RTC)
+10	25	269	2026-03-10	closed	https://github.com/Scottcjn/rustchain-bounties/issues/1605	[EASY BOUNTY: 1 RTC] Add a CONTRIBUTING.md to any repo missing one
+7	16	62	2026-04-09	open	https://github.com/Scottcjn/rustchain-bounties/issues/2866	[BOUNTY: 5 RTC] Post RustChain to Hacker News, Reddit, or Lobsters (With Proof)
+8	16	64	2026-04-10	open	https://github.com/Scottcjn/rustchain-bounties/issues/2960	[BOUNTY: 3 RTC] Share elyanlabs.ai Launch on Social Media (With Proof)
+10	18	55	2026-04-09	open	https://github.com/Scottcjn/rustchain-bounties/issues/2870	[BOUNTY: 1 RTC] Run the RustChain Miner for 24 Hours and Share Your Hardware Report
+18	26	23	2025-10-10	open	https://github.com/x402-foundation/x402/issues/447	x402 x Circle Gateway
+12	26	20	2025-05-08	closed	https://github.com/x402-foundation/x402/issues/131	Feature Request: Add Solana support to x402
+7	24	2500	2026-02-06	closed	https://github.com/Scottcjn/rustchain-bounties/issues/73	[BOUNTY] Code Review Bounty Program — Review PRs, Earn RTC (100 RTC Pool)
+11	20	138	2026-03-10	open	https://github.com/Scottcjn/rustchain-bounties/issues/1618	[EASY BOUNTY: 1 RTC] Report any accessibility issue in BoTTube UI
+7	14	59	2026-04-10	closed	https://github.com/Scottcjn/rustchain-bounties/issues/2959	[BOUNTY: 5 RTC] Submit elyanlabs.ai to Google Search Console + Create sitemap.xml
+7	14	184	2026-04-09	closed	https://github.com/Scottcjn/rustchain-bounties/issues/2862	[BOUNTY: 3 RTC] Add RustChain to 5 Awesome Lists on GitHub (DePIN, Blockchain, AI)
+23	23	85	2026-02-10	closed	https://github.com/anthropics/claude-code/issues/24798	Inter-session communication for multi-Claude workflows
+8	14	164	2026-03-20	open	https://github.com/Scottcjn/rustchain-bounties/issues/2271	[BOUNTY: 2 RTC] Download and test the RustChain miner (dry run)
+21	21	44	2015-09-24	open	https://github.com/spring-projects/spring-framework/issues/18079	Declare Spring modules with JDK 9 module metadata [SPR-13501]
+5	14	98	2026-03-10	closed	https://github.com/Scottcjn/rustchain-bounties/issues/1595	[EASY BOUNTY: 1 RTC] Star all 5 Elyan Labs repos and share on social media
+20	20	7	2022-01-18	open	https://github.com/Kunzisoft/KeePassDX/issues/1202	Unlocking the wallet adds ssh keys in the ssh agent
+7	14	64	2026-03-10	closed	https://github.com/Scottcjn/rustchain-bounties/issues/1598	[EASY BOUNTY: 2 RTC] Add a RustChain badge to your GitHub profile
+10	17	23	2026-03-20	open	https://github.com/VoltAgent/voltagent/issues/1166	[FEAT] Add deterministic pre-action authorization at the tool-call hook level

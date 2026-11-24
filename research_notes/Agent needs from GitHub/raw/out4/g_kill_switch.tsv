@@ -1,0 +1,31 @@
+# agent "kill switch" is:issue created:>2025-06-01 total=22422
+1097	1452	253	2026-01-15	open	https://github.com/anthropics/claude-code/issues/18435	[FEATURE] Add the ability to manage multiple Claude accounts within the Claude Desktop app with easy switching between profiles.
+697	728	1499	2026-01-03	open	https://github.com/anthropics/claude-code/issues/16157	[BUG] Instantly hitting usage limits with Max subscription
+451	617	157	2026-06-14	closed	https://github.com/openai/codex/issues/28224	Codex SQLite feedback logs can write ~640 TB/year and rapidly consume SSD endurance
+476	545	878	2026-03-24	open	https://github.com/anthropics/claude-code/issues/38335	[BUG] Claude Max plan session limits exhausted abnormally fast since March 23, 2026 (CLI usage)
+284	307	630	2026-03-13	closed	https://github.com/openai/codex/issues/14593	Burning tokens very fast
+222	227	99	2026-06-18	open	https://github.com/openai/codex/issues/28969	Add setting to disable the auto-resolve in 60 seconds for questions
+142	142	39	2026-01-23	closed	https://github.com/anthropics/claude-code/issues/20412	Claude.ai MCP servers auto-injected into Claude Code without opt-in — causes OOM crashes on resource-constrained systems
+124	125	47	2026-01-21	open	https://github.com/anthropics/claude-code/issues/19649	[MODEL] Frequently uses Bash tools (sed/grep/etc) when use-case is well aligned to other builtin tools (Read/Grep/etc)
+115	115	44	2026-01-22	closed	https://github.com/anthropics/claude-code/issues/20131	Feature Request: Multi-Account Profile Support
+82	95	116	2026-01-01	closed	https://github.com/openclaw/openclaw/issues/75	Linux/Windows Clawdbot Apps
+88	88	14	2025-12-24	closed	https://github.com/openai/codex/issues/8512	Implement Codex Plugins same as Claude Plugins
+44	87	703	2025-08-01	open	https://github.com/microg/GmsCore/issues/2994	[BOUNTY] RCS Support [14999$]
+51	51	25	2026-08-28	open	https://github.com/anthropics/claude-code/issues/90450	[BUG] Auto Mode's Bash-first instruction silently disables nested CLAUDE.md and path-scoped rules
+51	51	107	2026-02-11	closed	https://github.com/anthropics/claude-code/issues/24918	[BUG] Cowork Windows - Cannot connect to Claude API from workspace (Windows 11 Home)
+38	38	66	2025-12-20	open	https://github.com/anthropics/claude-code/issues/14828	Windows: Console window flashing when executing tools
+36	36	18	2026-11-06	closed	https://github.com/MicrosoftEdge/WebView2Feedback/issues/5797	[Problem/Bug]: Runtime 157 suppresses <input type="file"> in Outlook add-in task panes ("top-level window size is smaller than the minimum required size (400x300)")
+33	33	33	2026-03-22	open	https://github.com/anthropics/claude-code/issues/37413	[BUG] Cowork (Not Claude Code) 1M context window unavailable on Max 5x — regression from March 20
+19	30	34	2026-02-11	open	https://github.com/vllm-project/vllm/issues/34303	[RFC]: CUDA Checkpoint/Restore for Near-Zero Cold Starts
+29	29	6	2026-05-10	closed	https://github.com/microsoft/vscode/issues/315508	Feature Request: Improve VSCode Speech Input Accuracy and Polishing for Specialized Terms and Conversational Expressions
+28	28	21	2026-05-11	closed	https://github.com/openai/codex/issues/22085	Windows: Codex spawns many Git for Windows processes causing sustained high CPU after recent update
+14	28	30	2026-09-13	open	https://github.com/StressOzz/Zapret-Manager/issues/1062	Zapret Manager WEB + LuCI
+23	23	34	2026-08-18	open	https://github.com/anthropics/claude-code/issues/87640	[Bug] Fable 5 safeguard `[reasoning_extraction]` false-positives on a one-word greeting ("Hi")
+20	20	58	2026-06-21	open	https://github.com/openai/codex/issues/29343	Chrome plugin, browser and computer use refuse to interact with certain sites.
+16	17	24	2025-10-16	open	https://github.com/microsoft/vscode/issues/271711	Failed to apply code block: Response contained no choices.
+15	17	4	2026-04-13	closed	https://github.com/anthropics/claude-code/issues/47558	[DOCS] DISABLE_TELEMETRY should document experiment-gate side effects
+17	17	11	2026-07-08	closed	https://github.com/steipete/CodexBar/issues/1991	v0.41.0: macOS Keychain password prompt repeats every few minutes
+16	16	42	2026-08-13	open	https://github.com/openai/codex/issues/38455	ChatGPT desktop 26.810.41047 repeatedly spawns Computer Use workers and crashes with V8 OOM on macOS
+15	15	16	2026-05-05	open	https://github.com/zed-industries/zed/issues/55771	Terminal processes dying when switching between projects
+13	15	6	2026-05-18	closed	https://github.com/microsoft/vscode/issues/317172	Agents App: Add a voice to text option
+10	15	212	2026-02-24	open	https://github.com/deepseek-ai/DeepSeek-V3/issues/1121	Feature Request: On-Device Persistent Memory with Cryptographic Identity Binding (Local Storage Architecture)

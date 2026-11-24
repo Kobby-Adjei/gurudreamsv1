@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title sandbox total=3318
+84	91	115	2025-08-25	closed	https://github.com/anomalyco/opencode/issues/2242	Is there a way to sandbox the agent ?
+81	81	9	2026-02-24	open	https://github.com/anthropics/claude-code/issues/28018	Sandbox: allow outbound connections to localhost
+70	70	9	2026-02-05	open	https://github.com/anthropics/claude-code/issues/23416	[BUG] macOS sandbox blocks Security.framework TLS verification, breaking Go binaries (gh, terraform, etc.)
+65	66	40	2025-09-04	open	https://github.com/openai/codex/issues/3141	Allow GPU access inside sandbox
+64	64	63	2026-06-20	closed	https://github.com/openai/codex/issues/29189	Codex Desktop 26.616.41845 node_repl fails: codex/sandbox-state-meta missing sandboxPolicy
+42	42	9	2026-02-03	open	https://github.com/openai/codex/issues/10535	Desktop app: devcontainer-like sandbox environment
+42	42	15	2026-01-17	closed	https://github.com/anomalyco/opencode/issues/9132	[FEATURE]: Official Docker Sandbox Template for `docker sandbox run opencode`
+38	38	6	2026-07-17	open	https://github.com/anthropics/claude-code/issues/78419	Sandbox stubs break `git add .` and are indistinguishable from real repo state to the agent
+37	37	52	2026-09-22	closed	https://github.com/openai/codex/issues/47345	Bug: Linux sandbox fails with mountinfo path is not absolute after ChatGPT update
+34	34	11	2026-06-24	open	https://github.com/anthropics/claude-code/issues/70684	[BUG] sandbox: SOCKS5 proxy requires authentication that BSD nc cannot negotiate, breaking SSH git operations
+33	33	7	2026-02-28	closed	https://github.com/anthropics/claude-code/issues/29533	Sandbox blocks Go TLS cert verification on macOS (gh CLI fails)
+32	32	14	2026-03-20	closed	https://github.com/openai/codex/issues/15283	Sandboxed tool calls fail on Ubuntu 20.04 with bubblewrap 0.4.0 ('bwrap: Unknown option --argv0')
+31	31	126	2026-10-07	open	https://github.com/openai/codex/issues/51601	Windows app 26.1002.51308: sandbox setup fails with sharing violation when validating its own active runtime
+29	29	8	2026-01-29	closed	https://github.com/anthropics/claude-code/issues/21654	[BUG] "operation not permitted: /tmp/claude-501/cwd-*" error on macOS in  sandbox mode
+28	28	39	2026-03-05	closed	https://github.com/openai/codex/issues/13574	5.3 apply_patch fails under sandboxed default permission on Windows
+27	27	8	2025-12-05	open	https://github.com/anthropics/claude-code/issues/13108	[FEATURE] GPU device passthrough in sandbox mode
+22	27	12	2026-09-23	closed	https://github.com/openai/codex/issues/47429	[WSL2] `codex sandbox` fails because `/mnt/wslg/distro` is reported as an unsupported host mount
+27	27	52	2026-05-25	closed	https://github.com/openai/codex/issues/24391	Windows sandbox: spawn setup refresh fails on Codex CLI 0.133.0
+26	26	46	2026-06-19	open	https://github.com/openai/codex/issues/29072	Windows Codex App: apply_patch fails because codex-windows-sandbox-setup.exe cannot launch from package path
+26	26	5	2026-04-01	closed	https://github.com/anthropics/claude-code/issues/42203	Desktop app ignores env.PATH from settings.json (sandbox overrides)
+25	25	11	2025-09-04	closed	https://github.com/openai/codex/issues/3140	all commands in sandbox mode fail and need approval
+24	24	13	2026-04-25	closed	https://github.com/anthropics/claude-code/issues/53085	2.1.120: --continue/--resume fails with 'sandbox required but unavailable' even with sandbox.enabled=false (regression vs 2.1.119)
+23	23	17	2026-01-12	open	https://github.com/anthropics/claude-code/issues/17727	[BUG] Linux sandbox broken - bad bwrap calls and no allow permissions
+21	22	7	2026-04-06	open	https://github.com/openai/codex/issues/16910	Linux sandbox: support safe sandbox-local AF_UNIX sockets (e.g., sccache)
+22	22	18	2025-10-29	open	https://github.com/anthropics/claude-code/issues/10567	[BUG] /sandbox reports as unsupported in Linux when run under WSL2
+22	22	22	2026-03-29	open	https://github.com/anthropics/claude-code/issues/40495	[BUG] Cowork sessions ignore user hooks and managed settings — sandbox platform mismatch breaks all settings resolution
+22	22	21	2026-03-11	open	https://github.com/openai/codex/issues/14345	[possible degradation] Directories are now not trusted by default even with the `--dangerously-bypass-approvals-and-sandbox` option.
+22	22	11	2026-02-27	closed	https://github.com/anthropics/claude-code/issues/29316	/sandbox creates empty stub files in project root when using git worktrees
+20	21	6	2026-10-05	open	https://github.com/anthropics/claude-code/issues/99728	Sandbox creates empty `.claude/.cc-writes/` dirs in nested subfolders when working directory changes
+21	21	26	2026-09-17	open	https://github.com/openai/codex/issues/46110	Linux sandbox rejects valid nsfs mount roots from snapd: `mountinfo path is not absolute`

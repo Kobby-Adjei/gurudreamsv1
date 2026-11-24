@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title sub-agent total=1047
+83	99	26	2025-12-21	closed	https://github.com/anomalyco/opencode/issues/5887	[feat] True Async/Background Sub-Agent Delegation
+31	31	39	2025-07-25	open	https://github.com/anthropics/claude-code/issues/4462	[BUG] Sub-agents claim successful file creation but files don't persist to filesystem
+30	30	11	2025-08-22	closed	https://github.com/openai/codex/issues/2582	RFC: Make Codex CLI state-of-the-art — built-in prompt engineering, sub-agents, LLM proxy, extensibility & observability
+23	24	8	2025-07-28	closed	https://github.com/anthropics/claude-code/issues/4587	[BUG] Sub agents context is wiped when the user denies an action
+0	23	5	2026-02-06	closed	https://github.com/anomalyco/opencode/issues/12463	Feature: Sub-agent status sidebar panel
+19	19	11	2025-10-31	closed	https://github.com/anthropics/claude-code/issues/10669	[Bug] Anthropic API Error: Duplicate tool names when using sub-agents
+19	19	0	2025-07-07	closed	https://github.com/google-gemini/gemini-cli/issues/3423	Add a sub agent tool like claude cli
+15	15	2	2026-02-27	closed	https://github.com/openai/codex/issues/13004	Let us set custom sub-agent names
+15	15	18	2025-09-02	closed	https://github.com/anthropics/claude-code/issues/7020	[Bug] Memory Leak When Initializing Sub-Agent Orchestration
+15	15	13	2025-06-24	closed	https://github.com/anthropics/claude-code/issues/2532	[Feature] Model Selection of Sub Agents
+14	14	4	2026-01-10	closed	https://github.com/anomalyco/opencode/issues/7654	[BUG] Questions from nested sub-agents don't appear in TUI
+13	14	8	2025-07-27	closed	https://github.com/anthropics/claude-code/issues/4554	[BUG] Custom Sub-Agent Instructions Overridden by Undocumented Name-Based Inference System
+14	14	56	2025-07-28	closed	https://github.com/anthropics/claude-code/issues/4623	Sub-Agents Not Detected: Missing Agents in CLI List Despite Directory Creation
+14	14	5	2025-07-25	closed	https://github.com/anthropics/claude-code/issues/4377	Feature Request: Add Optional Model Parameter to Sub-Agents
+12	13	15	2026-06-13	open	https://github.com/anthropics/claude-code/issues/68110	General-purpose sub-agents recursively spawn unbounded child agents, causing exponential fan-out and massive token burn
+13	13	11	2026-03-03	open	https://github.com/anthropics/claude-code/issues/30280	Sub-agents spawned via Agent tool don't reliably inherit MCP tools (inconsistent with docs)
+13	13	9	2026-02-25	closed	https://github.com/openai/codex/issues/12829	awaiter sub-agent approval prompt did not surface
+13	13	3	2025-07-27	closed	https://github.com/anthropics/claude-code/issues/4549	Model Configuration Support for Sub Agents
+7	12	7	2026-03-30	closed	https://github.com/anomalyco/opencode/issues/19999	[FEATURE]: Ephemeral Sub-Agent Teams (parallel multi-agent orchestration)
+11	11	21	2026-01-18	closed	https://github.com/anthropics/claude-code/issues/19077	[BUG] Sub-agents can't create sub-sub-agents, even with Task tool access
+11	11	6	2025-08-12	closed	https://github.com/anthropics/claude-code/issues/5630	INEFFICIENT TOKEN USE AND WORKFLOW : Feature Request - When Sub-Agents are interrupted, allow the same sub-agents to continue working
+4	11	10	2025-11-19	closed	https://github.com/anthropics/claude-code/issues/11934	[BUG] Sub agents can't use tools properly: `Permission to use xxx has been auto-denied in dontAsk mode` even with `--dangerously-skip-permissions`
+8	11	7	2025-07-23	closed	https://github.com/anthropics/claude-code/issues/4182	Sub-Agent Task Tool Not Exposed When Launching Nested Agents
+8	8	0	2026-05-31	open	https://github.com/openai/codex/issues/25398	Codex app not display sub-agent status any more
+8	8	4	2026-04-02	closed	https://github.com/openai/codex/issues/16544	Sub Agents in Fast Mode
+7	7	3	2026-07-27	closed	https://github.com/anomalyco/opencode/issues/39112	Sub-sub-agents (depth: 2) "ask" permission doesn't surface to user and stalls
+5	7	12	2026-02-26	closed	https://github.com/openclaw/openclaw/issues/27445	[Feature]: `announceTarget` option for sub-agent completion announce routing
+7	7	15	2025-12-31	closed	https://github.com/anomalyco/opencode/issues/6527	[CRITICAL Security Issue/Bug] Plan mode restrictions bypassed when spawning sub-agents
+7	7	2	2025-07-14	closed	https://github.com/anthropics/claude-code/issues/3499	Concurrent sub-agents fail to spawn | Pressing `Esc` throws “Cannot read properties of undefined (reading 'message')”
+6	6	2	2026-07-13	closed	https://github.com/anomalyco/opencode/issues/36758	Feature Request: Allow sub-agents (task tool) to use different models per session

@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title schedule total=1809
+81	81	7	2026-04-15	open	https://github.com/anthropics/claude-code/issues/48322	[FEATURE] Team/Enterprise: shared routines (org-owned scheduled agents)
+53	53	43	2026-05-21	closed	https://github.com/anthropics/claude-code/issues/61015	[BUG] Scheduled routines fail every MCP tool call with "MCP tool call requires approval" on custom connectors (regression ~2026-05-20)
+48	48	41	2026-04-13	open	https://github.com/anthropics/claude-code/issues/47180	[BUG] Cowork scheduled tasks ignore "Always allow" folder/tool permissions — prompts reappear every run (macOS)
+42	42	9	2025-12-19	open	https://github.com/openai/codex/issues/8317	Add time-based scheduling for commands/tasks (delay, interval, and conditional polling)
+38	39	5	2025-07-01	closed	https://github.com/anthropics/claude-code/issues/2794	Feature Request: Scheduled Actions in Claude Code
+27	38	28	2026-11-05	open	https://github.com/openai/codex/issues/59546	[Desktop] Built-in automation restriction blocks monitoring tasks in external web systems, conflicting with Scheduled tasks docs
+22	35	12	2026-01-30	closed	https://github.com/anomalyco/opencode/issues/11232	Feature Request: Native Scheduling for Opencode
+35	35	55	2026-03-18	closed	https://github.com/anthropics/claude-code/issues/35899	[BUG] Scheduled tasks cannot access MCP connectors until a user message warms the session
+32	32	16	2026-05-29	open	https://github.com/anthropics/claude-code/issues/63671	Versioned install path causes TCC re-prompts on every Claude Code update (breaks MDM PPPC; CoWork scheduled actions may be affected)
+29	29	12	2026-04-29	open	https://github.com/anthropics/claude-code/issues/54517	[FEATURE] Allow scheduled agent / Routine runs to appear in Recents or be pinnable in the sidebar
+21	21	7	2026-03-20	open	https://github.com/anthropics/claude-code/issues/36496	Scheduled task ignores model setting, always runs Sonnet
+20	20	2	2026-03-08	open	https://github.com/anthropics/claude-code/issues/32000	Scheduled tasks cannot access HTTP MCP servers — missing user:mcp_servers scope
+19	19	16	2026-04-04	closed	https://github.com/anthropics/claude-code/issues/43397	[BUG] Cloud scheduled tasks cannot access MCP connectors — tools not loaded into session
+18	18	3	2026-05-31	open	https://github.com/openai/codex/issues/25466	Feature: in-session scheduling tools (Cron + ScheduleWakeup) and a /loop command
+16	16	6	2026-03-11	open	https://github.com/anthropics/claude-code/issues/33027	Scheduled tasks: 'Always allow' option missing from permission prompts
+14	14	19	2026-09-22	open	https://github.com/anthropics/claude-code/issues/95967	Scheduled task (routine) runs no longer appear in the desktop sidebar or Remote Control
+13	13	11	2026-07-23	open	https://github.com/openai/codex/issues/34946	Allow Scheduled tasks to target SSH-connected hosts and surface runs in the controlling Codex app
+13	13	16	2026-09-05	open	https://github.com/anthropics/claude-code/issues/92276	[BUG] Desktop 1.44121.4+ never auto-enables Remote Control for scheduled-task sessions (regression from 1.40609.0)
+13	13	14	2026-10-14	closed	https://github.com/anthropics/claude-code/issues/102158	[BUG] Desktop 2.37337.1 (macOS): Routines sidebar section hidden with no toggle — scheduled task results no longer in sidebar
+13	13	2	2026-02-06	closed	https://github.com/openclaw/openclaw/issues/10164	Feature: Native Temporal integration for durable workflows and scheduling
+11	11	15	2026-02-26	open	https://github.com/anthropics/claude-code/issues/29022	[BUG] Cowork /schedule skill fails — create_scheduled_task tool not injected into session context (Windows)
+11	11	12	2026-04-17	closed	https://github.com/anthropics/claude-code/issues/49942	Scheduled tab missing from sidebar after recent update
+11	11	6	2026-02-26	closed	https://github.com/openai/codex/issues/12919	Scheduled automations cannot access GitHub API in default sandbox despite allowlisted gh api and loaded token
+11	11	8	2026-04-01	closed	https://github.com/anthropics/claude-code/issues/42148	[BUG] MCP deferred tools not available on first turn — breaks scheduled/automated tasks
+10	10	17	2026-04-30	closed	https://github.com/anthropics/claude-code/issues/54859	[FEATURE] Cowork: allow configuring the storage location for scheduled tasks (currently hardcoded to ~/Documents/Claude/Scheduled/)
+10	10	5	2026-04-27	closed	https://github.com/anthropics/claude-code/issues/53691	[BUG]  CCR scheduled routines stuck at "Setting up a cloud container" since   2026-04-24
+10	10	12	2025-01-21	closed	https://github.com/Aider-AI/aider/issues/2932	Summarization failed for model ...: cannot schedule new futures after interpreter shutdown
+8	9	29	2026-06-05	open	https://github.com/openai/codex/issues/26633	Desktop automations ignore timezone for RRULE scheduling / next execution
+9	9	5	2026-09-26	open	https://github.com/anthropics/claude-code/issues/97406	[BUG] Desktop sidebar (Windows) no longer lists scheduled tasks under "Scheduled"; each run now takes several clicks to open. Please make the list collapsible instead of removing it.
+9	9	3	2026-09-23	open	https://github.com/openai/codex/issues/47660	Codex Cloud: per-task model and reasoning effort, and scheduled tasks in a cloud environment

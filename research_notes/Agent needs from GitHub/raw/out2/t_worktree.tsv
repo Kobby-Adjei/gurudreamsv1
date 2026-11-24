@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:block/goose repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue worktree total=8227
+2072	3286	583	2026-04-02	closed	https://github.com/anthropics/claude-code/issues/42796	[MODEL] Claude Code is unusable for complex engineering tasks with the Feb updates
+953	1463	209	2026-02-07	closed	https://github.com/openai/codex/issues/11023	Codex desktop app for Linux
+695	879	179	2026-02-03	closed	https://github.com/openai/codex/issues/10450	Remote Development in Codex Desktop App
+693	836	337	2025-07-16	closed	https://github.com/anthropics/claude-code/issues/3648	Terminal Scrolling Uncontrollably During Claude Code Interaction
+697	728	1499	2026-01-03	open	https://github.com/anthropics/claude-code/issues/16157	[BUG] Instantly hitting usage limits with Max subscription
+498	656	38	2026-03-05	open	https://github.com/anthropics/claude-code/issues/31005	Support for AGENTS.md and .agents/skills/, the community has been asking since August 2025
+476	545	878	2026-03-24	open	https://github.com/anthropics/claude-code/issues/38335	[BUG] Claude Max plan session limits exhausted abnormally fast since March 23, 2026 (CLI usage)
+411	544	59	2026-01-14	closed	https://github.com/openai/codex/issues/9224	Codex Remote Control
+474	474	93	2025-08-28	closed	https://github.com/openai/codex/issues/2847	A way to exclude sensitive files
+388	414	144	2026-07-02	closed	https://github.com/anthropics/claude-code/issues/73125	[BUG] AskUserQuestion: "No response after 60s — continued without an answer"
+298	334	307	2025-04-12	open	https://github.com/anthropics/claude-code/issues/769	[BUG]  In-progress Call causes Screen Flickering
+284	307	630	2026-03-13	closed	https://github.com/openai/codex/issues/14593	Burning tokens very fast
+240	281	86	2026-02-02	open	https://github.com/anthropics/claude-code/issues/22543	Cowork feature creates 10GB VM bundle that severely degrades performance
+173	271	126	2025-08-07	closed	https://github.com/anomalyco/opencode/issues/1686	Add OpenAI auth login like claude
+233	234	58	2026-02-12	open	https://github.com/openai/codex/issues/11626	CLI: Add /rewind checkpoint restore that reverts both chat context and Codex-applied code edits
+131	224	279	2026-09-03	open	https://github.com/anthropics/claude-code/issues/91870	Mods - make Claude 10x more extensible
+203	224	61	2025-09-20	open	https://github.com/openai/codex/issues/3962	Play a sound when Codex finishes a prompt / task
+115	216	81	2026-02-23	closed	https://github.com/openai/codex/issues/12564	Allow renaming task/thread titles to improve history navigation
+140	201	64	2026-05-30	open	https://github.com/openai/codex/issues/25319	Scope Codex VS Code chats to the current workspace/project
+0	178	83	2025-03-05	closed	https://github.com/anthropics/claude-code/issues/353	Undo/Checkpoint Feature for Correcting AI-Generated Code
+170	175	85	2026-10-21	closed	https://github.com/openai/codex/issues/55744	macOS app 26.1016.51333: new chats fail on first message with Cannot serialize value (couldn't stringify value)
+112	173	150	2026-04-02	closed	https://github.com/anomalyco/opencode/issues/20695	Memory Megathread
+121	168	11	2025-11-28	open	https://github.com/anthropics/claude-code/issues/12619	[FEATURE] Allow setting plan naming scheme per-repo
+85	160	59	2025-10-21	closed	https://github.com/anthropics/claude-code/issues/10018	[FEATURE] Allow Claude Code Web to start sessions from branches other than default branch
+150	157	31	2025-08-02	closed	https://github.com/anomalyco/opencode/issues/1543	[Feature Request] Adding directories / creating workspaces
+144	155	23	2025-08-29	closed	https://github.com/openai/codex/issues/2909	Support for multi-root workspaces
+144	144	47	2026-02-06	closed	https://github.com/anthropics/claude-code/issues/23626	[FEATURE] Support diff comparison against branches other than main
+126	139	51	2026-07-24	closed	https://github.com/openai/codex/issues/35058	Codex Diff crashes with “Oops, an error has occurred” in VS Code on macOS
+129	138	31	2025-09-23	open	https://github.com/openai/codex/issues/4106	Control over auto-compaction parameters
+132	132	51	2025-10-17	closed	https://github.com/anomalyco/opencode/issues/3235	Support for "Skills"

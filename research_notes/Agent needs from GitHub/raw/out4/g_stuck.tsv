@@ -1,0 +1,31 @@
+# "agent got stuck" is:issue total=837
+152	152	134	2026-02-17	open	https://github.com/anthropics/claude-code/issues/26224	[BUG] [URGENT!!!] Claude Code is hanging / freezing / stuck on heaps of prompts for 5-20minutes or more.
+7	39	37	2026-06-03	open	https://github.com/sveltejs/svelte/issues/18376	Rewrite the Svelte compiler in Rust
+31	31	57	2025-01-06	closed	https://github.com/henrygd/beszel/issues/373	Smartd support (S.M.A.R.T. / SMART)
+24	25	40	2026-03-13	open	https://github.com/anthropics/claude-code/issues/33949	SSE streaming hangs indefinitely (no timeout) + ESC cannot fully cancel (queue auto-restart) — root cause analysis with fix proposals
+22	22	27	2026-02-03	closed	https://github.com/anomalyco/opencode/issues/11865	Tasks/Subagents with Codex / OpenAI are frequently getting stuck with no timeout/retry, which then hangs the session forever
+16	16	12	2026-06-18	closed	https://github.com/kirodotdev/Kiro/issues/9524	I suggest you roll back 1.0 - Unusable
+10	15	5	2026-07-31	open	https://github.com/block/buzz/issues/3996	We need an "Agent View" for remote agents
+12	12	33	2026-04-29	open	https://github.com/anthropics/claude-code/issues/54776	[Bug] Unexpected high API usage consumption - 100% quota in 1-2 hours
+13	13	16	2025-03-29	open	https://github.com/crowdsecurity/helm-charts/issues/252	403 Forbidden on PODs after host reboot
+12	13	63	2024-05-16	closed	https://github.com/payloadcms/payload/issues/6382	Cloud storage plugin socket usage at capacity
+9	9	1	2025-09-04	closed	https://github.com/bmad-code-org/BMAD-METHOD/issues/545	Improve vscode with GitHub pilot use
+9	9	7	2026-03-03	closed	https://github.com/anthropics/claude-code/issues/30438	[BIG FEATURE] Rework Plan Mode into a 1st-Class Plan System (Plan Tools + Draft Mode + Plan TUI)
+8	8	3	2026-05-28	closed	https://github.com/anthropics/claude-code/issues/63247	[Bug] Anthropic API Error: 'thinking' blocks cannot be modified
+8	8	6	2017-09-01	open	https://github.com/armory3d/armory/issues/243	Navigation / navmesh issues
+8	8	14	2017-12-30	open	https://github.com/openai/baselines/issues/240	Reference for DeepMind using FireResetEnv wrapper's functionality
+8	8	143	2018-01-22	closed	https://github.com/lyndsey-ferguson/fastlane-plugin-test_center/issues/10	Feature Idea: Run tests in parallel
+7	7	6	2026-04-05	closed	https://github.com/anthropics/claude-code/issues/43866	Skill tool call returns 'Tool result missing due to internal error' and agent gets stuck
+7	7	9	2026-02-06	closed	https://github.com/code-yeongyu/oh-my-openagent/issues/1567	[Question]: Ideas, Features, and Bugs
+7	7	19	2017-12-14	closed	https://github.com/rancher/rancher/issues/10562	Host continues to be in "Disconnected" state even after it is powered on.
+6	6	31	2017-01-04	closed	https://github.com/uken/fluent-plugin-elasticsearch/issues/231	Improve compatibility with Elasticsearch 5.x
+5	5	1	2026-05-25	open	https://github.com/harminder0209/opencode/issues/3	Explore subagent hangs indefinitely with Anthropic Claude Opus 4.6 -- no timeout or recovery
+5	5	12	2026-06-24	closed	https://github.com/anomalyco/opencode/issues/33618	Qwen 3.7 Plus/Max (via OpenRouter) unknown/invalid tool calls
+3	5	13	2022-04-19	open	https://github.com/Natizyskunk/vscode-sftp/issues/151	1Password SSH-Agent Support
+5	5	6	2025-07-13	closed	https://github.com/anthropics/claude-code/issues/3455	Interrupt signals (Escape and Ctrl+C) show feedback but don't stop agent execution
+5	5	17	2025-03-11	closed	https://github.com/OpenHands/OpenHands/issues/7183	[Bug]: AgentStuckInLoopError: Agent got stuck in a loop
+5	5	18	2026-02-02	closed	https://github.com/zed-industries/zed/issues/48175	Agent Panel: Uncontrollable Agent - Ignores Messages During Execution (Regression)
+5	5	24	2023-04-14	closed	https://github.com/Significant-Gravitas/AutoGPT/issues/1327	Stop `execute_shell` going interactive
+4	4	3	2026-05-25	open	https://github.com/multica-ai/multica/issues/3216	Support event-triggered Autopilots for issue status changes, especially issue.status_changed -> done
+4	4	4	2018-08-14	open	https://github.com/request/request/issues/3007	get request using proxy error
+4	4	3	2026-08-10	closed	https://github.com/CherryHQ/cherry-studio/issues/18283	[Bug]: cannot update from v.19.13 to v2

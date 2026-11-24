@@ -1,0 +1,31 @@
+# repo:modelcontextprotocol/modelcontextprotocol is:issue total=866
+133	150	88	2025-03-16	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/205	Treat the MCP server as an OAuth resource server rather than an authorization server
+40	72	92	2025-09-08	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1442	SEP-1442: Make MCP Stateless (by default)
+54	64	14	2025-05-08	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/493	Simplify HTTP transport with Websockets and stateless request/response options
+42	55	7	2025-03-26	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/236	Simplify Streamable HTTP to use Standard HTTP Protocol / Methods
+52	52	9	2025-07-14	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/966	Add gRPC as a Standard Transport for MCP
+51	51	23	2025-04-08	open	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/292	Define a Standard MCP Configuration Schema
+40	51	13	2024-12-16	open	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/117	Streaming tool use results
+35	37	9	2025-08-15	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1352	SEP-1352: Add gRPC as a transport
+11	36	11	2025-07-17	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/991	SEP-991: Enable URL-based Client Registration using OAuth Client ID Metadata Documents
+25	34	13	2025-06-02	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/630	MCP "Server" terminology creates dangerous user misconceptions
+21	32	20	2025-05-18	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/544	The MCP protocol exhibits insufficient security design, which increases the risk of widespread phishing attacks.
+30	30	60	2025-08-04	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1300	SEP-1300: Tool Filtering with Groups and Tags
+26	27	27	2025-08-02	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1288	SEP-1288: WebSocket Transport
+25	26	19	2025-04-05	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/278	At the MCP Client side to selectivelly disable some of the tools from being listed
+22	26	18	2025-03-27	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/246	Include OpenTelemetry Trace identifiers as part of the MCP client -> server protocol
+7	25	30	2025-08-04	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1299	SEP-1299: Server-Side Authorization Management with Client Session Binding
+16	22	9	2025-03-12	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/195	Clients should support `WWW-Authenticate` for authentication rather than just the MCP server's OIDC metadata document
+19	19	11	2025-03-21	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/214	Support On-Behalf-Of Token Exchange protocol for Agent-to-Agent Communications
+19	19	49	2025-10-14	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1649	SEP-1649: MCP Server Cards - HTTP Server Discovery via .well-known
+9	18	11	2025-07-22	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1036	SEP-1036: URL Mode Elicitation for secure out-of-band interactions
+13	18	15	2025-09-30	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1577	SEP-1577 - Sampling With Tools
+0	17	70	2025-10-20	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1686	SEP-1686: Tasks
+18	18	54	2025-09-18	open	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1488	SEP-1488: securitySchemes in Tool Metadata for Mixed-Auth Servers
+16	17	36	2024-12-04	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/97	Bring back the concept of "toolResult" (non-chat result)
+9	17	9	2025-08-06	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1309	SEP-1309: Specification Version Management
+10	17	20	2025-10-02	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1597	SEP-1597: HTTP REST Transport for Scalability, Fault Tolerance, and many other features
+16	16	14	2025-08-05	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1306	SEP-1306: Binary Mode Elicitation for File Uploads
+11	14	6	2025-03-21	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/215	Make the MCP Protocol support MCP <-> MCP communication, allow AI to chain MCP execution flows
+13	14	23	2025-06-05	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/653	Claude.ai sends invalid scope "claudeai"
+13	13	16	2024-12-13	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/114	feat: Some kind of risk level returned by servers

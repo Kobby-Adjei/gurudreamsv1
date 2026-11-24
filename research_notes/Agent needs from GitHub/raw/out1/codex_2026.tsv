@@ -1,0 +1,31 @@
+# repo:openai/codex is:issue created:>2026-05-01 total=32002
+548	3491	440	2026-11-03	closed	https://github.com/openai/codex/issues/59060	Told to reboot a server, it destroyed systemd, destroyed containers, ran random scripts, cost me $10,000+
+451	617	157	2026-06-14	closed	https://github.com/openai/codex/issues/28224	Codex SQLite feedback logs can write ~640 TB/year and rapidly consume SSD endurance
+364	557	211	2026-06-18	closed	https://github.com/openai/codex/issues/28879	Codex (gpt-5.5, Plus plan) — rate-limit cost per token jumped ~10-20x since June 16, draining the 5h budget in 2-3 prompts
+398	454	92	2026-06-01	open	https://github.com/openai/codex/issues/25719	Codex Desktop for macOS repeatedly triggers `syspolicyd` / `trustd` CPU and memory runaway
+289	428	188	2026-06-27	closed	https://github.com/openai/codex/issues/30364	GPT-5.5 Codex reasoning-token clustering at 516/1034/1552 may be leading to degraded performance on complex tasks
+174	284	35	2026-07-18	open	https://github.com/openai/codex/issues/34035	Make the temporary removal of the 5-hour usage limit permanent
+176	253	172	2026-05-21	closed	https://github.com/openai/codex/issues/23794	Codex Desktop no longer shows visible context/token usage indicator
+222	227	99	2026-06-18	open	https://github.com/openai/codex/issues/28969	Add setting to disable the auto-resolve in 60 seconds for questions
+193	213	19	2026-09-25	open	https://github.com/openai/codex/issues/48195	CLI: make `daemon_auto_start` opt-in — a persistent, self-updating background daemon shouldn't be the default
+176	206	100	2026-07-09	closed	https://github.com/openai/codex/issues/31814	GPT-5.6 Sol cannot specify subagent models, forcing all subagents to also be Sol instances
+140	201	64	2026-05-30	open	https://github.com/openai/codex/issues/25319	Scope Codex VS Code chats to the current workspace/project
+170	175	85	2026-10-21	closed	https://github.com/openai/codex/issues/55744	macOS app 26.1016.51333: new chats fail on first message with Cannot serialize value (couldn't stringify value)
+156	165	154	2026-09-25	closed	https://github.com/openai/codex/issues/48074	Windows: terminal windows repeatedly flash during requests after installing the Codex daemon
+141	155	45	2026-06-13	open	https://github.com/openai/codex/issues/28058	Regression: encrypted MultiAgentV2 messages remove readable task audit trail
+126	139	51	2026-07-24	closed	https://github.com/openai/codex/issues/35058	Codex Diff crashes with “Oops, an error has occurred” in VS Code on macOS
+109	109	28	2026-05-08	closed	https://github.com/openai/codex/issues/21653	Support multi-line status line
+105	105	97	2026-09-25	open	https://github.com/openai/codex/issues/48237	unexpected status 401 Unauthorized issue
+89	99	25	2026-08-30	closed	https://github.com/openai/codex/issues/41622	Add a setting to disable automatic conversation recaps in Codex CLI
+101	101	64	2026-09-30	closed	https://github.com/openai/codex/issues/49532	Put the Branch selection BACK in codex app
+94	94	24	2026-05-04	open	https://github.com/openai/codex/issues/21073	Feature Request: Auto-resume CLI session when usage limit resets
+89	91	3	2026-06-22	closed	https://github.com/openai/codex/issues/29451	Show image artifacts inline in the Codex TUI
+86	88	33	2026-09-10	closed	https://github.com/openai/codex/issues/44561	Turn off whimsy effect (astra stars) by default
+88	88	57	2026-05-29	open	https://github.com/openai/codex/issues/25144	Add an option to disable automatic conversion of long pasted prompts into .txt attachments
+88	88	25	2026-07-20	open	https://github.com/openai/codex/issues/34349	Feature Request: Allow users to completely disable Pets and remove the "Show Pet" menu entry
+86	86	89	2026-10-24	closed	https://github.com/openai/codex/issues/56655	UI doesn't start in VS Code extension 26.51021.22027
+86	86	18	2026-06-18	open	https://github.com/openai/codex/issues/28931	Auto Resume /Goal after limit reached once limit is reset (5h)
+79	85	49	2026-06-14	closed	https://github.com/openai/codex/issues/28190	rg is blocked by macOS
+83	84	1124	2026-06-17	closed	https://github.com/openai/codex/issues/28756	unexpected status 404 Not Found: Unknown error, url: https://chatgpt.com/backend-api/codex/responses, cf-ray: ...
+83	83	66	2026-08-21	closed	https://github.com/openai/codex/issues/39903	add an option to disable “Ran N commands” collapsing and always show executed commands
+81	81	71	2026-08-25	open	https://github.com/openai/codex/issues/40715	[Windows] ChatGPT 26.820.60940 fails with "invalid transport in mcp_servers.codex_app"; Beta 26.727.40816 works

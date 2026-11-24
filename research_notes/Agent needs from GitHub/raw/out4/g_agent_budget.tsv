@@ -1,0 +1,31 @@
+# agent "spending limit" is:issue created:>2025-06-01 total=6516
+476	545	878	2026-03-24	open	https://github.com/anthropics/claude-code/issues/38335	[BUG] Claude Max plan session limits exhausted abnormally fast since March 23, 2026 (CLI usage)
+179	214	77	2026-09-25	open	https://github.com/anthropics/claude-code/issues/97074	[BUG] Headless `claude -p` (entrypoint `sdk-cli`) uses ~1.8× more of the 5-hour window per token than interactive `cli`, same workload
+115	155	110	2025-10-12	closed	https://github.com/anthropics/claude-code/issues/9424	Weekly Usage Limits Making Claude Subscriptions Unusable
+94	94	153	2026-02-28	open	https://github.com/anthropics/claude-code/issues/29579	[BUG] API Error: Rate limit reached despite Claude Max subscription and only 16% usage
+55	55	15	2026-02-10	closed	https://github.com/anomalyco/opencode/issues/13003	[FEATURE]: Display token usage information in the TUI
+45	50	4	2025-08-31	open	https://github.com/openai/codex/issues/2992	Automatic use API key once chatGPT account limits exceeded
+30	40	408	2026-10-26	open	https://github.com/anomalyco/opencode/issues/59387	Free tier issues: read this first, then post your report here
+36	39	27	2025-11-26	open	https://github.com/anthropics/claude-code/issues/12447	[BUG] OAuth token expiration disrupts autonomous workflows – refresh token handling needed
+36	36	26	2025-11-04	open	https://github.com/anthropics/claude-code/issues/11008	[FEATURE] Expose token usage and cost data in hook inputs
+22	28	101	2026-08-27	open	https://github.com/openai/codex/issues/41220	[Meta] Abnormal Codex usage/quota depletion and usage-accounting inconsistencies — cross-report tracker
+18	26	23	2025-10-10	open	https://github.com/x402-foundation/x402/issues/447	x402 x Circle Gateway
+22	22	19	2026-01-26	closed	https://github.com/mistralai/mistral-vibe/issues/275	bug: Usage rate limits unclear
+16	21	11	2026-08-26	open	https://github.com/anthropics/claude-code/issues/89785	[FEATURE] Multi-account support and account switching
+21	21	51	2026-02-17	closed	https://github.com/anthropics/claude-code/issues/26428	[BUG] [1M] Sonnet 1M context window disappeared after Claude Code update to v2.1.45 — regression on Max plan ($200/mo)
+17	17	53	2025-09-19	closed	https://github.com/openai/codex/issues/3924	Stream disconnected before completion
+15	15	16	2026-03-09	open	https://github.com/anthropics/claude-code/issues/32544	[BUG] Bug: Extra Usage charged despite available plan capacity + false rate limit errors in Claude Code
+0	15	3	2026-05-14	closed	https://github.com/multica-ai/multica/issues/2563	[Impact]: Claude Code -p (headless) usage not covered by subscription — affects all daemon tasks
+14	14	18	2026-03-27	open	https://github.com/anthropics/claude-code/issues/39678	Claude Code Review incorrectly reports overage limit reached when spend is $0/$250
+6	12	2055	2026-04-02	closed	https://github.com/Scottcjn/rustchain-bounties/issues/2786	[ONBOARD: 3 RTC] Compare RustChain to Another Blockchain Project
+5	10	1419	2026-04-02	closed	https://github.com/Scottcjn/rustchain-bounties/issues/2782	[ONBOARD: 2 RTC] Review an Open PR
+11	11	24	2026-03-27	open	https://github.com/anthropics/claude-code/issues/39841	Opus 1M context on Max plan requires extra usage despite docs saying 'included with subscription'
+10	10	101	2026-03-01	closed	https://github.com/openai/codex/issues/13186	Possible Codex usage metering anomaly on Plus (very small tasks consuming large 5h + weekly quota)
+9	9	12	2025-07-23	closed	https://github.com/langchain-ai/langchainjs/issues/8557	`Cannot read properties of undefined (reading 'message')` with ChatGoogleGenerativeAI
+8	8	25	2026-04-08	closed	https://github.com/router-for-me/CLIProxyAPI/issues/2599	OAuth-proxied requests metered as 'extra usage' instead of included plan usage
+5	8	15	2026-02-14	closed	https://github.com/openclaw/openclaw/issues/16629	Brave Search API no longer free
+7	7	3	2026-01-24	closed	https://github.com/anomalyco/opencode/issues/10354	[FEATURE]: Near-Real-Time Token and Cost Visibility
+6	6	7	2026-04-19	open	https://github.com/kirodotdev/Kiro/issues/7599	[Feature Request] Per-user overage toggle for IAM Identity Center organizations
+5	5	4	2026-05-22	closed	https://github.com/microsoft/vscode/issues/317977	Feature Request: Display Token Usage and Cost Metrics per Message in GitHub Copilot Chat
+5	5	6	2026-02-26	closed	https://github.com/anthropics/claude-code/issues/29108	🐛 [Bug] Credits drained continuously after closing Claude Code session — $39.07 lost overnight with auto-reload DISABLED
+4	4	15	2026-08-26	open	https://github.com/openai/codex/issues/40905	5-hour usage limit repeatedly interrupts long-running GPT-5.6 Sol agent tasks

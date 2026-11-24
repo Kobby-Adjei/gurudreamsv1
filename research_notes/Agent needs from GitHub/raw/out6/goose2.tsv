@@ -1,0 +1,8 @@
+# goose in:title agent is:issue org:block total=7
+2	2	7	2026-08-02	open	https://github.com/block/buzz/issues/4233	Desktop goose ACP agents silent or flaky with custom OpenAI-compatible provider (hosted models)
+0	0	0	2026-08-21	open	https://github.com/block/buzz/issues/6473	buzz-sprig container does not include Goose binary but UI allows Goose harness selection for k3s agents
+0	0	5	2026-07-28	open	https://github.com/block/buzz/issues/3395	goose + provider openai: the API key never reaches the agent (401 every turn)
+0	0	3	2026-08-29	open	https://github.com/block/berd/issues/249	Windows: Doctor binary resolver ignores %PATH%, reports installed git, gh, git-lfs, goose, cursor-agent as missing
+0	0	0	2026-10-30	open	https://github.com/block/buzz-app/issues/1989	Windows: legacy agents that 0.X ran on a remote SSH host can only be imported as Goose (no remote backend, banner can't be dismissed)
+0	0	0	2026-08-04	open	https://github.com/block/buzz/issues/4706	buzz MCP server cannot start in buzz-acp + streaming-only agents (Goose/Gemini) never deliver replies
+0	0	19	2026-09-18	closed	https://github.com/block/buzz/issues/7742	Bundle goose as default agent harness

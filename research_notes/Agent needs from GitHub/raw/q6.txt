@@ -1,0 +1,12 @@
+mcp2026|||org:modelcontextprotocol is:issue created:>2026-01-01|||reactions|||40
+mcp2026c|||org:modelcontextprotocol is:issue created:>2026-01-01|||comments|||30
+a2a2026|||org:a2aproject is:issue created:>2026-01-01|||reactions|||25
+cc_h2|||repo:anthropics/claude-code is:issue label:enhancement created:>2026-06-01|||reactions|||50
+codex_h2|||repo:openai/codex is:issue label:enhancement created:>2026-06-01|||reactions|||50
+oc_h2|||repo:anomalyco/opencode is:issue created:>2026-06-01|||reactions|||30
+openclaw_h2|||repo:openclaw/openclaw is:issue created:>2026-04-01|||reactions|||30
+gem_h2|||repo:google-gemini/gemini-cli is:issue created:>2026-04-01|||reactions|||25
+goose|||repo:aaif/goose is:issue|||reactions|||20
+goose2|||goose in:title agent is:issue org:block|||reactions|||10
+vscode_agents|||repo:microsoft/vscode is:issue created:>2026-03-01 agent in:title|||reactions|||25
+copilot_cli|||repo:github/copilot-cli is:issue|||reactions|||25

@@ -1,0 +1,31 @@
+# in:title agent observability is:issue created:>2025-09-01 total=2209
+14	17	20	2026-01-06	closed	https://github.com/anthropics/claude-code/issues/16424	[FEATURE] Expose Agent Context in Hook Event Payloads for Multi-Agent Observability
+4	12	27	2026-04-16	closed	https://github.com/open-telemetry/opentelemetry-ebpf-instrumentation/issues/1854	Proposal AI Agent Observability Support
+10	10	4	2025-10-21	closed	https://github.com/hashicorp/terraform-provider-aws/issues/44742	Bedrock AgentCore `aws_bedrockagentcore_agent_runtime.observability` block support
+8	8	14	2026-02-05	open	https://github.com/microsoft/vscode/issues/293225	Meta: Agent Observability based on OpenTelemetry
+0	6	0	2026-02-13	closed	https://github.com/opensearch-project/OpenSearch-Dashboards/issues/11345	[RFC] Agent Traces: Agent Observability for OpenSearch Dashboards
+1	4	28	2026-05-08	open	https://github.com/nesquena/hermes-webui/issues/1925	RFC: Make WebUI a thin observability/control client over Hermes Agent runtime
+0	2	2	2026-07-20	open	https://github.com/QuintusJoyal/atlas/issues/15	[FEATURE]: Production Observability Dashboard with Agent Trace Visualization
+0	2	8	2026-06-11	open	https://github.com/Azure/azure-sdk-for-js/issues/38930	[tracking] Weekly agent observability report
+2	2	5	2025-10-20	open	https://github.com/warpdotdev/warp/issues/7834	Feature Request: Agent Lifecycle Hooks for Observability
+0	2	19	2026-07-20	open	https://github.com/cncf/mentoring/issues/1930	[CNCF LFX Proposal] OpenTelemetry — Zero-code AI Agent observability for otelc
+2	2	3	2026-02-04	open	https://github.com/RooCodeInc/Roo-Code/issues/11185	[ENHANCEMENT] Adopt agent-trace standard for event emission and observability
+2	2	3	2026-03-10	open	https://github.com/abhi1693/openclaw-mission-control/issues/260	feat(observability): Token usage tracking and cost analytics per task/agent
+2	2	5	2026-06-29	closed	https://github.com/anthropics/claude-code/issues/72287	[Feature Request] Add per-subagent observability (model, effort) to /agents Running tab and agent JSON output
+2	2	2	2026-07-22	closed	https://github.com/verl-project/rl-insight/issues/131	[RFC] Uni-Agent Trajectory Observability in RL-Insight
+1	2	2	2026-06-26	closed	https://github.com/chmonitor/chmonitor/issues/1950	observability: structured logging for agent tool execution
+2	2	4	2026-02-15	closed	https://github.com/openclaw/openclaw/issues/17065	Agent health observability: structured condition reporting for fleet-scale deployments
+1	2	1	2026-01-11	closed	https://github.com/kagent-dev/kagent/issues/1200	[BUG] observability-agent logs "Unexpected content type" errors when polling kagent-tools MCP server
+0	1	1	2026-09-14	open	https://github.com/testdouble/han/issues/216	consider observability-engineer agent
+1	1	3	2026-06-08	open	https://github.com/langgenius/dify/issues/37186	[Feature] Datadog Agent Observability Integration
+1	1	2	2026-09-14	open	https://github.com/Arize-ai/openinference/issues/3738	[openai agents] capture observability data from openai agents
+1	1	2	2026-10-30	open	https://github.com/ai-openshell/openshell/issues/5069	feat(observability): accept OTLP/gRPC from agents at the trace relay
+0	1	5	2026-10-02	open	https://github.com/Azure/azure-sdk-for-net/issues/63568	[BUG] ResourceIdentifier incompatible with observability agents resources
+1	1	0	2026-11-18	open	https://github.com/sudivate/gh-aw/issues/1	Observability: align the OTel spec and runtime with OpenTelemetry semantic-conventions-genai (provider, invoke_agent, token and agent metrics)
+0	1	0	2026-08-19	open	https://github.com/verl-project/uni-agent/issues/129	[Feature] Add metrics observability for uni-agent
+1	1	0	2026-07-12	open	https://github.com/apache/hudi/issues/19259	Agentic lakehouse: session and trace observability
+1	1	0	2026-03-15	open	https://github.com/Arize-ai/phoenix/issues/12158	GNAP: trace git-native agent coordination events in Phoenix for multi-agent observability
+1	1	3	2026-06-10	open	https://github.com/can1357/oh-my-pi/issues/2226	feat(eval): improve agent() observability — timeout, progress, and error visibility
+1	1	1	2026-01-31	open	https://github.com/gastownhall/gastown/issues/1141	Observability-Aware Agent Orchestration for Gastown
+0	1	10	2026-08-27	open	https://github.com/open-telemetry/opentelemetry-ebpf-instrumentation/issues/3210	Proposal: eBPF-based Process & I/O Observability (incl. K8s Sandbox / AI Agent workloads)
+1	1	1	2026-02-20	open	https://github.com/bettersg/SchemesSG_v3/issues/273	chore: implement observability and versioning for Agentic RAG

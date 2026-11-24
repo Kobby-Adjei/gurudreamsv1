@@ -1,0 +1,31 @@
+# repo:Aider-AI/aider is:issue total=4615
+196	244	25	2025-02-20	open	https://github.com/Aider-AI/aider/issues/3314	MCP SUPPORT
+138	139	27	2024-12-03	open	https://github.com/Aider-AI/aider/issues/2525	Please add support for model context protocol from anthropic 
+118	119	215	2024-11-03	open	https://github.com/Aider-AI/aider/issues/2227	Feature: Add GitHub Copilot as model provider
+79	80	15	2023-08-23	open	https://github.com/Aider-AI/aider/issues/216	Config file location should follow "modern" specifications
+62	62	12	2025-05-22	open	https://github.com/Aider-AI/aider/issues/4063	Add claude 4
+62	62	0	2024-10-04	open	https://github.com/Aider-AI/aider/issues/1913	Aider integration with emacs
+50	58	50	2025-02-25	open	https://github.com/Aider-AI/aider/issues/3362	Inspiration From Claude Code
+26	56	36	2023-07-07	open	https://github.com/Aider-AI/aider/issues/68	Feature request: vscode extension
+45	45	5	2024-12-20	open	https://github.com/Aider-AI/aider/issues/2672	Feature Request: Integration of LLM-Supported Tools and Function Calls in Aider
+41	41	39	2024-06-06	open	https://github.com/Aider-AI/aider/issues/649	Add option to force the AI to ask the user to confirm each change before doing it
+34	40	13	2024-02-20	open	https://github.com/Aider-AI/aider/issues/483	PyCharm Support
+38	38	9	2025-01-27	open	https://github.com/Aider-AI/aider/issues/3030	Add a way to uninstall in your docs
+23	37	5	2025-02-19	open	https://github.com/Aider-AI/aider/issues/3303	Feature suggestion: implement Cursor Rules support, or equivalent
+32	34	2	2025-06-01	closed	https://github.com/Aider-AI/aider/issues/4149	Aider project status in regards to PRs?
+24	27	3	2025-09-09	open	https://github.com/Aider-AI/aider/issues/4506	Add native MCP server and Agent Mode support to Aider CLI (as in AiderDesk)
+28	28	5	2024-08-05	open	https://github.com/Aider-AI/aider/issues/1005	Add ability to add documentation for larger projects
+25	27	133	2023-08-02	closed	https://github.com/Aider-AI/aider/issues/172	Support for other LLMs, local LLMs, etc
+27	27	4	2024-11-10	open	https://github.com/Aider-AI/aider/issues/2325	[Feature Request]  User-defined location for .aider.tags.cache.v3
+26	26	12	2025-07-30	open	https://github.com/Aider-AI/aider/issues/4390	Thoughts on availing "Experimental" PRs
+26	26	3	2025-01-13	open	https://github.com/Aider-AI/aider/issues/2860	Feature Request: Move .aider* files into an .aider directory
+24	24	10	2024-07-18	open	https://github.com/Aider-AI/aider/issues/879	Enhancement: Only commit staged files if files have been staged.
+24	24	2	2025-06-26	open	https://github.com/Aider-AI/aider/issues/4283	Port Gemini CLI Provider with OAuth Authentication from Cline
+24	24	17	2025-03-22	open	https://github.com/Aider-AI/aider/issues/3603	Reconsider Inclusion of Dependencies in Repo Map
+20	24	9	2024-09-04	open	https://github.com/Aider-AI/aider/issues/1341	OpenAI  key should not be  required for voice mode
+22	22	2	2025-03-27	open	https://github.com/Aider-AI/aider/issues/3660	Python 3.13 incompatible due to removed module used be dependency pydub
+14	22	32	2025-01-28	open	https://github.com/Aider-AI/aider/issues/3037	Python 3.13 support
+21	21	9	2024-12-15	open	https://github.com/Aider-AI/aider/issues/2632	Auto add suggested files to chat, or a command shortcut for it
+21	21	3	2025-02-24	open	https://github.com/Aider-AI/aider/issues/3350	Feature Request: /add - Use bash-like autocomplete by directories with `<tab>`
+13	20	8	2025-02-02	closed	https://github.com/Aider-AI/aider/issues/3104	Add busy indicator / spinner / progress bar
+19	19	1	2025-07-19	open	https://github.com/Aider-AI/aider/issues/4363	Documentation Suggestion: Recommend AGENTS.md for Coding Conventions to Support Agent Rules Standard Description

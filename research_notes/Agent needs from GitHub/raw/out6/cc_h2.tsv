@@ -1,0 +1,51 @@
+# repo:anthropics/claude-code is:issue label:enhancement created:>2026-06-01 total=7743
+498	655	55	2026-06-05	closed	https://github.com/anthropics/claude-code/issues/65697	[FEATURE] Official Claude Desktop build for Linux (Ubuntu LTS / Debian)
+230	315	51	2026-08-07	open	https://github.com/anthropics/claude-code/issues/84862	[FEATURE] Passkey (WebAuthn) sign-in for Claude accounts, across every surface
+131	224	279	2026-09-03	open	https://github.com/anthropics/claude-code/issues/91870	Mods - make Claude 10x more extensible
+131	167	29	2026-08-26	open	https://github.com/anthropics/claude-code/issues/89673	[FEATURE] Desktop app: option to make Enter insert a newline and Ctrl+Enter submit in the chat composer
+116	123	25	2026-06-09	closed	https://github.com/anthropics/claude-code/issues/66504	[FEATURE] Session URL appended to commit messages and PR descriptions by default — should be opt-in
+121	121	15	2026-08-15	closed	https://github.com/anthropics/claude-code/issues/86879	Feature request: a supported way to disable the agent_summary spinner (22.7% of requests, ~18% of weighted tokens in a subagent-heavy session)
+107	110	3	2026-10-15	open	https://github.com/anthropics/claude-code/issues/102264	[FEATURE] Bring back the usage stats panel on the Desktop new session screen
+107	107	40	2026-07-20	open	https://github.com/anthropics/claude-code/issues/79305	Desktop app: support custom themes / accent colors (parity with CLI custom theme system)
+92	92	16	2026-06-24	closed	https://github.com/anthropics/claude-code/issues/70539	[Feature Request] Add scroll-only mouse mode to disable clicks while preserving wheel scrolling
+85	85	23	2026-06-24	closed	https://github.com/anthropics/claude-code/issues/70622	[Feature Request] Add option to disable clickable Yes/No prompts in terminal
+71	82	3	2026-06-16	open	https://github.com/anthropics/claude-code/issues/68809	[Feature] Register Claude Code as VSCode Language Model provider to enable Agents window integration
+63	63	7	2026-06-10	open	https://github.com/anthropics/claude-code/issues/66903	[FEATURE] Create a 'fableplan' alias akin to opusplan
+58	58	24	2026-10-15	open	https://github.com/anthropics/claude-code/issues/102273	[FEATURE] Desktop app (Code tab): end-of-turn "next-step" box with 1-2 answer buttons gets in the way of real discussion
+56	56	22	2026-06-24	closed	https://github.com/anthropics/claude-code/issues/70672	[Feature Request] Add granular mouse control options to disable click-selection while preserving scroll
+47	50	15	2026-07-10	open	https://github.com/anthropics/claude-code/issues/76272	[FEATURE] Give users control over weekly limit reset timing (configurable reset day, or banked on-demand resets like Codex)
+43	43	18	2026-06-03	closed	https://github.com/anthropics/claude-code/issues/64968	[FEATURE] Syntax highlighting in VS Code extension chat panel (re-opening closed requests)
+41	41	18	2026-07-22	closed	https://github.com/anthropics/claude-code/issues/80148	[FEATURE] Setting to disable automatic editor group locking in the VS Code extension
+30	39	9	2026-09-17	closed	https://github.com/anthropics/claude-code/issues/95125	Desktop app: option to make Enter insert a newline and submit only via click / Ctrl+Enter
+38	38	13	2026-06-22	closed	https://github.com/anthropics/claude-code/issues/70104	Allow reordering/pinning of session groups in the sidebar
+37	37	13	2026-07-17	open	https://github.com/anthropics/claude-code/issues/78537	Feature request: org-level default sharing for published artifacts
+36	36	20	2026-08-30	open	https://github.com/anthropics/claude-code/issues/90708	Desktop app: bring back the context-usage indicator (or make the footer widget configurable)
+32	35	25	2026-07-16	open	https://github.com/anthropics/claude-code/issues/78160	Hard block on typing passwords breaks legitimate dev/test workflows - needs a permission-gated opt-in for own dev environments
+21	33	9	2026-07-08	closed	https://github.com/anthropics/claude-code/issues/75863	[FEATURE]  VSCode extension: add a "Background Tasks" panel (parity with Desktop app)
+32	33	14	2026-07-22	open	https://github.com/anthropics/claude-code/issues/80261	Show usage limits on main screen / persistent usage indicator in desktop app
+33	33	6	2026-06-19	open	https://github.com/anthropics/claude-code/issues/69554	[FEATURE] Add --worktree support for parallel sessions in VS Code (same as Agent View in VSCode does)
+31	31	10	2026-07-03	closed	https://github.com/anthropics/claude-code/issues/73770	statusline: expose per-model weekly rate limits (Opus/Sonnet/Fable) to the status line command
+31	31	4	2026-07-14	open	https://github.com/anthropics/claude-code/issues/77580	CLAUDE_CODE_DISABLE_MOUSE_CLICKS also disables mouse drag-select, not just click-to-approve
+31	31	3	2026-10-14	closed	https://github.com/anthropics/claude-code/issues/102130	[FEATURE] Bring back the usage overview card removed from the desktop app's new-session screen
+31	31	11	2026-07-05	open	https://github.com/anthropics/claude-code/issues/74534	[FEATURE] Make voice dictation timeouts configurable (15s silence auto-stop, 2min max recording)
+30	30	9	2026-07-02	closed	https://github.com/anthropics/claude-code/issues/73105	[Feature Request] Make AskUserQuestion timeout configurable
+29	30	11	2026-06-24	open	https://github.com/anthropics/claude-code/issues/70678	Keyboard navigation between user messages in chat conversation (jump to previous/next prompt)
+28	28	8	2026-09-04	open	https://github.com/anthropics/claude-code/issues/91945	Session list: no way to delete/close a session, only "Archive" (X icon removed)
+27	27	4	2026-06-17	open	https://github.com/anthropics/claude-code/issues/69002	[FEATURE] Allow configuring a separate model for auto mode classifier via environment variable
+27	27	12	2026-09-29	open	https://github.com/anthropics/claude-code/issues/98159	[FEATURE] claude.ai: let users set a default permission mode, incl. "Skip all approvals"
+27	27	5	2026-09-30	open	https://github.com/anthropics/claude-code/issues/98439	[FEATURE] Desktop: assign folders to custom sidebar groups so new sessions are filed automatically
+27	27	12	2026-06-29	closed	https://github.com/anthropics/claude-code/issues/72181	Desktop app: No way to remove entries from the "Recent" folders list
+27	27	9	2026-07-07	open	https://github.com/anthropics/claude-code/issues/75146	[FEATURE] /workflows support in VSCode extension
+27	27	0	2026-10-24	open	https://github.com/anthropics/claude-code/issues/104837	[FEATURE] Approve VS Code's Agents window to use an existing claude.ai login (claude login / macOS Keychain)
+24	26	11	2026-07-13	closed	https://github.com/anthropics/claude-code/issues/77298	[FEATURE] Add per-call effort parameter to the Agent (Task) tool
+26	26	7	2026-07-02	closed	https://github.com/anthropics/claude-code/issues/73394	[Feature Request] Make AskUserQuestion timeout configurable
+26	26	13	2026-07-08	open	https://github.com/anthropics/claude-code/issues/75599	Granular control over mouse click behavior in interactive menus (AskUserQuestion, select prompts)
+25	26	7	2026-08-22	open	https://github.com/anthropics/claude-code/issues/88843	Claude Desktop (Linux beta): support Fedora/RHEL and atomic/immutable distros (e.g. Bazzite, Silverblue, Kinoite)
+8	26	2	2026-07-27	closed	https://github.com/anthropics/claude-code/issues/81570	[FEATURE] Desktop composer reserves a full-height right gutter, costing ~4 characters per wrapped line
+26	26	4	2026-07-12	closed	https://github.com/anthropics/claude-code/issues/76995	[Feature Request] Auto-cleanup empty .claude/.cc-writes/ directories after execution
+19	26	6	2026-09-24	open	https://github.com/anthropics/claude-code/issues/96882	[FEATURE] Customizable keyboard shortcuts in Claude desktop app (IDE-style keybindings)
+21	25	8	2026-07-08	open	https://github.com/anthropics/claude-code/issues/75733	[FEATURE] Feature request: expose a "rename session" tool to the agent (ccd_session_mgmt)
+23	25	6	2026-08-05	open	https://github.com/anthropics/claude-code/issues/84260	[FEATURE] Desktop app: make the conversation panel wider / support full-width layout
+24	24	5	2026-06-02	closed	https://github.com/anthropics/claude-code/issues/64779	Connect claude.ai Projects to Claude Code (VS Code / CLI)
+21	24	25	2026-06-07	open	https://github.com/anthropics/claude-code/issues/66115	Feature request: auto-compact on idle timeout to prevent cache expiry cost
+24	24	11	2026-06-08	closed	https://github.com/anthropics/claude-code/issues/66202	[FEATURE] Let me mark an agent session as completed / dismiss it from the agents view

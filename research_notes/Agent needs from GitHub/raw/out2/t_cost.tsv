@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:block/goose repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue cost tracking budget total=511
+5197	6696	409	2025-08-21	closed	https://github.com/anthropics/claude-code/issues/6235	Feature Request: Support AGENTS.md.
+2072	3286	583	2026-04-02	closed	https://github.com/anthropics/claude-code/issues/42796	[MODEL] Claude Code is unusable for complex engineering tasks with the Feb updates
+697	728	1499	2026-01-03	open	https://github.com/anthropics/claude-code/issues/16157	[BUG] Instantly hitting usage limits with Max subscription
+502	648	216	2026-01-11	open	https://github.com/anthropics/claude-code/issues/17432	Feature Request: India-Specific Pricing Plans (INR) for Claude & Claude Code
+451	617	157	2026-06-14	closed	https://github.com/openai/codex/issues/28224	Codex SQLite feedback logs can write ~640 TB/year and rapidly consume SSD endurance
+505	557	102	2026-01-14	open	https://github.com/openai/codex/issues/9203	Please make "/undo" back
+476	545	878	2026-03-24	open	https://github.com/anthropics/claude-code/issues/38335	[BUG] Claude Max plan session limits exhausted abnormally fast since March 23, 2026 (CLI usage)
+244	341	56	2026-04-12	closed	https://github.com/anthropics/claude-code/issues/46829	Cache TTL silently regressed from 1h to 5m around early March 2026, causing quota and cost inflation
+298	334	307	2025-04-12	open	https://github.com/anthropics/claude-code/issues/769	[BUG]  In-progress Call causes Screen Flickering
+284	307	630	2026-03-13	closed	https://github.com/openai/codex/issues/14593	Burning tokens very fast
+176	253	172	2026-05-21	closed	https://github.com/openai/codex/issues/23794	Codex Desktop no longer shows visible context/token usage indicator
+233	234	58	2026-02-12	open	https://github.com/openai/codex/issues/11626	CLI: Add /rewind checkpoint restore that reverts both chat context and Codex-applied code edits
+131	224	279	2026-09-03	open	https://github.com/anthropics/claude-code/issues/91870	Mods - make Claude 10x more extensible
+119	190	36	2026-02-08	closed	https://github.com/anomalyco/opencode/issues/12661	[FEATURE]: Add Agent Teams Equivalent or Better
+112	173	150	2026-04-02	closed	https://github.com/anomalyco/opencode/issues/20695	Memory Megathread
+146	160	60	2026-04-09	open	https://github.com/anthropics/claude-code/issues/45756	[BUG] Pro Max 5x Quota Exhausted in 1.5 Hours Despite Moderate Usage
+115	155	110	2025-10-12	closed	https://github.com/anthropics/claude-code/issues/9424	Weekly Usage Limits Making Claude Subscriptions Unusable
+130	133	32	2025-12-10	open	https://github.com/anthropics/claude-code/issues/13585	Add Quota Information Access to Claude Code CLI
+103	106	22	2026-03-18	closed	https://github.com/anthropics/claude-code/issues/35744	[FEATURE] Auto-continue after subscription rate limit resets
+90	100	16	2026-02-06	open	https://github.com/anthropics/claude-code/issues/23627	[FEATURE] Multi-repository support for remote/web sessions
+85	97	108	2026-04-01	closed	https://github.com/anthropics/claude-code/issues/41930	[BUG] Critical: Widespread abnormal usage limit drain across all paid tiers since March 23, 2026 — multiple root causes identified, no formal communication issued
+82	95	116	2026-01-01	closed	https://github.com/openclaw/openclaw/issues/75	Linux/Windows Clawdbot Apps
+94	94	153	2026-02-28	open	https://github.com/anthropics/claude-code/issues/29579	[BUG] API Error: Rate limit reached despite Claude Max subscription and only 16% usage
+72	91	38	2026-07-24	open	https://github.com/anthropics/claude-code/issues/80988	[BUG] v2.1.219 `heron_brook` prompt section injects "Do not call the AgentTool unless the user requested it" for Opus 5 only, silently overriding user-configured delegation policy, with no opt-out
+79	90	225	2026-01-12	closed	https://github.com/anomalyco/opencode/issues/8030	Copilot auth now sets far too many requests as "user" consuming premium requests rapidly
+83	87	46	2026-01-02	closed	https://github.com/anomalyco/opencode/issues/6651	[FEATURE]: Dynamic model selection for subagents via Task tool
+86	86	325	2026-03-05	closed	https://github.com/openai/codex/issues/13568	Usage dropping too quickly
+76	85	11	2026-01-15	closed	https://github.com/anomalyco/opencode/issues/8625	[FEATURE]:Add mcp search tool, reduce mcp tool occupying a lot of context
+70	70	36	2025-12-29	closed	https://github.com/anthropics/claude-code/issues/15721	[FEATURE] Automatic Model Switching for Plan Mode
+70	70	36	2025-07-08	closed	https://github.com/anomalyco/opencode/issues/768	Github Copilot: Tracking Premium Requests

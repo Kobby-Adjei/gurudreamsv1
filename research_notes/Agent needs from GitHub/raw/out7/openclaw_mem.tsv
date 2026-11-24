@@ -1,0 +1,31 @@
+# repo:openclaw/openclaw is:issue in:title memory total=2485
+16	16	1	2026-02-11	closed	https://github.com/openclaw/openclaw/issues/14049	[Feature]: Qdrant-based Persistent Memory for OpenClaw Agents
+10	10	13	2026-04-09	closed	https://github.com/openclaw/openclaw/issues/63829	[Feature]: Per-agent memory-wiki vault configuration
+8	8	14	2026-05-27	closed	https://github.com/openclaw/openclaw/issues/87395	Native hook relay intermittently becomes unavailable on 2026.5.26, blocking memory/filesystem tools
+7	7	5	2026-02-03	closed	https://github.com/openclaw/openclaw/issues/8185	[Feature]: Memory flush on /new and /reset (pre-reset memory save)
+7	7	4	2026-04-13	closed	https://github.com/openclaw/openclaw/issues/65976	memory-wiki bridge mode reports zero public artifacts and can remove existing bridge pages even when QMD memory is healthy
+7	7	10	2026-02-04	closed	https://github.com/openclaw/openclaw/issues/8786	[Bug]: QMD memory backend too slow on CPU-only VPS/Systems, causing timeouts and fallback to builtin memory
+6	6	4	2026-02-10	closed	https://github.com/openclaw/openclaw/issues/13562	[Feature]: Ollama Memory Search Provider
+4	6	4	2026-05-01	closed	https://github.com/openclaw/openclaw/issues/75688	Gateway 100% CPU from startup, node.list 21-35s latency, 724MB memory (v2026.4.29, macOS ARM64)
+4	5	12	2026-03-14	open	https://github.com/openclaw/openclaw/issues/45608	[Feature]: Pre-reset agentic memory flush — /new and daily reset should get the same memory flush as compaction
+5	5	9	2026-04-13	closed	https://github.com/openclaw/openclaw/issues/66082	[Bug]: memory-wiki bridge mode reports 0 exported artifacts even though memory-core has MEMORY.md / memory/*.md available
+5	5	2	2026-04-07	closed	https://github.com/openclaw/openclaw/issues/62579	[Windows] QMD collection name mismatch: creates memory-root-main but queries memory-alt-main
+4	5	4	2026-05-07	closed	https://github.com/openclaw/openclaw/issues/79026	active-memory recall subagent can deadlock on the main lane inside before_prompt_build
+3	5	2	2026-05-03	closed	https://github.com/openclaw/openclaw/issues/76933	[Discussion]: Memory subsystem stability — proposing a slower beta soak for breaking changes
+5	5	10	2026-04-13	closed	https://github.com/openclaw/openclaw/issues/65722	[Bug] `openclaw wiki bridge import` always returns 0 artifacts — CLI does not initialize memory-core plugin runtime
+4	5	3	2026-02-13	closed	https://github.com/openclaw/openclaw/issues/15093	[Feature]: Native PostgreSQL + pgvector memory backend (alternative to QMD)
+5	5	2	2026-01-28	closed	https://github.com/openclaw/openclaw/issues/3259	[RFC] memory_search: Add user-scoped memory isolation for multi-user deployments
+5	5	4	2026-02-03	closed	https://github.com/openclaw/openclaw/issues/8131	Bug: memory_search/memory_get tools require OpenAI/Google API key even when memorySearch.provider=local (CLI index works)
+3	4	16	2026-09-27	open	https://github.com/openclaw/openclaw/issues/159596	[Bug]: Gateway memory sawtooth on 2026.9.6 — prepared-model-catalog worker grows to the full heap ceiling; ~200 critical memory-pressure events/day
+3	4	14	2026-04-29	open	https://github.com/openclaw/openclaw/issues/74586	AM embedded run aborts memory_search tool calls; classifies as timeout despite model completion
+3	4	8	2026-04-03	closed	https://github.com/openclaw/openclaw/issues/60572	Multi-Slot Memory Architecture
+3	4	11	2026-05-27	closed	https://github.com/openclaw/openclaw/issues/87441	diagnostics/memory: wire thresholds parameter to config (rssWarningBytes/rssCriticalBytes/heapUsedWarningBytes/heapUsedCriticalBytes)
+3	4	7	2026-05-19	closed	https://github.com/openclaw/openclaw/issues/84242	memory-lancedb memory_store is registered but not exposed as callable agent tool
+3	4	3	2026-04-24	closed	https://github.com/openclaw/openclaw/issues/71285	Exclude memory/dreaming/ from memory search index via config
+3	4	7	2026-06-04	closed	https://github.com/openclaw/openclaw/issues/90361	[Bug]:Intermittent memory_search "index metadata is missing" despite valid builtin memory index; likely search/reindex race. Locally hotfixed.
+4	4	6	2026-07-14	closed	https://github.com/openclaw/openclaw/issues/107133	[Bug]: Memory Core embedding_cache conflict permanently blocks Gateway startup on 2026.7.1
+3	4	4	2026-05-05	closed	https://github.com/openclaw/openclaw/issues/77723	Bug: memory-core Dreaming cleanup still leaves narrative session trajectory residue on 2026.5.3-1
+4	4	1	2026-04-07	closed	https://github.com/openclaw/openclaw/issues/62488	Proposal: Palace-style structured memory — integrate hierarchical memory architecture (inspired by MemPalace)
+4	4	4	2026-04-10	closed	https://github.com/openclaw/openclaw/issues/64007	QMD: memory-alt-main collection queried but never created
+4	4	1	2026-04-09	closed	https://github.com/openclaw/openclaw/issues/63444	Bug: openclaw memory status fails when memorySearch.provider is bedrock
+4	4	4	2026-03-11	closed	https://github.com/openclaw/openclaw/issues/43524	Daily reset doesn't trigger session-memory hook flush

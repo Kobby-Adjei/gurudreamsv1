@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title compaction total=3085
+129	138	31	2025-09-23	open	https://github.com/openai/codex/issues/4106	Control over auto-compaction parameters
+99	99	134	2025-09-12	closed	https://github.com/anthropics/claude-code/issues/7530	[BUG] Error during compaction
+93	93	21	2026-02-20	open	https://github.com/anthropics/claude-code/issues/27242	[BUG] No working mechanism to review previous context after compaction, plan-mode clear, or branch navigation — data preserved but UI inaccessible
+84	84	10	2026-06-13	closed	https://github.com/anomalyco/opencode/issues/32157	[FEATURE]:Configurable mid-run prompt delivery: queue vs steer, with compaction-aware steer semantics
+64	82	21	2026-01-13	closed	https://github.com/anomalyco/opencode/issues/8140	Feature Request: Configurable context limit and auto-compaction threshold
+56	56	38	2026-04-14	closed	https://github.com/openai/codex/issues/17809	Context compaction fails with unknown parameter 'prompt_cache_retention'
+37	48	22	2025-12-17	closed	https://github.com/anthropics/claude-code/issues/14258	[FEATURE] PostCompact Hook Event and Compaction Content Control
+47	47	13	2025-08-27	closed	https://github.com/anthropics/claude-code/issues/6689	[FEATURE] Add --no-auto-compact command switch to Disable the auto-compaction
+42	44	32	2026-09-25	closed	https://github.com/openai/codex/issues/48232	Remote compaction fails with 401 'Incorrect API key' (sk-svcacct) for ChatGPT-authenticated users
+34	36	15	2026-01-30	closed	https://github.com/anomalyco/opencode/issues/11314	Feature Request: Configurable Context Compaction Threshold
+33	33	19	2025-11-26	open	https://github.com/anthropics/claude-code/issues/12505	[Bug] Plan mode resurfaces old plans after session compaction with Claude 4.5 Opus
+32	32	25	2026-10-01	closed	https://github.com/anthropics/claude-code/issues/98747	[BUG] 2.1.286 idle compaction silently discards working context in long-running sessions; no opt-out, logged as "manual"
+31	31	32	2026-04-25	open	https://github.com/openai/codex/issues/19585	Pro weekly usage limit depletes unusually fast on 5.5, worsened by unstable context compaction
+30	30	24	2025-08-22	open	https://github.com/anthropics/claude-code/issues/6354	[BUG] Claude forgets everything in CLAUDE.md after compaction
+30	30	17	2025-12-07	closed	https://github.com/anomalyco/opencode/issues/5200	[FEATURE]: /compact should be configurable to use OpenAI Responses API 'compaction'
+26	26	41	2026-05-30	open	https://github.com/anthropics/claude-code/issues/63896	[BUG] Error: Error during compaction: API Error: Usage credits required for 1M context · turn on usage credits at claude.ai/settings/usage, or use --model to switch to standard context
+26	26	59	2026-01-16	closed	https://github.com/anthropics/claude-code/issues/18482	[BUG] Conversation compaction intermittently corrupts conversation state: “Compaction failed unexpectedly” and silent prompt submission failures
+25	25	10	2026-03-11	closed	https://github.com/anthropics/claude-code/issues/33026	[FEATURE] Allow Claude to self-initiate context compaction
+25	25	24	2026-01-14	closed	https://github.com/anthropics/claude-code/issues/18211	Both /compact command and auto-compaction broken - 'conversation too long' error
+21	23	2	2026-02-09	open	https://github.com/anthropics/claude-code/issues/24471	Rewind history lost after compaction in sessions with many rewinds (branching tree)
+22	22	5	2026-02-19	open	https://github.com/anthropics/claude-code/issues/26771	[FEATURE] Indexed transcript references in compaction summaries for surgical context recovery
+21	21	16	2026-02-11	closed	https://github.com/anomalyco/opencode/issues/13217	Stops after compaction
+21	21	26	2026-03-11	closed	https://github.com/openai/codex/issues/14346	Context Compaction Hanging
+19	19	1	2026-02-08	open	https://github.com/anthropics/claude-code/issues/24201	[FEATURE] Ask questions for compaction
+13	19	15	2026-01-17	open	https://github.com/anthropics/claude-code/issues/18705	[BUG] Token Limit Hard-Stop Without Warning or Auto-Compaction
+16	16	2	2026-05-07	open	https://github.com/openai/codex/issues/21468	Make /compact summaries visible and support prompt-guided compaction in Codex CLI
+16	16	24	2026-04-25	closed	https://github.com/openai/codex/issues/19558	Codex Desktop GPT-5.5 remote compaction fails and leaves thread unusable
+16	16	18	2026-01-10	closed	https://github.com/anomalyco/opencode/issues/7579	[FEATURE]: Save plan to file for token efficiency and compaction persistence
+15	15	7	2026-05-13	open	https://github.com/openai/codex/issues/22486	Make context compaction use a configurable model independent of the active session model
+15	15	7	2025-07-04	closed	https://github.com/anthropics/claude-code/issues/2964	Compaction Failure: Conversation Length Exceeds Limit

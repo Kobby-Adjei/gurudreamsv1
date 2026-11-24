@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:block/goose repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue opentelemetry tracing total=87
+451	617	157	2026-06-14	closed	https://github.com/openai/codex/issues/28224	Codex SQLite feedback logs can write ~640 TB/year and rapidly consume SSD endurance
+39	39	35	2026-04-10	open	https://github.com/openai/codex/issues/17320	Excessive SQLite WAL writes during streaming due to TRACE logs ignoring RUST_LOG
+0	35	111	2026-03-21	closed	https://github.com/google-gemini/gemini-cli/issues/23365	[☀️ Google Summer Of Code ] Terminal-Integrated Performance & Memory Investigation Companion
+29	29	5	2026-02-04	closed	https://github.com/anomalyco/opencode/issues/12142	Add OTEL export capabilities for observability and monitoring
+19	19	10	2025-06-19	closed	https://github.com/anomalyco/opencode/issues/219	Feature Request: Add Langfuse Tracing
+17	17	4	2026-05-11	open	https://github.com/openai/codex/issues/22230	Opt-in OTel logging for agent responses
+11	11	9	2025-07-11	closed	https://github.com/OpenHands/OpenHands/issues/9670	Instrument OpenTelemetry
+8	10	4	2025-12-25	closed	https://github.com/anomalyco/opencode/issues/6142	Feature: Add sessionID to experimental.chat.system.transform hook for tracing integration
+9	9	46	2026-06-23	open	https://github.com/openai/codex/issues/29532	macOS: Persistent SQLite TRACE target=log churn remains after rust-v0.142.0
+6	6	2	2026-05-19	closed	https://github.com/anomalyco/opencode/issues/28295	[FEATURE]: propagate W3C trace context on outbound MCP HTTP/SSE requests
+4	5	3	2026-08-31	open	https://github.com/openai/codex/issues/41760	Emit attributable SkillInvocation events to the local Codex log stream
+4	4	3	2026-07-10	closed	https://github.com/anthropics/claude-code/issues/76391	[FEATURE] Propagate Cowork/Claude session trace context (prompt.id) into MCP tool calls via _meta (SEP-414)
+3	3	3	2026-04-19	closed	https://github.com/anthropics/claude-code/issues/50776	claude_code.llm_request spans emit non-standard token attrs (input_tokens / output_tokens) instead of gen_ai.usage.*
+3	3	27	2026-01-28	closed	https://github.com/openclaw/openclaw/issues/3201	diagnostics-otel plugin fails: Resource is not a constructor
+3	3	3	2026-01-24	closed	https://github.com/anomalyco/opencode/issues/10390	how to find models requests logs?
+1	2	1	2026-07-08	closed	https://github.com/openclaw/openclaw/issues/102018	[F8] Session status code=2 errors not reflected in OTel error counts
+1	2	4	2026-05-04	closed	https://github.com/openclaw/openclaw/issues/77391	diagnostics.otel.captureContent.* is non-functional — runtime broadcast emits sanitized paramsSummary only
+1	2	2	2026-07-08	closed	https://github.com/openclaw/openclaw/issues/102016	[F6] Zero-duration spans indicate missing duration instrumentation
+1	2	2	2026-07-04	closed	https://github.com/openclaw/openclaw/issues/100113	[Bug]: Model-call OTEL spans drop explicit zero output usage
+2	2	3	2026-04-24	closed	https://github.com/google-gemini/gemini-cli/issues/25919	OpenTelemetry: TRACEPARENT env var is ignored, breaking distributed tracing across process boundaries
+1	2	1	2026-05-04	closed	https://github.com/openclaw/openclaw/issues/77390	diagnostics-otel: bundled-only origin gate prevents external installs from receiving internal diagnostics
+2	2	3	2026-02-06	closed	https://github.com/openclaw/openclaw/issues/10385	diagnostics-otel plugin fails with OTel v2.x: Resource is not a constructor
+1	2	18	2025-07-12	closed	https://github.com/anomalyco/opencode/issues/916	ProviderModelNotFoundError
+1	1	6	2026-09-14	open	https://github.com/anomalyco/opencode/issues/49038	[FEATURE]: propagate W3C traceparent on outbound LLM HTTP requests
+1	1	4	2026-09-07	open	https://github.com/anomalyco/opencode/issues/47701	[FEATURE]: Add stable agent lifecycle telemetry
+0	1	3	2026-09-29	closed	https://github.com/openclaw/openclaw/issues/161278	[Bug]: diagnostics-otel: cron turns split into two root traces — empty message.processed plus separate harness.run tree
+0	1	2	2026-09-10	closed	https://github.com/openclaw/openclaw/issues/144294	[Feature]: OTEL enhancements for skill and LLM evaluations
+1	1	1	2026-07-08	closed	https://github.com/openclaw/openclaw/issues/102017	[F7] All spans kind=internal — external API calls invisible in traces
+0	1	2	2026-09-20	closed	https://github.com/openclaw/openclaw/issues/153954	model.usage diagnostic event never emitted for IONOS Model Hub / OpenAI-compatible providers (zero usage after normalization)
+0	1	1	2026-08-06	closed	https://github.com/openclaw/openclaw/issues/119927	[Bug]: OTEL_SDK_DISABLED leaves plugin-owned diagnostics logs active

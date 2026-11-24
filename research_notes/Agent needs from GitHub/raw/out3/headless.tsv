@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title headless total=656
+179	214	77	2026-09-25	open	https://github.com/anthropics/claude-code/issues/97074	[BUG] Headless `claude -p` (entrypoint `sdk-cli`) uses ~1.8× more of the 5-hour window per token than interactive `cli`, same workload
+100	142	49	2025-08-27	closed	https://github.com/openai/codex/issues/2798	Support remote / headless OAuth sign-in
+68	71	25	2026-05-17	open	https://github.com/openai/codex/issues/23200	Support headless remote Linux hosts for Codex mobile without requiring the desktop app to stay online
+59	64	49	2025-06-25	closed	https://github.com/google-gemini/gemini-cli/issues/1437	Login with Google - Doesn't support (SSH Issue?) for headless login
+48	54	12	2026-03-03	open	https://github.com/anthropics/claude-code/issues/30447	Feature Request: claude remote-control --headless — daemonizable remote control without TTY dependency
+47	49	34	2025-09-17	closed	https://github.com/openai/codex/issues/3820	Enable Headless or Command-line Authentication for Codex CLI (ChatGPT Plans)
+38	41	21	2026-02-04	open	https://github.com/anthropics/claude-code/issues/22992	Support device-code authentication flow (RFC 8628) for Pro/Max subscription users in headless environments
+25	26	14	2026-09-30	open	https://github.com/openai/codex/issues/49491	Let a dot connect directly to a headless Linux server as a task environment
+24	24	15	2026-01-30	open	https://github.com/openai/codex/issues/10233	Non-interactive codex status (JSON/headless replacement for /status)
+17	21	28	2025-06-26	closed	https://github.com/google-gemini/gemini-cli/issues/1696	Authentication fails on remote servers/headless environments without browser access
+18	18	13	2026-02-08	closed	https://github.com/openclaw/openclaw/issues/11805	openclaw gateway status fails on EC2/headless servers due to missing user-level systemd
+15	15	2	2026-02-13	closed	https://github.com/openai/codex/issues/11750	Add `codex exec fork` subcommand for headless/non-interactive fork
+12	12	17	2026-07-20	closed	https://github.com/anthropics/claude-code/issues/79597	Fable 5 falsely walled behind usage credits in interactive picker for Max accounts using a setup-token (headless -p works)
+12	12	7	2025-09-04	closed	https://github.com/anthropics/claude-code/issues/7100	feat(docs, auth): Document Headless/Remote Authentication and Support CI/CD
+11	11	22	2026-09-05	open	https://github.com/openai/codex/issues/42973	Regression: headless SSH tasks lose thread messaging and delegation tools after Desktop update
+11	11	6	2025-11-09	closed	https://github.com/openai/codex/issues/6432	Add codex exec review: headless code review
+10	10	7	2026-01-25	closed	https://github.com/openclaw/openclaw/issues/1950	[Feature]: Support fully non-interactive Docker deployment (headless/Dokploy)
+10	10	5	2026-08-31	open	https://github.com/anthropics/claude-code/issues/91063	DesignSync has no non-interactive authorization path — blocks headless/CI design-system sync
+10	10	7	2025-09-25	closed	https://github.com/openai/codex/issues/4219	Add headless / non-interactive mode for Codex CLI to enable orchestration
+8	8	4	2026-09-23	open	https://github.com/openai/codex/issues/47456	Remote/headless Codex can keep stale ChatGPT auth after account entitlement change: login status says logged in, workspace routing returns 401
+7	7	10	2026-08-02	open	https://github.com/anthropics/claude-code/issues/83380	Credential handoff for browser logins: password manager integration for headless/mobile sessions
+7	7	7	2026-07-16	open	https://github.com/openai/codex/issues/33556	Feature request: deliver external/async events as turns into a live (visible) session — today only headless remote-control threads are reachable
+7	7	20	2025-12-19	closed	https://github.com/google-gemini/gemini-cli/issues/15338	Feature Request: add a stateful headless mode (daemon/server mode)
+7	7	5	2026-01-29	closed	https://github.com/anthropics/claude-code/issues/21765	OAuth refresh token not used when credentials are copied to remote/headless machines
+7	7	4	2026-02-25	closed	https://github.com/anthropics/claude-code/issues/28482	Agent hangs indefinitely mid-task — no recovery path without Esc (blocks remote/headless use)
+6	6	3	2026-09-19	open	https://github.com/anomalyco/opencode/issues/49903	run: --command removed in v2 and slash commands are not expanded — no CLI path for headless command invocation
+6	6	1	2026-02-08	closed	https://github.com/openclaw/openclaw/issues/12061	[Feature]: Claude code headless mode as an "api provider"
+5	5	2	2026-04-14	closed	https://github.com/anthropics/claude-code/issues/47994	OAuth login on headless EC2: code paste broken after recent update
+5	5	5	2025-04-21	closed	https://github.com/anthropics/claude-code/issues/837	use slash commands in print/headless/non-interactive mode
+4	4	1	2026-10-18	open	https://github.com/anthropics/claude-code/issues/103209	[FEATURE] Long-lived token with artifact/Claude Design scope for headless (CI) sessions

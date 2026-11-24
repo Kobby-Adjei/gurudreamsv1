@@ -1,0 +1,31 @@
+# in:title worktree merge agent is:issue created:>2025-09-01 total=297
+2	2	4	2026-07-17	closed	https://github.com/anthropics/claude-code/issues/78355	ExitWorktree refuses to remove clean squash-merged worktrees, forcing a model turn to dismiss from Agent View
+1	1	2	2026-05-13	open	https://github.com/microsoft/vscode/issues/316336	Agent worktree merge-back is unsafe for small changes with existing local edits
+1	1	3	2026-10-16	closed	https://github.com/MomoChenisMe/speclink/issues/2	locale 應該也決定 Agent 在每個 skill 裡的對話語言（apply、quality、worktree-merge 等 10 個 skill 沒有綁定）
+0	0	0	2026-11-22	open	https://github.com/FlyFission/Control-Rod/issues/119	P0: Qualify concurrent agents, worktree isolation and merge-conflict handling
+0	0	0	2026-11-24	open	https://github.com/Amitgb14/conch/issues/351	Event hooks for custom actions (on worktree created, agent done, PR merged…)
+0	0	0	2026-11-14	open	https://github.com/EricServices-Repo/Eris/issues/581	Parallel agent sessions with worktree isolation and a shared merge-back flow
+0	0	0	2026-10-13	open	https://github.com/getdictus/dictus-ios/issues/735	Agent worktrees fill the disk: share package checkouts and retire merged worktrees
+0	0	0	2026-08-25	open	https://github.com/vercel-labs/skills/issues/2064	Merge renamed Linear listing and hide agent-worktrees
+0	0	1	2026-11-14	open	https://github.com/leon0399/llame/issues/1728	research(agents): fate of a subagent's worktree after it finishes (merge, PR, cleanup)
+0	0	0	2026-10-30	open	https://github.com/ThomasMichon/copilot-extensions/issues/9717	agent-worktrees: post-squash pull-forward replays an already-merged README hunk
+0	0	1	2026-10-09	open	https://github.com/toolboxmd/chromeria/issues/197	Agents get worktrees from Chromeria, and cleanup removes them at merge
+0	0	1	2026-10-29	open	https://github.com/minhtran3124/agent-harness/issues/494	[P1] clean-worktrees: fetch, SessionStart sweep, agent branches, squash merges, project config
+0	0	1	2026-08-16	open	https://github.com/thebristolsound/birdbrain/issues/480	Prune merged agent worktrees and their branches (68 registered, ~40 merged)
+0	0	0	2026-11-11	open	https://github.com/ThomasMichon/copilot-extensions/issues/12038	agent-worktrees: qualify MERGED status when downstream claims contain unfinished source or open PRs
+0	0	0	2026-10-04	open	https://github.com/ehharvey/homelab-ops/issues/263	[Task]: wt-gc removes worktrees whose PR merged after a rebase, and empty worktree-agent-* branches
+0	0	0	2026-11-03	open	https://github.com/smsilva/linux/issues/121	It is clear to the agent what removes a worktree after a merge
+0	0	0	2026-11-10	open	https://github.com/arbsec/arbitraitor/issues/883	fix(agents): review evidence for merged PRs is deleted with the worktree (gitignored .arbitraitor/reviews)
+0	0	0	2026-10-09	open	https://github.com/faviann/skillset/issues/83	Authorize agents to clean up a worktree and branch after merging
+0	0	0	2026-10-08	open	https://github.com/schubergphilis/ai-training/issues/737	mise: a worktree-cleanup task agents may run for merged branches
+0	0	1	2026-10-03	open	https://github.com/lockhart-ai/penny/issues/2221	chore: sweep merged worktrees, unposted eval runs and leftover agent networks
+0	0	0	2026-09-27	open	https://github.com/timmywheels/onramp/issues/6	Job: start and clean up — agents on worktrees, tidy merged ones
+0	0	1	2026-10-15	open	https://github.com/oncoursemail/Star-AI-Project/issues/406	P0: Resource-aware STAR Agent Fleet with ACP/CLI worktrees and verified merges
+0	0	2	2026-09-14	open	https://github.com/deanhiller/webpieces-ts/issues/916	Merge conflict explanations are placed outside isolated agents' writable worktrees
+0	0	0	2026-11-12	open	https://github.com/rysweet/amplihack-rs/issues/2478	Rewrite test-issue-1543-pr-head-worktree.sh for agent-step preflights (remove the deleted merge-gate stub)
+0	0	0	2026-10-23	open	https://github.com/Mr-Dark-debug/Moonfold/issues/22	Parallel swarm mode: fan out subtasks to agents in git worktrees and merge the results
+0	0	0	2026-11-03	open	https://github.com/Dodecahedr0x/idlehand/issues/35	PR review verifies tests in the agent's dirty worktree and can merge a failing PR
+0	0	0	2026-10-09	open	https://github.com/stablyai/orca/issues/27019	[Feature]: Workspace cleanup should flag merged, agent-scratch, prunable and stray worktree folders
+0	0	0	2026-11-06	open	https://github.com/microsoft/vscode/issues/346467	Agents window: feature-branch "lanes" with nested worktree sessions that branch from, merge into, and run alongside their parent
+0	0	0	2026-08-30	open	https://github.com/sedea-ai/community/issues/42	Agent Incident: scaffold extension resolved without post-merge worktree cleanup
+0	0	848	2025-12-19	open	https://github.com/jcowhigjr/yelp_search_demo/issues/1293	Decision: merge_group/merge queue vs local-only agent coordination; worktrees

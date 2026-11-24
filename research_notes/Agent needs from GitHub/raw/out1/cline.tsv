@@ -1,0 +1,31 @@
+# repo:cline/cline is:issue total=5085
+87	87	4	2025-05-13	closed	https://github.com/cline/cline/issues/3510	Licensing Conflict: Apache 2.0 vs Terms of Service Content Rights Requirements
+74	83	53	2025-02-26	closed	https://github.com/cline/cline/issues/1972	Cline 3.7 NOT Working with Copilot integration
+64	68	77	2024-08-09	closed	https://github.com/cline/cline/issues/63	Other IDE support (JetBrains, VS2022, etc)
+58	60	62	2025-08-31	open	https://github.com/cline/cline/issues/5915	"Cline uses complex prompts and iterative task execution that may be challenging for less capable models. For best results, it's recommended to use Claude 4 Sonnet for its advanced agentic coding capabilities."
+41	41	86	2025-01-06	closed	https://github.com/cline/cline/issues/1157	API Request loading indefinitely, not completing.
+39	39	30	2024-10-30	closed	https://github.com/cline/cline/issues/653	Can only choose file/folder from one directory in multi directory workspace
+34	34	5	2025-02-25	closed	https://github.com/cline/cline/issues/1959	MCP servers: no way to see logs
+29	29	33	2025-03-10	closed	https://github.com/cline/cline/issues/2175	Diff Edit Mismatch
+7	29	66	2025-06-21	closed	https://github.com/cline/cline/issues/4356	Improve Terminal Integration Reliability Across Platforms and Shell Configurations
+26	26	68	2025-01-23	closed	https://github.com/cline/cline/issues/1418	Cline + deepseek R1 on local ollama cannot use tools
+24	24	25	2025-01-05	closed	https://github.com/cline/cline/issues/1146	Executing terminal commands hangs cline
+23	23	27	2024-10-13	closed	https://github.com/cline/cline/issues/531	Execute command just freezes
+12	23	23	2024-10-12	closed	https://github.com/cline/cline/issues/511	Cline not sending the task to locally hosted Ollama 
+23	23	17	2024-11-14	closed	https://github.com/cline/cline/issues/737	Add ability to choose preferred provider on OpenRouter
+21	22	70	2025-09-23	closed	https://github.com/cline/cline/issues/6398	JetBrains fails to load  Cline with error "Healthcheck timed out"
+17	21	5	2025-09-08	closed	https://github.com/cline/cline/issues/6077	VS Code LM API doesn't work in Jetbrains IDE (Need equivalent for Jetbrains)
+21	21	22	2024-10-18	closed	https://github.com/cline/cline/issues/567	There is no way to add Files to the Context for Large Projects
+19	19	10	2025-01-25	closed	https://github.com/cline/cline/issues/1451	Cline cannot find file in the local workspace
+16	19	18	2025-07-19	closed	https://github.com/cline/cline/issues/5033	Feature Proposal: Support for Agent Rules Standard via AGENTS.md File
+17	17	11	2025-11-03	closed	https://github.com/cline/cline/issues/7228	Cline + vscode-lm: All models return 'Model is not supported' error
+18	18	14	2025-04-27	closed	https://github.com/cline/cline/issues/3144	Can't reuse `.vscode/mcp.json` for Cline configuration
+17	17	32	2024-10-29	closed	https://github.com/cline/cline/issues/641	Cline doesn't "see" terminal output
+17	17	18	2025-11-03	closed	https://github.com/cline/cline/issues/7229	model is not supported when using vscode-lm-api
+17	17	36	2025-01-10	closed	https://github.com/cline/cline/issues/1229	Every request is super slow
+3	17	35	2026-01-15	open	https://github.com/cline/cline/issues/8636	Thinking section not displayed in v3.50.0
+16	16	34	2025-01-10	closed	https://github.com/cline/cline/issues/1238	Unusually long response times for fixes with Deepseek
+9	16	12	2025-06-21	closed	https://github.com/cline/cline/issues/4365	@ file context - file mentions issues
+16	16	16	2025-08-06	closed	https://github.com/cline/cline/issues/5393	Issues when using git-oss-20b
+16	16	78	2025-01-26	closed	https://github.com/cline/cline/issues/1474	deepseek Cannot read properties of undefined (reading 'type')
+16	16	27	2025-06-27	closed	https://github.com/cline/cline/issues/4523	MCP servers are not allowed to use oauth

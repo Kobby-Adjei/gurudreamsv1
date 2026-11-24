@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title subagent total=4780
+317	413	103	2025-08-23	closed	https://github.com/openai/codex/issues/2604	Subagent Support
+270	377	89	2025-08-31	closed	https://github.com/anthropics/claude-code/issues/6915	Allow MCP tools to be available only to subagent
+176	206	100	2026-07-09	closed	https://github.com/openai/codex/issues/31814	GPT-5.6 Sol cannot specify subagent models, forcing all subagents to also be Sol instances
+121	121	15	2026-08-15	closed	https://github.com/anthropics/claude-code/issues/86879	Feature request: a supported way to disable the agent_summary spinner (22.7% of requests, ~18% of weighted tokens in a subagent-heavy session)
+83	87	46	2026-01-02	closed	https://github.com/anomalyco/opencode/issues/6651	[FEATURE]: Dynamic model selection for subagents via Task tool
+61	76	27	2026-04-03	closed	https://github.com/anthropics/claude-code/issues/43083	Feature: configurable reasoning effort level for subagents
+72	72	29	2026-01-18	open	https://github.com/anthropics/claude-code/issues/18950	Skills/subagents do not inherit user-level permissions from settings.json
+60	60	70	2026-02-13	closed	https://github.com/openai/codex/issues/11701	Subagent configuration and orchestration
+57	57	20	2026-07-20	closed	https://github.com/anomalyco/opencode/issues/37852	Aborted provider stream recorded as clean stop (finish=unknown, zero usage, no text) — subagent returns empty with no error
+51	51	11	2026-03-25	open	https://github.com/anthropics/claude-code/issues/38698	Feature: Per-agent model provider routing (e.g. local Ollama for subagents, Anthropic for orchestrator)
+45	45	15	2026-05-12	open	https://github.com/anomalyco/opencode/issues/27110	[FEATURE]: Setting to limit max number of parallel subagents
+37	45	11	2026-07-20	open	https://github.com/openai/codex/issues/34301	GPT Sol and Terra threads cannot spawn Luna subagents because of Luna Multi Agent version
+19	35	18	2026-04-05	open	https://github.com/anthropics/claude-code/issues/43869	Subagent model routing is broken — all mechanisms resolve to parent model (Opus)
+33	33	15	2026-04-07	open	https://github.com/anthropics/claude-code/issues/44657	[BUG] Subagent Write tool rejects .md files named "report"/"summary"/"findings"/"analysis" — no opt-out
+32	32	12	2025-11-28	open	https://github.com/anthropics/claude-code/issues/12633	[FEATURE] Allow skills to be hidden from the main agent (subagent-exclusive skills)
+32	32	17	2026-02-15	closed	https://github.com/anomalyco/opencode/issues/13715	Permission asks from nested subagent sessions silently hang
+21	31	9	2025-08-26	closed	https://github.com/anthropics/claude-code/issues/6587	[Feature Request] Selective MCP Access Control for SubAgents
+31	31	5	2025-05-31	closed	https://github.com/anthropics/claude-code/issues/1457	Feature Request: Instruct Model use for Subagents
+30	30	19	2025-11-30	open	https://github.com/anthropics/claude-code/issues/12748	[FEATURE] Add cwd parameter to Task tool for setting subagent working directory (to support Git worktrees)
+27	29	28	2026-04-16	closed	https://github.com/anthropics/claude-code/issues/49363	[Bug] Regression: malware reminder on every Read still causes subagent refusals in v2.1.111 (fix from #47027 / v2.1.92 did not hold)
+28	28	14	2025-12-17	closed	https://github.com/anthropics/claude-code/issues/14321	[FEATURE] enable extended thinking for subagents, currently not possible
+27	27	9	2026-08-07	open	https://github.com/openai/codex/issues/37475	Codex CLI 0.147.0 rejects Amazon Bedrock input and corrupts subagent handoff
+27	27	23	2026-03-23	closed	https://github.com/anthropics/claude-code/issues/37793	Subagents fail with 'prompt is too long' when user has many MCP servers (tool definitions exceed 200k)
+27	27	16	2026-03-17	closed	https://github.com/anthropics/claude-code/issues/35240	Agent tool documentation references SendMessage for subagent resumption, but SendMessage is gated behind Agent Teams flag
+24	26	12	2025-12-01	closed	https://github.com/anthropics/claude-code/issues/12790	[Feature Request] Subagents should inherit parent agent context to avoid redundant codebase scanning
+18	23	19	2025-06-28	closed	https://github.com/anthropics/claude-code/issues/2685	Subagent logs?
+11	22	35	2026-06-15	open	https://github.com/anthropics/claude-code/issues/68619	[CRITICAL] Subagent spawning and subagent pattern bugs trigger infinite recursion, infinite token usage, grossly inefficient token usage, and lost accumulated subagent work.
+22	22	27	2026-02-03	closed	https://github.com/anomalyco/opencode/issues/11865	Tasks/Subagents with Codex / OpenAI are frequently getting stuck with no timeout/retry, which then hangs the session forever
+21	21	17	2026-03-09	closed	https://github.com/openai/codex/issues/14039	Allow per-subagent model/provider/profile selection
+21	21	12	2025-09-19	closed	https://github.com/anthropics/claude-code/issues/7881	SubagentStop hook cannot identify which specific subagent finished due to shared session IDs

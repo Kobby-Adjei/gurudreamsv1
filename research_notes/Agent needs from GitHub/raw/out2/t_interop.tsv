@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:block/goose repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue "claude code" codex interoperability total=37
+5197	6696	409	2025-08-21	closed	https://github.com/anthropics/claude-code/issues/6235	Feature Request: Support AGENTS.md.
+498	656	38	2026-03-05	open	https://github.com/anthropics/claude-code/issues/31005	Support for AGENTS.md and .agents/skills/, the community has been asking since August 2025
+437	550	37	2025-08-27	closed	https://github.com/anthropics/claude-code/issues/6686	Feature Request: Add support for Agent Client Protocol (ACP)
+222	243	58	2026-04-14	closed	https://github.com/openai/codex/issues/17827	Customizable status line
+120	120	29	2026-01-11	closed	https://github.com/anomalyco/opencode/issues/7846	[FEATURE]: Add /skills command to list and quick-invoke skills
+62	62	34	2026-01-05	closed	https://github.com/anthropics/claude-code/issues/16345	[Feature Request] Support the standard .agents/skills/ directory for agent skills
+39	40	39	2025-05-14	closed	https://github.com/anthropics/claude-code/issues/1091	[FEATURE REQUEST] Allow making `CLAUDE.md` configurable
+36	36	12	2026-04-23	open	https://github.com/openai/codex/issues/19154	codex mcp login appears to require dynamic client registration for private OAuth MCP servers; cannot use pre-registered client identity
+28	29	16	2026-04-11	open	https://github.com/openai/codex/issues/17401	feat: @include directive for composable AGENTS.md files
+14	22	80	2026-03-20	open	https://github.com/google-gemini/gemini-cli/issues/23316	Long-Context & Complex Reasoning Coding Evaluation Dataset
+18	18	18	2026-02-27	closed	https://github.com/openclaw/openclaw/issues/29053	[Feature Request] MCP Client: Native support for connecting to external MCP servers
+16	16	12	2026-02-04	closed	https://github.com/openai/codex/issues/10585	Skills with implicit invocation disabled while only allowing explicit invocation
+15	15	4	2026-09-23	open	https://github.com/anthropics/claude-code/issues/96466	[FEATURE] Always load AGENTS.md by default, even when CLAUDE.md exists, and make CLAUDE.md optional
+10	10	3	2026-04-01	open	https://github.com/openai/codex/issues/16447	Proposal: experimental local cross-session messaging via UDS
+9	9	7	2026-07-24	closed	https://github.com/anthropics/claude-code/issues/80801	[FEATURE] Proposal: Support a Shared `.agents/` Directory and Manifest-Based Discovery
+7	7	2	2026-08-10	closed	https://github.com/anomalyco/opencode/issues/41561	[FEATURE] Support Agent Plugins 1.0 (agent-plugins.org) as a first-class plugin format
+7	7	7	2025-07-19	closed	https://github.com/openai/codex/issues/1624	Documentation: Reference Agent Rules Community Standard for AGENTS.md to Promote Interoperability
+6	6	114	2026-03-15	closed	https://github.com/anthropics/claude-code/issues/34556	Feature Request: Persistent Memory Across Context Compactions (59 compactions, built our own)
+3	3	3	2026-10-08	closed	https://github.com/anomalyco/opencode/issues/53836	[FEATURE]:Support VS Code Agent Host Protocol (AHP)
+3	3	7	2026-01-04	closed	https://github.com/google-gemini/gemini-cli/issues/15895	[Critical] Skills Implementation Missing Core Architecture - Breaking Interoperability with Agent Skills Open Standard
+2	2	8	2026-09-07	open	https://github.com/anomalyco/opencode/issues/47742	[FEATURE]: Support a Shared .agents/ Directory and Manifest-Based Discovery
+0	1	2	2026-07-28	open	https://github.com/openclaw/openclaw/issues/115337	[Bug]: Skills from shared Agent Skills roots ignore Codex invocation policy
+1	1	3	2026-08-05	open	https://github.com/openai/codex/issues/37122	Custom model_providers: /models discovery requires undocumented internal schema; support the standard OpenAI list as a fallback
+1	1	1	2026-08-30	open	https://github.com/openai/codex/issues/41677	Codex rejects New Relic Streamable HTTP MCP OAuth metadata
+1	1	5	2026-09-03	open	https://github.com/openai/codex/issues/42427	codex mcp login ignores WWW-Authenticate resource_metadata during DCR discovery
+1	1	4	2026-08-26	open	https://github.com/anthropics/claude-code/issues/89862	MCP OAuth: refresh_token request omits `scope`, so the refreshed token can come back with the wrong scope and the server 401s
+1	1	9	2026-06-19	open	https://github.com/anthropics/claude-code/issues/69518	SIGILL on AVX2-less Intel Macs still present in 2.1.181 (regression from #50466 persists)
+0	0	1	2026-09-27	open	https://github.com/openai/codex/issues/48803	Show a native peer address in /status for simple Claude Code interoperability
+0	0	7	2026-11-06	open	https://github.com/openai/codex/issues/59810	Feature Request: Usage-Limit Awareness and Automatic Agent Handoff for Codex
+0	0	2	2026-08-05	open	https://github.com/OpenHands/OpenHands/issues/16337	Pass canvas_ui_control (ui_tool) to Claude Code and other ACP agents

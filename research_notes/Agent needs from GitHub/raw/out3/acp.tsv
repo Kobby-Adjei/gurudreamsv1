@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title acp total=1115
+437	550	37	2025-08-27	closed	https://github.com/anthropics/claude-code/issues/6686	Feature Request: Add support for Agent Client Protocol (ACP)
+37	40	4	2026-02-09	open	https://github.com/anthropics/claude-code/issues/24411	Feature Request: Add support for Agent Client Protocol (ACP)
+25	25	1	2026-04-08	open	https://github.com/anthropics/claude-code/issues/45180	[FEATURE] Include pid/pgid in terminal_info ACP metadata for orphan process detection
+22	23	11	2025-12-07	closed	https://github.com/anomalyco/opencode/issues/5182	[FEATURE]: TUI as an ACP Client
+18	21	16	2025-11-12	closed	https://github.com/anomalyco/opencode/issues/4240	acp, zed: does not support native changes review
+17	17	3	2026-02-17	closed	https://github.com/anomalyco/opencode/issues/14034	[Zed ACP] Tool call panel doesn't display actual terminal commands
+9	16	9	2026-02-12	closed	https://github.com/anomalyco/opencode/issues/13388	[FEATURE]: ACP over WebSocket for remote/network access
+15	15	5	2026-01-16	closed	https://github.com/anomalyco/opencode/issues/8931	Feature: Expose TUI Session Management Commands via ACP (for Zed integration)
+11	11	1	2026-04-01	open	https://github.com/openai/codex/issues/16398	Feature Request: Show ACP/exec-spawned sessions in Codex app (with toggle/filter)
+11	11	7	2025-10-11	closed	https://github.com/google-gemini/gemini-cli/issues/10955	Add 'available_commands_update' session notification in ACP protocol
+11	11	6	2025-11-02	closed	https://github.com/google-gemini/gemini-cli/issues/12453	Model switch in ACP
+9	10	2	2026-06-25	open	https://github.com/openai/codex/issues/30052	Built-in ACP protocol support, similar to Gemini CLI ACP mode?
+7	10	2	2026-02-13	closed	https://github.com/openai/codex/issues/11693	JetBrains (IntelliJ IDEA) ACP / Codex: AI Chat becomes unusable after using gpt-5.3-codex; session/resume fails with “no rollout found for thread id …” and persists even after switching back to gpt-5.2-codex
+8	8	10	2026-10-10	closed	https://github.com/anomalyco/opencode/issues/54371	ACP: slash commands execute but never stream their output
+6	7	6	2026-04-23	closed	https://github.com/anomalyco/opencode/issues/24038	[FEATURE]: Claude support using ACP protocol
+5	7	1	2026-02-27	closed	https://github.com/openclaw/openclaw/issues/29195	ACP + Codex: silent failures, stalled sessions, and missing permission docs
+7	7	2	2026-02-27	closed	https://github.com/openclaw/openclaw/issues/28786	Bug: ACP sessions fail with ACP_TURN_FAILED — acpx spawns Claude Code without PTY (Ink raw mode crash)
+7	7	1	2026-01-12	closed	https://github.com/anomalyco/opencode/issues/7978	feat(acp): add session/list, session/resume and session/fork support
+6	7	2	2025-09-01	closed	https://github.com/google-gemini/gemini-cli/issues/7549	ACP authentication doesn't use cached creds
+6	6	3	2026-07-05	closed	https://github.com/anomalyco/opencode/issues/35457	Port ACP support to V2 core and APIs
+6	6	7	2026-02-15	closed	https://github.com/anomalyco/opencode/issues/13752	[FEATURE]: Enable question tool for ACP clients (Zed, etc.)
+6	6	7	2026-01-08	closed	https://github.com/anomalyco/opencode/issues/7370	[ACP] Opencode sets rawInput back to empty
+6	6	2	2026-04-08	closed	https://github.com/anomalyco/opencode/issues/21556	ACP doesn't respect default model from `opencode.json` config
+6	6	5	2026-01-05	closed	https://github.com/anomalyco/opencode/issues/7004	feat: add per-session MCP server support for REST API (parity with ACP)
+5	6	9	2025-11-27	closed	https://github.com/google-gemini/gemini-cli/issues/13913	ACP subprocess mode broken in v0.18.0+ - no JSON-RPC response when run as subprocess
+5	5	2	2026-06-17	open	https://github.com/OpenHands/OpenHands/issues/15578	ACP: switch reasoning effort (settings/agent + mid-conversation)
+3	5	12	2026-09-20	closed	https://github.com/anomalyco/opencode/issues/50236	acp: session/new catalog ignores config providers, agents, and default model since 2.0.4
+4	5	5	2026-06-04	closed	https://github.com/anomalyco/opencode/issues/30659	[FEATURE] ACP: emit SessionUpdate::Plan from todowrite tool calls
+1	5	3	2026-06-15	closed	https://github.com/anomalyco/opencode/issues/32388	ACP subagents are invisible and can hang forever on permission prompts
+5	5	2	2026-04-23	closed	https://github.com/anomalyco/opencode/issues/23947	ACP tool_call/tool_call_update use generic titles while running

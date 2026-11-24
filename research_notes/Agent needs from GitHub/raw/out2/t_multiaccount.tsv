@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:block/goose repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue multiple accounts total=2716
+2072	3286	583	2026-04-02	closed	https://github.com/anthropics/claude-code/issues/42796	[MODEL] Claude Code is unusable for complex engineering tasks with the Feb updates
+1199	2121	288	2026-04-09	open	https://github.com/anthropics/claude-code/issues/45596	Bring Back Buddy — A Consolidated Plea from the Community
+953	1463	209	2026-02-07	closed	https://github.com/openai/codex/issues/11023	Codex desktop app for Linux
+1097	1452	253	2026-01-15	open	https://github.com/anthropics/claude-code/issues/18435	[FEATURE] Add the ability to manage multiple Claude accounts within the Claude Desktop app with easy switching between profiles.
+797	1416	410	2026-01-09	closed	https://github.com/anthropics/claude-code/issues/17118	[Feature Request] Support for OpenCode and Max plan
+783	1093	188	2026-03-19	open	https://github.com/anthropics/claude-code/issues/36151	[FEATURE] Multi-account switching in Claude Mobile app without shared email
+821	893	742	2026-03-14	open	https://github.com/anthropics/claude-code/issues/34229	[BUG] Phone verification
+697	728	1499	2026-01-03	open	https://github.com/anthropics/claude-code/issues/16157	[BUG] Instantly hitting usage limits with Max subscription
+490	702	324	2026-02-21	open	https://github.com/anthropics/claude-code/issues/27302	[FEATURE] Support multiple Connector accounts (same connector, different accounts) in Claude and Claude Code on the web (claude.ai/code)
+502	648	216	2026-01-11	open	https://github.com/anthropics/claude-code/issues/17432	Feature Request: India-Specific Pricing Plans (INR) for Claude & Claude Code
+443	583	143	2026-07-13	open	https://github.com/anthropics/claude-code/issues/77136	[BUG] Claude 4.7, 4.8, 5.0, 5.5, and Fable increasingly default to repetitive rhetorical tics and often struggle to produce coherent prose despite explicit style instructions
+364	557	211	2026-06-18	closed	https://github.com/openai/codex/issues/28879	Codex (gpt-5.5, Plus plan) — rate-limit cost per token jumped ~10-20x since June 16, draining the 5h budget in 2-3 prompts
+476	545	878	2026-03-24	open	https://github.com/anthropics/claude-code/issues/38335	[BUG] Claude Max plan session limits exhausted abnormally fast since March 23, 2026 (CLI usage)
+289	428	188	2026-06-27	closed	https://github.com/openai/codex/issues/30364	GPT-5.5 Codex reasoning-token clustering at 516/1034/1552 may be leading to degraded performance on complex tasks
+357	420	386	2026-01-09	closed	https://github.com/anomalyco/opencode/issues/7410	Broken Claude Max
+244	341	56	2026-04-12	closed	https://github.com/anthropics/claude-code/issues/46829	Cache TTL silently regressed from 1h to 5m around early March 2026, causing quota and cost inflation
+230	315	51	2026-08-07	open	https://github.com/anthropics/claude-code/issues/84862	[FEATURE] Passkey (WebAuthn) sign-in for Claude accounts, across every surface
+284	307	630	2026-03-13	closed	https://github.com/openai/codex/issues/14593	Burning tokens very fast
+280	300	85	2026-03-02	open	https://github.com/anthropics/claude-code/issues/30154	FEATURE: Multi-window support in Claude Code Desktop
+292	292	123	2026-08-11	closed	https://github.com/anthropics/claude-code/issues/85891	[BUG] Claude Desktop (Windows 11): main window stays always-on-top of other applications, with no setting to disable it
+244	247	70	2025-08-31	open	https://github.com/openai/codex/issues/2998	IDE-integrated diff / approval
+168	241	132	2026-04-24	closed	https://github.com/openai/codex/issues/19464	Support 1M token context for GPT-5.5 in Codex
+225	225	90	2025-09-09	closed	https://github.com/anthropics/claude-code/issues/7328	[FEATURE] MCP Tool Filtering: Allow Selective Enable/Disable of Individual Tools from Servers
+159	223	124	2026-03-29	closed	https://github.com/anthropics/claude-code/issues/40524	[BUG] Conversation history invalidated on subsequent turns
+183	217	12	2026-03-10	open	https://github.com/anthropics/claude-code/issues/32733	[FEATURE] Secure secrets injection for Claude Code on the web
+204	206	78	2026-04-13	open	https://github.com/anthropics/claude-code/issues/47509	feat: Team plan needs a Max 20x equivalent tier for power users
+112	173	150	2026-04-02	closed	https://github.com/anomalyco/opencode/issues/20695	Memory Megathread
+124	167	75	2025-12-01	closed	https://github.com/anthropics/claude-code/issues/12836	Support Tool Search and Programmatic Tool Use betas for reduced token consumption
+156	168	63	2025-11-25	open	https://github.com/anthropics/claude-code/issues/12346	[FEATURE] Add GitLab Integration (Repository Connection, MRs, Mobile Access)
+146	160	60	2026-04-09	open	https://github.com/anthropics/claude-code/issues/45756	[BUG] Pro Max 5x Quota Exhausted in 1.5 Hours Despite Moderate Usage

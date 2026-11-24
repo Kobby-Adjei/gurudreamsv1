@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code is:issue created:>2026-05-01 total=55407
+809	1119	123	2026-11-05	open	https://github.com/anthropics/claude-code/issues/107757	Bug Report: Privacy violation in User-Agent header
+498	655	55	2026-06-05	closed	https://github.com/anthropics/claude-code/issues/65697	[FEATURE] Official Claude Desktop build for Linux (Ubuntu LTS / Debian)
+443	583	143	2026-07-13	open	https://github.com/anthropics/claude-code/issues/77136	[BUG] Claude 4.7, 4.8, 5.0, 5.5, and Fable increasingly default to repetitive rhetorical tics and often struggle to produce coherent prose despite explicit style instructions
+388	414	144	2026-07-02	closed	https://github.com/anthropics/claude-code/issues/73125	[BUG] AskUserQuestion: "No response after 60s — continued without an answer"
+230	315	51	2026-08-07	open	https://github.com/anthropics/claude-code/issues/84862	[FEATURE] Passkey (WebAuthn) sign-in for Claude accounts, across every surface
+292	292	123	2026-08-11	closed	https://github.com/anthropics/claude-code/issues/85891	[BUG] Claude Desktop (Windows 11): main window stays always-on-top of other applications, with no setting to disable it
+259	259	41	2026-06-07	open	https://github.com/anthropics/claude-code/issues/65961	[MODEL] Claude verbose code comments by default — ignores instructions to stop.
+131	224	279	2026-09-03	open	https://github.com/anthropics/claude-code/issues/91870	Mods - make Claude 10x more extensible
+179	214	77	2026-09-25	open	https://github.com/anthropics/claude-code/issues/97074	[BUG] Headless `claude -p` (entrypoint `sdk-cli`) uses ~1.8× more of the 5-hour window per token than interactive `cli`, same workload
+172	178	94	2026-07-02	closed	https://github.com/anthropics/claude-code/issues/73365	[BUG] Advisor always "unavailable" with Fable 5 advisor (Opus 4.8 main) across all sessions (v2.1.198)
+131	167	29	2026-08-26	open	https://github.com/anthropics/claude-code/issues/89673	[FEATURE] Desktop app: option to make Enter insert a newline and Ctrl+Enter submit in the chat composer
+156	164	22	2026-08-18	open	https://github.com/anthropics/claude-code/issues/87647	[BUG] Over 6k issues labeled with "has repro" have been auto-closed since March 2026
+137	154	8	2026-08-01	open	https://github.com/anthropics/claude-code/issues/83033	[BUG] Sonnet 5 writes Korean tool-call parameters as \uXXXX escapes and mis-spells the hex, corrupting Hangul (100% corruption when escape-writing engages; likely root cause of #80009 / #78996)
+131	132	52	2026-06-06	open	https://github.com/anthropics/claude-code/issues/65833	v2.1.150: scroll wheel no longer scrolls conversation — sends arrow keys instead
+116	123	25	2026-06-09	closed	https://github.com/anthropics/claude-code/issues/66504	[FEATURE] Session URL appended to commit messages and PR descriptions by default — should be opt-in
+121	121	15	2026-08-15	closed	https://github.com/anthropics/claude-code/issues/86879	Feature request: a supported way to disable the agent_summary spinner (22.7% of requests, ~18% of weighted tokens in a subagent-heavy session)
+115	121	69	2026-06-18	open	https://github.com/anthropics/claude-code/issues/69238	[BUG] No response from API error when Advisor is triggered
+115	116	77	2026-05-30	closed	https://github.com/anthropics/claude-code/issues/63875	Recurring error: "The model's tool call could not be parsed (retry also failed)" interrupts sessions
+114	114	65	2026-05-25	open	https://github.com/anthropics/claude-code/issues/62123	[Bug] Anthropic API Error: Model's tool call could not be parsed (retry also failed)
+103	109	20	2026-08-19	open	https://github.com/anthropics/claude-code/issues/87971	[BUG] Claude abuses bash tools for reads, writes, and edits when running in Auto Mode
+106	109	3	2026-10-15	open	https://github.com/anthropics/claude-code/issues/102264	[FEATURE] Bring back the usage stats panel on the Desktop new session screen
+90	107	20	2026-07-25	open	https://github.com/anthropics/claude-code/issues/81138	[BUG] Account email (PII) is injected into the model's system prompt without consent, disclosure,
+107	107	40	2026-07-20	open	https://github.com/anthropics/claude-code/issues/79305	Desktop app: support custom themes / accent colors (parity with CLI custom theme system)
+89	98	57	2026-06-18	closed	https://github.com/anthropics/claude-code/issues/69415	[BUG] API Error: Connection closed mid-response ==> frequent enough to make Claude Code unusable for any task
+94	94	37	2026-06-05	closed	https://github.com/anthropics/claude-code/issues/65632	[BUG] Inline KaTeX math (`$...$`) no longer renders in chat output — only block `$$...$$` works (regression)
+92	92	16	2026-06-24	closed	https://github.com/anthropics/claude-code/issues/70539	[Feature Request] Add scroll-only mouse mode to disable clicks while preserving wheel scrolling
+63	91	15	2026-05-20	closed	https://github.com/anthropics/claude-code/issues/60755	[FEATURE] Setting to disable copy-on-selection in the agents view (TUI)
+72	91	38	2026-07-24	open	https://github.com/anthropics/claude-code/issues/80988	[BUG] v2.1.219 `heron_brook` prompt section injects "Do not call the AgentTool unless the user requested it" for Opus 5 only, silently overriding user-configured delegation policy, with no opt-out
+89	89	31	2026-08-19	closed	https://github.com/anthropics/claude-code/issues/87895	[BUG] Claude Desktop window stays always on top on Windows
+88	88	21	2026-05-02	open	https://github.com/anthropics/claude-code/issues/55621	[FEATURE] Multi-account support in VSCode extension

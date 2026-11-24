@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title handoff total=517
+27	27	45	2025-11-12	open	https://github.com/anthropics/claude-code/issues/11455	Feature Request: Session Handoff / Continuity Support
+27	27	9	2026-08-07	open	https://github.com/openai/codex/issues/37475	Codex CLI 0.147.0 rejects Amazon Bedrock input and corrupts subagent handoff
+22	22	16	2026-03-08	open	https://github.com/anthropics/claude-code/issues/31992	[FEATURE] Cross-machine session resume — sync session state for CLI-to-CLI handoff
+8	10	10	2026-07-15	open	https://github.com/openai/codex/issues/33398	Codex Desktop stops prematurely after context/task handoff instead of continuing work
+0	9	4	2026-01-03	closed	https://github.com/anomalyco/opencode/issues/6781	Feature: Seamless Plan-to-Build handoff with context retention
+8	8	12	2026-06-02	open	https://github.com/openai/codex/issues/25810	Windows Desktop: new threads/handoffs persist as on-request/workspaceWrite instead of inheriting visible Full Access state
+7	7	10	2026-08-02	open	https://github.com/anthropics/claude-code/issues/83380	Credential handoff for browser logins: password manager integration for headless/mobile sessions
+7	7	10	2026-08-26	open	https://github.com/openai/codex/issues/40879	Codex Remote handoff says "Paginated chats cannot be continued on another host yet"
+6	6	3	2026-04-26	open	https://github.com/openai/codex/issues/19657	native remote session handoff for Codex
+6	6	10	2026-09-24	open	https://github.com/anthropics/claude-code/issues/96762	[FEATURE] Opt-in for credential/payment entry on the user's own accounts, and 1Password-style credential handoff in Claude Code
+5	5	5	2026-09-11	closed	https://github.com/anthropics/claude-code/issues/93688	[BUG] Desktop app's self-generated .desktop entry breaks its own claude:// login handoff on Ubuntu — GIO refuses to load it
+3	3	6	2026-04-22	open	https://github.com/openai/codex/issues/18981	New handoff to worktree doesn't use environments
+3	3	6	2026-08-22	open	https://github.com/openai/codex/issues/40124	Seamless Codex Session Handoff Between CLI, Web, and Mobile
+3	3	1	2026-05-17	open	https://github.com/openai/codex/issues/23143	Suggestion: improve local compaction handoff
+3	3	2	2026-10-26	open	https://github.com/openai/codex/issues/57004	[macOS][0.164.0] Completed CLI thread stays locked in Desktop after exit; agents Stop offers no handoff
+2	3	2	2026-10-28	open	https://github.com/anthropics/claude-code/issues/105702	Feature request: Remote Control parity with Codex "Control this Mac" (all projects, unified host view, device-to-device control, handoff)
+3	3	3	2026-07-11	closed	https://github.com/anomalyco/opencode/issues/36381	[FEATURE]: Handoff skill — save to project directory instead of global temp
+2	3	4	2026-02-21	closed	https://github.com/anomalyco/opencode/issues/14528	[FEATURE]: allow plugins to switch active primary agent (custom primary agent handoff)
+3	3	1	2026-03-30	closed	https://github.com/openclaw/openclaw/issues/57448	[Feature]: DM conversation handoff for ACP agent sessions
+1	2	1	2026-11-11	open	https://github.com/openai/codex/issues/60826	Desktop: shared visible terminal with agent input and human authorization handoff
+2	2	0	2026-07-13	open	https://github.com/openai/codex/issues/32755	Add `/shell` for native terminal handoff while Codex keeps working
+2	2	2	2026-08-22	open	https://github.com/openai/codex/issues/40157	Feature request: idempotent task creation and explicit phone ↔ Codex Desktop ownership handoff
+2	2	3	2026-09-21	open	https://github.com/openai/codex/issues/46936	[VS Code Remote SSH] Reconnect hides a live thread behind 'another app' lock with no read-only history or handoff
+1	2	3	2026-07-12	open	https://github.com/openai/codex/issues/32512	Codex Desktop SSH handoff fails for conversations larger than 16 MiB because rollout is sent as one WebSocket message
+2	2	2	2026-09-25	closed	https://github.com/anthropics/claude-code/issues/97055	Allow creating a new sidebar session programmatically (for context handoff between agents)
+1	2	19	2026-03-12	closed	https://github.com/openclaw/openclaw/issues/44309	[Feature]: Add one-way dispatch mode for A2A handoffs without reply-back ping-pong
+1	2	5	2026-03-03	closed	https://github.com/openclaw/openclaw/issues/33478	[Feature]: Structured Callback Actions and Thread Context Inheritance for Agent Handoffs
+2	2	3	2026-06-21	closed	https://github.com/anomalyco/opencode/issues/33236	[FEATURE]: Plan-to-build handoff should start the build agent with a clean context
+1	2	3	2026-06-12	closed	https://github.com/openclaw/openclaw/issues/92500	Add Telegram voice/STT handoff telemetry into agent context
+1	2	0	2026-08-06	closed	https://github.com/openclaw/openclaw/issues/119781	[Bug]: Host-issued Control UI handoffs leave owners without administrator access

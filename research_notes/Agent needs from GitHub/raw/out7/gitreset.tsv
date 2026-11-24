@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:github/copilot-cli repo:microsoft/vscode is:issue in:title "git reset" total=61
+16	121	21	2026-03-29	closed	https://github.com/anthropics/claude-code/issues/40710	My automated tool is running git reset --hard origin/main in my project every 10 minutes
+22	22	4	2022-10-20	open	https://github.com/microsoft/vscode/issues/164161	Git - git reset --hard
+6	6	0	2025-07-23	open	https://github.com/microsoft/vscode/issues/257433	Git Graph should support reset, soft reset and maybe squashing through the context menu
+5	5	14	2026-03-14	closed	https://github.com/anthropics/claude-code/issues/34327	Claude Code destroyed user's uncommitted work by running git reset --hard on session startup — TWICE
+4	5	1	2019-02-13	closed	https://github.com/microsoft/vscode/issues/68609	SCM Panel : Git window resets to bottom of panel
+1	2	2	2018-10-04	closed	https://github.com/microsoft/vscode/issues/60002	Undo last commit: keep staged files via `git reset --soft`
+2	2	4	2017-05-12	closed	https://github.com/microsoft/vscode/issues/26571	Please add an interface around `git add -p`, `git reset -p`, and `git commit -p`
+0	1	12	2026-04-12	open	https://github.com/google-gemini/gemini-cli/issues/25217	Gemini went over all restricitons and git reset --hard and git rm all by work, oevrpassing al guardails I had set up
+0	1	1	2026-10-26	closed	https://github.com/openclaw/openclaw/issues/184887	[Bug]: Failed Git-source update rollback runs git reset --hard + git clean -fd without re-checking for operator changes
+0	1	5	2026-04-21	closed	https://github.com/google-gemini/gemini-cli/issues/25722	Gemini ran git reset --hard HEAD in plan mode with uncomitted changes
+1	1	2	2026-08-09	closed	https://github.com/anomalyco/opencode/issues/41388	Bug: Git history filter resets to 'Git changes' when navigating back from subagent chat
+0	1	7	2025-08-01	closed	https://github.com/google-gemini/gemini-cli/issues/5352	Gemini agent performed a 'git reset --hard' without user confirmation, causing data loss of uncommitted files.
+1	1	7	2025-09-06	closed	https://github.com/anthropics/claude-code/issues/7232	[MODEL]  CRITICAL: Claude executed git reset --hard without authorization causing data destruction
+0	1	3	2025-12-17	closed	https://github.com/anthropics/claude-code/issues/14293	[MODEL] When working with git stashes, Claude Code can become confused and git reset --HARD
+1	1	3	2025-11-21	closed	https://github.com/openai/codex/issues/7059	Codex-max go insane and repeatedly run git reset --hard / reset local git to remote
+1	1	2	2017-01-24	closed	https://github.com/microsoft/vscode/issues/19118	git reset -p : Reset line per line (and maybe per block too)
+0	0	2	2026-09-26	open	https://github.com/anthropics/claude-code/issues/97534	[Bug] Git reset --hard unintentionally discards uncommitted changes
+0	0	2	2026-10-22	open	https://github.com/anthropics/claude-code/issues/104331	[Safety] Claude Code ran unrequested `git checkout` + `git reset --hard`, silently destroying the user's gitignored .env (API keys)
+0	0	2	2026-09-28	open	https://github.com/anthropics/claude-code/issues/97881	Auto-mode permission classifier misses git reset --hard when bundled in a multi-line Bash command, then false-positives on an unrelated later command
+0	0	6	2026-01-29	open	https://github.com/microsoft/vscode/issues/291734	It got confused and hard reset git
+0	0	2	2026-09-18	open	https://github.com/anthropics/claude-code/issues/95355	[BUG] Critical: git stash pop + reset --hard destroyed ~600 lines of new code and unrelated stash in worktree session
+0	0	4	2026-07-22	closed	https://github.com/microsoft/vscode/issues/327031	Git Reset (Hard, Soft) - feature add
+0	0	2	2026-07-12	closed	https://github.com/anthropics/claude-code/issues/76823	Tool-result stream injection: fabricated git output attempted to induce destructive git reset
+0	0	3	2026-07-26	closed	https://github.com/anthropics/claude-code/issues/81333	Worktree-isolated subagent ran git reset --hard in the main checkout; worktree guard did not fire
+0	0	2	2026-07-22	closed	https://github.com/anthropics/claude-code/issues/80006	[Bug] Subagents can destroy git history via destructive commands like git reset
+0	0	2	2026-07-03	closed	https://github.com/anthropics/claude-code/issues/73725	[BUG] Desktop app top-bar diff stat shows stale +N -0 after git reset --hard to remote (recurrence of #36364)
+0	0	7	2026-03-21	closed	https://github.com/google-gemini/gemini-cli/issues/23411	Add protections against git reset --hard and git push --force
+0	0	3	2026-06-25	closed	https://github.com/openai/codex/issues/29933	curated-plugin sync runs `git reset --hard` against the user's project repo
+0	0	2	2026-04-22	closed	https://github.com/anthropics/claude-code/issues/52064	[Bug] Unintended git reset --hard executed without user confirmation
+0	0	4	2026-06-20	closed	https://github.com/anomalyco/opencode/issues/33077	[bug] Bash tool has no protection against destructive commands (git reset --hard, rm -rf)

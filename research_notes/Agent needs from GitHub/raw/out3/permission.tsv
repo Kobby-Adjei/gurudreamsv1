@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title permission total=4906
+209	209	49	2026-02-24	open	https://github.com/anthropics/claude-code/issues/28240	[BUG] Permission prompt incorrectly triggers on cd instead of the actual command in compound bash statements
+176	176	48	2026-01-07	closed	https://github.com/anthropics/claude-code/issues/16561	Feature: Parse compound Bash commands and match each component against permissions
+107	125	24	2025-09-03	closed	https://github.com/openai/codex/issues/3085	Allow specifying specific commands that don't need permission to run
+109	109	77	2025-08-29	closed	https://github.com/openai/codex/issues/2860	Unusable on Windows due to permission ask for every shell command
+94	94	31	2026-01-14	closed	https://github.com/anomalyco/opencode/issues/8463	[FEATURE]: Add `--dangerously-skip-permissions` (aka YOLO mode)
+85	87	34	2026-02-27	open	https://github.com/anthropics/claude-code/issues/29214	Remote Control: mobile app shows permission prompts despite --dangerously-skip-permissions
+80	81	32	2026-03-03	open	https://github.com/anthropics/claude-code/issues/30519	Permissions matching is fundamentally broken — 30+ open issues, no staff engagement, community building workarounds
+72	72	29	2026-01-18	open	https://github.com/anthropics/claude-code/issues/18950	Skills/subagents do not inherit user-level permissions from settings.json
+59	69	15	2026-02-27	closed	https://github.com/anthropics/claude-code/issues/29438	[FEATURE] Remote Control: Push notifications on iOS when permission approval is needed
+65	65	55	2026-03-19	open	https://github.com/anthropics/claude-code/issues/36168	[BUG] Bypass/dangerously skip permissions now broken in all Claude Code versions newer than v2.1.77
+65	65	168	2026-04-02	closed	https://github.com/google-gemini/gemini-cli/issues/24517	403 PERMISSION_DENIED for Google One AI Premium subscriber - account correctly identified but API access blocked
+64	64	82	2025-11-10	closed	https://github.com/anthropics/claude-code/issues/11380	[BUG] Claude continually asks for permission, even after selecting yes, always allow.
+57	57	75	2025-09-30	closed	https://github.com/anthropics/claude-code/issues/8539	[BUG] VS CODE Extension no longer allows --dangerously-skip-permissions
+55	55	48	2025-11-18	closed	https://github.com/anthropics/claude-code/issues/11881	[BUG] Error: Permission to use WebSearch has been auto-denied in dontAsk mode.
+54	54	13	2026-07-17	open	https://github.com/anomalyco/opencode/issues/37564	[FEATURE]: "Auto mode" LLM model classifier auto-approval for permissions
+51	51	26	2025-12-07	open	https://github.com/anthropics/claude-code/issues/13340	[BUG] global/local settings.json allow permissions are not respected by Claude Code
+50	50	27	2026-01-14	open	https://github.com/anthropics/claude-code/issues/18160	[BUG] Claude is ignoring `allow` permissions in global `settings.json`
+48	48	41	2026-04-13	open	https://github.com/anthropics/claude-code/issues/47180	[BUG] Cowork scheduled tasks ignore "Always allow" folder/tool permissions — prompts reappear every run (macOS)
+48	48	20	2025-11-03	open	https://github.com/anthropics/claude-code/issues/10906	Built-in Plan agent ignores parent settings.json permissions and repeatedly prompts for pre-approved tools
+46	47	12	2025-08-09	open	https://github.com/anthropics/claude-code/issues/5466	[BUG] Plan Mode can't be used with Bypass Permissions
+47	47	5	2025-11-17	closed	https://github.com/anthropics/claude-code/issues/11799	[FEATURE] Auto-approve WebSearch tool without prompts via permissions configuration
+43	45	67	2025-06-20	closed	https://github.com/anomalyco/opencode/issues/239	Implement permissions in TUI
+42	42	14	2025-04-18	closed	https://github.com/anthropics/claude-code/issues/819	[BUG] Claude Repeatedly asks for permission to run commands, even when I've already granted it
+41	41	25	2026-09-09	open	https://github.com/anthropics/claude-code/issues/93201	[BUG] Built-in browser ignores Allowed sites for internal hostnames (*.habifino.local): "Site-level permissions are disabled for this site", prompt on every action
+40	40	13	2026-01-16	closed	https://github.com/anthropics/claude-code/issues/18699	Feature Request: Add 'Allow always (save to settings)' permission option
+36	39	19	2025-06-24	closed	https://github.com/anthropics/claude-code/issues/2560	[BUG] Claude code keeps asking for permission despite already having it.
+33	37	18	2025-12-21	open	https://github.com/anthropics/claude-code/issues/14956	Skill allowed-tools doesn't grant permission for Bash commands
+32	37	29	2025-11-06	open	https://github.com/anthropics/claude-code/issues/11139	[BUG] Claude Code Web Cannot Use gh CLI Commands (Permission Denied)
+32	35	25	2026-07-16	open	https://github.com/anthropics/claude-code/issues/78160	Hard block on typing passwords breaks legitimate dev/test workflows - needs a permission-gated opt-in for own dev environments
+35	35	39	2026-09-02	closed	https://github.com/anthropics/claude-code/issues/91495	[BUG] Site permissions ("Allow all websites") ignored by the built-in browser in Claude Code Desktop

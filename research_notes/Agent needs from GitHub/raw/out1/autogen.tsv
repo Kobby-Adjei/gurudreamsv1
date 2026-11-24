@@ -1,0 +1,31 @@
+# repo:microsoft/autogen is:issue total=3105
+40	40	14	2023-10-14	closed	https://github.com/microsoft/autogen/issues/236	Typescript port of AutoGen
+0	37	23	2023-09-29	closed	https://github.com/microsoft/autogen/issues/48	Bring AutoGen to dotnet
+7	34	4	2024-02-16	open	https://github.com/microsoft/autogen/issues/1700	[Feature Request]: Golang/Rust implementation
+28	33	43	2023-07-03	closed	https://github.com/microsoft/autogen/issues/46	Integrate opensource LLMs into autogen
+24	24	18	2023-10-07	closed	https://github.com/microsoft/autogen/issues/140	Integration with Semantic Kernel, Guidance and Prompt Flow
+23	23	24	2023-10-12	closed	https://github.com/microsoft/autogen/issues/217	[Roadmap] Streaming support
+18	18	2	2023-10-22	closed	https://github.com/microsoft/autogen/issues/372	Add a javascript SDK 
+17	17	23	2023-10-04	closed	https://github.com/microsoft/autogen/issues/98	Voyager-Style Skill Library for Agents
+17	17	10	2023-11-08	closed	https://github.com/microsoft/autogen/issues/602	Support openai assistant api
+3	14	8	2024-04-15	closed	https://github.com/microsoft/autogen/issues/2387	[Roadmap]:  Gemini Integration
+13	13	29	2023-12-15	closed	https://github.com/microsoft/autogen/issues/991	[Feature Request]: Support for Mistral AI API (and Mixtral2)
+10	13	18	2023-11-21	closed	https://github.com/microsoft/autogen/issues/737	[Roadmap] AutoGen Studio
+13	13	12	2023-09-18	closed	https://github.com/microsoft/autogen/issues/3	`OAI_CONFIG_LIST` details in documentation
+12	12	5	2024-10-17	closed	https://github.com/microsoft/autogen/issues/3817	Ollama client
+0	12	10	2023-09-28	closed	https://github.com/microsoft/autogen/issues/34	Feature Request: Support for Multiple Simultaneous LLM AI API Endpoints for Self-Hosting and Model Selection
+12	12	28	2023-10-08	closed	https://github.com/microsoft/autogen/issues/156	[Core] Roadmap for handling context overflow
+12	12	27	2023-11-03	closed	https://github.com/microsoft/autogen/issues/528	Feature: aider coding assistant agent
+11	11	3	2024-01-17	closed	https://github.com/microsoft/autogen/issues/1298	When will AutoGen Studio support agents with RAG
+8	11	7	2023-10-21	closed	https://github.com/microsoft/autogen/issues/339	[Feature Request] Amazon Bedrock support?
+10	10	12	2024-08-28	closed	https://github.com/microsoft/autogen/issues/3442	[Feature Request]: Adding Openai Structured outputs ( json_schema) for agents 
+10	10	18	2023-09-27	closed	https://github.com/microsoft/autogen/issues/28	Please add a SQL agent for autogen . 
+0	10	16	2024-03-14	closed	https://github.com/microsoft/autogen/issues/2017	[Roadmap] Web Browsing
+9	9	4	2023-10-24	closed	https://github.com/microsoft/autogen/issues/406	Local LLM with function calling
+9	9	20	2024-06-14	closed	https://github.com/microsoft/autogen/issues/2946	[Roadmap]: Roadmap about Enhanced non-OpenAI models 
+1	9	36	2024-12-10	closed	https://github.com/microsoft/autogen/issues/4623	Enable True Graph-Based Execution flow Pattern in AgentChat
+9	9	6	2023-09-29	closed	https://github.com/microsoft/autogen/issues/49	Adoption of Agent Protocol
+8	9	1	2023-10-11	closed	https://github.com/microsoft/autogen/issues/203	support new openai package
+9	9	34	2024-02-13	closed	https://github.com/microsoft/autogen/issues/1657	[Roadmap] RAG
+9	9	4	2024-03-01	closed	https://github.com/microsoft/autogen/issues/1828	[Feature Request]: Enable uploading files in AutoGen Studio
+8	8	6	2024-11-11	closed	https://github.com/microsoft/autogen/issues/4135	Magentic-One local LLM (Ollama) support?

@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title sync total=1082
+159	192	41	2026-02-26	open	https://github.com/anthropics/claude-code/issues/28791	[FEATURE] Sync conversation history between CLI and Claude Code desktop app
+164	173	49	2026-01-25	open	https://github.com/anthropics/claude-code/issues/20697	[FEATURE] Sync Skills between Claude Desktop and Claude Code CLI
+73	73	9	2025-10-24	open	https://github.com/openai/codex/issues/5609	Sync my chats, conversation history between ChatGPT website, Codex in VScode.
+65	68	14	2026-05-08	open	https://github.com/openai/codex/issues/21803	Feature request: Cross-device sync for Codex Projects and Chats
+54	57	27	2026-02-03	open	https://github.com/anthropics/claude-code/issues/22648	[Feature Request] Account-level settings sync across devices
+31	44	21	2026-02-14	open	https://github.com/anomalyco/opencode/issues/13626	[FEATURE]: Auto-sync projects in web UI from server
+36	36	90	2025-06-10	closed	https://github.com/anthropics/claude-code/issues/1884	Claude sync issue
+22	22	16	2026-03-08	open	https://github.com/anthropics/claude-code/issues/31992	[FEATURE] Cross-machine session resume — sync session state for CLI-to-CLI handoff
+21	21	9	2026-03-14	closed	https://github.com/openai/codex/issues/14722	Sync CLI and app-server sessions
+20	20	2	2026-07-18	open	https://github.com/anthropics/claude-code/issues/78776	[FEATURE] Option to disable cross-device session sync / keep sessions local per device
+14	20	12	2025-10-13	closed	https://github.com/openai/codex/issues/5152	Sync ChatGPT Project Memory with Codex for Seamless Ideation-to-Code Continuity
+18	18	8	2026-04-30	open	https://github.com/openai/codex/issues/20476	Ability to delete or clear Codex Web conversation history, especially when it syncs into Codex App
+17	17	4	2026-04-14	open	https://github.com/anthropics/claude-code/issues/47744	[FEATURE] API / sync mechanism for Claude Team Project knowledge files
+15	15	6	2026-09-04	open	https://github.com/anthropics/claude-code/issues/92031	[BUG] Account-level plugins never sync to Claude Code on the web (plugins_sync count: 0) while account skills sync fine
+15	15	11	2026-03-23	open	https://github.com/anthropics/claude-code/issues/37628	[VSCode] Renaming session via sidebar pencil icon doesn't sync terminal tab title — next message overwrites the custom name
+14	14	8	2026-01-04	open	https://github.com/anthropics/claude-code/issues/16274	Marketplace plugin sync triggers YubiKey presence, undermining hardware key security model
+13	13	9	2026-07-06	open	https://github.com/anthropics/claude-code/issues/75024	Can't get past /design-sync authorization in any environment I tried
+13	13	14	2026-02-26	closed	https://github.com/anthropics/claude-code/issues/28958	[FEATURE] Worktree creation should sync from remote default branch, not local
+13	13	15	2026-02-02	closed	https://github.com/openai/codex/issues/10421	Codex extension 0.4.69 doesn't work with code-server (persisted-atom sync failure)
+12	12	5	2026-05-26	closed	https://github.com/anomalyco/opencode/issues/29308	[FEATURE]:Auto-sync LiteLLM Models into OpenCode Configuration
+11	11	3	2026-04-02	open	https://github.com/openai/codex/issues/16531	Sync agent-created worktrees with the active Codex thread/UI context
+10	10	5	2026-08-31	open	https://github.com/anthropics/claude-code/issues/91063	DesignSync has no non-interactive authorization path — blocks headless/CI design-system sync
+10	10	3	2026-05-28	closed	https://github.com/anthropics/claude-code/issues/62980	Cross-client session syncing between VS Code extension and Desktop app
+10	10	2	2026-03-21	closed	https://github.com/openai/codex/issues/15406	Threads randomly disappear from history without deletion (possible sync/cache issue)
+9	9	2	2026-10-07	open	https://github.com/anthropics/claude-code/issues/100344	[FEATURE] sync sidebar session groups between the desktop app and claude.ai/code
+8	8	16	2026-09-02	open	https://github.com/openai/codex/issues/42315	[iOS Remote on Windows] Custom sections sync their names but omit all Codex projects
+8	8	4	2026-07-12	open	https://github.com/openai/codex/issues/32565	Chat history does not sync in new macOS ChatGPT app
+8	8	4	2026-10-08	open	https://github.com/anthropics/claude-code/issues/100375	Desktop app: sidebar custom-group membership and session titles do not sync across devices; Remote Control rows cannot be grouped
+8	8	5	2026-05-12	closed	https://github.com/anthropics/claude-code/issues/58477	Sync conversations between Claude Desktop app and Claude Mobile Android
+8	8	18	2025-06-27	closed	https://github.com/anomalyco/opencode/issues/480	Support dark/light mode os sync

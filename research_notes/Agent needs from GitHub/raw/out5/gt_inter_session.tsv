@@ -1,0 +1,31 @@
+# in:title inter-session OR "between sessions" OR "between agents" is:issue created:>2025-09-01 total=3146
+35	35	11	2026-10-29	closed	https://github.com/herdrdev/herdr-app/issues/63	Share agents between Herdr TUI and the app?
+23	23	85	2026-02-10	closed	https://github.com/anthropics/claude-code/issues/24798	Inter-session communication for multi-Claude workflows
+23	23	2	2025-11-10	closed	https://github.com/github/copilot-cli/issues/517	Add a hotkey to switch between custom agents
+18	19	10	2026-08-09	open	https://github.com/can1357/oh-my-pi/issues/8077	Feature: cross-session messaging between independent OMP main sessions (Claude Code parity)
+15	15	5	2026-04-09	closed	https://github.com/anthropics/claude-code/issues/45690	[FEATURE] Add keyboard shortcut for switching between Code sessions in Claude Desktop
+11	11	1	2026-05-19	closed	https://github.com/google-antigravity/antigravity-cli/issues/14	[WSL2] Not staying logged in between sessions (CLI and Antigravity)
+10	11	38	2025-12-16	closed	https://github.com/anthropics/claude-code/issues/14227	Feature Request: Persistent Memory Between Claude Code Sessions
+9	9	3	2026-02-20	open	https://github.com/zellij-org/zellij/issues/4734	Feature request: move/re-parent a live tab between sessions
+9	9	14	2025-09-09	closed	https://github.com/anthropics/claude-code/issues/7341	[Bug] Unexpected Model Switching Between Terminal Sessions
+8	8	2	2026-07-17	closed	https://github.com/anthropics/claude-code/issues/78643	[FEATURE] VS Code extension: option to disable Up/Down arrow keys switching between past sessions in chat input
+8	8	10	2026-02-21	closed	https://github.com/anthropics/claude-code/issues/27380	[BUG] Permission bypass mode resets when switching between concurrent sessions
+7	7	2	2026-05-17	open	https://github.com/microsoft/vscode/issues/316911	I have to sign in every time I open the app or switch between Agents and normal app
+7	7	1	2025-11-11	open	https://github.com/sigoden/aichat/issues/1438	TUI for managing, searching, and switching between chat sessions
+7	7	5	2026-04-30	closed	https://github.com/anthropics/claude-code/issues/55092	[FEATURE] Persist panel layout settings between sessions
+6	7	2	2026-06-01	open	https://github.com/microsoft/vscode/issues/319416	Chat sessions disappear from sidebar list when switching between them
+6	6	4	2026-06-20	open	https://github.com/anthropics/claude-code/issues/69676	Feature request: keyboard shortcut to switch between chats/sessions in the sidebar panel
+5	5	5	2026-04-10	closed	https://github.com/anthropics/claude-code/issues/46176	Desktop app loses default working directory between sessions
+6	6	9	2026-03-03	closed	https://github.com/openclaw/openclaw/issues/32495	[Feature Request] Support switching between agents in Control UI
+6	6	9	2025-10-05	closed	https://github.com/anomalyco/opencode/issues/2979	Fix keep_alive support / persistent model sessions for Ollama provider to prevent model reloads between requests
+5	5	3	2026-03-26	open	https://github.com/jnsahaj/lumen/issues/135	Persist annotations between sessions to prevent accidental loss
+5	5	3	2026-07-21	open	https://github.com/anthropics/claude-code/issues/79858	Agents view dispatches daemon-backed sessions that inherit a merge prohibition, overriding user-authored project rules — and compliance varies between identical sessions
+4	5	3	2026-02-18	closed	https://github.com/kirodotdev/Kiro/issues/5848	Feature Request: Inter-session communication between Kiro CLI agents
+4	5	4	2026-09-23	open	https://github.com/anthropics/claude-code/issues/96382	VS Code extension: since 2.1.268 there is no way to see, switch between, or close ACTIVE sessions from the IDE (tabbed sidebar removed with no opt-out)
+4	4	3	2026-04-13	closed	https://github.com/asheshgoplani/agent-deck/issues/585	Raw terminal escape sequences leak into input buffer when switching between sessions
+5	5	4	2026-07-03	closed	https://github.com/anthropics/claude-code/issues/73782	[Cloud sessions] Regression between 2026-06-18 and 2026-06-25: GitHub REST passthrough returns 403 "GitHub access is not enabled for this session" for org repos despite Claude GitHub App installed
+4	4	5	2026-09-30	open	https://github.com/anomalyco/opencode/issues/52297	[FEATURE]:Inter session communication
+4	4	6	2026-07-10	open	https://github.com/can1357/oh-my-pi/issues/5077	Inter-session IRC
+4	4	7	2026-08-23	open	https://github.com/kirodotdev/KiroCrew/issues/5258	Shared team sessions — live collaboration and handoff between developers
+3	4	2	2026-05-04	closed	https://github.com/anthropics/claude-code/issues/56029	Feature request: Sync conversations and sessions between desktop and mobile (Dispatch)
+4	4	7	2025-11-20	closed	https://github.com/github/spec-kit/issues/1228	Can speckit easily switch between AI Agents ? Moving from Claude to GH Copilot

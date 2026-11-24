@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:block/goose repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue approval notification phone total=306
+5197	6696	409	2025-08-21	closed	https://github.com/anthropics/claude-code/issues/6235	Feature Request: Support AGENTS.md.
+1199	2121	288	2026-04-09	open	https://github.com/anthropics/claude-code/issues/45596	Bring Back Buddy — A Consolidated Plea from the Community
+697	728	1499	2026-01-03	open	https://github.com/anthropics/claude-code/issues/16157	[BUG] Instantly hitting usage limits with Max subscription
+435	674	57	2025-06-24	open	https://github.com/anthropics/claude-code/issues/2511	Feature request: Connect Claude code to Claude projects 
+476	545	878	2026-03-24	open	https://github.com/anthropics/claude-code/issues/38335	[BUG] Claude Max plan session limits exhausted abnormally fast since March 23, 2026 (CLI usage)
+411	544	59	2026-01-14	closed	https://github.com/openai/codex/issues/9224	Codex Remote Control
+398	454	92	2026-06-01	open	https://github.com/openai/codex/issues/25719	Codex Desktop for macOS repeatedly triggers `syspolicyd` / `trustd` CPU and memory runaway
+388	414	144	2026-07-02	closed	https://github.com/anthropics/claude-code/issues/73125	[BUG] AskUserQuestion: "No response after 60s — continued without an answer"
+298	334	307	2025-04-12	open	https://github.com/anthropics/claude-code/issues/769	[BUG]  In-progress Call causes Screen Flickering
+284	307	630	2026-03-13	closed	https://github.com/openai/codex/issues/14593	Burning tokens very fast
+222	227	99	2026-06-18	open	https://github.com/openai/codex/issues/28969	Add setting to disable the auto-resolve in 60 seconds for questions
+131	224	279	2026-09-03	open	https://github.com/anthropics/claude-code/issues/91870	Mods - make Claude 10x more extensible
+203	224	61	2025-09-20	open	https://github.com/openai/codex/issues/3962	Play a sound when Codex finishes a prompt / task
+16	121	21	2026-03-29	closed	https://github.com/anthropics/claude-code/issues/40710	My automated tool is running git reset --hard origin/main in my project every 10 minutes
+82	95	116	2026-01-01	closed	https://github.com/openclaw/openclaw/issues/75	Linux/Windows Clawdbot Apps
+89	89	40	2026-01-16	open	https://github.com/anthropics/claude-code/issues/18467	[BUG] Personal account repositories not visible in Claude web, only organization repositories work
+85	87	34	2026-02-27	open	https://github.com/anthropics/claude-code/issues/29214	Remote Control: mobile app shows permission prompts despite --dangerously-skip-permissions
+81	81	27	2025-12-04	closed	https://github.com/anthropics/claude-code/issues/13024	[FEATURE] Add hook for when Claude is waiting for user input
+74	79	13	2025-07-16	closed	https://github.com/google-gemini/gemini-cli/issues/4310	Feature: Audio Notifications System with /notifications Command
+74	74	43	2026-04-02	open	https://github.com/anthropics/claude-code/issues/42700	TTS readback of responses + voice mode for Remote Control sessions
+71	71	67	2025-08-15	closed	https://github.com/anthropics/claude-code/issues/5826	[BUG] Claude Desktop doesn't connect to Custom MCPs altogether (not with OAuth 2.1 nor with SSE)
+59	69	15	2026-02-27	closed	https://github.com/anthropics/claude-code/issues/29438	[FEATURE] Remote Control: Push notifications on iOS when permission approval is needed
+65	65	100	2025-10-23	open	https://github.com/anthropics/claude-code/issues/10199	[BUG] API Error 400 - Thinking Block Modification Error
+58	61	121	2026-09-09	open	https://github.com/anthropics/claude-code/issues/92984	[BUG] Cowork (Windows): all Plan9 shares fail with "Plan9 mount failed: invalid argument" after Windows update KB5124008 (26200.9445) — uninstalling the KB fixes it
+57	58	16	2026-05-08	open	https://github.com/anthropics/claude-code/issues/57230	[VSCode Extension] Add native system/toast notifications when Claude needs attention
+48	55	27	2025-10-23	closed	https://github.com/anthropics/claude-code/issues/10168	Add hook for user input/question events (UserInputRequired)
+44	44	18	2026-02-25	closed	https://github.com/anthropics/claude-code/issues/28765	Feature: Push notifications for completed tasks in remote-control mode
+41	41	20	2026-04-16	open	https://github.com/anthropics/claude-code/issues/48949	Persistent always-on Remote Control option for desktop app
+36	41	16	2026-03-01	closed	https://github.com/anthropics/claude-code/issues/29928	Feature request: built-in completion notifications for VS Code extension
+38	38	67	2025-11-04	closed	https://github.com/anthropics/claude-code/issues/11002	[FEATURE] Add a --screen-reader mode for better accessibility with NVDA and JAWS

@@ -1,0 +1,31 @@
+# agent "audit trail" is:issue created:>2025-09-01 total=62138
+821	893	742	2026-03-14	open	https://github.com/anthropics/claude-code/issues/34229	[BUG] Phone verification
+234	339	40	2026-04-07	open	https://github.com/MemPalace/mempalace/issues/27	Multiple issues between README claims and codebase
+131	224	279	2026-09-03	open	https://github.com/anthropics/claude-code/issues/91870	Mods - make Claude 10x more extensible
+159	192	41	2026-02-26	open	https://github.com/anthropics/claude-code/issues/28791	[FEATURE] Sync conversation history between CLI and Claude Code desktop app
+186	186	134	2026-01-27	open	https://github.com/anthropics/claude-code/issues/21151	[FEATURE] No indication of WHICH file for READ tool
+130	167	52	2026-02-12	open	https://github.com/OfficeDev/office-js/issues/6513	# 233 Developers Discussed Abandoning the Office Add-in Platform — An Open Letter on the Office.js Stability, Security & Trust Crisis
+141	155	45	2026-06-13	open	https://github.com/openai/codex/issues/28058	Regression: encrypted MultiAgentV2 messages remove readable task audit trail
+16	121	21	2026-03-29	closed	https://github.com/anthropics/claude-code/issues/40710	My automated tool is running git reset --hard origin/main in my project every 10 minutes
+92	117	47	2026-01-11	open	https://github.com/anthropics/claude-code/issues/17428	[Feature Request] Enhanced /compact with file-backed summaries and selective restoration
+105	115	8	2025-11-15	closed	https://github.com/github/spec-kit/issues/1191	Spec-Driven Editing Flow: Can't Easily Update or Refine Existing Specs
+94	94	31	2026-01-14	closed	https://github.com/anomalyco/opencode/issues/8463	[FEATURE]: Add `--dangerously-skip-permissions` (aka YOLO mode)
+69	82	35	2026-03-07	open	https://github.com/paperclipai/paperclip/issues/187	Feature Request: Support for Local LLMs via Ollama
+81	81	7	2026-04-15	open	https://github.com/anthropics/claude-code/issues/48322	[FEATURE] Team/Enterprise: shared routines (org-owned scheduled agents)
+61	61	65	2026-03-24	open	https://github.com/anthropics/claude-code/issues/38239	[BUG]  Extremely rapid token consumption. There appears to be a critical issue with token calculation and quota management. Users, including myself, are experiencing an unusually high rate of token consumption
+56	57	17	2026-01-26	closed	https://github.com/anthropics/claude-code/issues/21051	[FEATURE] Display message timestamps in Claude Code CLI interface
+42	52	18	2026-03-01	open	https://github.com/anthropics/claude-code/issues/29910	[FEATURE] Built-in secrets management with optional third-party integrations
+45	52	11	2025-09-21	closed	https://github.com/github/spec-kit/issues/442	Add Post-Implementation Debugging and Fixing Workflow
+33	51	35	2026-05-08	open	https://github.com/openai/codex/issues/21753	Full Claude Code Hook Parity (29+)
+49	50	8	2026-05-24	closed	https://github.com/anthropics/claude-code/issues/62061	[BUG] v2.1.150 adds server-side system prompt injection via `tengu_heron_brook` feature flag
+45	48	67	2026-05-14	open	https://github.com/anthropics/claude-code/issues/59248	Silent retention cleanup deletes session transcripts with no warning, opt-in, or recovery
+48	48	41	2026-04-13	open	https://github.com/anthropics/claude-code/issues/47180	[BUG] Cowork scheduled tasks ignore "Always allow" folder/tool permissions — prompts reappear every run (macOS)
+44	44	1	2026-03-29	open	https://github.com/paperclipai/paperclip/issues/2092	feat: Add GitHub Copilot CLI adapter (copilot_local)
+35	43	43	2026-02-09	closed	https://github.com/anthropics/claude-code/issues/24316	[FEATURE] Allow custom .claude/agents/ definitions as agent team teammates
+22	38	26	2026-03-04	closed	https://github.com/NousResearch/hermes-agent/issues/344	Feature: Multi-Agent Architecture — Orchestration, Cooperation, Specialized Roles & Resilient Workflows
+37	37	9	2026-03-09	open	https://github.com/anthropics/claude-code/issues/32364	[FEATURE] Support OpenTelemetry (OTel) configuration in Claude Code on the Web (claude.ai/code)
+36	36	56	2026-09-02	closed	https://github.com/cncf/sandbox/issues/516	[Sandbox] Hive Commons
+35	35	27	2026-01-13	closed	https://github.com/anthropics/claude-code/issues/17951	[FEATURE] Terminal Title Configuration (Script-Based, like statusLine)
+15	28	9	2026-04-18	open	https://github.com/anthropics/claude-code/issues/50513	[MODEL] Complex engineering behavior regression across sessions; request RCA and auditability guarantees
+28	28	11	2026-02-03	closed	https://github.com/openclaw/openclaw/issues/8081	Feature Request: Multi-user permission management with role-based access control
+16	26	21	2026-03-06	open	https://github.com/NousResearch/hermes-agent/issues/527	Feature: Gateway Permission Tiers — Role-Based Access Control (Owner/Admin/User/Guest) for Messenger Platforms

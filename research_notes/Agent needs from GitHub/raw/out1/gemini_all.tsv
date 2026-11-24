@@ -1,0 +1,31 @@
+# repo:google-gemini/gemini-cli is:issue total=14497
+142	204	30	2025-07-22	closed	https://github.com/google-gemini/gemini-cli/issues/4666	Introduce a "Plan Mode" to plan complex code changes by blocking the use of write tools
+167	191	21	2025-06-26	closed	https://github.com/google-gemini/gemini-cli/issues/1796	Input with Japanese IME is not working well
+101	176	25	2025-07-15	closed	https://github.com/google-gemini/gemini-cli/issues/4191	2025 Public Roadmap Tracking
+17	170	48	2026-05-11	closed	https://github.com/google-gemini/gemini-cli/issues/26856	Your idiotic AI disobeyed me completely lied and has now cost me 300 dollars worth of work that went into my obsidian - 10000s of files and work deleted not recoverable I WANT MY MONEY BACK!!!!!!!!!!!!!
+148	168	20	2025-06-29	closed	https://github.com/google-gemini/gemini-cli/issues/2553	WriteFile will generate "�" character after saving to a text file
+165	165	32	2025-10-20	closed	https://github.com/google-gemini/gemini-cli/issues/11506	Add Skill to Gemini CLI like Claude Code
+165	165	219	2026-03-12	closed	https://github.com/google-gemini/gemini-cli/issues/22141	Gemini CLI becomes extremely slow (1+ HOURS) / stuck during small code-edit tasks (agent loop + model response delays)
+50	150	46	2025-07-03	open	https://github.com/google-gemini/gemini-cli/issues/3132	[Agents] Post V1.0 Work
+129	132	10	2025-06-28	closed	https://github.com/google-gemini/gemini-cli/issues/2465	Language Server Protocol support for the Gemini CLI
+110	123	127	2026-02-19	open	https://github.com/google-gemini/gemini-cli/issues/19532	Add gemini-3.1-pro-preview
+113	117	98	2025-06-25	closed	https://github.com/google-gemini/gemini-cli/issues/1432	Login Failed: "Ensure your Google account is not a Workspace account" Error for a Standard Account
+94	103	15	2025-07-01	closed	https://github.com/google-gemini/gemini-cli/issues/2779	Feature Request: Implement a Hooks System for Custom Automation and Workflow Integration
+101	101	17	2025-06-26	closed	https://github.com/google-gemini/gemini-cli/issues/1825	respect XDG specs
+0	95	131	2026-04-08	open	https://github.com/google-gemini/gemini-cli/issues/24937	Tracking: 429 / Capacity Issues
+86	94	127	2025-06-25	closed	https://github.com/google-gemini/gemini-cli/issues/1502	gemini-2.5-pro is [API Error: got status: 429 Too Many Requests.
+86	86	43	2026-02-09	closed	https://github.com/google-gemini/gemini-cli/issues/18621	API Error: Cannot read properties of undefined (reading 'candidates')
+77	83	60	2025-06-13	closed	https://github.com/google-gemini/gemini-cli/issues/1028	Repeated issues with the `replace` (edit) tool
+74	79	13	2025-07-16	closed	https://github.com/google-gemini/gemini-cli/issues/4310	Feature: Audio Notifications System with /notifications Command
+78	78	8	2025-10-20	closed	https://github.com/google-gemini/gemini-cli/issues/11511	Gemini CLI takes up to 39 seconds to load on Windows
+54	75	6	2025-06-26	closed	https://github.com/google-gemini/gemini-cli/issues/1679	Feature Request: Allow configuration of a custom API endpoint and API key header
+58	69	5	2026-08-02	closed	https://github.com/google-gemini/gemini-cli/issues/28625	Enterprise Gemini CLI users were promised access to the latest models — so where are Gemini 3.5 Flash and 3.6 Flash?
+10	64	10	2025-06-25	closed	https://github.com/google-gemini/gemini-cli/issues/1522	Why no Rust?
+65	65	168	2026-04-02	closed	https://github.com/google-gemini/gemini-cli/issues/24517	403 PERMISSION_DENIED for Google One AI Premium subscriber - account correctly identified but API access blocked
+59	64	49	2025-06-25	closed	https://github.com/google-gemini/gemini-cli/issues/1437	Login with Google - Doesn't support (SSH Issue?) for headless login
+58	62	13	2025-06-27	closed	https://github.com/google-gemini/gemini-cli/issues/2208	Feature Request: Option to Disable Automatic Model Fallback (Pro to Flash)
+55	62	14	2025-06-26	closed	https://github.com/google-gemini/gemini-cli/issues/1698	Add support for VISUAL/EDITOR environment variable in external editor selection
+48	56	55	2025-07-03	closed	https://github.com/google-gemini/gemini-cli/issues/3166	Truncated Warning for Long Responses
+34	56	14	2025-07-14	closed	https://github.com/google-gemini/gemini-cli/issues/4168	Feature: Run autonomous background Agents
+56	56	13	2025-06-29	closed	https://github.com/google-gemini/gemini-cli/issues/2554	Feature Request: Conversation History Export
+15	55	4	2025-08-06	closed	https://github.com/google-gemini/gemini-cli/issues/5674	How about you NOT implement stupid features like "Corgi mode" and instead address real bugs with Gemini-CLI?

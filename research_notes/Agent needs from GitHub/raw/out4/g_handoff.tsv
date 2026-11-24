@@ -1,0 +1,30 @@
+# "handoff between agents" is:issue total=2050
+173	209	54	2026-05-19	closed	https://github.com/microsoft/vscode/issues/317380	AgentHost: Dev Containers support
+31	31	39	2025-07-25	open	https://github.com/anthropics/claude-code/issues/4462	[BUG] Sub-agents claim successful file creation but files don't persist to filesystem
+23	23	85	2026-02-10	closed	https://github.com/anthropics/claude-code/issues/24798	Inter-session communication for multi-Claude workflows
+13	13	2	2026-07-14	open	https://github.com/stablyai/orca/issues/8702	[Feature]: Decouple workspace filesystem from outer git worktree — nested multi-repo / governance-root layouts
+12	12	2	2025-09-07	closed	https://github.com/github/spec-kit/issues/59	Add Spec-kit to VS Code as VS Code Extension
+7	12	7	2026-03-30	closed	https://github.com/anomalyco/opencode/issues/19999	[FEATURE]: Ephemeral Sub-Agent Teams (parallel multi-agent orchestration)
+4	10	4	2026-01-20	closed	https://github.com/anomalyco/opencode/issues/9649	[FEATURE]: Multi-Agent Coding
+3	9	144	2026-02-13	closed	https://github.com/Scottcjn/rustchain-bounties/issues/160	Write a tutorial or blog about Beacon (33 RTC Bounty)
+0	6	0	2025-03-09	closed	https://github.com/langgraph4j/langgraph4j/issues/94	FEAT:  Multi-Agents - Implement handoffs between agents
+5	5	10	2026-04-06	open	https://github.com/bytedance/deer-flow/issues/1898	RFC: DeerFlow 下一代 Memory 架构选型思考 | Thoughts on DeerFlow's Next-Generation Memory Architecture
+4	5	3	2025-12-18	closed	https://github.com/google/adk-python/issues/3972	[live] Graph-Based Agent Orchestration for Live API
+5	5	3	2026-02-17	closed	https://github.com/microsoft/vscode/issues/295846	Feature Request: Allow `user-invokable: false` Agents in Handoffs
+5	5	24	2025-12-18	closed	https://github.com/code-yeongyu/oh-my-openagent/issues/96	Prompt is too long recovery compaction is not working
+2	4	0	2025-09-26	open	https://github.com/opensearch-project/OpenSearch-Dashboards/issues/10585	[RFC] AI Assistant Framework for OpenSearch Dashboards
+4	4	18	2026-03-17	closed	https://github.com/openai/codex/issues/14923	Desktop app: explicit cross-thread orchestration over existing thread/* and turn/* primitives
+4	4	3	2025-03-12	closed	https://github.com/openai/openai-agents-python/issues/82	Support for custom Agent
+2	3	18	2025-04-24	open	https://github.com/google/adk-web/issues/33	Agent Visualization
+0	3	6	2025-08-12	closed	https://github.com/ruvnet/ruflo/issues/643	🚀 Alpha 89 Release: Stream Chain Command, Real Training Pipeline & Truth Verification System
+3	3	9	2026-02-05	closed	https://github.com/anthropics/claude-code/issues/23307	[Bug] classifyHandoffIfNeeded error affects BUILT-IN agents (Explore, Plan) - not just custom subagents
+2	2	2	2026-09-25	closed	https://github.com/anthropics/claude-code/issues/97055	Allow creating a new sidebar session programmatically (for context handoff between agents)
+2	2	3	2026-06-26	open	https://github.com/career-ops-hq/career-ops/issues/1242	[Umbrella] Interview-mode pipeline + the canonical session-transcript contract
+2	2	1	2026-09-14	open	https://github.com/stablyai/orca/issues/20573	[Feature]: Optimize Devin support for Orca dispatch and agent lifecycle (orchestration, accounts, and session telemetry)
+2	2	1	2026-04-17	open	https://github.com/meltylabs/conductor-releases/issues/14	## Feature Request: Remote development via SSH
+1	2	10	2025-09-02	closed	https://github.com/langchain-ai/langgraph/issues/6064	Sub Agent sends back to starting agent after handoff even if it is waiting on further responses to finish it task from user
+0	2	6	2025-10-15	open	https://github.com/Chainlit/chainlit/issues/2591	Multi-Agent Support
+0	1	2	2026-04-14	closed	https://github.com/asheshgoplani/agent-deck/issues/598	[BUG] Send output between sessions: transferred content is unpredictable — not the last/full output as expected
+1	2	5	2026-06-30	closed	https://github.com/msitarzewski/agency-agents/issues/634	Add an Agent which recommends which agency agent to use for a particular task
+1	2	4	2026-05-06	closed	https://github.com/openclaw/openclaw/issues/78294	Proposal: ASFS skill format + Handoff Protocol for cross-agent interoperability
+1	2	0	2026-03-11	closed	https://github.com/BradGroux/veritas-kanban/issues/200	Feature: MCP comment CRUD tools (create, list, delete task comments)

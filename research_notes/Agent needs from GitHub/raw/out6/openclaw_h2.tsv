@@ -1,0 +1,31 @@
+# repo:openclaw/openclaw is:issue created:>2026-04-01 total=40708
+14	14	9	2026-04-02	closed	https://github.com/openclaw/openclaw/issues/59330	[Bug]: Control UI Raw mode permanently disabled since 2026.3.31 — materializeRuntimeConfig injects undefined keys that break round-trip check
+10	14	11	2026-06-18	closed	https://github.com/openclaw/openclaw/issues/94518	DeepSeek cache hit rate <10% after 6.x upgrade - boundary-aware caching breaks prefix matching
+8	14	18	2026-04-18	closed	https://github.com/openclaw/openclaw/issues/68596	Feature Request: Configurable streaming watchdog timeout threshold
+12	14	5	2026-05-20	closed	https://github.com/openclaw/openclaw/issues/84527	[Feature]: Add Antigravity CLI (agy) as CLI backend to replace deprecated google-gemini-cli
+4	11	5	2026-05-05	closed	https://github.com/openclaw/openclaw/issues/77666	Feishu group messages receive replies=0 after upgrading to 2026.5.3
+11	11	24	2026-04-14	closed	https://github.com/openclaw/openclaw/issues/66718	[Bug] openclaw configure TypeError: Cannot read properties of undefined (reading 'trim')
+9	10	8	2026-04-14	closed	https://github.com/openclaw/openclaw/issues/66674	[Bug]: openai-codex/gpt-5.4 direct CLI infer returns HTML rawError but surfaces as "DNS lookup failed" on 2026.4.14
+10	10	17	2026-05-27	closed	https://github.com/openclaw/openclaw/issues/87331	5.26 regression: "Native hook relay unavailable" after relay re-register due to generation UUID staleness
+5	10	14	2026-04-28	closed	https://github.com/openclaw/openclaw/issues/73501	[BLOCKER] OpenClaw 4.22 to 4.26 significantly slower - regression bug
+10	10	1	2026-04-10	closed	https://github.com/openclaw/openclaw/issues/64118	CLI extremely slow on Windows 11 (30-60s) in v2026.4.9, fast in v2026.4.2
+10	10	11	2026-04-09	closed	https://github.com/openclaw/openclaw/issues/63510	2026.4.9: completion cache generation crashes on missing qa/scenarios/index.md
+8	10	7	2026-05-11	closed	https://github.com/openclaw/openclaw/issues/80715	[Bug] Slack replies silently dropped: composed in transcript, never posted to Slack
+10	10	13	2026-04-09	closed	https://github.com/openclaw/openclaw/issues/63829	[Feature]: Per-agent memory-wiki vault configuration
+8	10	15	2026-05-07	closed	https://github.com/openclaw/openclaw/issues/79077	Support for Telegram bot-to-bot and guest-bot modes (Telegram May-7 2026 release)
+5	9	13	2026-04-08	closed	https://github.com/openclaw/openclaw/issues/63129	[Bug]: 报错 Error: Cannot find module '@larksuiteoapi/node-sdk'
+9	9	1	2026-04-22	closed	https://github.com/openclaw/openclaw/issues/69959	[Bug]: non-Lark users can still hit hard CLI startup failures from bundled Feishu dependency on 2026.4.20
+9	9	3	2026-04-17	closed	https://github.com/openclaw/openclaw/issues/68118	[Bug]: Openrouter wont work anymore after last update
+6	9	6	2026-04-21	closed	https://github.com/openclaw/openclaw/issues/69831	[Bug]: Error: Cannot find module 'grammy'
+7	8	17	2026-04-07	closed	https://github.com/openclaw/openclaw/issues/62272	[Bug] Update to 2026.4.5 fails: Cannot find module '@buape/carbon'
+8	8	4	2026-04-08	closed	https://github.com/openclaw/openclaw/issues/62886	2026.4.7: Telegram plugin broken — setup-entry.js references missing src/ directory
+8	8	30	2026-04-08	closed	https://github.com/openclaw/openclaw/issues/62994	[Bug]:install 4.8 failed: Cannot find module '@buape/carbon'
+8	8	14	2026-05-27	closed	https://github.com/openclaw/openclaw/issues/87395	Native hook relay intermittently becomes unavailable on 2026.5.26, blocking memory/filesystem tools
+5	8	4	2026-05-01	closed	https://github.com/openclaw/openclaw/issues/75694	[Bug]: Directly after update from 4.22 to 4.29 agents stop responding.
+8	8	13	2026-05-19	closed	https://github.com/openclaw/openclaw/issues/84059	EmbeddedAttemptSessionTakeoverError: session file changed while embedded prompt lock was released
+8	8	12	2026-06-06	closed	https://github.com/openclaw/openclaw/issues/91016	⚠️ 升级 2026.6.1 后 DeepSeek Prompt Cache 完全失效，一小时烧掉约 $6
+8	8	5	2026-06-16	closed	https://github.com/openclaw/openclaw/issues/93794	[Bug]: Messages on v2026.6.8 no longer supported on telegram web
+7	8	8	2026-07-17	closed	https://github.com/openclaw/openclaw/issues/109867	[Bug]: beta.2 state migration creates agent_id index before adding column, blocking gateway startup
+5	8	17	2026-04-15	closed	https://github.com/openclaw/openclaw/issues/67413	Feature Request: Per-agent dreaming configuration
+7	7	8	2026-04-14	closed	https://github.com/openclaw/openclaw/issues/66641	[Bug]: Installer always crashes after “Select channel (QuickStart)” with TypeError: Cannot read properties of undefined (reading 'trim')
+6	7	11	2026-06-08	closed	https://github.com/openclaw/openclaw/issues/91363	Isolated cron consistently fails with "LLM request failed" on model-call-started phase

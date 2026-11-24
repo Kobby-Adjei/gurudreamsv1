@@ -1,0 +1,31 @@
+# repo:anomalyco/opencode is:issue total=34839
+357	420	386	2026-01-09	closed	https://github.com/anomalyco/opencode/issues/7410	Broken Claude Max
+214	410	24	2026-03-11	closed	https://github.com/anomalyco/opencode/issues/16992	[FEATURE]: add /btw command
+246	329	37	2026-01-14	closed	https://github.com/anomalyco/opencode/issues/8501	[FEATURE]: Allow to expand the pasted text (e.g. `[Pasted ~1 lines]`)
+173	271	126	2025-08-07	closed	https://github.com/anomalyco/opencode/issues/1686	Add OpenAI auth login like claude
+195	264	77	2025-08-19	closed	https://github.com/anomalyco/opencode/issues/2072	Support for Cursor?
+250	264	63	2025-12-27	closed	https://github.com/anomalyco/opencode/issues/6231	Auto-discover models from OpenAI-compatible provider endpoints
+156	219	86	2026-05-12	closed	https://github.com/anomalyco/opencode/issues/27167	[FEATURE]: Add native session goals with /goal
+176	208	36	2025-11-24	closed	https://github.com/anomalyco/opencode/issues/4695	[FEATURE]: Speech-to-Text Voice Input for Lazy People in OpenCode
+189	198	36	2025-08-09	closed	https://github.com/anomalyco/opencode/issues/1764	[FEATURE]: vim motions in input box
+119	190	36	2026-02-08	closed	https://github.com/anomalyco/opencode/issues/12661	[FEATURE]: Add Agent Teams Equivalent or Better
+164	177	40	2026-01-29	open	https://github.com/anomalyco/opencode/issues/11176	[FEATURE]:Official -  OpenCode VS Code extension
+112	173	150	2026-04-02	closed	https://github.com/anomalyco/opencode/issues/20695	Memory Megathread
+128	168	35	2026-01-06	closed	https://github.com/anomalyco/opencode/issues/7101	[FEATURE]: Allow custom system prompts in global, project or custom directories
+150	157	31	2025-08-02	closed	https://github.com/anomalyco/opencode/issues/1543	[Feature Request] Adding directories / creating workspaces
+142	154	24	2025-12-25	closed	https://github.com/anomalyco/opencode/issues/6152	[FEATURE]: Session context usage (similar to /context in Claude)
+145	153	16	2025-07-20	closed	https://github.com/anomalyco/opencode/issues/1168	Feature Request: Make Links Clickable (Ctrl+Left Click to Open)
+125	137	207	2025-07-03	closed	https://github.com/anomalyco/opencode/issues/631	Windows Support
+138	138	35	2026-03-04	closed	https://github.com/anomalyco/opencode/issues/16017	[FEATURE]: Add Go plan usage/balance API endpoint (rolling/weekly/monthly windows)
+135	136	161	2025-11-13	closed	https://github.com/anomalyco/opencode/issues/4283	Copy To Clipboard is not working
+132	132	51	2025-10-17	closed	https://github.com/anomalyco/opencode/issues/3235	Support for "Skills"
+130	131	42	2025-08-22	closed	https://github.com/anomalyco/opencode/issues/2177	Allow explicitly changing working directory
+121	128	18	2026-02-10	closed	https://github.com/anomalyco/opencode/issues/12954	[FEATURE]: 5.3 Codex for Github Copilot provider
+105	126	30	2025-11-27	closed	https://github.com/anomalyco/opencode/issues/4821	[FEATURE]: Add ability to unqueue messages
+126	126	11	2025-11-03	closed	https://github.com/anomalyco/opencode/issues/3844	[FEATURE]: Plan mode questions like claude code
+125	125	42	2025-07-15	closed	https://github.com/anomalyco/opencode/issues/988	Feature request: add MCP remote using oauth
+121	123	32	2026-01-10	closed	https://github.com/anomalyco/opencode/issues/7602	[FEATURE]: Native Model Fallback / Failover Support
+120	120	29	2026-01-11	closed	https://github.com/anomalyco/opencode/issues/7846	[FEATURE]: Add /skills command to list and quick-invoke skills
+85	116	20	2026-01-11	closed	https://github.com/anomalyco/opencode/issues/7790	[FEATURE]: SSH-based remote server connections to OpenCode Desktop
+116	116	5	2026-03-05	closed	https://github.com/anomalyco/opencode/issues/16219	[FEATURE]: Add GPT 5.4 models
+100	113	25	2026-01-15	closed	https://github.com/anomalyco/opencode/issues/8751	[FEATURE]: Hot-reload agents, skills and commands.

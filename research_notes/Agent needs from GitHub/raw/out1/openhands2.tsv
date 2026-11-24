@@ -1,0 +1,31 @@
+# repo:OpenHands/OpenHands is:issue total=5718
+43	46	14	2025-06-25	closed	https://github.com/OpenHands/OpenHands/issues/9354	Gitea/Forgejo Support
+25	25	26	2024-11-29	closed	https://github.com/OpenHands/OpenHands/issues/5325	Support podman
+0	22	8	2024-03-13	closed	https://github.com/OpenHands/OpenHands/issues/4	Use devin to code opendevin?
+5	21	26	2025-01-26	closed	https://github.com/OpenHands/OpenHands/issues/6468	Add GitHub Copilot provider
+2	20	6	2026-05-11	closed	https://github.com/OpenHands/OpenHands/issues/14374	✨ Agent Canvas Initiative ✨ 
+10	18	22	2024-12-24	closed	https://github.com/OpenHands/OpenHands/issues/5781	Allow us to use MCP servers to extend OpenHand's functionality
+13	18	49	2024-06-16	closed	https://github.com/OpenHands/OpenHands/issues/2469	Feature Request: VSCode Extension for Prompt Requests with selected code or files immediately in the context
+17	17	19	2025-04-07	open	https://github.com/OpenHands/OpenHands/issues/7752	[Enhancement] Allow for selection of multiple Git repositories
+12	14	9	2024-03-13	closed	https://github.com/OpenHands/OpenHands/issues/1	Feature Outline and Requirements Engineering
+13	13	9	2025-06-06	closed	https://github.com/OpenHands/OpenHands/issues/8964	[PRD] Planning Agent
+12	12	6	2025-06-06	closed	https://github.com/OpenHands/OpenHands/issues/8958	[Bug]: Agent (Devstral) file modification frequently fails
+12	12	10	2025-05-17	closed	https://github.com/OpenHands/OpenHands/issues/8555	Slow docker sandbox startup
+11	11	9	2025-07-11	closed	https://github.com/OpenHands/OpenHands/issues/9670	Instrument OpenTelemetry
+11	11	5	2025-05-21	closed	https://github.com/OpenHands/OpenHands/issues/8603	GitLab OpenHands Resolver Runner—Automated Issue Resolution via CI/CD
+11	11	7	2025-02-25	closed	https://github.com/OpenHands/OpenHands/issues/6938	Allow users to add custom secrets
+0	11	15	2024-04-14	closed	https://github.com/OpenHands/OpenHands/issues/1085	Create a competitive agent with open LLMs
+11	11	9	2025-06-06	closed	https://github.com/OpenHands/OpenHands/issues/8963	[Agent] Implement Critic Model
+0	10	1	2024-03-13	closed	https://github.com/OpenHands/OpenHands/issues/2	Currently CloseDevin
+10	10	17	2024-03-30	closed	https://github.com/OpenHands/OpenHands/issues/417	Document how to use specific LLMs
+9	10	6	2025-07-01	closed	https://github.com/OpenHands/OpenHands/issues/9482	Feature: Implement Claude Code Hooks for OpenHands
+9	9	6	2024-03-25	closed	https://github.com/OpenHands/OpenHands/issues/143	Option to use Ollama with local models instead of OpenAI/ChatGPT
+9	9	6	2025-03-02	closed	https://github.com/OpenHands/OpenHands/issues/7055	Support self-hosted gitlab
+9	9	4	2025-05-27	closed	https://github.com/OpenHands/OpenHands/issues/8722	[Bug]: runtime container error: TimeoutError
+7	8	14	2024-04-05	closed	https://github.com/OpenHands/OpenHands/issues/794	Enhance LLM Usage by Separating Local vs. API-based Implementations and Reducing Installed Package Dependencies
+8	8	18	2024-12-12	closed	https://github.com/OpenHands/OpenHands/issues/5569	[Feature] Support running docker-in-docker for OpenHands runtime
+7	7	6	2026-01-10	closed	https://github.com/OpenHands/OpenHands/issues/12351	Gitea Support
+0	7	1	2024-04-17	closed	https://github.com/OpenHands/OpenHands/issues/1178	DogFood: Use OpenDevin to review PRs
+7	7	13	2024-08-02	closed	https://github.com/OpenHands/OpenHands/issues/3220	[Bug]: Configuration behavior is unpredictable
+7	7	6	2024-12-16	closed	https://github.com/OpenHands/OpenHands/issues/5638	Add ability to specify variables/secrets through the UI
+6	7	20	2025-01-08	closed	https://github.com/OpenHands/OpenHands/issues/6140	[Bug]: Resolver fails at the "Create draft PR or push branch" step due to openhands.resolver.patching.exceptions.HunkApplyException

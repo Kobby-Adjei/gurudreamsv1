@@ -1,0 +1,31 @@
+# agent "human approval" is:issue created:>2025-09-01 total=85018
+411	544	59	2026-01-14	closed	https://github.com/openai/codex/issues/9224	Codex Remote Control
+408	506	197	2026-05-20	closed	https://github.com/google-antigravity/antigravity-cli/issues/31	Feature request: add ACP (Agent Client Protocol) stdio JSON-RPC mode
+388	414	144	2026-07-02	closed	https://github.com/anthropics/claude-code/issues/73125	[BUG] AskUserQuestion: "No response after 60s — continued without an answer"
+227	318	52	2026-03-13	open	https://github.com/anthropics/claude-code/issues/33932	[FEATURE] VS Code Extension: Diff review UI similar to GitHub Copilot Edits Review
+131	224	279	2026-09-03	open	https://github.com/anthropics/claude-code/issues/91870	Mods - make Claude 10x more extensible
+124	125	47	2026-01-21	open	https://github.com/anthropics/claude-code/issues/19649	[MODEL] Frequently uses Bash tools (sed/grep/etc) when use-case is well aligned to other builtin tools (Read/Grep/etc)
+67	75	24	2026-02-11	closed	https://github.com/anthropics/claude-code/issues/25018	[FEATURE] "Add a VS Code setting to disable auto-opening diff tabs when Claude edits files."
+18	70	1	2026-11-18	open	https://github.com/openai/openai-agents-python/issues/6071	Add Apache Airflow to the durable execution integrations docs
+53	53	43	2026-05-21	closed	https://github.com/anthropics/claude-code/issues/61015	[BUG] Scheduled routines fail every MCP tool call with "MCP tool call requires approval" on custom connectors (regression ~2026-05-20)
+41	44	21	2026-05-18	open	https://github.com/anthropics/claude-code/issues/60082	Feature request: real-time multi-user collaboration on a single Claude Code session
+31	43	16	2026-07-16	open	https://github.com/can1357/oh-my-pi/issues/5742	Request: Graphical User Interface (desktop + web) on top of oh-my-pi
+37	42	27	2026-08-11	closed	https://github.com/openai/codex/issues/37967	Remote Control cannot attach to a live CLI session on the workstation (completed threads work, in-progress ones fail)
+36	36	56	2026-09-02	closed	https://github.com/cncf/sandbox/issues/516	[Sandbox] Hive Commons
+35	35	10	2026-04-16	open	https://github.com/anthropics/claude-code/issues/49535	[BUG] Auto mode blocked by persistent "safety classifier temporarily unavailable" outage — Edit/Write/Bash   all fail
+34	34	12	2026-01-30	open	https://github.com/anthropics/claude-code/issues/22002	[FEATURE] Open source Claude Code CLI
+0	34	22	2025-12-09	closed	https://github.com/backstage/backstage/issues/32083	🗺️  Backstage Roadmap 2026: Community Input and Focus Areas
+33	33	21	2026-01-24	open	https://github.com/ChromeDevTools/chrome-devtools-mcp/issues/825	Feature request: Allow persisting remote debugging permission approval
+30	30	39	2026-02-12	closed	https://github.com/dotnet/interactive/issues/4165	Please detail the reasoning for the Polyglot Notebook Depreciation and the short timeframe
+28	28	12	2026-09-29	open	https://github.com/anthropics/claude-code/issues/98256	[BUG] MCP elicitation: capability is declared but requests are auto-declined ("print mode") in interactive VSCode sessions
+28	28	14	2025-12-17	closed	https://github.com/anthropics/claude-code/issues/14321	[FEATURE] enable extended thinking for subagents, currently not possible
+25	28	22	2026-05-21	closed	https://github.com/anomalyco/opencode/issues/28567	[FEATURE]: Full MCP client capabilities
+20	25	11	2026-07-14	open	https://github.com/openai/codex/issues/32908	Codex Remote Control push notifications not delivered on iOS
+24	24	3	2026-04-17	closed	https://github.com/anomalyco/opencode/issues/23066	[FEATURE]: MCP elicitation support
+0	24	11	2025-09-15	closed	https://github.com/vercel/ai/issues/8662	v6
+24	24	36	2026-02-04	closed	https://github.com/anthropics/claude-code/issues/22977	[BUG] Verbose mode not displaying thinking blocks in v2.1.31 (regression)
+23	23	19	2026-04-30	open	https://github.com/multica-ai/multica/issues/1943	[Feature]: Workflow Orchestration
+22	22	22	2025-12-31	closed	https://github.com/anthropics/claude-code/issues/15922	Mobile Companion App for Remote Session Interaction
+20	20	9	2026-07-13	open	https://github.com/anthropics/claude-code/issues/77069	Allow pre-approving EnterWorktree for worktree paths outside .claude/worktrees/
+19	19	15	2026-03-20	open	https://github.com/openai/codex/issues/15299	Support inbound MCP notifications routed into an active Codex CLI session
+17	19	9	2026-04-13	open	https://github.com/multica-ai/multica/issues/815	Discussion: Multica still manages AI the way it manages people

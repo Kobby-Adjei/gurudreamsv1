@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title notification total=1757
+92	108	30	2025-07-22	closed	https://github.com/anthropics/claude-code/issues/4118	Capture MCP Tools Changed notifications - notifications/prompts/list_changed notifications
+74	79	13	2025-07-16	closed	https://github.com/google-gemini/gemini-cli/issues/4310	Feature: Audio Notifications System with /notifications Command
+59	69	15	2026-02-27	closed	https://github.com/anthropics/claude-code/issues/29438	[FEATURE] Remote Control: Push notifications on iOS when permission approval is needed
+66	66	15	2025-10-05	closed	https://github.com/anthropics/claude-code/issues/8985	[BUG] "Notification" hook doesn't work in VS Code extension "native UI" mode
+57	58	16	2026-05-08	open	https://github.com/anthropics/claude-code/issues/57230	[VSCode Extension] Add native system/toast notifications when Claude needs attention
+44	44	18	2026-02-25	closed	https://github.com/anthropics/claude-code/issues/28765	Feature: Push notifications for completed tasks in remote-control mode
+44	44	26	2025-05-24	closed	https://github.com/anthropics/claude-code/issues/1288	Feature: Sound notifications
+43	43	9	2025-12-13	open	https://github.com/anthropics/claude-code/issues/13922	[FEATURE] Configurable timeout for idle_prompt notification hook
+41	41	13	2025-11-20	closed	https://github.com/anthropics/claude-code/issues/12046	[FEATURE] Option to disable notifications
+36	41	16	2026-03-01	closed	https://github.com/anthropics/claude-code/issues/29928	Feature request: built-in completion notifications for VS Code extension
+37	37	49	2026-03-20	open	https://github.com/anthropics/claude-code/issues/36503	--channels plugin shows 'Channels are not currently available' but inbound notifications are ignored
+35	35	8	2026-07-06	open	https://github.com/anthropics/claude-code/issues/74914	Desktop app fires "Claude is ready" notification on taskbar-icon focus switch, but not on Alt-Tab (GNOME Wayland, Linux)
+33	34	22	2026-03-20	open	https://github.com/anthropics/claude-code/issues/36431	Telegram plugin: inbound MCP channel notifications not delivered to conversation
+34	34	9	2026-02-18	closed	https://github.com/anthropics/claude-code/issues/26581	Feature Request: System notifications when Claude needs attention or completes tasks
+34	34	18	2026-03-04	closed	https://github.com/anthropics/claude-code/issues/30592	[BUG] iOS Claude Code notifications broken
+34	34	2	2025-08-19	closed	https://github.com/anthropics/claude-code/issues/6091	Support IDE-level notifications for claude-code plugins (IntelliJ + VS Code)
+33	33	25	2025-08-05	open	https://github.com/anthropics/claude-code/issues/5186	[BUG] Notification Hook 10 second delay
+32	32	5	2026-01-28	open	https://github.com/openai/codex/issues/10105	Support `notifications/tools/list_changed`
+30	30	7	2025-06-19	closed	https://github.com/anomalyco/opencode/issues/213	[feature request] notifications
+30	30	30	2025-11-07	closed	https://github.com/anthropics/claude-code/issues/11156	[BUG] Notification hook does not fire in VSCode extension
+26	26	12	2026-01-22	closed	https://github.com/anthropics/claude-code/issues/19976	[FEATURE] Support terminal notifications when running inside tmux
+22	25	4	2026-01-21	open	https://github.com/anthropics/claude-code/issues/19627	High latency in hook invocation for Notification events
+20	25	11	2026-07-14	open	https://github.com/openai/codex/issues/32908	Codex Remote Control push notifications not delivered on iOS
+25	25	9	2026-01-14	closed	https://github.com/anthropics/claude-code/issues/18055	[BUG] False update notification despite being on latest version (2.1.6)
+17	20	23	2026-03-20	closed	https://github.com/anthropics/claude-code/issues/36411	[BUG]  Telegram MCP plugin: inbound notifications/claude/channel never delivered to session (outbound works)
+19	19	15	2026-03-20	open	https://github.com/openai/codex/issues/15299	Support inbound MCP notifications routed into an active Codex CLI session
+19	19	2	2025-11-21	closed	https://github.com/openai/codex/issues/7083	VS Code extension: notifications on completion like Cursor
+19	19	1	2025-09-26	closed	https://github.com/openai/codex/issues/4306	Feature Request: Add optional user notification when Codex completes a task
+16	18	7	2026-06-05	open	https://github.com/openai/codex/issues/26555	VS Code extension: support VS Code notifications
+18	18	14	2026-05-04	closed	https://github.com/openai/codex/issues/20930	Codex App notification doesn't work when using it with remote connection

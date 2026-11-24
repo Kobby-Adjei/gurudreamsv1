@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title hook total=5269
+525	689	76	2025-08-09	closed	https://github.com/openai/codex/issues/2109	Event Hooks
+94	103	15	2025-07-01	closed	https://github.com/google-gemini/gemini-cli/issues/2779	Feature Request: Implement a Hooks System for Custom Automation and Workflow Integration
+81	81	27	2025-12-04	closed	https://github.com/anthropics/claude-code/issues/13024	[FEATURE] Add hook for when Claude is waiting for user input
+56	73	30	2025-10-14	open	https://github.com/anthropics/claude-code/issues/9516	[FEATURE] User Interrupt Hook
+66	66	15	2025-10-05	closed	https://github.com/anthropics/claude-code/issues/8985	[BUG] "Notification" hook doesn't work in VS Code extension "native UI" mode
+60	60	16	2025-12-17	open	https://github.com/anthropics/claude-code/issues/14259	[FEATURE] PrePlanMode and PostPlanMode Hook Events
+12	58	32	2025-09-03	closed	https://github.com/anthropics/claude-code/issues/7075	Feature request: Claude Code profiles with isolated memory, commands, hooks, and settings
+53	55	16	2025-10-27	open	https://github.com/anthropics/claude-code/issues/10447	Feature Request: CLI Commands for MCP Server Enable/Disable (Hook Automation Support)
+48	55	27	2025-10-23	closed	https://github.com/anthropics/claude-code/issues/10168	Add hook for user input/question events (UserInputRequired)
+52	52	11	2026-01-15	closed	https://github.com/anomalyco/opencode/issues/8619	[FEATURE]: Native StatusLine Hook for Plugins (Context-Free Display)
+33	51	35	2026-05-08	open	https://github.com/openai/codex/issues/21753	Full Claude Code Hook Parity (29+)
+37	48	22	2025-12-17	closed	https://github.com/anthropics/claude-code/issues/14258	[FEATURE] PostCompact Hook Event and Compaction Content Control
+41	48	18	2026-01-01	closed	https://github.com/anthropics/claude-code/issues/16001	[FEATURE] Allow for updated input in `PermissionRequest:ExitPlanTool:Approve` hook
+48	48	26	2026-01-31	closed	https://github.com/anthropics/claude-code/issues/22087	BUG: classifyHandoffIfNeeded is not defined - SubagentStop hook failure
+43	43	9	2025-12-13	open	https://github.com/anthropics/claude-code/issues/13922	[FEATURE] Configurable timeout for idle_prompt notification hook
+42	42	26	2026-02-06	closed	https://github.com/anomalyco/opencode/issues/12472	Native Claude Code hooks compatibility (PreToolUse, PostToolUse, Stop)
+28	41	9	2025-12-25	closed	https://github.com/anthropics/claude-code/issues/15366	Feature Request: Add weekly/daily usage limits to statusLine hook JSON
+38	38	8	2026-03-07	open	https://github.com/anthropics/claude-code/issues/31969	Feature: Enter/resume existing worktrees, configurable branch naming, hook removal control
+30	38	10	2026-03-31	closed	https://github.com/anomalyco/opencode/issues/20235	[FEATURE]: Request GitHub Copilot auto model routing API access + chat.model plugin hook
+36	36	26	2025-11-04	open	https://github.com/anthropics/claude-code/issues/11008	[FEATURE] Expose token usage and cost data in hook inputs
+28	36	20	2025-04-05	closed	https://github.com/anthropics/claude-code/issues/712	Feature request: Hooks
+31	34	25	2026-01-12	closed	https://github.com/anthropics/claude-code/issues/17688	[BUG] Skill-scoped hooks defined in SKILL.md frontmatter are not triggered within plugins
+33	33	25	2025-08-05	open	https://github.com/anthropics/claude-code/issues/5186	[BUG] Notification Hook 10 second delay
+29	31	24	2025-11-22	open	https://github.com/anthropics/claude-code/issues/12151	[BUG] Plugin hook output not captured or passed to agent (UserPromptSubmit, SessionStart)
+30	30	26	2026-03-01	open	https://github.com/anthropics/claude-code/issues/29716	[BUG] WorktreeCreate / Remove hooks not called in Claude Desktop
+23	30	14	2025-12-20	closed	https://github.com/anthropics/claude-code/issues/14859	[FEATURE] 1. Agent Hierarchy in Hook Events, 2.  Intermediate Text Output Hook, 3. SubagentStart Hook
+30	30	30	2025-11-07	closed	https://github.com/anthropics/claude-code/issues/11156	[BUG] Notification hook does not fire in VSCode extension
+28	28	12	2026-01-09	open	https://github.com/anthropics/claude-code/issues/17088	PreToolUse hook shows 'error' label even for successful (exit 0) hook runs
+29	29	11	2026-02-22	closed	https://github.com/anthropics/claude-code/issues/27744	[FEATURE] Add PostWorktreeCreate hook (or setup command) for environment initialization in worktrees
+29	29	21	2026-03-23	closed	https://github.com/openai/codex/issues/15497	Support suppressing hook status messages in TUI (suppressOutput is a no-op)

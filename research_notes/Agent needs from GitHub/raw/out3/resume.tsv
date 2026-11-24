@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title resume total=3415
+96	133	6	2025-09-24	closed	https://github.com/openai/codex/issues/4163	Named sessions for --resume
+107	107	16	2025-08-09	closed	https://github.com/openai/codex/issues/2080	Add Chat Session Management: chat list, chat resume or --restore-session
+94	94	24	2026-05-04	open	https://github.com/openai/codex/issues/21073	Feature Request: Auto-resume CLI session when usage limit resets
+86	86	18	2026-06-18	open	https://github.com/openai/codex/issues/28931	Auto Resume /Goal after limit reached once limit is reset (5h)
+81	81	28	2025-08-08	closed	https://github.com/openai/codex/issues/1991	[Feature Request] Add /resume command to continue after unrecoverable errors without losing context
+80	80	15	2026-02-25	closed	https://github.com/anthropics/claude-code/issues/28745	Allow resuming conversations from different directories
+46	66	14	2025-03-06	closed	https://github.com/anthropics/claude-code/issues/371	Resume old sessions
+62	62	25	2025-08-14	open	https://github.com/anthropics/claude-code/issues/5768	[BUG] Resuming sessions only works from the directory in which they were started
+60	60	17	2026-02-16	closed	https://github.com/anthropics/claude-code/issues/26123	[BUG] /resume is broken — session history inaccessible since v2.1.31 (3 root causes identified)
+55	55	68	2026-08-26	open	https://github.com/openai/codex/issues/40819	Desktop app 26.820.7780.0: resuming WSL-hosted threads fails with "invalid transport in mcp_servers.codex_app"
+54	54	69	2026-08-07	open	https://github.com/openai/codex/issues/37403	[macOS][regression] Desktop cannot resume Remote Control / CLI thread: `already has an active writer` after latest update
+52	52	28	2026-04-10	closed	https://github.com/anthropics/claude-code/issues/46445	/continue and /resume show all sessions across projects instead of current project only (regression in 2.1.101)
+49	50	62	2026-05-28	open	https://github.com/anthropics/claude-code/issues/63147	Resuming an extended-thinking session fails permanently with 400 "thinking blocks cannot be modified" (transcript stores thinking text as empty but keeps signature)
+48	48	17	2026-04-17	open	https://github.com/anthropics/claude-code/issues/49790	Feature request: Claude Desktop SSH remote — session should survive client disconnect (reconnect/resume)
+46	46	8	2026-04-17	closed	https://github.com/anthropics/claude-code/issues/50067	Add /resume (session resume) to desktop app
+45	45	19	2025-07-08	open	https://github.com/anthropics/claude-code/issues/3138	[BUG] resume flag fails to maintain conversation context after hitting usage/context limits
+41	44	25	2026-03-15	closed	https://github.com/anthropics/claude-code/issues/34629	[BUG] Prompt cache regression in --print --resume since v2.1.69(?): cache_read never grows, ~20x cost increase
+37	42	8	2025-08-11	closed	https://github.com/openai/codex/issues/2173	Support dump and resume conversations
+34	39	25	2026-03-24	open	https://github.com/anthropics/claude-code/issues/38029	[BUG] Abnormal Usage Consumption on Claude Code Session Resume — Possible Bug
+38	38	8	2026-03-07	open	https://github.com/anthropics/claude-code/issues/31969	Feature: Enter/resume existing worktrees, configurable branch naming, hook removal control
+34	34	17	2026-05-21	open	https://github.com/anthropics/claude-code/issues/61172	[BUG] /clear inherits previous session name instead of resetting it, causing duplicate-named sessions in /resume
+33	33	21	2026-09-25	closed	https://github.com/openai/codex/issues/48230	Error unexpected status 401 Unauthorized when trying to resume a thread
+32	32	24	2026-03-24	open	https://github.com/anthropics/claude-code/issues/38183	[BUG] SendMessage tool referenced but not available — agent continuation broken since resume parameter removal
+32	32	11	2026-04-25	closed	https://github.com/anthropics/claude-code/issues/53086	2.1.120 regression: claude --resume / --continue crash with "g9H is not a function"
+28	31	15	2025-08-21	open	https://github.com/anthropics/claude-code/issues/6254	auto resume
+30	30	51	2025-09-19	closed	https://github.com/openai/codex/issues/3942	Bug: Codex cannot resume a section after switching login methods (Plus → API Key)
+29	29	35	2026-02-11	open	https://github.com/anthropics/claude-code/issues/25090	[BUG] Renamed session works on first resume but the name disappears after the second exit
+29	29	8	2026-01-07	closed	https://github.com/anomalyco/opencode/issues/7226	[FEATURE]: implement a /resume and /pause command
+24	27	71	2025-06-26	closed	https://github.com/google-gemini/gemini-cli/issues/1690	INVALID_ARGUMENT resuming a saved chat (400 BadRequest)
+26	26	25	2026-02-13	closed	https://github.com/openai/codex/issues/11727	"Failed to resume task" when trying create "New Codex Agent"

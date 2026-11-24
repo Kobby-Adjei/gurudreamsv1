@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title cost total=916
+548	3491	440	2026-11-03	closed	https://github.com/openai/codex/issues/59060	Told to reboot a server, it destroyed systemd, destroyed containers, ran random scripts, cost me $10,000+
+364	557	211	2026-06-18	closed	https://github.com/openai/codex/issues/28879	Codex (gpt-5.5, Plus plan) — rate-limit cost per token jumped ~10-20x since June 16, draining the 5h budget in 2-3 prompts
+244	341	56	2026-04-12	closed	https://github.com/anthropics/claude-code/issues/46829	Cache TTL silently regressed from 1h to 5m around early March 2026, causing quota and cost inflation
+17	170	48	2026-05-11	closed	https://github.com/google-gemini/gemini-cli/issues/26856	Your idiotic AI disobeyed me completely lied and has now cost me 300 dollars worth of work that went into my obsidian - 10000s of files and work deleted not recoverable I WANT MY MONEY BACK!!!!!!!!!!!!!
+41	44	25	2026-03-15	closed	https://github.com/anthropics/claude-code/issues/34629	[BUG] Prompt cache regression in --print --resume since v2.1.69(?): cache_read never grows, ~20x cost increase
+39	41	14	2026-11-13	open	https://github.com/anthropics/claude-code/issues/109446	[BUG] 2.1.323 removed subagentStatusLine with no replacement: per-agent context, cost, model and effort are now invisible
+32	38	9	2025-04-16	closed	https://github.com/openai/codex/issues/117	Implement /cost command and track session usage
+36	36	26	2025-11-04	open	https://github.com/anthropics/claude-code/issues/11008	[FEATURE] Expose token usage and cost data in hook inputs
+13	31	12	2025-11-30	closed	https://github.com/anomalyco/opencode/issues/4925	[FEATURE]: Display total cost for session
+8	26	2	2026-07-27	closed	https://github.com/anthropics/claude-code/issues/81570	[FEATURE] Desktop composer reserves a full-height right gutter, costing ~4 characters per wrapped line
+26	26	6	2026-03-12	closed	https://github.com/anomalyco/opencode/issues/17223	Cost tracking ($ Spent) does not work for custom provider models
+21	24	25	2026-06-07	open	https://github.com/anthropics/claude-code/issues/66115	Feature request: auto-compact on idle timeout to prevent cache expiry cost
+23	23	10	2025-05-24	closed	https://github.com/anthropics/claude-code/issues/1287	[BUG] # Issue: Misleading Cost Command Output in Claude Code
+22	22	2	2026-03-03	closed	https://github.com/anomalyco/opencode/issues/15903	[FEATURE]: Option to hide cost display in TUI
+17	20	11	2025-08-16	closed	https://github.com/anthropics/claude-code/issues/5904	[BUG] Local /cost doubles usage when parsing session JSONL (cache write & I/O tokens; ~2× total)
+15	18	15	2026-06-11	open	https://github.com/openai/codex/issues/27613	Support Amazon Bedrock project for cost attribution
+18	18	1	2026-03-07	open	https://github.com/openai/codex/issues/13913	Auto 1M context mode for supported models to balance speed/cost vs large-context reliability
+18	18	10	2026-08-27	closed	https://github.com/anomalyco/opencode/issues/45417	Session cost excludes subagent cost (TUI sidebar, opencode stats, /export)
+13	17	2	2025-12-29	open	https://github.com/anthropics/claude-code/issues/15692	[BUG]'s 💔 I love Claude Code, but the pace is outrunning the quality - and it's costing us trust
+14	16	3	2026-01-28	closed	https://github.com/anomalyco/opencode/issues/11027	Cost of session doesn't include cost of subagents
+14	14	2	2025-04-17	closed	https://github.com/openai/codex/issues/213	Suggestion: add usage + cost summary
+13	13	9	2026-02-21	closed	https://github.com/anomalyco/opencode/issues/14524	[FEATURE]: Display model cost in the model picker
+12	12	9	2026-06-15	closed	https://github.com/anomalyco/opencode/issues/32485	[FEATURE]: Configure usage cost display currency
+12	12	5	2025-10-10	closed	https://github.com/anthropics/claude-code/issues/9293	[FEATURE] Pre-Exit Hook ( or bring us back Automatic Cost Display on Exit)
+11	11	1	2026-04-12	closed	https://github.com/openai/codex/issues/17546	Add a /slow mode for lower-cost, slower processing
+11	11	3	2025-10-17	closed	https://github.com/anthropics/claude-code/issues/9717	[BUG] Haiku 4.5 usage being counted the same as Sonnet 4.5 despite 3x lower cost
+11	11	3	2025-10-13	closed	https://github.com/anthropics/claude-code/issues/9463	[BUG] Cost summary no longer displayed when exiting Claude Code session
+10	10	2	2026-07-30	closed	https://github.com/anomalyco/opencode/issues/39740	[FEATURE]: Show total cost including subagents in the session footer
+10	10	9	2025-07-30	closed	https://github.com/anthropics/claude-code/issues/4807	New Rate Limits Require Granular Model Selection for Cost-Effective Usage
+9	9	4	2026-08-21	closed	https://github.com/anomalyco/opencode/issues/43818	[FEATURE] Honor provider-reported cost (usage.cost) from LLM gateways (OpenRouter, LiteLLM, Manifest)

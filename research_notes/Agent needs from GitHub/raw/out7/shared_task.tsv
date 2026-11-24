@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:github/copilot-cli repo:microsoft/vscode is:issue in:title "task list" OR tasklist shared total=1355
+783	1093	188	2026-03-19	open	https://github.com/anthropics/claude-code/issues/36151	[FEATURE] Multi-account switching in Claude Mobile app without shared email
+150	180	42	2018-07-04	open	https://github.com/microsoft/vscode/issues/53557	Shared properties in launch.json 
+152	162	35	2015-12-18	closed	https://github.com/microsoft/vscode/issues/1435	Shared configuration (tasks/settings)
+81	81	7	2026-04-15	open	https://github.com/anthropics/claude-code/issues/48322	[FEATURE] Team/Enterprise: shared routines (org-owned scheduled agents)
+47	52	6	2026-03-13	open	https://github.com/microsoft/vscode/issues/301414	Shared Copilot Chat history across multiple workspaces/projects
+49	49	4	2025-12-18	open	https://github.com/anthropics/claude-code/issues/14467	[FEATURE] Organization-wide shared CLAUDE.md via GitHub org
+49	49	20	2025-10-12	closed	https://github.com/anthropics/claude-code/issues/9444	[FEATURE] Support for Plugin Dependencies and Shared Resources
+38	38	24	2025-11-26	closed	https://github.com/anthropics/claude-code/issues/12487	Clarification needed: Are Opus and Sonnet limits independent or shared after Nov 24 update?
+29	30	4	2026-08-10	open	https://github.com/microsoft/vscode/issues/330061	Use $XDG_STATE_HOME for `APPLICATION_SHARED` storage (`~/.<app>-shared/sharedStorage/state.vscdb`)
+26	27	17	2026-03-04	open	https://github.com/anthropics/claude-code/issues/30675	Feature request: shared context between Claude Code, Claude.ai and Cowork
+26	26	6	2025-07-30	open	https://github.com/anthropics/claude-code/issues/4800	Feature Request: Add extends field to settings.json for shared configuration inheritance
+26	26	15	2026-06-10	open	https://github.com/anthropics/claude-code/issues/66960	Fable 5 model behavior: 16 min of silent tool calls, then AskUserQuestion about never-shared findings during incident response
+25	25	4	2026-02-26	closed	https://github.com/github/copilot-cli/issues/1697	Session forking — branch a conversation into parallel sessions with shared context
+23	23	9	2026-03-07	open	https://github.com/openai/codex/issues/13836	Codex app: support Projects with movable chats, shared memory, and shared uploaded files
+22	22	29	2026-04-26	open	https://github.com/anthropics/claude-code/issues/53442	[BUG] Cowork Google Drive MCP cannot see content in any Workspace Shared Drive
+22	22	3	2025-12-10	open	https://github.com/microsoft/vscode/issues/282410	Request for a low-resource default configuration for VS Code Remote-SSH in shared environments
+22	22	9	2026-07-24	closed	https://github.com/microsoft/vscode/issues/327256	Proposal: Support a Shared `.agents/` Directory and Manifest-Based Discovery
+21	21	18	2026-07-21	open	https://github.com/anthropics/claude-code/issues/79824	Artifact sharing fails: "This version can't be shared publicly" persists across republish and new artifacts
+21	21	12	2025-09-19	closed	https://github.com/anthropics/claude-code/issues/7881	SubagentStop hook cannot identify which specific subagent finished due to shared session IDs
+13	21	7	2026-06-11	closed	https://github.com/microsoft/vscode/issues/320880	Copilot SDK mutates shared extension host process.env (GIT_CONFIG_*=safe.bareRepository=explicit), breaking git for other extensions — Flutter iOS builds fail with "xcodebuild encountered an error (74)"
+19	19	17	2018-02-21	closed	https://github.com/microsoft/vscode/issues/44152	Use a shared, persistent environment for tasks
+19	19	8	2026-02-09	closed	https://github.com/anthropics/claude-code/issues/24382	Auto memory should be shared across git worktrees of the same repository
+18	18	1	2025-09-26	closed	https://github.com/openai/codex/issues/4268	Shared Memory Between ChatGPT and Codex
+17	17	6	2026-01-24	open	https://github.com/anthropics/claude-code/issues/20553	[BUG] OAuth credentials shared across CLAUDE_CONFIG_DIR profiles causing data isolation failure (compliance risk)
+14	16	10	2026-05-03	open	https://github.com/anthropics/claude-code/issues/55842	[Feature Request] Unified user state across Cowork and Claude chat — shared memory, files, skills, connectors
+14	14	10	2026-03-26	open	https://github.com/anthropics/claude-code/issues/39195	Support shared memory across multiple projects (not just global or per-project)
+15	15	7	2026-09-26	closed	https://github.com/openai/codex/issues/48440	Windows: repeated focus-stealing console popups with shared background server enabled
+11	14	35	2026-03-25	open	https://github.com/anthropics/claude-code/issues/38536	Feature Request: Shared Team Memory for Claude Code
+14	14	4	2020-08-07	closed	https://github.com/microsoft/vscode/issues/104278	Split launch.json in multiple files to allow local/shared configurations
+13	13	1	2026-09-22	open	https://github.com/anthropics/claude-code/issues/96117	[BUG] CLAUDE.local.md switches off the AGENTS.md fallback, so a personal note silently drops all shared project instructions

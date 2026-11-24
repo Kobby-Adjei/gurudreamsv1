@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:block/goose repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue sandbox network allowlist total=594
+476	545	878	2026-03-24	open	https://github.com/anthropics/claude-code/issues/38335	[BUG] Claude Max plan session limits exhausted abnormally fast since March 23, 2026 (CLI usage)
+474	474	93	2025-08-28	closed	https://github.com/openai/codex/issues/2847	A way to exclude sensitive files
+131	224	279	2026-09-03	open	https://github.com/anthropics/claude-code/issues/91870	Mods - make Claude 10x more extensible
+118	143	96	2026-02-28	closed	https://github.com/anthropics/claude-code/issues/29583	[BUG] Cowork: Cannot use folders outside home directory on Windows (secondary drive)
+116	131	23	2026-01-13	open	https://github.com/anthropics/claude-code/issues/17968	[FEATURE] Support JSONC format for settings files (settings.jsonc)
+109	109	77	2025-08-29	closed	https://github.com/openai/codex/issues/2860	Unusable on Windows due to permission ask for every shell command
+84	91	115	2025-08-25	closed	https://github.com/anomalyco/opencode/issues/2242	Is there a way to sandbox the agent ?
+81	81	9	2026-02-24	open	https://github.com/anthropics/claude-code/issues/28018	Sandbox: allow outbound connections to localhost
+80	81	32	2026-03-03	open	https://github.com/anthropics/claude-code/issues/30519	Permissions matching is fundamentally broken — 30+ open issues, no staff engagement, community building workarounds
+75	75	16	2025-11-14	closed	https://github.com/anthropics/claude-code/issues/11627	[FEATURE] .NET 9 or 10 SDK support in Claude Code for web runtime environment
+70	70	9	2026-02-05	open	https://github.com/anthropics/claude-code/issues/23416	[BUG] macOS sandbox blocks Security.framework TLS verification, breaking Go binaries (gh, terraform, etc.)
+64	64	82	2025-11-10	closed	https://github.com/anthropics/claude-code/issues/11380	[BUG] Claude continually asks for permission, even after selecting yes, always allow.
+59	59	77	2026-03-02	open	https://github.com/anthropics/claude-code/issues/30112	[BUG]Cowork network egress allowlist not working - custom domains blocked with 403 blocked-by-allowlist
+47	52	58	2026-10-28	open	https://github.com/openai/codex/issues/57641	Terminal CLI @Browser fails with "The browser access host is unavailable" after desktop app update 26.1023.6123.0 (Windows 11, Brave)
+49	49	14	2025-10-10	closed	https://github.com/anthropics/claude-code/issues/9329	[Bug] WebFetch Wildcard Domain Matching Fails to Generalize
+48	48	41	2026-04-13	open	https://github.com/anthropics/claude-code/issues/47180	[BUG] Cowork scheduled tasks ignore "Always allow" folder/tool permissions — prompts reappear every run (macOS)
+44	44	82	2026-08-18	closed	https://github.com/openai/codex/issues/39136	Codex built-in browser plugin initialization fails: Trusted RPC dependency is not within a trusted code path
+37	37	9	2026-03-09	open	https://github.com/anthropics/claude-code/issues/32364	[FEATURE] Support OpenTelemetry (OTel) configuration in Claude Code on the Web (claude.ai/code)
+30	36	6	2025-08-27	closed	https://github.com/openai/codex/issues/2744	Connect to Codex CLI from the ChatGPT desktop app
+35	37	2	2025-06-27	closed	https://github.com/openai/codex/issues/1397	Configurable file exclusion patterns for sensitive files
+0	35	111	2026-03-21	closed	https://github.com/google-gemini/gemini-cli/issues/23365	[☀️ Google Summer Of Code ] Terminal-Integrated Performance & Memory Investigation Companion
+4	35	90	2025-08-28	closed	https://github.com/openai/codex/issues/2841	“Error starting conversation” in new Codex VS Code extension when initializing a chat
+34	34	11	2026-06-24	open	https://github.com/anthropics/claude-code/issues/70684	[BUG] sandbox: SOCKS5 proxy requires authentication that BSD nc cannot negotiate, breaking SSH git operations
+30	30	13	2026-03-25	open	https://github.com/anthropics/claude-code/issues/38984	[BUG] Cowork — "Additional allowed domains" allowlist non-functional
+29	29	22	2025-09-02	closed	https://github.com/openai/codex/issues/3064	Configuration for inherited environment variables
+27	27	12	2025-12-08	open	https://github.com/anthropics/claude-code/issues/13372	[BUG] Maven/Gradle builds fail in Claude Code Web cloud environment - DNS resolution failure for repo.maven.apache.org
+27	27	98	2026-09-30	open	https://github.com/openai/codex/issues/49458	[Windows] dot-started local tasks lack Computer Use tools while ordinary local Codex sessions work
+25	25	21	2025-11-18	open	https://github.com/anthropics/claude-code/issues/11897	[BUG] Claude Code on the Web .NET SDK binary downloads blocked by proxy even with "All domains" network access enabled
+23	23	11	2026-03-04	closed	https://github.com/anthropics/claude-code/issues/30861	[BUG] Cowork macOS: MITM egress proxy blocks all non-API domains regardless of allowlist settings
+21	22	7	2026-04-06	open	https://github.com/openai/codex/issues/16910	Linux sandbox: support safe sandbox-local AF_UNIX sockets (e.g., sccache)

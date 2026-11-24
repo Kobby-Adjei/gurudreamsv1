@@ -1,0 +1,31 @@
+# in:title "agent-to-agent" is:issue created:>2025-09-01 total=8917
+29	53	25	2026-03-06	closed	https://github.com/NousResearch/hermes-agent/issues/514	Feature: A2A (Agent-to-Agent) Protocol Support — Remote Agent Discovery, Communication & Interoperability
+48	48	4	2026-04-07	open	https://github.com/microsoft/vscode/issues/308198	Feature Request: Add a setting to configure the default agent (Agent/Plan/Ask) for new chat sessions
+38	43	6	2025-12-06	closed	https://github.com/microsoft/vscode/issues/281697	Allow extension to set contributed custom agent invisible in the agent picker
+29	29	3	2026-08-05	open	https://github.com/microsoft/vscode/issues/329267	Allow custom agents to select a model context window in .agent.md
+26	27	8	2026-03-24	open	https://github.com/modem-dev/hunk/issues/115	Support replying to inline agent comments and route replies back to the agent
+10	16	12	2026-04-28	open	https://github.com/openai/codex/issues/20077	MultiAgentV2 spawn_agent defaults to full-history fork, rejecting agent_type/model overrides
+16	16	13	2026-07-16	open	https://github.com/openai/codex/issues/33551	Multi-Agent V2 sends OpenAI-specific agent_message items to external Responses providers
+14	14	16	2026-06-09	open	https://github.com/anthropics/claude-code/issues/66402	[BUG] /model and /effort mutate global settings.json — breaks agents/fleet view; no way to configure per-agent model or effort
+10	12	10	2026-09-25	open	https://github.com/mistralai/mistral-vibe/issues/1144	bug: Not able to go back to plan agent, if I switch to another agent
+9	10	8	2026-02-02	closed	https://github.com/openclaw/openclaw/issues/6842	Feature Request: Add A2A (Agent-to-Agent) Protocol Support
+10	10	2	2026-02-03	closed	https://github.com/aws/containers-roadmap/issues/2763	[EKS] [eks-node-monitoring-agent] Allow EKS Node Monitoring Agent to use existing DCGM installation
+10	10	2	2026-01-11	closed	https://github.com/github/spec-kit/issues/1463	[Feature] Allow `specify ... -ai <agent>` to JUST add agent commands
+9	9	8	2026-09-24	open	https://github.com/kirodotdev/KiroCrew/issues/13476	Agent-to-agent delegation across connected crews
+9	9	11	2026-05-13	closed	https://github.com/microsoft/vscode/issues/316223	Agents: Issues connecting to SSH-based agent host
+9	9	2	2026-04-16	closed	https://github.com/multica-ai/multica/issues/1173	[Feature]: Agent Team — assign a group of agents to a project
+2	8	1	2026-09-23	open	https://github.com/vorssaint/vorssaint-utils/issues/1910	[Feature]: Add Hermes Agent to Dynamic Island AI Agents
+8	8	6	2025-09-26	open	https://github.com/wazuh/wazuh/issues/32193	Feature Request: Add agent.group and agent.label fields to wazuh-states-* indices
+8	8	4	2026-06-16	closed	https://github.com/anthropics/claude-code/issues/68790	[BUG] Agent View unable to start / resume agent with
+8	8	4	2026-07-09	closed	https://github.com/microsoft/apm/issues/2089	[FEATURE] Deploy the agents primitive to the Kiro target (.kiro/agents/)
+8	8	1	2026-03-20	closed	https://github.com/manaflow-ai/cmux/issues/1847	Terminal auto-scrolls to bottom on every agent output update, impossible to read while agent is running
+7	7	6	2026-06-11	open	https://github.com/multica-ai/multica/issues/4019	feat(agents): copy agent to another workspace
+7	7	9	2026-02-03	open	https://github.com/astral-sh/uv/issues/17839	Allow additional data to be incuded in the user-agent similar to PIP_USER_AGENT_USER_DATA
+7	7	1	2026-06-11	open	https://github.com/code-yeongyu/oh-my-openagent/issues/5156	Allow default OpenCode agents to coexist with OMO agents
+7	7	0	2026-11-17	open	https://github.com/microsoft/vscode/issues/348838	Add a setting to disable `refs/agents/*` git checkpoint refs created by the agent host
+7	7	17	2026-01-08	open	https://github.com/n8n-io/n8n/issues/24042	AI Agent node: Tool node errors fail workflow instead of returning error to agent for handling
+7	7	2	2026-04-28	closed	https://github.com/vercel-labs/skills/issues/1025	Add a repair/relink command to rebuild agent symlinks from ~/.agents/skills
+7	7	3	2026-06-26	closed	https://github.com/mattpocock/skills/issues/378	handoff: instruct agent to respond with a copyable prompt for the next agent
+6	6	5	2026-02-14	closed	https://github.com/openclaw/openclaw/issues/16035	[Feature]: Make OpenClaw agents to identify themselves as agent, clearly, in Github profile
+7	7	2	2026-03-03	closed	https://github.com/anomalyco/opencode/issues/15773	[FEATURE]: Allow project-local agent files to extend (not just replace) the global agent prompt
+4	6	1	2026-05-13	open	https://github.com/github/copilot-cli/issues/3293	Propagate extension tools to sub-agents (nested agent tool availability)

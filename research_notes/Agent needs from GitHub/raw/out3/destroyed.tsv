@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title destroyed total=107
+548	3491	440	2026-11-03	closed	https://github.com/openai/codex/issues/59060	Told to reboot a server, it destroyed systemd, destroyed containers, ran random scripts, cost me $10,000+
+0	11	2	2026-10-06	closed	https://github.com/anomalyco/opencode/issues/53560	/undo destroyed 227 files, /restore destroyed 15,232 files. Several HUNDREDS OF THOUSANDS OF DOLLARS OF DAMAGE
+5	5	14	2026-03-14	closed	https://github.com/anthropics/claude-code/issues/34327	Claude Code destroyed user's uncommitted work by running git reset --hard on session startup — TWICE
+3	3	20	2026-03-31	closed	https://github.com/anthropics/claude-code/issues/41499	[BUG] Billing: $1,400 gift subscription credit destroyed by Stripe proration logic (14 Max 20x gift codes)
+2	2	5	2026-04-09	closed	https://github.com/anthropics/claude-code/issues/45974	Claude ran git clean -fd without permission, destroyed untracked files
+2	2	4	2026-07-09	closed	https://github.com/anthropics/claude-code/issues/76210	Mid-turn assistant text lost with interleaved-thinking models: destroyed on 2.1.202; persists but never renders on 2.1.203+ (default and transcript views)
+2	2	2	2026-04-26	closed	https://github.com/anomalyco/opencode/issues/24468	CRITICAL BUG: Unset `$env:*/*` may silently expand to drive root and BYPASS `external_directory` permission, causing entire windows drive got destroyed
+1	2	3	2026-01-03	closed	https://github.com/anthropics/claude-code/issues/16168	[BUG] Claude Code destroyed our codebase
+1	1	2	2026-08-14	open	https://github.com/anthropics/claude-code/issues/86702	[BUG] AskUserQuestion form destroyed by window resize (Claude Desktop app)
+0	1	4	2026-10-30	open	https://github.com/openclaw/openclaw/issues/187995	[Bug]: trajectory_runtime_events destroyed by ON DELETE CASCADE with no archive (transcript tables have one)
+0	1	1	2026-11-09	closed	https://github.com/openclaw/openclaw/issues/195636	Android: CameraCaptureManager retains destroyed ComponentActivity reference across recreation
+1	1	2	2026-09-12	closed	https://github.com/anomalyco/opencode/issues/48723	TUI crash: EditorView is destroyed
+0	1	4	2026-10-24	closed	https://github.com/openclaw/openclaw/issues/183005	[Bug]: Failover classifier defaults a 400 with a redaction-destroyed body to format, forcing a model-swap recovery instead of overflow recovery
+0	1	1	2026-09-12	closed	https://github.com/openclaw/openclaw/issues/146419	[Bug]: Slow-consumer 1008 close is destroyed by immediate terminate()
+0	1	2	2026-07-17	closed	https://github.com/anthropics/claude-code/issues/78475	Session scratchpad directory is derived from TEMP — live session state gets destroyed by routine temp-directory cleanup
+1	1	2	2026-08-05	closed	https://github.com/anthropics/claude-code/issues/84279	30-day transcript auto-deletion silently destroyed months of session history — destructive defaults should announce themselves
+1	1	4	2026-07-27	closed	https://github.com/anthropics/claude-code/issues/81508	[BUG] Opus 5[1m, MAX] ran `git checkout --` unprompted and destroyed all uncommitted work because of formatting
+0	1	1	2026-08-06	closed	https://github.com/openclaw/openclaw/issues/120066	[Bug]: exec-approvals socket destroyed on daemon restart, runtime refuses JSON fallback
+0	1	3	2026-09-05	closed	https://github.com/openclaw/openclaw/issues/139341	[Bug]: watchdog-released ingress retry is rejected as skipped:duplicate by the committed inbound dedupe and recorded as completed — queued message silently destroyed
+1	1	12	2026-08-11	closed	https://github.com/anthropics/claude-code/issues/85901	[BUG] [CRASH] {solution proposed} Shipped MSIX has no AppxMetadata\CodeIntegrity.cat — vk_swiftshader.dll blocked by Code Integrity, AppX container destroyed (0x3CFC) **Needs packaging (and something to protect data from getting nuked.)
+1	1	3	2026-05-23	closed	https://github.com/anthropics/claude-code/issues/61902	[Bug] Important context destroyed because of benign insect protease system queries - FALSE-POSITIVE
+1	1	1	2026-05-26	closed	https://github.com/openclaw/openclaw/issues/86951	[Bug]: 2026.5.22 completely destroyed WebUI performance — did anyone test this?
+1	1	5	2026-01-28	closed	https://github.com/anomalyco/opencode/issues/11047	EditBuffer is destroyed
+1	1	3	2026-04-04	closed	https://github.com/anthropics/claude-code/issues/43378	[BUG] [BUG] Agent mode + one tiny edit = 26% of entire session limit destroyed in 3 minutes (this is insane)
+0	0	0	2026-10-03	open	https://github.com/anthropics/claude-code/issues/99299	Four consecutive [cyber] safeguard flags destroyed a working session tonight.
+0	0	1	2026-11-17	open	https://github.com/anomalyco/opencode/issues/64448	Agent coupled teardown to a stalled transfer, then destroyed the VPS before verifying the pull
+0	0	2	2026-09-20	open	https://github.com/anthropics/claude-code/issues/95717	Model destroyed a 410KB user file: open(path,"w") truncated it, then the write threw
+0	0	3	2026-07-28	open	https://github.com/openai/codex/issues/35707	[FATAL DATA LOSS INCIDENT] Codex recursive cleanup destroyed an entire Git repository
+0	0	0	2026-10-25	open	https://github.com/anthropics/claude-code/issues/104975	[BUG] Billing: API key compromise report ignored for 100+ days — support delay destroyed evidence, ticket closed unread
+0	0	2	2026-10-11	open	https://github.com/anomalyco/opencode/issues/54631	Location invalidation duplicates a directory's fff engine; on v2 releases the old engine is never destroyed

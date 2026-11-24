@@ -1,0 +1,26 @@
+# repo:google-gemini/gemini-cli is:issue created:>2026-04-01 total=2500
+17	170	48	2026-05-11	closed	https://github.com/google-gemini/gemini-cli/issues/26856	Your idiotic AI disobeyed me completely lied and has now cost me 300 dollars worth of work that went into my obsidian - 10000s of files and work deleted not recoverable I WANT MY MONEY BACK!!!!!!!!!!!!!
+0	95	131	2026-04-08	open	https://github.com/google-gemini/gemini-cli/issues/24937	Tracking: 429 / Capacity Issues
+58	69	5	2026-08-02	closed	https://github.com/google-gemini/gemini-cli/issues/28625	Enterprise Gemini CLI users were promised access to the latest models — so where are Gemini 3.5 Flash and 3.6 Flash?
+65	65	168	2026-04-02	closed	https://github.com/google-gemini/gemini-cli/issues/24517	403 PERMISSION_DENIED for Google One AI Premium subscriber - account correctly identified but API access blocked
+47	49	17	2026-08-13	closed	https://github.com/google-gemini/gemini-cli/issues/28802	Latest Gemini models including Flash 3.5, Flash 3.6 and Flash 3.7 are fully available and working
+38	38	17	2026-08-10	closed	https://github.com/google-gemini/gemini-cli/issues/28761	[Bug] Usage limit reached despite 1–8% usage on Gemini Code Assist Standard (CLI 0.54.4)
+37	37	5	2026-05-20	closed	https://github.com/google-gemini/gemini-cli/issues/27304	Antigravity CLI - is it open source?
+23	26	26	2026-04-02	closed	https://github.com/google-gemini/gemini-cli/issues/24570	Gemini CLI v0.36.0 hangs on "Thinking" indefinitely (>5m) despite AI Pro subscription
+25	25	23	2026-05-19	closed	https://github.com/google-gemini/gemini-cli/issues/27258	`gemini-3.5-flash` not working in the gemini cli why?
+19	21	5	2026-06-12	closed	https://github.com/google-gemini/gemini-cli/issues/27858	Antigravity CLI is a massive downgrade from Gemini CLI for developers. Bring back intelligent auto-edit and model routing.
+20	20	16	2026-04-24	closed	https://github.com/google-gemini/gemini-cli/issues/25899	Can't upgrade to 0.39 using brew
+20	20	7	2026-04-29	closed	https://github.com/google-gemini/gemini-cli/issues/26193	"Ripgrep is not available. Falling back to GrepTool." message shown (only) in non-interactive mode
+16	16	16	2026-09-02	closed	https://github.com/google-gemini/gemini-cli/issues/29164	3.6 and 3.7 flash still not available in the model picker
+16	16	20	2026-07-22	closed	https://github.com/google-gemini/gemini-cli/issues/28483	Gemini Flash 3.6 is missing from the model selector
+14	14	9	2026-08-17	closed	https://github.com/google-gemini/gemini-cli/issues/28859	v0.55.1: any `--model gemini-<X.Y>-flash` is silently served by gemini-3.5-flash, including versions that do not exist
+14	14	2	2026-04-13	closed	https://github.com/google-gemini/gemini-cli/issues/25270	[Bug]: Authentication fails with "automated queries" security block during login
+14	14	11	2026-04-13	closed	https://github.com/google-gemini/gemini-cli/issues/25267	Frequent error message after each call
+9	13	2	2026-04-13	closed	https://github.com/google-gemini/gemini-cli/issues/25269	GeminiCLI.com Feedback: [ISSUE]
+13	13	34	2026-04-13	closed	https://github.com/google-gemini/gemini-cli/issues/25306	"The caller does not have permission
+10	13	10	2026-07-01	closed	https://github.com/google-gemini/gemini-cli/issues/28229	OAuth login fails for Google AI Pro users: "This client is no longer supported for Gemini Code Assist for individuals"
+11	11	47	2026-08-19	closed	https://github.com/google-gemini/gemini-cli/issues/28912	You do not have a valid license of this product.
+11	11	18	2026-04-28	closed	https://github.com/google-gemini/gemini-cli/issues/26126	Stuck at thinking
+11	11	7	2026-07-09	closed	https://github.com/google-gemini/gemini-cli/issues/28341	Infinite auth loop
+10	10	9	2026-07-29	closed	https://github.com/google-gemini/gemini-cli/issues/28579	bug(core): 400 Bad Request: "Function call is missing a thought_signature in functionCall parts" during parallel tool calls
+6	10	8	2026-10-09	open	https://github.com/google-gemini/gemini-cli/issues/29689	feat(models): Support Gemini 4 Argon / Gemini 4 Pro for Enterprise Gemini CLI users

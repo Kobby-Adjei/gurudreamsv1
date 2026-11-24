@@ -1,0 +1,26 @@
+# org:a2aproject is:issue created:>2026-01-01 total=1783
+8	8	1	2026-02-10	closed	https://github.com/a2aproject/A2A/issues/1464	[Feat]: Extension Governance Framework for A2A
+8	8	65	2026-06-10	open	https://github.com/a2aproject/A2A/issues/1929	[Feat]: Official a2a CLI — consolidating community CLI efforts
+3	7	2	2026-01-21	open	https://github.com/a2aproject/A2A/issues/1395	[Feat]: Add metadata field to AgentSkill as a generic extension point
+6	6	6	2026-02-11	closed	https://github.com/a2aproject/a2a-js/issues/321	[Feat]: Support 1.0 spec
+5	5	4	2026-04-28	open	https://github.com/a2aproject/A2A/issues/1796	Extension Proposal: experimental-ext-telecom for the Telecom Domain
+4	4	6	2026-10-01	open	https://github.com/a2aproject/a2a-python/issues/1288	[Feat]: Change Httpx to Httpx2
+4	4	2	2026-08-25	open	https://github.com/a2aproject/A2A/issues/2178	RFC: skill-direct-invoke — a concrete, measured instance of client-directed skill invocation
+4	4	1	2026-04-30	closed	https://github.com/a2aproject/a2a-java/issues/844	[Bug]: optional tenant in spec vs non-null tenant + misleading docs in Java SDK
+3	3	1	2026-04-30	closed	https://github.com/a2aproject/a2a-java/issues/843	[Bug]: Client SDK and Server SDK expect different objects for Tasks
+2	2	2	2026-11-03	closed	https://github.com/a2aproject/a2a-go/issues/524	JSON-RPC: DeleteTaskPushNotificationConfig success response has neither result nor error
+2	2	1	2026-01-16	closed	https://github.com/a2aproject/a2a-inspector/issues/137	Task responses with status.message not displayed in UI
+2	2	2	2026-02-08	closed	https://github.com/a2aproject/a2a-python/issues/674	[Feat]: Add async context manager support to ClientTransport
+1	2	4	2026-08-24	closed	https://github.com/a2aproject/a2a-python/issues/1199	[Bug]: v1.1.3 is unavailable on PyPI after publish workflow failure
+1	2	1	2026-02-18	closed	https://github.com/a2aproject/a2a-js/issues/336	[Bug]: Push Configuration Config gets removed from config in rest handler
+2	2	3	2026-04-07	closed	https://github.com/a2aproject/A2A/issues/1723	[Proposal] New experimental repository: experimental-cpb-slimrpc
+1	2	0	2026-05-24	closed	https://github.com/a2aproject/A2A/issues/1878	test
+2	2	19	2026-02-09	closed	https://github.com/a2aproject/A2A/issues/1463	[Extension]: OID4VP for In-Task Authorization
+2	2	4	2026-06-25	open	https://github.com/a2aproject/A2A/issues/1990	[Epic] Auth scheme declaration & credential discovery in AgentCard
+2	2	2	2026-01-26	open	https://github.com/a2aproject/A2A/issues/1419	[Feat]: contexts APIs needed
+2	2	0	2026-06-08	closed	https://github.com/a2aproject/a2a-java/issues/920	[Feat]: A2AHttpResponse should expose response headers
+1	2	1	2026-07-13	closed	https://github.com/a2aproject/a2a-java/issues/978	[Bug]: Duplicate package-info.class in a2a-java-sdk-common and -spec breaks Android builds
+2	2	1	2026-09-18	closed	https://github.com/a2aproject/a2a-java/issues/1160	[Bug]: NullPointerException in A2ACommonFieldMapper when a struct field has an explicit null value
+0	1	1	2026-07-20	closed	https://github.com/a2aproject/a2a-inspector/issues/154	Inspector backend incompatible with a2a-sdk v1.0 (protobuf API changes)
+1	1	0	2026-11-10	open	https://github.com/a2aproject/a2a-inspector/issues/246	[Feat]: support for provider agnostic host agent
+1	1	0	2026-03-05	closed	https://github.com/a2aproject/a2a-python/issues/774	[Bug]: ResultAggregator._continue_consuming background task is not referenced and may be garbage collected

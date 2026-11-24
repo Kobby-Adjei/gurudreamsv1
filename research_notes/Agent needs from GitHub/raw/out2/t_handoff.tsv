@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:block/goose repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue handoff total=7655
+2072	3286	583	2026-04-02	closed	https://github.com/anthropics/claude-code/issues/42796	[MODEL] Claude Code is unusable for complex engineering tasks with the Feb updates
+695	879	179	2026-02-03	closed	https://github.com/openai/codex/issues/10450	Remote Development in Codex Desktop App
+435	674	57	2025-06-24	open	https://github.com/anthropics/claude-code/issues/2511	Feature request: Connect Claude code to Claude projects 
+317	413	103	2025-08-23	closed	https://github.com/openai/codex/issues/2604	Subagent Support
+284	307	630	2026-03-13	closed	https://github.com/openai/codex/issues/14593	Burning tokens very fast
+280	300	85	2026-03-02	open	https://github.com/anthropics/claude-code/issues/30154	FEATURE: Multi-window support in Claude Code Desktop
+176	253	172	2026-05-21	closed	https://github.com/openai/codex/issues/23794	Codex Desktop no longer shows visible context/token usage indicator
+131	224	279	2026-09-03	open	https://github.com/anthropics/claude-code/issues/91870	Mods - make Claude 10x more extensible
+216	220	43	2026-04-12	open	https://github.com/anthropics/claude-code/issues/46917	CC v2.1.100+ inflates cache_creation by ~20K tokens vs v2.1.98 — same payload, server-side
+176	206	100	2026-07-09	closed	https://github.com/openai/codex/issues/31814	GPT-5.6 Sol cannot specify subagent models, forcing all subagents to also be Sol instances
+168	197	184	2026-04-12	open	https://github.com/anthropics/claude-code/issues/46987	[BUG]  API Error: Stream idle timeout - partial response received - multiple time today
+159	192	41	2026-02-26	open	https://github.com/anthropics/claude-code/issues/28791	[FEATURE] Sync conversation history between CLI and Claude Code desktop app
+138	183	32	2025-12-12	open	https://github.com/anthropics/claude-code/issues/13843	Share conversation context from Claude.ai to Claude Code
+172	178	94	2026-07-02	closed	https://github.com/anthropics/claude-code/issues/73365	[BUG] Advisor always "unavailable" with Fable 5 advisor (Opus 4.8 main) across all sessions (v2.1.198)
+170	175	85	2026-10-21	closed	https://github.com/openai/codex/issues/55744	macOS app 26.1016.51333: new chats fail on first message with Cannot serialize value (couldn't stringify value)
+124	167	75	2025-12-01	closed	https://github.com/anthropics/claude-code/issues/12836	Support Tool Search and Programmatic Tool Use betas for reduced token consumption
+156	165	154	2026-09-25	closed	https://github.com/openai/codex/issues/48074	Windows: terminal windows repeatedly flash during requests after installing the Codex daemon
+123	165	40	2026-02-26	closed	https://github.com/anthropics/claude-code/issues/29006	Enable Remote Control for Claude Code sessions in Claude Desktop App
+141	155	45	2026-06-13	open	https://github.com/openai/codex/issues/28058	Regression: encrypted MultiAgentV2 messages remove readable task audit trail
+153	153	43	2025-08-11	closed	https://github.com/openai/codex/issues/2153	ChatGPT integration
+152	152	134	2026-02-17	open	https://github.com/anthropics/claude-code/issues/26224	[BUG] [URGENT!!!] Claude Code is hanging / freezing / stuck on heaps of prompts for 5-20minutes or more.
+100	142	49	2025-08-27	closed	https://github.com/openai/codex/issues/2798	Support remote / headless OAuth sign-in
+129	138	31	2025-09-23	open	https://github.com/openai/codex/issues/4106	Control over auto-compaction parameters
+92	117	47	2026-01-11	open	https://github.com/anthropics/claude-code/issues/17428	[Feature Request] Enhanced /compact with file-backed summaries and selective restoration
+112	112	74	2026-03-14	open	https://github.com/anthropics/claude-code/issues/34255	[BUG] Remote Control: automatic reconnection doesn't work -- connection drops silently with no recovery
+103	109	20	2026-08-19	open	https://github.com/anthropics/claude-code/issues/87971	[BUG] Claude abuses bash tools for reads, writes, and edits when running in Auto Mode
+96	107	37	2025-07-14	closed	https://github.com/anthropics/claude-code/issues/3473	Feature Request: Ability to change working directory during Claude session
+105	105	97	2026-09-25	open	https://github.com/openai/codex/issues/48237	unexpected status 401 Unauthorized issue
+99	99	134	2025-09-12	closed	https://github.com/anthropics/claude-code/issues/7530	[BUG] Error during compaction
+97	97	208	2026-04-02	closed	https://github.com/anthropics/claude-code/issues/42776	[BUG] Claude Code Desktop fails to Relaunch on Windows due to orphaned process file lock

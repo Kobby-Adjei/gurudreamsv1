@@ -1,0 +1,25 @@
+g_a2a|||"agent-to-agent" is:issue created:>2025-06-01
+g_multi_conflict|||"multiple agents" conflict is:issue created:>2025-06-01
+g_subagent_perm|||"sub-agent" permission is:issue created:>2025-06-01
+g_memsync|||"agent memory" sync is:issue created:>2025-06-01
+g_coordinate|||"agents coordinate" is:issue
+g_handoff|||"handoff between agents" is:issue
+g_longrun|||"long-running agent" is:issue created:>2025-06-01
+g_identity|||"agent identity" is:issue created:>2025-06-01
+g_wallet|||"agent wallet" is:issue
+g_stuck|||"agent got stuck" is:issue
+g_overwrite|||"overwrite each other" agents is:issue created:>2025-06-01
+g_parallel_merge|||"parallel agents" merge is:issue created:>2025-06-01
+g_ctx_sessions|||"context across sessions" is:issue
+g_shared_memory|||"shared memory" agents is:issue created:>2025-09-01
+g_file_lock|||agents "file lock" is:issue created:>2025-09-01
+g_cross_agent|||"cross-agent" is:issue created:>2025-09-01
+g_agents_md|||"AGENTS.md" support is:issue created:>2025-06-01
+g_claude_codex|||"claude code" codex "same repo" is:issue
+g_onbehalf|||"on behalf of" agent delegation is:issue created:>2025-06-01
+g_agent_payments|||agent payments x402 is:issue created:>2025-06-01
+g_human_approval|||agent "human approval" is:issue created:>2025-09-01
+g_agent_budget|||agent "spending limit" is:issue created:>2025-06-01
+g_kill_switch|||agent "kill switch" is:issue created:>2025-06-01
+g_audit_trail|||agent "audit trail" is:issue created:>2025-09-01
+g_session_portable|||"session" portable agents export import is:issue created:>2025-09-01

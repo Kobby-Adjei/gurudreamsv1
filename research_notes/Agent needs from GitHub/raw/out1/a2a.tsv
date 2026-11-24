@@ -1,0 +1,31 @@
+# org:a2aproject is:issue total=2991
+8	15	26	2025-09-03	open	https://github.com/a2aproject/A2A/issues/1029	[Feat]: Support publish/subscribe methods for async communications
+12	12	4	2025-04-14	open	https://github.com/a2aproject/A2A/issues/153	A2A should account for the confused deputy problem
+12	13	10	2025-12-15	closed	https://github.com/a2aproject/A2A/issues/1313	[Feat]: Unify `Message` and `Artifact` to simplify streaming and semantics
+9	9	4	2025-05-24	open	https://github.com/a2aproject/a2a-samples/issues/3	[Bug]: HTTP Error 503 occured in examples/langgraph
+9	9	2	2025-04-10	open	https://github.com/a2aproject/a2a-samples/issues/31	Feature: Go lang sample
+9	9	33	2025-04-17	closed	https://github.com/a2aproject/A2A/issues/210	Suggestion: Add scheduled task support
+5	9	6	2025-05-06	closed	https://github.com/a2aproject/A2A/issues/423	[Task] Parent Issue for SDK/Language Support Roadmap
+8	8	4	2025-04-14	closed	https://github.com/a2aproject/A2A/issues/148	Suggestion: Publish common utilities and server modules as a python package
+8	8	1	2026-02-10	closed	https://github.com/a2aproject/A2A/issues/1464	[Feat]: Extension Governance Framework for A2A
+8	8	7	2025-04-13	closed	https://github.com/a2aproject/A2A/issues/142	Discussion: Include payment details in agent cards
+8	8	65	2026-06-10	open	https://github.com/a2aproject/A2A/issues/1929	[Feat]: Official a2a CLI — consolidating community CLI efforts
+7	7	9	2025-04-09	closed	https://github.com/a2aproject/A2A/issues/19	Delegated User Authorization for Agent2Agent Servers
+7	7	1	2025-04-22	closed	https://github.com/a2aproject/A2A/issues/270	Proposal: Create a Separate GitHub Organization for A2A
+3	7	2	2026-01-21	open	https://github.com/a2aproject/A2A/issues/1395	[Feat]: Add metadata field to AgentSkill as a generic extension point
+6	6	4	2025-05-15	closed	https://github.com/a2aproject/a2a-python/issues/21	[Feat]: A2A FastAPI Application
+6	6	2	2025-11-17	closed	https://github.com/a2aproject/a2a-python/issues/548	[Bug]: REST client creates A2A-incompatible payloads
+6	6	3	2025-04-10	open	https://github.com/a2aproject/a2a-samples/issues/28	feature: Java Language Example
+6	6	6	2026-02-11	closed	https://github.com/a2aproject/a2a-js/issues/321	[Feat]: Support 1.0 spec
+6	6	3	2025-06-30	open	https://github.com/a2aproject/A2A/issues/813	[Feat]: Optional Structured Field Definitions for Agent Inputs and Outputs
+6	6	0	2025-04-14	open	https://github.com/a2aproject/A2A/issues/160	Support relative URLs in agent.json card
+6	6	9	2025-05-23	closed	https://github.com/a2aproject/A2A/issues/641	[Feat]: Support multi-agent open discovery under a single base URL via RFC 9264-compatible API Catalog
+6	6	6	2025-04-25	open	https://github.com/a2aproject/A2A/issues/297	Proposal: Implement A2A Agent Registrar for Curated Agent Discovery(Registry-Based)
+5	5	13	2025-08-07	closed	https://github.com/a2aproject/a2a-inspector/issues/63	[Feat]: Support multi-turn conversation
+5	5	0	2025-04-11	open	https://github.com/a2aproject/a2a-samples/issues/34	[Feature/Demo] Implement Auth-Based Tool Access
+5	5	1	2025-10-10	open	https://github.com/a2aproject/a2a-samples/issues/385	A2AClient is deprecated
+5	5	4	2025-06-07	closed	https://github.com/a2aproject/a2a-js/issues/12	[bug] npm i a2a-sdk is giving 404
+4	5	2	2025-04-12	closed	https://github.com/a2aproject/A2A/issues/109	Suggestion: Dynamic Capabilities in A2A Protocol
+5	5	4	2026-04-28	open	https://github.com/a2aproject/A2A/issues/1796	Extension Proposal: experimental-ext-telecom for the Telecom Domain
+4	4	7	2025-05-20	closed	https://github.com/a2aproject/A2A/issues/602	[Feat]: Include list of messages for the agent to initiate a task in MessageSendParams instead of only one.
+4	5	2	2025-08-13	closed	https://github.com/a2aproject/A2A/issues/982	[Feat]: Integrate artifacts into task `history`

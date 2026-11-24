@@ -1,0 +1,51 @@
+# repo:openai/codex is:issue label:enhancement created:>2026-06-01 total=4014
+174	284	35	2026-07-18	open	https://github.com/openai/codex/issues/34035	Make the temporary removal of the 5-hour usage limit permanent
+193	213	19	2026-09-25	open	https://github.com/openai/codex/issues/48195	CLI: make `daemon_auto_start` opt-in — a persistent, self-updating background daemon shouldn't be the default
+89	99	25	2026-08-30	closed	https://github.com/openai/codex/issues/41622	Add a setting to disable automatic conversation recaps in Codex CLI
+101	101	64	2026-09-30	closed	https://github.com/openai/codex/issues/49532	Put the Branch selection BACK in codex app
+89	91	3	2026-06-22	closed	https://github.com/openai/codex/issues/29451	Show image artifacts inline in the Codex TUI
+86	88	33	2026-09-10	closed	https://github.com/openai/codex/issues/44561	Turn off whimsy effect (astra stars) by default
+88	88	25	2026-07-20	open	https://github.com/openai/codex/issues/34349	Feature Request: Allow users to completely disable Pets and remove the "Show Pet" menu entry
+86	86	18	2026-06-18	open	https://github.com/openai/codex/issues/28931	Auto Resume /Goal after limit reached once limit is reset (5h)
+83	83	66	2026-08-21	closed	https://github.com/openai/codex/issues/39903	add an option to disable “Ran N commands” collapsing and always show executed commands
+61	76	37	2026-10-31	open	https://github.com/openai/codex/issues/58530	Please preserve separate ChatGPT High and Codex/Work allowances on Plus (confirmed December 2026 change)
+61	65	5	2026-06-25	open	https://github.com/openai/codex/issues/29989	Support disable-model-invocation in SKILL.md
+61	61	10	2026-06-14	open	https://github.com/openai/codex/issues/28161	Show expiration dates for each available usage reset
+47	61	23	2026-06-03	closed	https://github.com/openai/codex/issues/26227	Persist side chats as child threads attached to the main thread
+42	52	15	2026-06-20	open	https://github.com/openai/codex/issues/29156	Desktop custom providers are unusable with existing chats and the model picker
+49	49	20	2026-06-04	open	https://github.com/openai/codex/issues/26338	Codex App: support parent workspaces containing multiple Git repositories
+45	45	10	2026-06-15	open	https://github.com/openai/codex/issues/28382	Add a toggle to prevent automatic use of purchased Codex credits
+44	44	5	2026-06-12	open	https://github.com/openai/codex/issues/27943	Support multiple workspace folders in the Codex app
+41	44	3	2026-07-19	open	https://github.com/openai/codex/issues/34170	Remove the pet feature from Codex
+37	42	27	2026-08-11	closed	https://github.com/openai/codex/issues/37967	Remote Control cannot attach to a live CLI session on the workstation (completed threads work, in-progress ones fail)
+38	42	14	2026-06-30	open	https://github.com/openai/codex/issues/30684	Add account/workspace switching support
+34	42	13	2026-09-24	open	https://github.com/openai/codex/issues/47740	Add a setting to disable CLI usage-limit warnings
+39	40	3	2026-06-08	open	https://github.com/openai/codex/issues/26957	Support AGENTS.local.md
+37	37	5	2026-06-05	open	https://github.com/openai/codex/issues/26648	Codex app: support Jujutsu (`jj`) workspaces or custom worktree backend
+36	36	5	2026-06-04	closed	https://github.com/openai/codex/issues/26311	Feature: Pin prompt/composer input box to bottom of terminal pane (CLI)
+36	36	13	2026-09-28	closed	https://github.com/openai/codex/issues/48913	Add a setting to disable random session greetings
+35	36	8	2026-07-08	open	https://github.com/openai/codex/issues/31651	Add an option to disable the new auto-dismiss countdown on the ask-question tool UI
+35	35	11	2026-09-09	open	https://github.com/openai/codex/issues/43965	[ win Codex ] Expose effective image model and supported model selection for built-in image_gen (Images 2.5)
+30	34	29	2026-07-10	open	https://github.com/openai/codex/issues/32188	Event-driven wakeup when background exec sessions complete
+33	33	5	2026-08-29	closed	https://github.com/openai/codex/issues/41522	TUI: allow configuring or disabling the inline diff preview limit
+28	33	14	2026-07-10	open	https://github.com/openai/codex/issues/32139	Remove manual approval of "Keep Waiting" (auto-accept waiting extra time)
+10	32	25	2026-06-24	open	https://github.com/openai/codex/issues/29922	Feature: an agent-callable `monitor` tool that wakes Codex on background events (logs, files, builds, CI) without polling
+24	32	7	2026-09-28	closed	https://github.com/openai/codex/issues/48991	allow me to disable inane "welcome messages"
+32	32	1	2026-09-01	open	https://github.com/openai/codex/issues/42042	Support Codex CLI as a Remote Control controller for another Codex host
+27	30	14	2026-06-18	open	https://github.com/openai/codex/issues/28864	Add shortcuts to edit or remove specific queued follow-up inputs in the TUI
+29	29	16	2026-06-11	open	https://github.com/openai/codex/issues/27565	Claude Code-like remote control
+28	28	13	2026-07-23	closed	https://github.com/openai/codex/issues/35005	Option to edit an earlier prompt in place instead of always forking (config toggle and/or per-edit prompt)
+24	29	1	2026-06-18	open	https://github.com/openai/codex/issues/28963	Show Codex reset credits directly in the macOS app
+27	27	2	2026-07-12	open	https://github.com/openai/codex/issues/32539	Provide an option to disable input/paste auto-formatting in VS Code extension
+27	27	6	2026-07-08	open	https://github.com/openai/codex/issues/31548	[VOTE needed] configurable Windows agent shell (powershell/git-bash)  #16717
+27	27	3	2026-06-24	open	https://github.com/openai/codex/issues/29783	Show a detailed context usage breakdown when clicking context usage in Codex App
+27	27	7	2026-09-09	open	https://github.com/openai/codex/issues/44096	[Windows App] Let the global pop-out shortcut open Chat mode and remember the selected mode
+27	27	6	2026-10-31	open	https://github.com/openai/codex/issues/58529	[macOS] Preserve independent ChatGPT and Codex windows after Classic retirement
+26	26	9	2026-06-04	closed	https://github.com/openai/codex/issues/26472	Model selection should not be persisted to config
+26	26	5	2026-07-18	open	https://github.com/openai/codex/issues/34002	Feature request: support .codex/rules/ directory with path-scoped conditional loading (like Claude Code's  .claude/rules/)
+25	26	14	2026-09-30	open	https://github.com/openai/codex/issues/49491	Let a dot connect directly to a headless Linux server as a task environment
+25	25	7	2026-07-21	open	https://github.com/openai/codex/issues/34619	Restore GPT-5.6 Sol’s 372k Codex context window, or provide an opt-in setting
+25	25	19	2026-07-10	open	https://github.com/openai/codex/issues/32069	Feature request: hide the Pets menu item and add configurable prompt polishing
+25	25	7	2026-08-18	closed	https://github.com/openai/codex/issues/39171	Render LaTeX Math in Codex CLI
+25	25	11	2026-08-07	open	https://github.com/openai/codex/issues/37472	Allow request_user_input in Default mode to wait indefinitely
+24	24	15	2026-07-09	open	https://github.com/openai/codex/issues/31935	Remove the 60-second limit on blocking waits

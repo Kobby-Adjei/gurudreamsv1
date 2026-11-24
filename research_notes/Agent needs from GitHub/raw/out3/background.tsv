@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title background total=3099
+193	213	19	2026-09-25	open	https://github.com/openai/codex/issues/48195	CLI: make `daemon_auto_start` opt-in — a persistent, self-updating background daemon shouldn't be the default
+83	99	26	2025-12-21	closed	https://github.com/anomalyco/opencode/issues/5887	[feat] True Async/Background Sub-Agent Delegation
+70	73	36	2026-05-08	open	https://github.com/anthropics/claude-code/issues/57371	Claude Desktop (Windows): provide a way to disable the bundled Cowork background service (CoworkVMService) for users who don't use Cowork
+61	61	26	2025-08-08	closed	https://github.com/openai/codex/issues/2020	Support for light-background terminals
+34	56	14	2025-07-14	closed	https://github.com/google-gemini/gemini-cli/issues/4168	Feature: Run autonomous background Agents
+50	52	47	2026-03-06	open	https://github.com/openai/codex/issues/13733	Background process polling wastes tokens: each write_stdin poll triggers full API turn with complete history
+38	39	21	2025-08-15	closed	https://github.com/anomalyco/opencode/issues/1970	Feature Request: Add Background Bash Execution (Like Claude Code’s Ctrl+b)
+39	39	11	2026-03-07	closed	https://github.com/openai/codex/issues/13858	Provide a way to view the content of the background terminal
+36	36	10	2025-09-20	closed	https://github.com/openai/codex/issues/3968	Background Terminal Sessions
+31	36	20	2025-11-04	closed	https://github.com/anthropics/claude-code/issues/11005	[BUG] Stale `.git/index.lock` files created by CC's background git operations block user git commands
+30	34	29	2026-07-10	open	https://github.com/openai/codex/issues/32188	Event-driven wakeup when background exec sessions complete
+10	32	25	2026-06-24	open	https://github.com/openai/codex/issues/29922	Feature: an agent-callable `monitor` tool that wakes Codex on background events (logs, files, builds, CI) without polling
+21	33	9	2026-07-08	closed	https://github.com/anthropics/claude-code/issues/75863	[FEATURE]  VSCode extension: add a "Background Tasks" panel (parity with Desktop app)
+22	27	85	2025-12-06	closed	https://github.com/anthropics/claude-code/issues/13188	[BUG] Sessions become unresponsive after upgrade to 2.0.60 (suspected background agent blocking)
+24	24	15	2025-09-30	closed	https://github.com/anthropics/claude-code/issues/8504	[FEATURE] Disable or Customize User Input Background Highlighting
+24	24	2	2026-02-03	closed	https://github.com/anomalyco/opencode/issues/11866	Add transparency/translucent background support for TUI
+20	23	24	2025-06-26	closed	https://github.com/google-gemini/gemini-cli/issues/1689	Run blocking/long running shell commands in background
+23	23	14	2026-01-07	closed	https://github.com/anthropics/claude-code/issues/16727	[BUG] Ctrl-Z (SIGTSTP) no longer backgrounds Claude Code in 2.1.1 (confirmed in iTerm2 and Ghostty)
+15	22	19	2026-08-07	open	https://github.com/openai/codex/issues/37445	Opening the ChatGPT desktop app silently consumes the Codex weekly limit (fixed 6% per background suggestion run; reproduced under controlled conditions)
+21	21	15	2026-10-17	open	https://github.com/anthropics/claude-code/issues/102952	[FEATURE] Bring back the glowing code-glyph ripple background on the desktop home screen
+21	21	38	2025-05-26	open	https://github.com/anthropics/claude-code/issues/1341	[BUG] Background color bleed in terminal from chalk usage
+20	20	1	2026-10-07	open	https://github.com/openai/codex/issues/51763	Background daemon auto-update drains active session and leaves daemon incompatible with current Codex client
+19	19	1	2026-03-17	open	https://github.com/openai/codex/issues/14928	Stream live output from background terminal processes
+18	18	19	2025-12-29	closed	https://github.com/anthropics/claude-code/issues/15700	[BUG] Background tasks ignore $TMPDIR and hardcode /tmp/claude/
+17	17	18	2026-03-24	open	https://github.com/anthropics/claude-code/issues/38461	AutoDream: /dream returns 'Unknown skill' and no background task starts despite toggle being ON
+15	17	16	2026-01-03	open	https://github.com/anthropics/claude-code/issues/16135	Background process termination crashes Claude Code in Docker containers
+17	17	4	2026-04-14	closed	https://github.com/openai/codex/issues/17737	Feature request: Claude Code-like /monitoring for background terminals
+15	16	32	2026-03-25	open	https://github.com/openai/codex/issues/15723	Background subprocesses/subagents do not wake the calling agent on completion
+16	16	4	2026-04-10	closed	https://github.com/openai/codex/issues/17293	Codex Diff missing background highlights on Remote-SSH
+15	15	7	2026-09-26	closed	https://github.com/openai/codex/issues/48440	Windows: repeated focus-stealing console popups with shared background server enabled

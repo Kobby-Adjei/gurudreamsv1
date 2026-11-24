@@ -1,0 +1,9 @@
+handoff|||in:title handoff OR hand-off is:issue agent
+agent_identity|||in:title "agent identity" OR "agent auth" OR "agent credentials" is:issue
+agent_payment|||in:title "agent payment" OR "agent payments" OR "agent wallet" OR x402 is:issue
+agent_sandbox|||in:title sandbox agent is:issue
+agent_approval|||in:title approval agent is:issue
+agent_audit|||in:title audit agent is:issue
+agent_budget|||in:title budget OR "cost limit" OR "spend limit" agent is:issue
+agent_lock|||in:title lock OR conflict OR collision agents is:issue
+long_running|||in:title "long-running" OR "long running" agent is:issue

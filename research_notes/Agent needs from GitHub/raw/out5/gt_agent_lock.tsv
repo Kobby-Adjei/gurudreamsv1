@@ -1,0 +1,31 @@
+# in:title agents lock OR locking OR claim is:issue created:>2025-09-01 agent total=161137
+498	656	38	2026-03-05	open	https://github.com/anthropics/claude-code/issues/31005	Support for AGENTS.md and .agents/skills/, the community has been asking since August 2025
+144	151	20	2025-10-22	open	https://github.com/agentsmd/agents.md/issues/91	Standardize global user-level AGENTS.md at ~/.config/agents/AGENTS.md
+100	113	25	2026-01-15	closed	https://github.com/anomalyco/opencode/issues/8751	[FEATURE]: Hot-reload agents, skills and commands.
+63	91	15	2026-05-20	closed	https://github.com/anthropics/claude-code/issues/60755	[FEATURE] Setting to disable copy-on-selection in the agents view (TUI)
+84	84	99	2026-07-08	closed	https://github.com/ValveSoftware/csgo-osx-linux/issues/4521	Bugged weapons, agents and other cosmetics after the latest update
+71	82	3	2026-06-16	open	https://github.com/anthropics/claude-code/issues/68809	[Feature] Register Claude Code as VSCode Language Model provider to enable Agents window integration
+81	81	7	2026-04-15	open	https://github.com/anthropics/claude-code/issues/48322	[FEATURE] Team/Enterprise: shared routines (org-owned scheduled agents)
+77	79	15	2026-05-03	open	https://github.com/microsoft/vscode/issues/313962	Add `Assisted-by` instead of `Co-authored-by` for AI agents
+75	75	11	2026-04-17	open	https://github.com/openai/codex/issues/18308	Add Agents to Plugins System
+66	66	13	2026-05-07	closed	https://github.com/microsoft/vscode/issues/315116	Agents Window - Dev Containers support
+62	62	34	2026-01-05	closed	https://github.com/anthropics/claude-code/issues/16345	[Feature Request] Support the standard .agents/skills/ directory for agent skills
+60	60	10	2026-04-27	closed	https://github.com/microsoft/vscode/issues/312654	"VS Code Agents" doesn't work well with WSL
+54	55	9	2026-01-19	open	https://github.com/zed-industries/zed/issues/47121	SSH and GPG agents not forwarded to devcontainer
+50	55	9	2026-04-18	open	https://github.com/microsoft/vscode/issues/311148	Agents App: Support multi-root workspaces with cross-repo change tracking and worktrees
+44	53	1	2025-12-18	closed	https://github.com/microsoft/playwright/issues/38610	[Feature]: Playwright Test Agents support for Python (planner / generator / healer)
+51	51	25	2026-06-08	closed	https://github.com/microsoft/vscode/issues/320339	Agents Window Agent Harness with BYOK Support
+50	50	17	2026-02-18	open	https://github.com/anthropics/claude-code/issues/26489	[FEATURE] skills/, agents/, commands/ should traverse parent directories like CLAUDE.md does
+50	50	16	2026-05-12	closed	https://github.com/openai/codex/issues/22321	Add an Agent View for managing multiple Codex agents from the TUI
+49	49	19	2026-05-26	open	https://github.com/microsoft/vscode/issues/318358	Enable use of local agent in Agents Window
+40	49	19	2026-03-05	open	https://github.com/paperclipai/paperclip/issues/49	Chat with agents much needed feature
+47	48	9	2026-04-22	closed	https://github.com/zed-industries/zed/issues/54480	After update to 0.232.2, multi-workspace support for external agents stopped working
+12	46	16	2026-01-09	closed	https://github.com/anomalyco/opencode/issues/7467	[FEATURE]: GitHub-based Agent Marketplace for Sharing and Discovering Agents
+35	43	6	2026-05-27	closed	https://github.com/microsoft/vscode/issues/318578	Agents window: support use without GitHub authentication
+35	43	43	2026-02-09	closed	https://github.com/anthropics/claude-code/issues/24316	[FEATURE] Allow custom .claude/agents/ definitions as agent team teammates
+41	41	13	2025-10-07	closed	https://github.com/microsoft/playwright/issues/37739	Unable to use playwright Agents in Cursor
+40	40	3	2026-02-17	open	https://github.com/microsoft/vscode/issues/295755	Feature Request: Support Branch Selection for Organization‑Level Copilot Agents
+36	38	5	2026-04-15	open	https://github.com/agentsmd/agents.md/issues/179	Proposal: Standardized rule format for .agents/rules/
+38	38	4	2026-03-24	closed	https://github.com/vercel-labs/skills/issues/744	[Bug]: "npx skills add"  installs to ~/.agents/skills/ but does not create symlinks in ~/.claude/skills/
+36	36	14	2026-04-17	closed	https://github.com/openai/codex/issues/18299	Display dot files and folders (.agents/.codex etc)
+35	35	11	2026-10-29	closed	https://github.com/herdrdev/herdr-app/issues/63	Share agents between Herdr TUI and the app?

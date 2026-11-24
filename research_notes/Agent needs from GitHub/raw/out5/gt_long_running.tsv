@@ -1,0 +1,31 @@
+# in:title "long-running" agent is:issue created:>2025-09-01 total=910
+9	12	17	2026-01-30	closed	https://github.com/anomalyco/opencode/issues/11313	Long-running bash commands with large outputs cause truncation and agent retry loops
+9	9	6	2026-10-14	open	https://github.com/anthropics/claude-code/issues/102133	[BUG] Desktop Code tab: running agents no longer show elapsed timer, token count or context-window usage
+4	4	15	2026-08-26	open	https://github.com/openai/codex/issues/40905	5-hour usage limit repeatedly interrupts long-running GPT-5.6 Sol agent tasks
+4	4	3	2026-09-03	open	https://github.com/MoonshotAI/kimi-code/issues/3507	Feedback: YOLO mode is more practical than "Ask When Needed" for long-running agentic sessions
+2	4	7	2026-03-28	open	https://github.com/langfuse/langfuse/issues/12873	RFC: Session-boundary behavioral drift monitoring — tracking context compression effects across long-running agents
+4	4	7	2026-05-05	open	https://github.com/cline/cline/issues/10549	'run_commands' tool silently times out at 30s with misleading error — causes agent confusion and wasted tokens on long-running tasks
+0	4	1	2026-02-23	closed	https://github.com/aegra/aegra/issues/209	[FEATURE] Heartbeat keep-alive for long-running agent tasks on join/wait endpoints
+2	3	9	2026-03-16	open	https://github.com/vllm-project/vllm/issues/37168	[RFC]:  Active Coordination and Two-Zone Scheduling Mechanism for KV Cache in Long-Running Agents
+3	3	0	2026-03-25	open	https://github.com/nanocoai/nanoclaw/issues/1440	No intermediate feedback during long-running agent sessions
+3	3	1	2026-08-27	open	https://github.com/openai/codex/issues/41007	Agent mindlessly polls long-running work instead of checking progress or advancing independent tasks
+3	3	5	2026-07-08	closed	https://github.com/browseros-ai/BrowserOS/issues/1701	Browser/Agent crash during mid/long-running tasks
+2	2	10	2026-09-30	open	https://github.com/openai/codex/issues/49735	critical - Token-budget reminders encourage premature closure in long-running agents: request for runtime and training ablations
+2	2	3	2026-05-25	open	https://github.com/bytedance/deer-flow/issues/3222	[Design] Model-bound compactable tool payload policy for long-running agents
+2	2	7	2026-09-23	open	https://github.com/anthropics/claude-code/issues/96225	SubagentHandback from an in-process teammate's subagent fails with "the agent that spawned you is no longer running" while the teammate is alive (auto mode, 2.1.280)
+2	2	4	2026-02-20	open	https://github.com/SamuelQZQ/auto-coding-agent-demo/issues/4	能否给出让claude code根据文章《Effective harnesses for long-running agents》建立系统的对话记录?
+2	2	4	2025-12-17	closed	https://github.com/convex/agent/issues/199	Handling long running agents
+1	2	1	2026-06-12	closed	https://github.com/openclaw/openclaw/issues/92401	tasks audit: 154 findings on a healthy system — false 'dead agent' signals for long-running subagents + timestamp noise flood
+1	2	3	2026-05-05	closed	https://github.com/openclaw/openclaw/issues/77771	Add task watchdog for silent gaps and long-running agent heartbeats
+1	2	1	2026-05-09	closed	https://github.com/openclaw/openclaw/issues/79977	diagnostic: 'stuck session' false positive floods log for long-running embedded agent runs
+2	2	2	2026-04-03	closed	https://github.com/NousResearch/hermes-agent/issues/4815	gateway agent timeout (HERMES_AGENT_TIMEOUT) kills legitimate long-running tasks
+2	2	2	2026-02-28	closed	https://github.com/openclaw/openclaw/issues/29569	Feature Request: Sub-agent progress reporting for long-running sessions_spawn tasks
+0	1	1	2026-11-20	open	https://github.com/openclaw/openclaw/issues/202533	[Bug]: agent polls long-running work with checks that observe the check itself
+1	1	2	2026-11-10	open	https://github.com/CURRENTF/SparseEngine/issues/36	Proposal: PACE, a plan-aware KV cache method for long-running agent sessions
+1	1	2	2026-06-04	open	https://github.com/CherryHQ/cherry-studio/issues/15634	[Feature]: Goal Mode — Long-Running Autonomous Agent Execution
+0	1	4	2026-09-14	open	https://github.com/openclaw/openclaw/issues/147935	[Feature]: Add lifecycle-aware identity and handoff contracts for long-running agents
+1	1	1	2026-10-15	open	https://github.com/CherryHQ/cherry-studio/issues/21726	[Feature]: Run first-party Pi Agents as a long-running headless service
+0	1	1	2026-11-15	open	https://github.com/currentsuspect/Aestra/issues/1404	Muse: long-running verbs need a job handle, progress and a completion signal (an agent waited six hours)
+1	1	1	2026-03-28	open	https://github.com/Arize-ai/phoenix/issues/12432	RFC: Cross-session behavioral drift detection for long-running agents with context compression
+1	1	1	2026-08-12	open	https://github.com/github/copilot-cli/issues/4467	Long-running agent sessions exhaust event storage and appear cancelled while CLI remains active
+1	1	13	2026-05-14	open	https://github.com/open-telemetry/semantic-conventions-genai/issues/159	Add async/long-running agent lifecycle events: gen_ai.agent.paused / .resumed / .checkpointed

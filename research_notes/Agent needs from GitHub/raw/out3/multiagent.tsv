@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title multi-agent total=765
+24	74	16	2026-02-08	closed	https://github.com/anomalyco/opencode/issues/12711	[DESIGN]: Agent Teams — flat teams with named messaging, multi-model support, and TUI integration
+37	45	11	2026-07-20	open	https://github.com/openai/codex/issues/34301	GPT Sol and Terra threads cannot spawn Luna subagents because of Luna Multi Agent version
+44	44	15	2026-02-18	closed	https://github.com/google-gemini/gemini-cli/issues/19430	Feature Request: Parallel Agent Teams / Multi-Agent Collaboration (like Claude Code Agent Teams)
+38	38	38	2025-07-28	closed	https://github.com/anthropics/claude-code/issues/4580	Claude Code freezes with 100% CPU during multi-agent task JSON serialization
+37	37	14	2026-07-22	open	https://github.com/openai/codex/issues/34700	Codex App 26.715.9868.0 / CLI 0.145.0: spawn_agent rejects gpt-5.6-luna with multi_agent_v2 enabled
+32	33	11	2026-04-05	open	https://github.com/anthropics/claude-code/issues/43698	[FEATURE] Multi-device Cowork: Allow concurrent Cowork agents on multiple machines under a single account
+25	25	12	2026-07-09	open	https://github.com/openai/codex/issues/31882	gpt-5.6-sol/terra/luna hardcode use_responses_lite / multi_agent_version, causing 400s on Azure (and likely any non-ChatGPT-backend) model_provider
+21	22	9	2026-07-10	open	https://github.com/openai/codex/issues/32031	[Critical UX regression] multi-agent v2 spawn_agent hides model overrides and rejects the default call shape
+20	20	20	2026-02-09	open	https://github.com/anthropics/claude-code/issues/24537	[FEATURE] Agent Hierarchy Dashboard — unified real-time visualization for multi-agent workflows (TUI + Desktop)
+19	19	8	2026-09-13	closed	https://github.com/anomalyco/opencode/issues/48837	[UI feedback] Forced V2 interface destroys productivity for multi-project/multi-agent workflows (20+ sessions)
+18	18	3	2026-07-31	open	https://github.com/openai/codex/issues/36294	multi_agent_v2=true runs Luna on V2, but spawn_agent still filters Luna as V1
+14	17	20	2026-01-06	closed	https://github.com/anthropics/claude-code/issues/16424	[FEATURE] Expose Agent Context in Hook Event Payloads for Multi-Agent Observability
+16	16	13	2026-07-16	open	https://github.com/openai/codex/issues/33551	Multi-Agent V2 sends OpenAI-specific agent_message items to external Responses providers
+15	16	6	2026-02-17	closed	https://github.com/openai/codex/issues/12047	[UX/DX] Multi-agent TUI overhaul: named agents, per-agent config, async orchestration & @mention messaging
+9	14	10	2026-07-15	open	https://github.com/openai/codex/issues/33314	[Follow-up] Multi-Agent V2 needs verifiable full-profile application and lifecycle continuity for custom agents
+13	13	2	2025-08-08	open	https://github.com/Aider-AI/aider/issues/4428	Feature Suggestion: Introduce Multi-Agent System Support for Collaborative Coding
+5	13	3	2026-01-28	closed	https://github.com/openclaw/openclaw/issues/3306	[Feature] Support multiple Discord accounts (multi-token) for multi-agent routing
+13	13	7	2025-07-17	closed	https://github.com/anthropics/claude-code/issues/3679	Agent Execution Interruption: Unexpected Workflow Termination During Multi-Agent Tasks
+7	12	7	2026-03-30	closed	https://github.com/anomalyco/opencode/issues/19999	[FEATURE]: Ephemeral Sub-Agent Teams (parallel multi-agent orchestration)
+11	11	6	2026-07-13	closed	https://github.com/openai/codex/issues/32753	Multi-agent V2 regression: subagent instructions are no longer observable
+4	10	4	2026-01-20	closed	https://github.com/anomalyco/opencode/issues/9649	[FEATURE]: Multi-Agent Coding
+10	10	9	2026-02-13	closed	https://github.com/openclaw/openclaw/issues/15410	[Bug]: Multi-agent setup: "Session file path must be within sessions directory" error
+7	7	16	2026-08-02	open	https://github.com/openai/codex/issues/36586	Subagent task payload invisible to custom non-OpenAI providers (DeepSeek): encrypted_content block dropped with multi_agent_version v2
+7	7	17	2026-07-20	closed	https://github.com/openai/codex/issues/34268	Multi-agent V2 full-history forks duplicate historical compaction snapshots and inline images, causing >100 GiB session storage growth
+7	7	8	2026-03-08	closed	https://github.com/openclaw/openclaw/issues/40245	Feature request: shared workspace directory for multi-agent setups
+0	6	7	2026-06-13	closed	https://github.com/anomalyco/opencode/issues/32166	[FEATURE]: Nested sub-agent spawning (up to 5 levels) + multi-agent workflow orchestration — reference implementation, requesting design review
+6	6	5	2026-02-13	closed	https://github.com/openclaw/openclaw/issues/15601	[Bug]: resolveSessionFilePath falls back to DEFAULT_AGENT_ID when callers omit opts.agentId, breaking multi-agent setups
+5	5	4	2026-06-10	open	https://github.com/openai/codex/issues/27331	0.137.0 (ChatGPT account): multi_agent_v2 enabled in config.toml breaks every turn with spawn_agent encrypted-tools 400
+5	5	7	2026-05-27	closed	https://github.com/anthropics/claude-code/issues/62718	[BUG] Multi-root workspace: agent-emitted file links unclickable outside primary folder
+5	5	5	2026-01-23	closed	https://github.com/openai/codex/issues/9766	Shift+Tab mode toggle resets model to gpt-5.2-codex; multi-agent cannot choose model or reasoning depth

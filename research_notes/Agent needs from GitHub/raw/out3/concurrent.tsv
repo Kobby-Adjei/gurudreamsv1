@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title concurrent total=928
+238	277	270	2025-10-02	closed	https://github.com/anthropics/claude-code/issues/8763	API Error: 400 due to tool use concurrency issues. Run /rewind to recover the conversation. - [Bug] Anthropic API Error: Unexpected 400 Bad Request Response
+183	183	133	2026-01-24	closed	https://github.com/anthropics/claude-code/issues/20571	[Bug] VS Code extension: Tool use concurrency error after Jan 23-24 update
+107	120	102	2025-10-06	closed	https://github.com/anthropics/claude-code/issues/9002	[Bug] Anthropic API Error: Tool Use Concurrency Limitation
+43	44	26	2026-02-09	closed	https://github.com/anthropics/claude-code/issues/24317	Frequent re-authentication required with multiple concurrent Claude Code sessions (OAuth refresh token race condition)
+42	42	19	2026-04-01	open	https://github.com/anthropics/claude-code/issues/41836	No session/conversation identifier sent to MCP servers — cannot distinguish concurrent sessions
+32	33	11	2026-04-05	open	https://github.com/anthropics/claude-code/issues/43698	[FEATURE] Multi-device Cowork: Allow concurrent Cowork agents on multiple machines under a single account
+26	26	27	2026-02-26	closed	https://github.com/anthropics/claude-code/issues/28847	Race condition: .claude.json corruption when running multiple instances concurrently
+25	25	14	2026-02-24	closed	https://github.com/anomalyco/opencode/issues/14970	SQLite database corruption (database disk image is malformed) when running concurrent sessions on NFS
+21	21	18	2026-04-16	closed	https://github.com/anthropics/claude-code/issues/49166	[BUG] /effort is global across concurrent sessions instead of session-scoped
+19	19	17	2026-05-18	closed	https://github.com/anthropics/claude-code/issues/60194	[Bug] Permission prompt disappears after Ctrl+O toggle with concurrent tool calls
+19	19	14	2026-03-26	closed	https://github.com/anthropics/claude-code/issues/39558	[BUG] Chrome extension steals focus and hijacks keyboard input during concurrent Cowork tasks (post-March 24 computer use update)
+16	18	31	2026-01-23	closed	https://github.com/openai/codex/issues/9748	Subagent feature: Launching concurrent subagents instantly drains entire Pro plan usage quota
+17	17	19	2025-10-07	closed	https://github.com/anthropics/claude-code/issues/9103	[Bug] Anthropic API Error: Tool Use Concurrency Failure
+16	16	18	2026-01-24	open	https://github.com/anthropics/claude-code/issues/20555	Bug: API Error 400 - tool use concurrency issues
+16	16	16	2026-01-26	closed	https://github.com/anthropics/claude-code/issues/20929	[BUG] Frequent "API Error: 400 due to tool use concurrency issues" in VSCode extension
+15	15	8	2026-02-26	closed	https://github.com/anthropics/claude-code/issues/28813	.claude.json corrupted by race condition when multiple CLI sessions run concurrently on Windows
+11	13	23	2026-07-10	closed	https://github.com/openai/codex/issues/32032	Computer Use 1.0.1000366 crashes at launch on macOS 15.7.7 due to missing Swift Concurrency symbol
+12	12	10	2026-02-26	closed	https://github.com/anthropics/claude-code/issues/28806	Concurrent Claude Code instances corrupt .claude.json on Windows (JSON Parse error: Unexpected EOF)
+11	11	5	2026-01-14	open	https://github.com/anthropics/claude-code/issues/18131	[BUG] API Error 400 "tool use concurrency issues" occurs only in print mode (-p), not in interactive mode
+11	11	17	2025-10-12	closed	https://github.com/anthropics/claude-code/issues/9433	[BUG]  API Error: 400 due to tool use concurrency issues. Run /rewind to recover the conversation.
+9	9	3	2026-02-03	closed	https://github.com/anomalyco/opencode/issues/12019	[FEATURE]: Configure model concurrency
+9	9	17	2026-01-24	closed	https://github.com/anthropics/claude-code/issues/20598	[BUG] API Error: 400 due to tool use concurrency issues.
+8	8	4	2026-07-28	closed	https://github.com/anthropics/claude-code/issues/82095	[FEATURE] Trusted devices: support multiple concurrently enrolled FIDO2 authenticators (currently single-enrollment, replace-only)
+8	8	10	2026-02-21	closed	https://github.com/anthropics/claude-code/issues/27380	[BUG] Permission bypass mode resets when switching between concurrent sessions
+8	8	6	2026-03-04	closed	https://github.com/anomalyco/opencode/issues/15972	bug(tui): subagent navigation broken for nested sessions and imprecise for multiple concurrent tasks
+7	7	4	2026-01-25	closed	https://github.com/anthropics/claude-code/issues/20694	[BUG] Continuous "API Error: 400 due to tool use concurrency issues" in Claude Code in VS Code
+7	7	9	2026-09-25	open	https://github.com/anthropics/claude-code/issues/97146	[BUG] Linux: bashEditDiff shows a concurrent Claude session's edits, including ones made before the command started
+5	7	14	2026-08-21	open	https://github.com/anthropics/claude-code/issues/88583	[BUG] claudeAiOauth wiped from Keychain (tokens blanked, expiresAt:0) when concurrent Desktop sessions race the single-use refresh token — refresh failure clobbers the winner's rotated credential
+7	7	12	2026-05-28	closed	https://github.com/anthropics/claude-code/issues/63143	AskUserQuestion: cancelling during extended thinking poisons the whole session with 400 'thinking blocks cannot be modified' (2.1.153); concurrent prompts overwrite each other
+7	7	10	2026-01-27	closed	https://github.com/anthropics/claude-code/issues/21321	[Bug] API Error 400 - Tool Use Concurrency Issues - Widespread Regression Affecting All Platforms

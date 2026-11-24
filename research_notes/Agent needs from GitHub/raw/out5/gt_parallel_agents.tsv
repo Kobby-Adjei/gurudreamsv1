@@ -1,0 +1,31 @@
+# in:title "parallel agents" is:issue created:>2025-09-01 total=1323
+4	16	7	2026-06-01	open	https://github.com/can1357/oh-my-pi/issues/1627	Feature Request: Agent View — multi-session parallel monitoring (like `claude agents`)
+14	14	6	2025-12-27	closed	https://github.com/openai/codex/issues/8570	Use git worktrees to achieve parallel agents
+7	7	0	2026-05-03	open	https://github.com/openai/codex/issues/20852	Feature request: parallel Computer Use sessions for multiple Codex agents
+4	6	5	2026-03-26	closed	https://github.com/anomalyco/opencode/issues/19215	[FEATURE]: DB-backed agent team coordination (parallel sub-agents, messaging, memory)
+0	5	5	2026-01-15	closed	https://github.com/subsy/ralph-tui/issues/75	Feature Request: Parallel Task Execution with Multiple Agents
+4	4	5	2026-03-16	open	https://github.com/nanocoai/nanoclaw/issues/1163	Use OpenCode (and its JS SDK) instead/parallel with Claude Code (and its Agents SDK)
+4	4	7	2026-03-21	closed	https://github.com/anthropics/claude-code/issues/37203	Background agents completing in parallel trigger 'Not logged in' and corrupt session credentials
+3	3	5	2026-06-10	closed	https://github.com/anthropics/claude-code/issues/66867	[MODEL] Fable 5 Ultracode spawns excessive parallel agents for single refactoring task
+2	3	3	2026-01-23	closed	https://github.com/gastownhall/gastown/issues/898	Base Branch Configuration for Parallel Agents
+3	3	7	2025-12-15	closed	https://github.com/anthropics/claude-code/issues/14055	Parallel Task agents intermittently lose output content
+3	3	7	2025-10-03	closed	https://github.com/anthropics/claude-code/issues/8829	[BUG] VScode crashes when running Claude code with parallel agents and parallel subagents within said agents
+0	3	4	2026-04-04	closed	https://github.com/bmad-code-org/BMAD-METHOD/issues/2211	Support for Parallel Execution of BMAD Agents via Subagents in Antigravity IDE
+2	2	0	2026-07-03	open	https://github.com/fossology/fossology/issues/3700	Scheduler has problems with more than 10 agents in parallel
+2	2	2	2026-08-24	closed	https://github.com/anthropics/claude-code/issues/89133	Subagent model not shown in UI when multiple agents launch in parallel
+1	2	5	2026-05-02	closed	https://github.com/openclaw/openclaw/issues/76145	`openclaw agent` CLI exits before parallel sub-agents finish; reported `finalAssistantVisibleText` only captures the parent's first turn
+2	2	28	2026-04-23	closed	https://github.com/zed-industries/zed/issues/54618	upgraded zed v0.233.5 with parallel agents caused loss of old agent threads
+0	2	3	2026-03-25	closed	https://github.com/affaan-m/ECC/issues/916	New skill: /agent-sort — evidence-based ECC installation using parallel agents
+2	2	5	2026-05-22	closed	https://github.com/kirodotdev/Kiro/issues/8777	Sub Agents In Parallel Working to Task Execution Command Execution Issue
+2	2	5	2026-02-27	closed	https://github.com/anthropics/claude-code/issues/29182	TUI rendering corruption when multiple Task agents run in parallel
+2	2	4	2026-02-06	closed	https://github.com/anthropics/claude-code/issues/23806	[BUG] Model emits end_turn while parallel background Task agents still running, returning to prompt prematurely
+1	1	6	2026-10-21	open	https://github.com/alvinunreal/oh-my-opencode-slim/issues/1648	[Feature]: Support parallel agents + P2P messaging
+1	1	0	2026-05-12	open	https://github.com/openai/codex/issues/22340	Parallel agents vanish with used context/ rate limts
+0	1	3	2026-04-14	open	https://github.com/TheDecipherist/claude-code-mastery-project-starter-kit/issues/2	MDD workflow improvements from 5 weeks of daily use: TDD gates, block structure, parallel agents
+1	1	2	2026-04-13	open	https://github.com/microsoft/vscode/issues/309637	Agents: Parallel back-ground tasks are executed sequential
+1	1	1	2026-10-12	open	https://github.com/anomalyco/opencode/issues/54935	Parallel sub-agents start a fresh session with their own cache key and no concurrency cap, so they cost more than one agent
+1	1	0	2026-04-05	open	https://github.com/onmyway133/blog/issues/1028	How to delegate tasks in parallel with sub agents and worktree in Claude Code
+1	1	3	2026-08-02	open	https://github.com/anthropics/claude-code/issues/83311	Parallel isolation:"worktree" agents commit to each other's branches and mutate the main working tree (stash/HEAD), inconsistently across a batch
+1	1	0	2026-05-12	open	https://github.com/AvdLee/RocketSimApp/issues/1008	CLI: Run multiple agents in parallel, each with a dedicated Simulator
+1	1	4	2026-07-16	closed	https://github.com/anthropics/claude-code/issues/78105	[Feature Request] Add configurable concurrency limiter for parallel agents with lower default
+1	1	2	2026-08-11	closed	https://github.com/getpaseo/paseo/issues/3193	bug: parallel Hermes agents launch concurrent writers against one profile

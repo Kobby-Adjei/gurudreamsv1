@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:block/goose repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue sync sessions across devices total=264
+1097	1452	253	2026-01-15	open	https://github.com/anthropics/claude-code/issues/18435	[FEATURE] Add the ability to manage multiple Claude accounts within the Claude Desktop app with easy switching between profiles.
+435	674	57	2025-06-24	open	https://github.com/anthropics/claude-code/issues/2511	Feature request: Connect Claude code to Claude projects 
+451	617	157	2026-06-14	closed	https://github.com/openai/codex/issues/28224	Codex SQLite feedback logs can write ~640 TB/year and rapidly consume SSD endurance
+476	545	878	2026-03-24	open	https://github.com/anthropics/claude-code/issues/38335	[BUG] Claude Max plan session limits exhausted abnormally fast since March 23, 2026 (CLI usage)
+123	165	40	2026-02-26	closed	https://github.com/anthropics/claude-code/issues/29006	Enable Remote Control for Claude Code sessions in Claude Desktop App
+135	136	161	2025-11-13	closed	https://github.com/anomalyco/opencode/issues/4283	Copy To Clipboard is not working
+112	112	74	2026-03-14	open	https://github.com/anthropics/claude-code/issues/34255	[BUG] Remote Control: automatic reconnection doesn't work -- connection drops silently with no recovery
+82	95	116	2026-01-01	closed	https://github.com/openclaw/openclaw/issues/75	Linux/Windows Clawdbot Apps
+82	82	24	2026-04-17	closed	https://github.com/anthropics/claude-code/issues/49933	[Feature Request] Native WSL Remote Integration for Claude Code Desktop on Windows
+65	68	14	2026-05-08	open	https://github.com/openai/codex/issues/21803	Feature request: Cross-device sync for Codex Projects and Chats
+47	65	18	2025-12-16	open	https://github.com/anthropics/claude-code/issues/14228	Feature Request: Claude Code Should Access User's claude.ai Memory and Context
+65	65	176	2026-01-17	closed	https://github.com/anthropics/claude-code/issues/18866	[BUG] Auto-compact not triggering on Claude.ai (web & desktop) despite being marked as fixed
+63	64	13	2025-12-31	open	https://github.com/anthropics/claude-code/issues/15881	[Feature Request] Seamless session sharing between Claude Code and Claude Desktop
+58	61	121	2026-09-09	open	https://github.com/anthropics/claude-code/issues/92984	[BUG] Cowork (Windows): all Plan9 shares fail with "Plan9 mount failed: invalid argument" after Windows update KB5124008 (26200.9445) — uninstalling the KB fixes it
+54	57	27	2026-02-03	open	https://github.com/anthropics/claude-code/issues/22648	[Feature Request] Account-level settings sync across devices
+48	50	43	2026-05-14	closed	https://github.com/openai/codex/issues/22696	Failed to authorize remote control
+29	50	36	2026-02-14	open	https://github.com/anthropics/claude-code/issues/25739	[FEATURE] Portable project memory across machines (multi-device workflow)
+31	44	21	2026-02-14	open	https://github.com/anomalyco/opencode/issues/13626	[FEATURE]: Auto-sync projects in web UI from server
+41	44	21	2026-05-18	open	https://github.com/anthropics/claude-code/issues/60082	Feature request: real-time multi-user collaboration on a single Claude Code session
+43	44	47	2026-10-16	open	https://github.com/openai/codex/issues/54677	[Codex Desktop][Windows] Weekly quota jumped 67 points in 38 seconds (Oct 16, 2026; 18:10 UTC)
+37	37	28	2026-02-25	open	https://github.com/anthropics/claude-code/issues/28758	Remote Control: session not connecting from mobile app
+36	36	17	2026-05-11	open	https://github.com/anthropics/claude-code/issues/57998	[FEATURE] CLAUDE_DATA_DIR env var or config key to relocate %APPDATA%\Claude\ on Windows
+32	33	11	2026-04-05	open	https://github.com/anthropics/claude-code/issues/43698	[FEATURE] Multi-device Cowork: Allow concurrent Cowork agents on multiple machines under a single account
+30	30	15	2026-03-11	open	https://github.com/anthropics/claude-code/issues/33041	Remote Control (/remote-control) disconnects frequently
+30	30	20	2026-05-30	open	https://github.com/anthropics/claude-code/issues/63819	Auto mode classifier (claude-opus-4-8) repeatedly unavailable — blocks Bash/Write/Edit
+26	27	17	2026-03-04	open	https://github.com/anthropics/claude-code/issues/30675	Feature request: shared context between Claude Code, Claude.ai and Cowork
+27	27	64	2026-07-22	closed	https://github.com/anthropics/claude-code/issues/80002	[BUG] macOS: Claude Desktop never dispatches tools/call to the first-party Filesystem extension (tools/list succeeds, no tools/call in any log)
+25	26	14	2026-09-30	open	https://github.com/openai/codex/issues/49491	Let a dot connect directly to a headless Linux server as a task environment
+20	25	11	2026-07-14	open	https://github.com/openai/codex/issues/32908	Codex Remote Control push notifications not delivered on iOS
+23	23	15	2026-02-19	closed	https://github.com/anomalyco/opencode/issues/14292	[FEATURE]: Save conversations and session data to project folder

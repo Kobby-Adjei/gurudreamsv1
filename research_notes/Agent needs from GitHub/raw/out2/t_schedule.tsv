@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:block/goose repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue scheduled cron agent total=4514
+953	1463	209	2026-02-07	closed	https://github.com/openai/codex/issues/11023	Codex desktop app for Linux
+697	728	1499	2026-01-03	open	https://github.com/anthropics/claude-code/issues/16157	[BUG] Instantly hitting usage limits with Max subscription
+451	617	157	2026-06-14	closed	https://github.com/openai/codex/issues/28224	Codex SQLite feedback logs can write ~640 TB/year and rapidly consume SSD endurance
+476	545	878	2026-03-24	open	https://github.com/anthropics/claude-code/issues/38335	[BUG] Claude Max plan session limits exhausted abnormally fast since March 23, 2026 (CLI usage)
+131	224	279	2026-09-03	open	https://github.com/anthropics/claude-code/issues/91870	Mods - make Claude 10x more extensible
+212	221	82	2025-12-08	closed	https://github.com/anthropics/claude-code/issues/13354	[FEATURE] Continue when the session limit reached
+152	152	134	2026-02-17	open	https://github.com/anthropics/claude-code/issues/26224	[BUG] [URGENT!!!] Claude Code is hanging / freezing / stuck on heaps of prompts for 5-20minutes or more.
+105	116	43	2026-04-07	open	https://github.com/anthropics/claude-code/issues/44763	Show timestamps on conversation messages
+81	81	7	2026-04-15	open	https://github.com/anthropics/claude-code/issues/48322	[FEATURE] Team/Enterprise: shared routines (org-owned scheduled agents)
+68	71	25	2026-05-17	open	https://github.com/openai/codex/issues/23200	Support headless remote Linux hosts for Codex mobile without requiring the desktop app to stay online
+34	56	14	2025-07-14	closed	https://github.com/google-gemini/gemini-cli/issues/4168	Feature: Run autonomous background Agents
+53	53	43	2026-05-21	closed	https://github.com/anthropics/claude-code/issues/61015	[BUG] Scheduled routines fail every MCP tool call with "MCP tool call requires approval" on custom connectors (regression ~2026-05-20)
+49	50	62	2026-05-28	open	https://github.com/anthropics/claude-code/issues/63147	Resuming an extended-thinking session fails permanently with 400 "thinking blocks cannot be modified" (transcript stores thinking text as empty but keeps signature)
+48	48	41	2026-04-13	open	https://github.com/anthropics/claude-code/issues/47180	[BUG] Cowork scheduled tasks ignore "Always allow" folder/tool permissions — prompts reappear every run (macOS)
+43	43	12	2026-03-17	closed	https://github.com/anomalyco/opencode/issues/18001	[FEATURE]:Implement /loop command for automated iterative task execution
+42	42	9	2025-12-19	open	https://github.com/openai/codex/issues/8317	Add time-based scheduling for commands/tasks (delay, interval, and conditional polling)
+36	39	27	2025-11-26	open	https://github.com/anthropics/claude-code/issues/12447	[BUG] OAuth token expiration disrupts autonomous workflows – refresh token handling needed
+38	38	17	2026-03-24	closed	https://github.com/openai/codex/issues/15679	Add a /loop recurring prompt command to the Codex TUI
+37	37	13	2026-07-17	open	https://github.com/anthropics/claude-code/issues/78537	Feature request: org-level default sharing for published artifacts
+22	35	12	2026-01-30	closed	https://github.com/anomalyco/opencode/issues/11232	Feature Request: Native Scheduling for Opencode
+35	35	55	2026-03-18	closed	https://github.com/anthropics/claude-code/issues/35899	[BUG] Scheduled tasks cannot access MCP connectors until a user message warms the session
+21	33	9	2026-07-08	closed	https://github.com/anthropics/claude-code/issues/75863	[FEATURE]  VSCode extension: add a "Background Tasks" panel (parity with Desktop app)
+33	33	19	2026-05-21	closed	https://github.com/anthropics/claude-code/issues/61027	[BUG] Routines: MCP connector tool calls fail with "requires approval" despite connectors being added to routine
+32	32	16	2026-05-29	open	https://github.com/anthropics/claude-code/issues/63671	Versioned install path causes TCC re-prompts on every Claude Code update (breaks MDM PPPC; CoWork scheduled actions may be affected)
+0	28	14	2026-02-09	closed	https://github.com/openclaw/openclaw/issues/12602	[Feature]: Slack Block Kit support for agent messages
+27	27	98	2026-09-30	open	https://github.com/openai/codex/issues/49458	[Windows] dot-started local tasks lack Computer Use tools while ordinary local Codex sessions work
+26	26	11	2026-01-09	open	https://github.com/anthropics/claude-code/issues/17148	Claude Code consumes 100%+ CPU when idle in terminal
+18	26	27	2026-01-21	open	https://github.com/anthropics/claude-code/issues/19877	[FEATURE]  Claude-invocable conditional /compact for automated workflows
+21	21	7	2026-03-20	open	https://github.com/anthropics/claude-code/issues/36496	Scheduled task ignores model setting, always runs Sonnet
+20	21	16	2026-02-16	closed	https://github.com/anthropics/claude-code/issues/26094	[BUG] Claude Desktop 1.1.3189 (Cowork) serializes MCP object parameters as strings, breaking Notion MCP writes

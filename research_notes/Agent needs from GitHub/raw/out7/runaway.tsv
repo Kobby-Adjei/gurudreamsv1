@@ -1,0 +1,4 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:github/copilot-cli repo:microsoft/vscode is:issue in:title subagents spawn tokens total=3
+1	2	10	2026-06-07	open	https://github.com/anthropics/claude-code/issues/66023	Workflow tool: one invocation spawned 46 Opus subagents (~3M tokens) with no cost confirmation
+1	1	1	2026-09-25	open	https://github.com/anthropics/claude-code/issues/97076	Default subagents spawn with ~60k tokens of inherited context; workflow subagents receive the user's latest chat line as their governing instruction
+0	0	2	2026-07-30	closed	https://github.com/anthropics/claude-code/issues/82565	general-purpose subagents recursively spawn: 3 requested → 24 ran, 80% of tokens wasted

@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title "agent teams" total=331
+119	190	36	2026-02-08	closed	https://github.com/anomalyco/opencode/issues/12661	[FEATURE]: Add Agent Teams Equivalent or Better
+95	96	11	2026-02-08	open	https://github.com/anthropics/claude-code/issues/24122	Agent Teams: Add zellij terminal multiplexer support for split-pane mode
+71	74	17	2026-02-08	open	https://github.com/anthropics/claude-code/issues/24189	[Feature Request] Add Ghostty as a split-pane backend for agent teams (teammateMode)
+73	74	3	2026-03-07	open	https://github.com/anthropics/claude-code/issues/31901	Feature request: Native Zellij support as alternative to tmux for Agent Teams and /terminal-setup
+24	74	16	2026-02-08	closed	https://github.com/anomalyco/opencode/issues/12711	[DESIGN]: Agent Teams — flat teams with named messaging, multi-model support, and TUI integration
+39	50	13	2026-02-09	open	https://github.com/anthropics/claude-code/issues/24384	[FEATURE] Add Windows Terminal as a split-pane backend for agent teams (teammateMode)
+37	48	3	2026-02-06	open	https://github.com/anthropics/claude-code/issues/23574	[FEATURE] Add WezTerm as a split-pane backend for agent teams (teammateMode)
+44	44	15	2026-02-18	closed	https://github.com/google-gemini/gemini-cli/issues/19430	Feature Request: Parallel Agent Teams / Multi-Agent Collaboration (like Claude Code Agent Teams)
+33	33	26	2026-02-06	open	https://github.com/anthropics/claude-code/issues/23669	Agent Teams: support per-teammate working directory, CLAUDE.md, and MCP configs
+29	31	10	2026-02-18	open	https://github.com/anthropics/claude-code/issues/26572	Proposal: CustomPaneBackend protocol — decouple agent teams from tmux CLI to unblock Ghostty, WezTerm, Zellij, KILD, and remote deployments
+27	27	16	2026-03-17	closed	https://github.com/anthropics/claude-code/issues/35240	Agent tool documentation references SendMessage for subagent resumption, but SendMessage is gated behind Agent Teams flag
+23	24	8	2026-02-06	open	https://github.com/anthropics/claude-code/issues/23615	Agent teams should spawn in new tmux window, not split current pane
+20	20	14	2026-02-06	closed	https://github.com/anthropics/claude-code/issues/23561	[BUG][Bedrock] Agent Teams teammates spawned with non-Bedrock model ID via --model flag, causing 400 errors
+16	16	14	2026-02-18	open	https://github.com/anthropics/claude-code/issues/26479	[BUG] Agent Teams teammates ignore bypassPermissions for Bash and don't inherit project settings.local.json
+16	16	9	2026-02-11	closed	https://github.com/openai/codex/issues/11436	Agent Teams
+14	14	11	2026-02-07	open	https://github.com/anthropics/claude-code/issues/23983	PermissionRequest hooks not triggered for subagent permission requests in Agent Teams
+13	13	1	2026-03-21	open	https://github.com/anthropics/claude-code/issues/36926	Support cmux as a teammateMode backend for agent teams
+13	13	18	2026-02-05	closed	https://github.com/anthropics/claude-code/issues/23420	[BUG] Agent Teams tools not injected despite CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+7	12	7	2026-03-30	closed	https://github.com/anomalyco/opencode/issues/19999	[FEATURE]: Ephemeral Sub-Agent Teams (parallel multi-agent orchestration)
+10	10	7	2026-04-16	closed	https://github.com/anthropics/claude-code/issues/49253	Agent Teams: subagent permission request crashes the Bun process (2.1.111)
+9	9	19	2026-03-09	closed	https://github.com/anthropics/claude-code/issues/32368	Agent Teams: Spawned teammates don't inherit model configuration from team lead
+9	9	4	2026-04-02	closed	https://github.com/anthropics/claude-code/issues/42737	SendMessage tool unavailable without agent teams feature, breaking agent resume
+8	8	8	2026-04-14	closed	https://github.com/anthropics/claude-code/issues/47930	[BUG] Agent Teams: lead session loops on idle notifications and duplicate task_assignment echoes, burns ~13–22% of input tokens on no-op acks
+8	8	15	2026-02-06	closed	https://github.com/anthropics/claude-code/issues/23815	[BUG] Agent teams: iTerm2 split-pane mode spawns in-process teammates despite correct configuration
+7	7	12	2026-03-25	closed	https://github.com/anthropics/claude-code/issues/38932	Agent Teams: lead session stops processing teammate responses until manual keystroke (interactive TTY, default mode)
+4	7	25	2026-02-25	closed	https://github.com/anomalyco/opencode/issues/15035	about agent-teams
+7	7	6	2026-03-15	closed	https://github.com/anthropics/claude-code/issues/34668	[BUG] Agent Teams: teammates intermittently stop receiving SendMessage after extended polling (default mode, not tmux)
+7	7	7	2026-02-05	closed	https://github.com/anthropics/claude-code/issues/23415	Agent Teams: Teammates don't poll inbox — messages never delivered (tmux backend, macOS)
+6	6	11	2026-03-08	closed	https://github.com/anthropics/claude-code/issues/32110	Agent Teams: Support per-teammate model configuration
+6	6	3	2026-04-23	closed	https://github.com/anthropics/claude-code/issues/52337	Agent Teams: subagent crashes with <Box> in <Text> Ink error on sensitive-path Edit/Write

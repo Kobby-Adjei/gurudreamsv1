@@ -1,0 +1,26 @@
+# repo:github/copilot-cli is:issue total=4958
+144	171	45	2025-09-26	closed	https://github.com/github/copilot-cli/issues/32	Ability to use Free Models (0x credits) in Copilot CLI
+144	144	25	2025-10-06	closed	https://github.com/github/copilot-cli/issues/222	Support for ACP (Agent Client Protocol)
+110	110	38	2025-09-26	closed	https://github.com/github/copilot-cli/issues/33	Support OAuth http MCP servers
+104	106	32	2025-11-18	closed	https://github.com/github/copilot-cli/issues/618	Feature Request: Support custom slash commands from .github/prompts directory
+75	104	37	2025-09-26	open	https://github.com/github/copilot-cli/issues/53	Bring back the GitHub Copilot in the CLI commands to not break workflows
+100	100	1	2025-11-26	closed	https://github.com/github/copilot-cli/issues/666	Add `/undo` slash comment in Copilot CLI
+76	98	15	2025-09-25	closed	https://github.com/github/copilot-cli/issues/13	CLI input should have a vi/vim input mode
+80	80	31	2025-10-06	open	https://github.com/github/copilot-cli/issues/223	"Copilot Requests" permission for fine-grained tokens should be visible for org-owned tokens
+62	69	1	2026-04-17	closed	https://github.com/github/copilot-cli/issues/2785	Support 1M context window for Claude Opus 4.7 (parity with Claude Code)
+67	67	10	2026-03-23	closed	https://github.com/github/copilot-cli/issues/2236	MCP servers from org registry disappear after working — false "disabled by organization" warning (v1.0.11)
+67	67	4	2025-09-27	open	https://github.com/github/copilot-cli/issues/83	Open Source?
+66	66	37	2025-10-07	closed	https://github.com/github/copilot-cli/issues/239	Screen flickering/ starts scrolling down from the beginning
+53	61	4	2026-03-11	closed	https://github.com/github/copilot-cli/issues/1979	Remote session support for Copilot CLI — attach from mobile / browser
+60	60	4	2025-09-28	closed	https://github.com/github/copilot-cli/issues/109	Subagents
+57	57	12	2025-11-05	closed	https://github.com/github/copilot-cli/issues/476	Feature request: Hit `Alt+V` to paste image from Clipboard
+31	56	13	2026-05-13	closed	https://github.com/github/copilot-cli/issues/3282	Add multiple BYOK model capability in copilot cli
+54	56	31	2026-02-26	closed	https://github.com/github/copilot-cli/issues/1703	Copilot CLI does not list all org-enabled models (e.g. Gemini 3.1 Pro) while VS Code Copilot does
+52	52	6	2026-02-26	closed	https://github.com/github/copilot-cli/issues/1698	IME candidate window is misplaced, invisible, or detaches in CJK (Japanese) input
+49	49	12	2026-01-06	closed	https://github.com/github/copilot-cli/issues/892	Add sandbox mode to restrict Copilot CLI file access to a specified working directory
+47	48	3	2026-01-31	closed	https://github.com/github/copilot-cli/issues/1217	[Feature Request] Support clipboard image paste in WSL from Windows
+48	48	4	2026-03-11	open	https://github.com/github/copilot-cli/issues/1972	Allow users to configure submit key (e.g., Ctrl+Enter) to prevent accidental submission with IME input
+44	44	5	2025-12-21	closed	https://github.com/github/copilot-cli/issues/821	Enable gemini-3-flash model in CLI
+44	44	4	2025-10-02	open	https://github.com/github/copilot-cli/issues/179	Globally configurable allowed tools
+42	42	12	2025-09-26	closed	https://github.com/github/copilot-cli/issues/65	Support for GPT-5-Codex
+38	41	4	2026-02-22	open	https://github.com/github/copilot-cli/issues/1613	Feature request: Built-in git worktree lifecycle management

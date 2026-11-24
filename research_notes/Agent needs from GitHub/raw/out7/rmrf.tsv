@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:github/copilot-cli repo:microsoft/vscode is:issue in:title "rm -rf" total=89
+14	14	25	2025-08-26	open	https://github.com/anthropics/claude-code/issues/6608	[BUG] Claude code ran `rm -rf` command without permission
+0	10	2	2025-09-20	closed	https://github.com/openai/codex/issues/3989	Codex suddenly suggested to run "rm -rf / --no-preserve-root"
+0	3	12	2025-09-16	closed	https://github.com/openai/codex/issues/3728	gpt-5-codex ran `rm -rf .git` out of nowhere
+0	2	5	2026-06-16	closed	https://github.com/anthropics/claude-code/issues/68774	[MODEL] claude-opus-4-8 hallucinated destructive OS commands (rm -rf / del /s /q) as prompt-injection warnings — confirmed clean via JSONL
+2	2	7	2026-03-09	closed	https://github.com/anthropics/claude-code/issues/32637	[BUG] Cowork destroys user files when reorganizing iCloud-offloaded documents (cp + rm -rf on 0-byte stubs)
+2	2	7	2025-12-29	closed	https://github.com/anthropics/claude-code/issues/15711	rm -rf command executed without permission despite explicit allow-list in settings.local.json
+0	1	7	2026-07-29	open	https://github.com/anthropics/claude-code/issues/82165	Catastrophic data loss: agent-built command expanded to "rm -rf /*", ran detached; safety classifier then blocked the kill attempts
+1	1	2	2026-04-10	closed	https://github.com/anthropics/claude-code/issues/46452	[BUG] Claude Code executed rm -rf /* on production VPS due to SSH variable escaping error
+1	1	6	2026-01-27	closed	https://github.com/anthropics/claude-code/issues/21222	[Bug] rm -rf command deletes unintended parent directory contents
+0	1	4	2026-03-04	closed	https://github.com/anthropics/claude-code/issues/30816	claude-sonnet-4-6 (Claude Code CLI). rm -rf my local drive folders for no reason. yes you read that right. WTF
+0	1	3	2026-02-13	closed	https://github.com/anthropics/claude-code/issues/25532	[BUG] RM -RF run un subagent but no permission prompt
+1	1	3	2026-02-09	closed	https://github.com/anthropics/claude-code/issues/24319	Bash tool: newline characters in command string treated as spaces, causing rm -rf to delete unintended directories
+1	1	15	2025-10-21	closed	https://github.com/anthropics/claude-code/issues/10077	[BUG] ## CRITICAL: Claude Code executed rm -rf deleting entire home directory
+0	1	1	2025-11-19	closed	https://github.com/openai/codex/issues/6903	rm -rf .git in the middle of a session!
+1	1	3	2025-11-07	closed	https://github.com/anthropics/claude-code/issues/11167	[Bug] Claude executing dangerous commands (rm -rf) instead of targeted file operations
+1	1	1	2025-09-19	closed	https://github.com/openai/codex/issues/3934	Critical Bug: Agent executed destructive `rm -rf` command without safeguards
+0	1	3	2025-11-17	closed	https://github.com/openai/codex/issues/6801	CRITICAL AI SAFETY ISSUE: AI model (codex-high) with shell access ran "rm -rf *" and deleted all files
+0	0	4	2026-11-04	open	https://github.com/anthropics/claude-code/issues/107274	[Bug] Claude Code rm -rf deleted git history (12+ months lost)
+0	0	2	2026-09-07	open	https://github.com/anthropics/claude-code/issues/92737	Claude deleted user's irreplaceable personal photos with rm -rf before verifying files were moved
+0	0	12	2026-09-18	open	https://github.com/anthropics/claude-code/issues/95426	Claude Code deleted ~600GB: unprompted `rm -rf` on a substitution that resolved to a drive root
+0	0	2	2026-07-08	open	https://github.com/anthropics/claude-code/issues/75861	[BUG] Explore (read-only) subagent executed rm -rf, deleting files outside its intended scope
+0	0	7	2026-10-27	open	https://github.com/anthropics/claude-code/issues/105342	[BUG] Subagent-written test ran rm -rf ~ on the real home directory, deleting all of my unpushed works; worktree isolation didn't contain it
+0	0	3	2026-09-27	open	https://github.com/anthropics/claude-code/issues/97660	[BUG] Subagent ran rm -rf \ via PowerShell → MSYS2 bash (PowerShell expanded the escaped variables to empty), wiping C:\ top-down on Windows
+0	0	2	2026-09-07	open	https://github.com/anthropics/claude-code/issues/92593	Runaway rm -rf: timeout auto-backgrounding kept a destructive command running, and TaskStop did not kill the child process (Windows)
+0	0	6	2026-08-09	open	https://github.com/anthropics/claude-code/issues/85200	[BUG] TaskStop does not kill the process tree — orphaned `rm -rf /c` deleted user data for 20 minutes after stop
+0	0	3	2026-11-19	open	https://github.com/anthropics/claude-code/issues/111167	[BUG] Critical-path rm check misses prefix globs: `rm -rf "<parent>/<prefix>"*` wipes the working directory without the prompt/denial that the exact path gets (caused real data loss)
+0	0	3	2026-09-09	open	https://github.com/anthropics/claude-code/issues/93099	[MODEL] Opus 5 executed rm -rf "$HOME" during test cleanup(57,235 files and 11,315 directories deleted), causing extensive data loss
+0	0	1	2026-10-19	open	https://github.com/anthropics/claude-code/issues/103413	[BUG] Symlinking a sibling repo into a worktree to run a self-test let the test's rm -rf delete the real .git
+0	0	1	2026-11-04	open	https://github.com/anthropics/claude-code/issues/107271	[BUG] Agent-written helper ran `rm -rf $D` on an unquoted path; zsh/bash word-splitting mismatch deleted the whole repo root including .git (no prompt, bypass mode)
+0	0	2	2026-09-03	open	https://github.com/anthropics/claude-code/issues/91676	[BUG] Sandboxed `mktemp -d` fails on macOS (ignores `$TMPDIR`); the empty variable made `rm -rf "$T"` run against the working directory with no critical-path prompt

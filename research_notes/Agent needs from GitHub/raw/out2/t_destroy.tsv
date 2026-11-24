@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:block/goose repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue deleted rm -rf destructive total=212
+548	3491	440	2026-11-03	closed	https://github.com/openai/codex/issues/59060	Told to reboot a server, it destroyed systemd, destroyed containers, ran random scripts, cost me $10,000+
+505	557	102	2026-01-14	open	https://github.com/openai/codex/issues/9203	Please make "/undo" back
+284	307	630	2026-03-13	closed	https://github.com/openai/codex/issues/14593	Burning tokens very fast
+131	224	279	2026-09-03	open	https://github.com/anthropics/claude-code/issues/91870	Mods - make Claude 10x more extensible
+103	109	20	2026-08-19	open	https://github.com/anthropics/claude-code/issues/87971	[BUG] Claude abuses bash tools for reads, writes, and edits when running in Auto Mode
+92	92	65	2026-01-30	closed	https://github.com/anthropics/claude-code/issues/22042	[BUG] Critical memory regression in 2.1.27 - OOM crash on simple input
+84	91	115	2025-08-25	closed	https://github.com/anomalyco/opencode/issues/2242	Is there a way to sandbox the agent ?
+54	54	64	2025-03-08	closed	https://github.com/anthropics/claude-code/issues/401	[BUG] Claude loads my projects .env into its bash environment (!)
+43	45	67	2025-06-20	closed	https://github.com/anomalyco/opencode/issues/239	Implement permissions in TUI
+32	37	29	2025-11-06	open	https://github.com/anthropics/claude-code/issues/11139	[BUG] Claude Code Web Cannot Use gh CLI Commands (Permission Denied)
+34	34	16	2026-02-18	open	https://github.com/anthropics/claude-code/issues/26725	Stale worktrees are never cleaned up
+33	33	54	2026-03-25	open	https://github.com/anthropics/claude-code/issues/38993	[BUG] Cowork: virtiofs FUSE mount serves truncated/stale files — host-side file changes not reflected in VM
+23	23	11	2026-06-05	open	https://github.com/anthropics/claude-code/issues/65577	Claude desktop local-agent VM (claudevm.bundle/rootfs.img) grows unboundedly and is never reclaimed — silently fills disk, causes out-of-space failures
+21	21	7	2026-10-27	open	https://github.com/anthropics/claude-code/issues/105477	[MODEL] Opus 5.5 in Claude Code regressed since the week of Oct 19, unusable by Oct 26–27 (Max 20x) — and there is no way to reach a human at Anthropic
+19	19	23	2025-08-25	open	https://github.com/anthropics/claude-code/issues/6527	[BUG] ask list is ignored when "Bash" is in allow list
+16	16	42	2026-04-09	open	https://github.com/anthropics/claude-code/issues/45937	Dispatch main conversation permanently offline despite working Cowork tasks
+14	14	25	2025-08-26	open	https://github.com/anthropics/claude-code/issues/6608	[BUG] Claude code ran `rm -rf` command without permission
+10	10	16	2025-08-23	closed	https://github.com/anthropics/claude-code/issues/6413	[BUG] Claude Calls `rm` command without having permission to do so
+7	7	16	2026-04-10	open	https://github.com/openai/codex/issues/17354	Recent Thread history wiped in app, present in CLI
+2	5	15	2026-02-07	closed	https://github.com/anthropics/claude-code/issues/23913	Agent deleted 2,229 untracked source files without explicit user instruction — catastrophic unrecoverable data loss
+4	4	7	2026-07-13	open	https://github.com/anthropics/claude-code/issues/77268	[BUG] Worktree recycling destroys live sibling sessions' worktrees — including locked ones and uncommitted work
+4	4	16	2026-05-16	closed	https://github.com/anthropics/claude-code/issues/59736	Desktop 3p Code sessions disappear from UI after restart while JSONL transcripts remain on disk
+3	3	13	2026-06-02	closed	https://github.com/anthropics/claude-code/issues/64615	[BUG] /rewind (Esc Esc) silently reverts/loses code — destructive "Restore code and conversation" is the default with no confirmation
+3	3	10	2026-02-02	closed	https://github.com/anthropics/claude-code/issues/22547	[BUG] data loss through bad default settings
+3	3	12	2026-02-03	closed	https://github.com/openclaw/openclaw/issues/8093	[RFC] Security Hardening Architecture & Vulnerability Report
+2	2	6	2026-08-17	open	https://github.com/openai/codex/issues/38927	Desktop: chat disappears after restart when one host is connected through both SSH and Remote Control
+2	2	5	2026-04-09	closed	https://github.com/anthropics/claude-code/issues/45974	Claude ran git clean -fd without permission, destroyed untracked files
+2	2	7	2026-03-09	closed	https://github.com/anthropics/claude-code/issues/32637	[BUG] Cowork destroys user files when reorganizing iCloud-offloaded documents (cp + rm -rf on 0-byte stubs)
+0	2	3	2026-05-06	closed	https://github.com/anthropics/claude-code/issues/56603	Catastrophic data loss from `cmd /c rd /s /q` via PowerShell tool with broken quoting on Unicode/space path
+2	2	5	2026-03-07	closed	https://github.com/anthropics/claude-code/issues/31946	Critical: Destructive actions without user consent, ignored safety rules, dismissive behavior

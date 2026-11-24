@@ -1,0 +1,8 @@
+agent_all|||in:title agent is:issue
+agent_handoff|||in:title agent handoff is:issue
+agent_budget|||in:title agent budget is:issue
+agent_longrun|||in:title agent "long-running" is:issue
+agent_conflict|||in:title agents conflict is:issue
+agent_lock2|||in:title agent lock is:issue
+agent_approval2|||in:title agent approval is:issue
+agent_memory2|||in:title agent memory is:issue

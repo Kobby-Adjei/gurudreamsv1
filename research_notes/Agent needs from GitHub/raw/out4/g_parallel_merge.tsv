@@ -1,0 +1,31 @@
+# "parallel agents" merge is:issue created:>2025-06-01 total=23910
+2072	3286	583	2026-04-02	closed	https://github.com/anthropics/claude-code/issues/42796	[MODEL] Claude Code is unusable for complex engineering tasks with the Feb updates
+697	728	1499	2026-01-03	open	https://github.com/anthropics/claude-code/issues/16157	[BUG] Instantly hitting usage limits with Max subscription
+476	545	878	2026-03-24	open	https://github.com/anthropics/claude-code/issues/38335	[BUG] Claude Max plan session limits exhausted abnormally fast since March 23, 2026 (CLI usage)
+474	474	93	2025-08-28	closed	https://github.com/openai/codex/issues/2847	A way to exclude sensitive files
+388	414	144	2026-07-02	closed	https://github.com/anthropics/claude-code/issues/73125	[BUG] AskUserQuestion: "No response after 60s — continued without an answer"
+131	224	279	2026-09-03	open	https://github.com/anthropics/claude-code/issues/91870	Mods - make Claude 10x more extensible
+216	220	43	2026-04-12	open	https://github.com/anthropics/claude-code/issues/46917	CC v2.1.100+ inflates cache_creation by ~20K tokens vs v2.1.98 — same payload, server-side
+152	152	134	2026-02-17	open	https://github.com/anthropics/claude-code/issues/26224	[BUG] [URGENT!!!] Claude Code is hanging / freezing / stuck on heaps of prompts for 5-20minutes or more.
+94	115	24	2026-02-05	open	https://github.com/obra/superpowers/issues/429	Support for Claude Code Agent Teams (TeammateTool, SendMessage, TaskList)
+24	74	16	2026-02-08	closed	https://github.com/anomalyco/opencode/issues/12711	[DESIGN]: Agent Teams — flat teams with named messaging, multi-model support, and TUI integration
+64	66	54	2026-06-03	closed	https://github.com/odysseus-dev/odysseus/issues/1866	WTF is going on here?
+50	62	9	2026-07-07	open	https://github.com/stablyai/orca/issues/7754	[Feature]: Embedded VSCode editor
+47	61	23	2026-06-03	closed	https://github.com/openai/codex/issues/26227	Persist side chats as child threads attached to the main thread
+34	56	14	2025-07-14	closed	https://github.com/google-gemini/gemini-cli/issues/4168	Feature: Run autonomous background Agents
+50	55	9	2026-04-18	open	https://github.com/microsoft/vscode/issues/311148	Agents App: Support multi-root workspaces with cross-repo change tracking and worktrees
+46	49	12	2026-03-09	open	https://github.com/anthropics/claude-code/issues/32631	[FEATURE] Conversation Branching — full spec for fork, merge, and tree navigation
+45	45	15	2026-05-12	open	https://github.com/anomalyco/opencode/issues/27110	[FEATURE]: Setting to limit max number of parallel subagents
+44	44	9	2026-05-29	open	https://github.com/stablyai/orca/issues/3035	[Feature]: Support LSP and codebase search
+44	44	15	2026-02-18	closed	https://github.com/google-gemini/gemini-cli/issues/19430	Feature Request: Parallel Agent Teams / Multi-Agent Collaboration (like Claude Code Agent Teams)
+36	43	7	2025-09-07	closed	https://github.com/github/spec-kit/issues/61	Add ability to spawn worktree when creating new branch
+43	44	26	2026-02-09	closed	https://github.com/anthropics/claude-code/issues/24317	Frequent re-authentication required with multiple concurrent Claude Code sessions (OAuth refresh token race condition)
+42	42	35	2026-06-07	closed	https://github.com/headroomlabs-ai/headroom/issues/727	[Feature Request] Native integration for Google Antigravity IDE
+35	43	43	2026-02-09	closed	https://github.com/anthropics/claude-code/issues/24316	[FEATURE] Allow custom .claude/agents/ definitions as agent team teammates
+42	42	8	2026-02-20	closed	https://github.com/anthropics/claude-code/issues/27134	[Bug] EnterWorktree creates worktree from default branch instead of HEAD
+24	40	18	2026-05-24	closed	https://github.com/anomalyco/opencode/issues/29059	[FEATURE]: Add Dynamic workflows for repeatable multi-step automation (new Claude Code feature)
+35	38	74	2026-02-15	closed	https://github.com/anomalyco/opencode/issues/13768	This model does not support assistant message prefill / Github Copilot with Opus 4.6
+22	38	26	2026-03-04	closed	https://github.com/NousResearch/hermes-agent/issues/344	Feature: Multi-Agent Architecture — Orchestration, Cooperation, Specialized Roles & Resilient Workflows
+36	37	17	2026-07-22	closed	https://github.com/stablyai/orca/issues/9948	Feature request: Git blame / line annotation in the editor
+34	34	16	2026-02-18	open	https://github.com/anthropics/claude-code/issues/26725	Stale worktrees are never cleaned up
+33	33	6	2026-06-19	open	https://github.com/anthropics/claude-code/issues/69554	[FEATURE] Add --worktree support for parallel sessions in VS Code (same as Agent View in VSCode does)

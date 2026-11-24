@@ -1,0 +1,31 @@
+# repo:anomalyco/opencode is:issue created:>2026-06-01 total=17690
+101	109	52	2026-07-09	closed	https://github.com/anomalyco/opencode/issues/36140	GPT-5.6 Luna returns model not found with ChatGPT OAuth
+84	84	10	2026-06-13	closed	https://github.com/anomalyco/opencode/issues/32157	[FEATURE]:Configurable mid-run prompt delivery: queue vs steer, with compaction-aware steer semantics
+72	82	53	2026-07-15	closed	https://github.com/anomalyco/opencode/issues/37012	[FEATURE] : keep legacy layout option
+70	70	19	2026-06-29	closed	https://github.com/anomalyco/opencode/issues/34498	[FEATURE]:Respect disable-model-invocation: true in SKILL.md frontmatter
+70	70	3	2026-07-22	closed	https://github.com/anomalyco/opencode/issues/38281	[FEATURE]: Add opencode-quota to the ecosystem page
+50	61	7	2026-07-31	closed	https://github.com/anomalyco/opencode/issues/39875	[FEATURE]: Revert silent removal of Go privacy wording and provider attribution, and add telemetry + retention to privacy policy
+57	57	20	2026-07-20	closed	https://github.com/anomalyco/opencode/issues/37852	Aborted provider stream recorded as clean stop (finish=unknown, zero usage, no text) — subagent returns empty with no error
+54	54	13	2026-07-17	open	https://github.com/anomalyco/opencode/issues/37564	[FEATURE]: "Auto mode" LLM model classifier auto-approval for permissions
+51	51	4	2026-06-06	closed	https://github.com/anomalyco/opencode/issues/31122	OMO Harness Stream Consumer Deadlock: LLM stream hangs indefinitely
+45	50	24	2026-07-14	closed	https://github.com/anomalyco/opencode/issues/36942	[FEATURE]: Vertical tabs
+50	50	13	2026-07-23	open	https://github.com/anomalyco/opencode/issues/38528	V2: port LSP and formatter services
+47	47	46	2026-09-14	open	https://github.com/anomalyco/opencode/issues/48882	[FEATURE]: Restore the legacy UI with the persistent left sidebar as an option
+46	46	63	2026-06-25	closed	https://github.com/anomalyco/opencode/issues/33742	OpenCode v1.17.10 crashes with Bun segmentation fault on Windows; v1.17.9 appears stable
+47	47	10	2026-09-13	closed	https://github.com/anomalyco/opencode/issues/48811	macOS: every prompt fails with "undefined is not an object (evaluating 'a.name')"
+30	40	408	2026-10-26	open	https://github.com/anomalyco/opencode/issues/59387	Free tier issues: read this first, then post your report here
+40	40	9	2026-08-17	open	https://github.com/anomalyco/opencode/issues/43039	[FEATURE]:[v2] add no password flag for "opencode2 serve"
+36	37	49	2026-08-26	open	https://github.com/anomalyco/opencode/issues/45278	Payment Declined After 3 Months Despite No Issue With Card or Bank
+30	36	24	2026-07-31	closed	https://github.com/anomalyco/opencode/issues/39823	DeepSeek V4 Flash formal version (0731) — is it already live on OpenCode Go/Zen?
+35	35	9	2026-09-15	closed	https://github.com/anomalyco/opencode/issues/49158	TypeError: undefined is not an object (evaluating 'a.name')"
+30	34	28	2026-07-31	closed	https://github.com/anomalyco/opencode/issues/39845	DeepSeek V4 Flash on suddenly requires "Enable models hosted in China" for OpenCode Go subscription
+33	33	14	2026-09-29	closed	https://github.com/anomalyco/opencode/issues/52184	changelog: v2 releases have no published release notes
+1	32	11	2026-08-12	closed	https://github.com/anomalyco/opencode/issues/42143	Why does Opencode require me to subscribe when your official website states it's 100% free?
+31	32	75	2026-10-17	closed	https://github.com/anomalyco/opencode/issues/56324	Free models fail inside official OpenCode TUI with "free tier can only be used from within OpenCode" (Windows, v2.0.32)
+25	31	37	2026-07-02	closed	https://github.com/anomalyco/opencode/issues/34893	Inference is temporarily unavailable
+31	31	20	2026-07-14	closed	https://github.com/anomalyco/opencode/issues/36936	Desktop: wtf is the new tab layout, tab titles dont fit anymore on screen
+30	30	13	2026-07-31	closed	https://github.com/anomalyco/opencode/issues/39829	[FEATURE]: Support Responses API for deepseek-v4-flash on opencode-go
+28	28	9	2026-07-17	closed	https://github.com/anomalyco/opencode/issues/37546	Web: no way to revert the new layout, and the new layout is missing workspaces/worktrees
+29	29	14	2026-06-30	closed	https://github.com/anomalyco/opencode/issues/34644	GitHub Copilot Free/Student plans (Auto-only) show no models: add github-copilot/auto
+27	28	10	2026-08-21	closed	https://github.com/anomalyco/opencode/issues/43748	config: published schema at opencode.ai/config.json rejects documented V2 fields (skills, mcp.*, permissions)
+25	28	3	2026-08-04	open	https://github.com/anomalyco/opencode/issues/40508	V2 TUI: add native Mermaid and LaTeX rendering

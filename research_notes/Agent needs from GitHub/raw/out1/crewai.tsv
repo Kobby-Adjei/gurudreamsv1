@@ -1,0 +1,31 @@
+# repo:crewAIInc/crewAI is:issue total=3006
+45	58	18	2024-05-21	closed	https://github.com/crewAIInc/crewAI/issues/658	CrewAI framework in Typescript ? 🙊 
+40	40	44	2024-12-28	closed	https://github.com/crewAIInc/crewAI/issues/1813	[FEATURE] Agents can discover & use tools/resources hosted on Model Context Protocol (MCP) Server
+23	23	29	2024-01-15	closed	https://github.com/crewAIInc/crewAI/issues/141	How About a UI
+20	20	27	2024-01-28	closed	https://github.com/crewAIInc/crewAI/issues/195	Async Tool Support
+10	15	2	2024-02-01	closed	https://github.com/crewAIInc/crewAI/issues/204	LangGraph Integration
+15	15	22	2023-12-27	closed	https://github.com/crewAIInc/crewAI/issues/18	Possible to add RAG and small GUI?
+14	14	6	2024-02-01	closed	https://github.com/crewAIInc/crewAI/issues/203	How can we pass the pandas dataframe among the agents?
+12	12	24	2024-03-23	closed	https://github.com/crewAIInc/crewAI/issues/372	Can I disable anonymous telemetry ? 
+13	13	18	2024-03-04	closed	https://github.com/crewAIInc/crewAI/issues/308	Pydantic error in v0.19
+12	12	7	2024-12-19	closed	https://github.com/crewAIInc/crewAI/issues/1785	[FEATURE] Streaming response
+5	11	17	2024-03-18	closed	https://github.com/crewAIInc/crewAI/issues/358	"Action don't exist" when using Ollama.
+11	11	9	2024-03-04	closed	https://github.com/crewAIInc/crewAI/issues/307	Can we stream output from crew.kickoff() to chainlit app?
+10	10	21	2024-12-11	closed	https://github.com/crewAIInc/crewAI/issues/1744	[BUG] Arguments validation failed: 2 validation errors for DelegateWorkToolSchema
+10	10	11	2024-01-16	closed	https://github.com/crewAIInc/crewAI/issues/146	Feature Request: End-to-End Logging Including Intermediate Steps in crewAI
+10	10	24	2024-04-07	closed	https://github.com/crewAIInc/crewAI/issues/439	ollama not in embedder provider list 
+3	9	4	2024-01-13	closed	https://github.com/crewAIInc/crewAI/issues/125	Autogenerate agents and tasks
+0	9	3	2024-01-12	closed	https://github.com/crewAIInc/crewAI/issues/114	Add multimodal support
+9	9	18	2024-05-21	closed	https://github.com/crewAIInc/crewAI/issues/668	encountered an error while trying to use the tool. This was the error: 'NoneType' object has no attribute 'startswith'
+9	9	6	2024-02-29	closed	https://github.com/crewAIInc/crewAI/issues/294	Support Pydantic @Field properties in custom tool definitions
+8	8	2	2024-03-06	closed	https://github.com/crewAIInc/crewAI/issues/321	Give crew manager a backstory
+8	8	3	2024-01-07	closed	https://github.com/crewAIInc/crewAI/issues/74	Two new Wiki addition suggestions. Configuring with LLM providers and Local model quality/experiences.
+0	8	18	2024-07-12	closed	https://github.com/crewAIInc/crewAI/issues/924	Call Tool Error: StructuredTool._run() missing 1 required
+7	7	2	2023-12-29	closed	https://github.com/crewAIInc/crewAI/issues/22	Successful implementation of D & D host and player game
+7	7	2	2024-05-21	closed	https://github.com/crewAIInc/crewAI/issues/664	[Bugfix] Embedchain RagTools configuration from CrewAI - Ollama provider doesn't work with RagTools adapted from embedchain
+7	7	4	2024-07-14	closed	https://github.com/crewAIInc/crewAI/issues/933	[Improvement] Token Usage Metrics for Each Task
+7	7	37	2024-11-27	closed	https://github.com/crewAIInc/crewAI/issues/1669	[BUG] Memory Rag Storage Issue
+6	6	1	2024-01-21	closed	https://github.com/crewAIInc/crewAI/issues/167	Adding parallel processing
+6	6	6	2024-01-21	closed	https://github.com/crewAIInc/crewAI/issues/169	Agent output streams
+6	6	2	2024-01-28	closed	https://github.com/crewAIInc/crewAI/issues/192	How to set max tokens limitations for agents
+6	6	12	2024-05-15	closed	https://github.com/crewAIInc/crewAI/issues/620	Error "Co-worker mentioned not found..." when using with local llama3

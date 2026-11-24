@@ -1,0 +1,10 @@
+baseline_bug|||in:title bug is:issue
+subagent|||in:title subagent OR sub-agent OR subagents is:issue
+multiagent|||in:title multi-agent OR "multiple agents" is:issue
+worktree|||in:title worktree OR worktrees is:issue
+agent_team|||in:title "agent team" OR "agent teams" is:issue
+a2a|||in:title a2a OR "agent-to-agent" is:issue
+agent_memory|||in:title "agent memory" OR "persistent memory" is:issue
+mcp|||in:title mcp is:issue
+agents_md|||in:title AGENTS.md is:issue
+skills|||in:title SKILL.md OR "agent skills" is:issue

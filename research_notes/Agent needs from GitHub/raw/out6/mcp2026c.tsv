@@ -1,0 +1,31 @@
+# org:modelcontextprotocol is:issue created:>2026-01-01 total=5395
+0	0	91	2026-09-27	open	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/3394	Lost-response retry on a mutating `tools/call` re-executes external effects — reproduction evidence and a spec-clarification question
+2	2	30	2026-10-16	open	https://github.com/modelcontextprotocol/financial-services-interest-group/issues/17	Outline for review: a tool-call audit record a regulator can verify (Regulatory audit & attestation)
+9	12	26	2026-05-27	open	https://github.com/modelcontextprotocol/ext-apps/issues/671	Bug Report: MCP Apps UI Resource Not Rendering in Claude Desktop / claude.ai
+0	0	26	2026-04-21	closed	https://github.com/modelcontextprotocol/go-sdk/issues/901	Proposal: Client API support for saving and restoring OAuth2 sessions
+0	0	26	2026-10-24	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/3452	SEP: Mandatory tool definition integrity — description pinning and content validation
+1	1	26	2026-01-26	closed	https://github.com/modelcontextprotocol/inspector/issues/1041	Add MCP Apps support
+0	0	25	2026-10-13	open	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/3431	Docs: quickstart MCP configs use unpinned `npx -y`, contradicting the Local Server Security guide
+0	0	24	2026-06-03	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/2852	Example pattern for scoped execution receipts on high-risk provider tools
+0	0	23	2026-09-06	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/3350	SEP submission: Tool Outcome Attestation extension (dev.agentstatus/toa)
+0	1	23	2026-05-06	closed	https://github.com/modelcontextprotocol/servers/issues/4117	memory: safer persistence defaults, atomic writes, quotas, redaction, and destructive-operation guardrails
+0	0	22	2026-05-12	closed	https://github.com/modelcontextprotocol/go-sdk/issues/954	Allow registration of custom JSON-RPC methods
+1	1	20	2026-03-12	closed	https://github.com/modelcontextprotocol/servers/issues/3537	Security Audit: Unconstrained string parameters across all official servers
+0	0	19	2026-10-18	closed	https://github.com/modelcontextprotocol/registry/issues/1715	Feature request: re-check published entries periodically (more than 1 in 8 have a problem the registry doesn't catch)
+0	0	19	2026-10-15	closed	https://github.com/modelcontextprotocol/registry/issues/1712	Data: 52 of 109 latest-version servers do not complete an anonymous MCP handshake, and 33 of those refusals return a body a JSON-RPC client cannot branch on
+0	0	19	2026-11-01	open	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/3492	Tool annotations: the spec does not say how the untrusted-annotations rule applies to clients that force a tool call
+0	0	19	2026-05-14	closed	https://github.com/modelcontextprotocol/servers/issues/4162	filesystem: recursive search can hang on macOS CloudStorage / lazy provider paths
+0	0	18	2026-04-08	closed	https://github.com/modelcontextprotocol/csharp-sdk/issues/1508	Dotnet implementation silently drop parameters not used by tool during tool execution
+0	0	16	2026-09-10	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/3354	SEP Extension proposal: verifiable tool results(Verifiable MCP) — ZK proofs / TEE attestations attached to `tools/call` results (working reference implementation, pre-SEP feedback)
+0	0	17	2026-04-09	open	https://github.com/modelcontextprotocol/python-sdk/issues/2416	Bug: AssertionError: Request already responded to — cancellation race in v1.27.0
+1	2	17	2026-01-30	closed	https://github.com/modelcontextprotocol/csharp-sdk/issues/1228	Resources/read does not return content, specified by [McpMeta] attribute, resources/list does
+1	1	16	2026-06-02	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/2842	SEP-2575 Regression: security gap around server identity being completely optional
+0	0	16	2026-05-05	open	https://github.com/modelcontextprotocol/agents-ig/issues/7	Agents as MCP Clients
+4	4	16	2026-02-01	closed	https://github.com/modelcontextprotocol/servers/issues/3281	Filesystem extension: Frequent timeout or outright failures since claude desktop 1.1.1520
+0	0	15	2026-04-04	closed	https://github.com/modelcontextprotocol/java-sdk/issues/902	Stabilize flaky test: McpCompletionTests.testCompletionErrorOnMissingContext
+0	0	15	2026-06-08	open	https://github.com/modelcontextprotocol/transports-wg/issues/36	Exploring the Future of "Sessions" (Thread IDs / Conversation IDs)
+0	0	15	2026-08-16	closed	https://github.com/modelcontextprotocol/inspector/issues/2028	Inspector times out when FastMCP tool emits ctx.info/ctx.report_progress (v2.2.0, LEGACY/STDIO)
+8	8	14	2026-05-27	open	https://github.com/modelcontextprotocol/ext-apps/issues/674	Set up public MCP Apps platform tests
+1	1	14	2026-07-16	closed	https://github.com/modelcontextprotocol/registry/issues/1453	feat: search should also match against server description field
+4	4	14	2026-07-20	open	https://github.com/modelcontextprotocol/registry/issues/1468	Unable to publish under GitHub organisation namespace despite organisation ownership
+0	0	13	2026-08-11	closed	https://github.com/modelcontextprotocol/modelcontextprotocol/issues/3229	RFC: Native Token Metering, Session Budgets, and Payment Tracking (`x402`) for MCP

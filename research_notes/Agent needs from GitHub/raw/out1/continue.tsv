@@ -1,0 +1,31 @@
+# repo:continuedev/continue is:issue total=6767
+245	245	38	2024-03-03	open	https://github.com/continuedev/continue/issues/917	Neovim support needed
+108	115	45	2024-01-17	open	https://github.com/continuedev/continue/issues/759	Visual Studio (not Code) Continue extension?
+24	51	23	2024-06-05	closed	https://github.com/continuedev/continue/issues/1424	Auto Generate Commit Messages
+42	45	75	2024-06-10	closed	https://github.com/continuedev/continue/issues/1463	Jupyter Notebooks in VSCode become unresponsive because the kernel gets disposed erroneously
+30	32	18	2023-09-01	closed	https://github.com/continuedev/continue/issues/440	Feature Request: Github Copilot code completions
+29	32	26	2024-07-12	open	https://github.com/continuedev/continue/issues/1729	storing api keys in plain text
+27	31	29	2025-07-14	closed	https://github.com/continuedev/continue/issues/6612	Visual Studio Code extension keeps crashing since update to 1.0.18
+30	30	13	2024-08-21	closed	https://github.com/continuedev/continue/issues/2061	IntelliJ: Unable to enable "Full line code completion" with disabled "Tab Autocomplete"
+23	29	14	2025-01-23	closed	https://github.com/continuedev/continue/issues/3832	Support `<think />` tags from R1
+25	25	7	2025-01-19	closed	https://github.com/continuedev/continue/issues/3768	Feature Request: Automatic File Creation/Editing
+18	24	4	2024-10-30	closed	https://github.com/continuedev/continue/issues/2742	🚀 [RFC] Tab Autoediting
+23	24	2	2024-06-07	open	https://github.com/continuedev/continue/issues/1440	Support Sublime Text
+23	23	10	2023-10-16	closed	https://github.com/continuedev/continue/issues/558	Migrate `~/.continue/config.py` to XDG_CONFIG_HOME or `~/.config/continue/config.py`
+23	23	9	2026-06-28	open	https://github.com/continuedev/continue/issues/12912	Continue chat pane sizing error
+22	22	13	2025-04-08	closed	https://github.com/continuedev/continue/issues/5044	Support of "Agents" for models with "openai" provider
+12	22	48	2024-12-15	closed	https://github.com/continuedev/continue/issues/3378	OpenRouter chat doesn't work with some providers/models
+20	20	15	2025-04-15	closed	https://github.com/continuedev/continue/issues/5182	Agent doesn't support LM Studio
+14	19	5	2024-04-15	closed	https://github.com/continuedev/continue/issues/1123	Support all credential sources for AWS Bedrock
+19	19	4	2024-04-23	closed	https://github.com/continuedev/continue/issues/1173	Support OAuth 2.0 Authorization Code Flow
+19	19	7	2025-02-25	closed	https://github.com/continuedev/continue/issues/4354	Add next edit prediction for autocomplete
+19	19	10	2025-07-19	closed	https://github.com/continuedev/continue/issues/6716	Add Support for Agent Rules Standard via Root AGENTS.md File for Unified AI Coding Guidelines
+17	17	12	2025-04-28	closed	https://github.com/continuedev/continue/issues/5397	Default Linux Config Directory Should Be .config/continue
+16	17	18	2024-08-29	closed	https://github.com/continuedev/continue/issues/2129	[CON-263] Unable to use @codebase search with continue.dev in vscode
+17	17	67	2025-10-03	closed	https://github.com/continuedev/continue/issues/8085	[JetBrains] Sidebar panel frequently freezes across all OS'
+17	17	32	2025-03-24	open	https://github.com/continuedev/continue/issues/4791	NPX not available to start MCP server, but available in VSCode Terminal
+17	17	11	2025-06-24	closed	https://github.com/continuedev/continue/issues/6282	Implement MCP OAuth (Authorization)
+17	17	16	2025-09-03	closed	https://github.com/continuedev/continue/issues/7544	Error streaming edit diffs: Token limit reached. File/range likely too large for this edit
+16	16	19	2024-06-12	closed	https://github.com/continuedev/continue/issues/1474	VScode SSL self signed issue 
+15	15	17	2024-06-09	closed	https://github.com/continuedev/continue/issues/1450	/commit and @diff do not work on remote repository accessed via Remote-SSH VSCode plugin
+15	15	10	2024-11-06	closed	https://github.com/continuedev/continue/issues/2822	Git Diff always returns no changes on WSL

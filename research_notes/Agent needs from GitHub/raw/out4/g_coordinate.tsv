@@ -1,0 +1,31 @@
+# "agents coordinate" is:issue total=24160
+5197	6696	409	2025-08-21	closed	https://github.com/anthropics/claude-code/issues/6235	Feature Request: Support AGENTS.md.
+525	689	76	2025-08-09	closed	https://github.com/openai/codex/issues/2109	Event Hooks
+498	656	38	2026-03-05	open	https://github.com/anthropics/claude-code/issues/31005	Support for AGENTS.md and .agents/skills/, the community has been asking since August 2025
+411	544	59	2026-01-14	closed	https://github.com/openai/codex/issues/9224	Codex Remote Control
+119	190	36	2026-02-08	closed	https://github.com/anomalyco/opencode/issues/12661	[FEATURE]: Add Agent Teams Equivalent or Better
+74	156	270	2023-04-01	closed	https://github.com/Significant-Gravitas/AutoGPT/issues/15	Auto-GPT Recursive Self Improvement
+50	150	46	2025-07-03	open	https://github.com/google-gemini/gemini-cli/issues/3132	[Agents] Post V1.0 Work
+94	115	24	2026-02-05	open	https://github.com/obra/superpowers/issues/429	Support for Claude Code Agent Teams (TeammateTool, SendMessage, TaskList)
+85	97	108	2026-04-01	closed	https://github.com/anthropics/claude-code/issues/41930	[BUG] Critical: Widespread abnormal usage limit drain across all paid tiers since March 23, 2026 — multiple root causes identified, no formal communication issued
+86	86	60	2026-04-01	open	https://github.com/anthropics/claude-code/issues/41788	Max 20 plan: rate limit 100% exhausted within ~70 minutes after reset (never happened before v2.1.89)
+77	84	19	2025-10-17	closed	https://github.com/openai/codex/issues/5291	Support for SKILL.md files
+58	80	6	2025-08-27	open	https://github.com/aws/amazon-q-developer-cli/issues/2703	Feature request: support ACP (Agent Client Protocol)
+52	68	1909	2018-09-01	open	https://github.com/fly51fly/aicoco/issues/3	爱可可老师24小时热门分享
+24	74	16	2026-02-08	closed	https://github.com/anomalyco/opencode/issues/12711	[DESIGN]: Agent Teams — flat teams with named messaging, multi-model support, and TUI integration
+66	66	89	2026-01-01	open	https://github.com/openai/codex/issues/8648	Codex replies to earlier messages instead of latest one in conversations
+29	53	25	2026-03-06	closed	https://github.com/NousResearch/hermes-agent/issues/514	Feature: A2A (Agent-to-Agent) Protocol Support — Remote Agent Discovery, Communication & Interoperability
+46	49	12	2026-03-09	open	https://github.com/anthropics/claude-code/issues/32631	[FEATURE] Conversation Branching — full spec for fork, merge, and tree navigation
+48	48	15	2025-04-27	open	https://github.com/spring-projects/spring-ai/issues/2911	Support A2A Protocol
+45	48	20	2018-03-10	open	https://github.com/ValdikSS/GoodbyeDPI/issues/62	[Feature Request] A Linux version
+41	44	10	2025-09-20	closed	https://github.com/github/spec-kit/issues/377	Multi agent in one project.
+44	44	9	2026-05-29	open	https://github.com/stablyai/orca/issues/3035	[Feature]: Support LSP and codebase search
+44	44	15	2026-02-18	closed	https://github.com/google-gemini/gemini-cli/issues/19430	Feature Request: Parallel Agent Teams / Multi-Agent Collaboration (like Claude Code Agent Teams)
+43	43	7	2026-05-29	open	https://github.com/microsoft/vscode/issues/318936	Feature Request: Agent mode should support working across multiple workspace folders simultaneously
+35	43	43	2026-02-09	closed	https://github.com/anthropics/claude-code/issues/24316	[FEATURE] Allow custom .claude/agents/ definitions as agent team teammates
+22	39	7	2026-07-24	open	https://github.com/podman-container-tools/podman/issues/29265	LFX Mentorship Program: Agentic CI Flake Categorization and Analysis
+22	38	26	2026-03-04	closed	https://github.com/NousResearch/hermes-agent/issues/344	Feature: Multi-Agent Architecture — Orchestration, Cooperation, Specialized Roles & Resilient Workflows
+8	37	8	2026-03-31	closed	https://github.com/ultraworkers/claw-code/issues/47	The Entire Claude Code Architecture
+10	28	852	2026-03-15	closed	https://github.com/Scottcjn/rustchain-bounties/issues/2103	[BOUNTY] Star & Follow — Earn RTC (Ongoing, Agents Welcome)
+33	33	26	2026-02-06	open	https://github.com/anthropics/claude-code/issues/23669	Agent Teams: support per-teammate working directory, CLAUDE.md, and MCP configs
+28	32	12	2026-03-12	closed	https://github.com/zed-industries/zed/issues/51426	Parallel Agent Execution in Zed

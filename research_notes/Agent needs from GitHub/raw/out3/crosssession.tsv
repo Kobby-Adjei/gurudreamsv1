@@ -1,0 +1,31 @@
+# repo:anthropics/claude-code repo:openai/codex repo:google-gemini/gemini-cli repo:anomalyco/opencode repo:openclaw/openclaw repo:cline/cline repo:OpenHands/OpenHands repo:continuedev/continue repo:Aider-AI/aider is:issue in:title "across sessions" total=541
+172	178	94	2026-07-02	closed	https://github.com/anthropics/claude-code/issues/73365	[BUG] Advisor always "unavailable" with Fable 5 advisor (Opus 4.8 main) across all sessions (v2.1.198)
+70	70	33	2026-01-25	closed	https://github.com/anthropics/claude-code/issues/20745	Model setting changes globally across all sessions (regression)
+52	52	28	2026-04-10	closed	https://github.com/anthropics/claude-code/issues/46445	/continue and /resume show all sessions across projects instead of current project only (regression in 2.1.101)
+30	44	1	2026-05-22	open	https://github.com/anthropics/claude-code/issues/61462	[MODEL] Repetitive "belt-and-suspenders" idiom across unrelated sessions
+34	34	6	2026-04-01	open	https://github.com/anthropics/claude-code/issues/42050	Unified sessions, settings & projects across Desktop, Mobile and CLI
+30	33	11	2026-03-30	closed	https://github.com/anomalyco/opencode/issues/20066	[FEATURE]: Make Allow always permission option persist across sessions
+28	28	7	2026-03-13	open	https://github.com/anthropics/claude-code/issues/34121	[Feature Request] Persist prompt color across sessions via settings.json
+15	28	9	2026-04-18	open	https://github.com/anthropics/claude-code/issues/50513	[MODEL] Complex engineering behavior regression across sessions; request RCA and auditability guarantees
+21	21	18	2026-04-16	closed	https://github.com/anthropics/claude-code/issues/49166	[BUG] /effort is global across concurrent sessions instead of session-scoped
+19	20	6	2026-03-13	closed	https://github.com/anthropics/claude-code/issues/34171	Allow persisting thinking effort level across sessions
+20	20	8	2025-08-12	closed	https://github.com/anomalyco/opencode/issues/1877	Support a root folder for aggregating sessions across subdirectories in Opencode
+17	17	21	2025-07-16	closed	https://github.com/google-gemini/gemini-cli/issues/4340	"Always Approve" Tool Permission Not Persisting Across Terminal Sessions
+15	15	3	2026-03-16	closed	https://github.com/anomalyco/opencode/issues/17842	[FEATURE]: Add --all flag to /sessions command to view sessions across all projects
+9	10	16	2026-06-09	open	https://github.com/anthropics/claude-code/issues/66540	[Bug] Windows: terminal/cmd windows flash on every subprocess spawn across multiple CCD sessions
+9	10	19	2026-05-01	closed	https://github.com/anthropics/claude-code/issues/55404	[BUG] Cowork desktop app — bash workspace fails to start repeatedly across sessions
+10	10	16	2025-08-29	closed	https://github.com/anthropics/claude-code/issues/6823	[BUG] Claude CLI 1.0.96 randomly/predictably freezes on Windows - affects all commands, persists across sessions
+9	9	9	2026-04-26	closed	https://github.com/anthropics/claude-code/issues/53416	/effort setting is global across sessions instead of per-session
+8	9	8	2026-05-29	closed	https://github.com/anthropics/claude-code/issues/63463	[BUG] Unrecoverable `400 … thinking/redacted_thinking blocks … cannot be modified` permanently bricks a session — reproduced across two independent sessions (v2.1.154)
+7	8	6	2026-09-11	open	https://github.com/anomalyco/opencode/issues/48456	permissions: V2 “Always allow” silently overrides configured “ask” across future project sessions
+6	8	13	2026-07-11	closed	https://github.com/anthropics/claude-code/issues/76577	[FEATURE] Persist Transcript view mode (Desktop) across sessions
+8	8	14	2026-04-14	closed	https://github.com/anthropics/claude-code/issues/47926	[FEATURE] Allow resuming Claude Code sessions across devices
+7	7	6	2026-04-03	closed	https://github.com/anthropics/claude-code/issues/43322	effortLevel "max" in settings.json does not persist across sessions
+7	7	5	2026-04-12	closed	https://github.com/anthropics/claude-code/issues/46935	[MODEL] Quantified evidence: Sonnet 4.6 quality regression since March 9 — 1400+ frustration events across 50 sessions
+6	6	7	2026-04-15	closed	https://github.com/anthropics/claude-code/issues/48442	[BUG] Persistent AUP false positives — 40+ per 4 sessions, across unrelated projects (psychology book, web app, infra, bot)
+6	6	9	2025-12-12	closed	https://github.com/anthropics/claude-code/issues/13768	[BUG] Thinking mode setting in settings.json not persisted across sessions
+5	5	9	2026-06-03	closed	https://github.com/anthropics/claude-code/issues/65177	Web (claude.ai/code): session groups don't persist across environments/devices — sessions appear "Ungrouped"
+5	5	2	2026-05-16	closed	https://github.com/openai/codex/issues/23018	CLI remote compaction loops with 400 invalid_enum for `context_compaction`, consuming quota  across sessions
+5	5	8	2026-02-09	closed	https://github.com/anthropics/claude-code/issues/24381	[BUG] Permission preferences not persisting across sessions
+5	5	5	2026-02-09	closed	https://github.com/anthropics/claude-code/issues/24433	[BUG] Claude Desktop Cowork: "Always allow" for MCP tools does not persist across sessions
+4	4	2	2026-10-13	open	https://github.com/openai/codex/issues/53547	Daemon server leaks environment variables across sessions
